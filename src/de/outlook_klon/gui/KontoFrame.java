@@ -4,18 +4,13 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.JFrame;
-import javax.swing.GroupLayout;
-import javax.swing.GroupLayout.Alignment;
 import javax.swing.JTextField;
-import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.JLabel;
 import javax.swing.JPasswordField;
 import javax.swing.JPanel;
 import javax.swing.JComboBox;
 import javax.swing.JSpinner;
 import javax.swing.JButton;
-import javax.swing.SwingConstants;
-import java.awt.Component;
 
 public class KontoFrame extends JFrame implements ActionListener {
 	private static final long serialVersionUID = -8114432074006047938L;
