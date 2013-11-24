@@ -19,10 +19,12 @@ import javax.swing.JMenuItem;
 import javax.swing.JToolBar;
 import javax.swing.JButton;
 
+import de.outlook_klon.logik.mailclient.MailAccount;
+
 public class MailFrame extends JFrame implements ActionListener {
 	private static final long serialVersionUID = 5976953616015664148L;
 	
-	private JComboBox cBSender;
+	private JComboBox<MailAccount> cBSender;
 	private JTextField tTo;
 	private JTextField tCC;
 	private JTextField tSubject;
@@ -42,7 +44,7 @@ public class MailFrame extends JFrame implements ActionListener {
 		JLabel lCC = new JLabel("CC:");
 		JLabel lSubject = new JLabel("Betreff:");
 		
-		cBSender = new JComboBox();
+		cBSender = new JComboBox<MailAccount>();
 		
 		tTo = new JTextField();
 		tTo.setColumns(10);
