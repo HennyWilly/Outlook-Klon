@@ -1,4 +1,4 @@
-//Hallihallo
+//Hallihallochen
 package de.outlook_klon.gui;
 
 import java.awt.event.ActionEvent;
