@@ -12,16 +12,12 @@ public enum Verbindungssicherheit {
 	NONE,
 	
 	/**
-	 * Verwende SSL als Verschlüsselung
+	 * Verwende SSL/TLS als Verschlüsselung
 	 */
-	SSL,
-	
-	SSL_OPTIONAL,
+	SSL_TLS,
 	
 	/**
-	 * Verwende TLS als Verschlüsselung
+	 * Verwende STARTTLS als Verschlüsselung
 	 */
-	TLS,
-	
-	TLS_OPTIONAL
+	STARTTLS
 }
