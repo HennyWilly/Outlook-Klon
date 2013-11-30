@@ -38,4 +38,12 @@ public class Benutzer implements Iterable<MailAccount> {
 	public Terminkalendar getTermine() {
 		return termine;
 	}
+	
+	public boolean addMailAccount(MailAccount ma) {
+		if(ma == null)
+			return false;
+		
+		konten.add(ma);
+		return true;
+	}
 }
