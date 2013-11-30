@@ -30,7 +30,7 @@ public class MainFrame extends JFrame implements ActionListener, TreeSelectionLi
 	
 	public MainFrame() {
 		
-		JSplitPane splitPane = new JSplitPane();
+		JSplitPane horizontalSplitPane = new JSplitPane();
 		
 		JTree tree = new JTree();
 		tree.setModel(new DefaultTreeModel(
@@ -40,12 +40,12 @@ public class MainFrame extends JFrame implements ActionListener, TreeSelectionLi
 			}
 		));
 		tree.setRootVisible(false);
-		splitPane.setLeftComponent(tree);
+		horizontalSplitPane.setLeftComponent(tree);
 		
-		JSplitPane splitPane_1 = new JSplitPane();
-		splitPane_1.setContinuousLayout(true);
-		splitPane_1.setOrientation(JSplitPane.VERTICAL_SPLIT);
-		splitPane.setRightComponent(splitPane_1);
+		JSplitPane verticalSplitPane = new JSplitPane();
+		verticalSplitPane.setContinuousLayout(true);
+		verticalSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
+		horizontalSplitPane.setRightComponent(verticalSplitPane);
 		
 		tblMails = new JTable();
 		tblMails.setModel(new DefaultTableModel(
@@ -62,18 +62,18 @@ public class MainFrame extends JFrame implements ActionListener, TreeSelectionLi
 				return columnTypes[columnIndex];
 			}
 		});
-		splitPane_1.setLeftComponent(tblMails);
+		verticalSplitPane.setLeftComponent(tblMails);
 		
 		JTextPane tpPreview = new JTextPane();
-		splitPane_1.setRightComponent(tpPreview);
+		verticalSplitPane.setRightComponent(tpPreview);
 		GroupLayout groupLayout = new GroupLayout(getContentPane());
 		groupLayout.setHorizontalGroup(
 			groupLayout.createParallelGroup(Alignment.LEADING)
-				.addComponent(splitPane, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 547, Short.MAX_VALUE)
+				.addComponent(horizontalSplitPane, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 547, Short.MAX_VALUE)
 		);
 		groupLayout.setVerticalGroup(
 			groupLayout.createParallelGroup(Alignment.LEADING)
-				.addComponent(splitPane, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 366, Short.MAX_VALUE)
+				.addComponent(horizontalSplitPane, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 366, Short.MAX_VALUE)
 		);
 		getContentPane().setLayout(groupLayout);
 		
@@ -109,7 +109,20 @@ public class MainFrame extends JFrame implements ActionListener, TreeSelectionLi
 
 		if(sender == mntmEmail) {
 			MailFrame mf = new MailFrame();
+			
+			/*MailAccount ma = new MailAccount(null, 
+			new SmtpServer(
+					new ServerSettings(
+							Hostname,
+							Port,
+							Verbindungssicherheit.STARTTLS,
+							Authentifizierungsart.NORMAL)), 
+			Mail, 
+			User, 
+			Pw);
 
+			mf.addMailAccount(ma);*/
+			
 			mf.setSize(this.getSize());
 			mf.setExtendedState(this.getExtendedState());
 			mf.setVisible(true);
