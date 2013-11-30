@@ -1,6 +1,6 @@
 package de.outlook_klon.logik.mailclient;
 
-import javax.mail.Message;
+import javax.mail.MessagingException;
 
 /**
  * Abstrakte Basisklasse für alle Mailserver, über die Mails gesendet werden können.
@@ -16,7 +16,14 @@ public abstract class SendServer extends MailServer {
 	/**
 	 * Sendet eine E-Mail über den aktuellen Server.
 	 * Die Implementierung des Vorgangs ist vom Serverprotokoll abhängig 
-	 * @param mail Die zu sendende Nachricht
+	 * @param user Benutzername des Senders
+	 * @param pw Passwort des Senders
+	 * @param from E-Mail-Adresse des Senders
+	 * @param to Ziele der Mail
+	 * @param cc CCs der Mail
+	 * @param subject Betreff der Mail
+	 * @param text Text der Mail
+	 * @throws MessagingException Tritt auf, wenn das Senden der Mail fehlschlägt
 	 */
-	public abstract void sendeMail(Message mail);
+	public abstract void sendeMail(String user, String pw, String from, String[] to, String[] cc, String subject, String text) throws MessagingException;
 }
