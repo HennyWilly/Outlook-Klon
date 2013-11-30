@@ -18,6 +18,17 @@ import javax.swing.JMenuItem;
 import javax.swing.JMenu;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
+import javax.swing.JToolBar;
+import javax.swing.LayoutStyle.ComponentPlacement;
+import javax.swing.JButton;
+
+import de.outlook_klon.logik.Benutzer;
+import de.outlook_klon.logik.mailclient.Authentifizierungsart;
+import de.outlook_klon.logik.mailclient.ImapServer;
+import de.outlook_klon.logik.mailclient.MailAccount;
+import de.outlook_klon.logik.mailclient.ServerSettings;
+import de.outlook_klon.logik.mailclient.SmtpServer;
+import de.outlook_klon.logik.mailclient.Verbindungssicherheit;
 
 public class MainFrame extends JFrame implements ActionListener, TreeSelectionListener {
 	private static final long serialVersionUID = 817918826034684858L;
@@ -27,8 +38,34 @@ public class MainFrame extends JFrame implements ActionListener, TreeSelectionLi
     private JMenuItem mntmKontakt;
     private JMenuItem mntmTermin;
     private JMenuItem mntmBeenden;
+    private JButton btnAbrufen;
+    
+    private Benutzer benutzer;
 	
 	public MainFrame() {
+		benutzer = new Benutzer();
+		/*benutzer.addMailAccount(new MailAccount(
+				new ImapServer(
+					new ServerSettings(
+						<Host>, 
+						<Port>, 
+						Verbindungssicherheit.SSL_TLS, 
+						Authentifizierungsart.NORMAL
+					)	
+				),
+				new SmtpServer(
+					new ServerSettings(
+						<Host>,
+						<Port>,
+						Verbindungssicherheit.STARTTLS,
+						Authentifizierungsart.NORMAL
+					)
+				), 
+				<Mail>, 
+				<User>, 
+				<PW>
+			)
+		);*/
 		
 		JSplitPane horizontalSplitPane = new JSplitPane();
 		
@@ -66,14 +103,25 @@ public class MainFrame extends JFrame implements ActionListener, TreeSelectionLi
 		
 		JTextPane tpPreview = new JTextPane();
 		verticalSplitPane.setRightComponent(tpPreview);
+		
+		JToolBar toolBar = new JToolBar();
+		
+		btnAbrufen = new JButton("Abrufen");
+		btnAbrufen.addActionListener(this);
+		toolBar.add(btnAbrufen);
 		GroupLayout groupLayout = new GroupLayout(getContentPane());
 		groupLayout.setHorizontalGroup(
 			groupLayout.createParallelGroup(Alignment.LEADING)
-				.addComponent(horizontalSplitPane, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 547, Short.MAX_VALUE)
+				.addComponent(toolBar, GroupLayout.DEFAULT_SIZE, 547, Short.MAX_VALUE)
+				.addComponent(horizontalSplitPane, GroupLayout.DEFAULT_SIZE, 547, Short.MAX_VALUE)
 		);
 		groupLayout.setVerticalGroup(
 			groupLayout.createParallelGroup(Alignment.LEADING)
-				.addComponent(horizontalSplitPane, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 366, Short.MAX_VALUE)
+				.addGroup(groupLayout.createSequentialGroup()
+					.addComponent(toolBar, GroupLayout.PREFERRED_SIZE, 28, GroupLayout.PREFERRED_SIZE)
+					.addPreferredGap(ComponentPlacement.RELATED)
+					.addComponent(horizontalSplitPane, GroupLayout.DEFAULT_SIZE, 343, Short.MAX_VALUE)
+					.addGap(0))
 		);
 		getContentPane().setLayout(groupLayout);
 		
@@ -107,21 +155,17 @@ public class MainFrame extends JFrame implements ActionListener, TreeSelectionLi
 	public void actionPerformed(ActionEvent arg0) {
 		Object sender = arg0.getSource();
 
-		if(sender == mntmEmail) {
+		if(sender == btnAbrufen) {
+			for(MailAccount ac : benutzer) {
+				ac.getOrdnerstruktur();
+			}
+		}
+		else if(sender == mntmEmail) {
 			MailFrame mf = new MailFrame();
 			
-			/*MailAccount ma = new MailAccount(null, 
-			new SmtpServer(
-					new ServerSettings(
-							Hostname,
-							Port,
-							Verbindungssicherheit.STARTTLS,
-							Authentifizierungsart.NORMAL)), 
-			Mail, 
-			User, 
-			Pw);
-
-			mf.addMailAccount(ma);*/
+			for(MailAccount ac : benutzer) {
+				mf.addMailAccount(ac);
+			}
 			
 			mf.setSize(this.getSize());
 			mf.setExtendedState(this.getExtendedState());
