@@ -1,6 +1,6 @@
 package de.outlook_klon.logik.mailclient;
 
-import javax.mail.Message;
+import javax.mail.MessagingException;
 
 /**
  * Diese Klasse stellt ein Mailkonto dar.
@@ -39,11 +39,19 @@ public class MailAccount {
 	}
 
 	/**
-	 * Sendet eine übergebene Mail über den dem Mailkonto zugeordneten SMTP-Server
-	 * @param mail Zu sendende Mail
+	 * Sendet eine Nachricht an einen Mailserver
+	 * @param to Ziele der Mail
+	 * @param cc CCs der Mail
+	 * @param subject Betreff der Mail
+	 * @param text Text der Mail
 	 */
-	public void sendeMail(Message mail) {
-		outServer.sendeMail(mail);
+	public void sendeMail(String[] to, String[] cc, String subject, String text) {
+		try {
+			outServer.sendeMail(benutzer, passwort, adresse, to, cc, subject, text);
+		} catch (MessagingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
 	public String[] getOrdnerstruktur() {
