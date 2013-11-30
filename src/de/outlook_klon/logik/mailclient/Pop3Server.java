@@ -1,5 +1,8 @@
 package de.outlook_klon.logik.mailclient;
 
+import javax.mail.NoSuchProviderException;
+import javax.mail.Store;
+
 /**
  * Diese Klasse stellt einen POP3-Server dar
  * 
@@ -13,5 +16,11 @@ public class Pop3Server extends EmpfangsServer {
 	 */
 	public Pop3Server(ServerSettings settings) {
 		super(settings);
+	}
+
+	@Override
+	public Store getMailStore(String user, String pw) throws NoSuchProviderException {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }
