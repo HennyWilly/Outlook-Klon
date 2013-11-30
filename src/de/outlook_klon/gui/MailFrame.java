@@ -28,6 +28,10 @@ public class MailFrame extends JFrame implements ActionListener {
 	private JTextField tTo;
 	private JTextField tCC;
 	private JTextField tSubject;
+	private JTextPane tpMailtext;
+	
+	private JButton btnSenden;
+	private JButton btnAnhang;
 
 	public MailFrame() {
 		
@@ -111,7 +115,7 @@ public class MailFrame extends JFrame implements ActionListener {
 		);
 		panel.setLayout(gl_panel);
 		
-		JTextPane tpMailtext = new JTextPane();
+		tpMailtext = new JTextPane();
 		splitPane.setRightComponent(tpMailtext);
 		GroupLayout groupLayout = new GroupLayout(getContentPane());
 		groupLayout.setHorizontalGroup(
@@ -130,11 +134,14 @@ public class MailFrame extends JFrame implements ActionListener {
 					.addComponent(splitPane, GroupLayout.DEFAULT_SIZE, 332, Short.MAX_VALUE))
 		);
 		
-		JButton btnSenden = new JButton("Senden");
+		btnSenden = new JButton("Senden");
 		toolBar.add(btnSenden);
+		btnSenden.addActionListener(this);
 		
-		JButton btnAnhang = new JButton("Anhang");
+		btnAnhang = new JButton("Anhang");
 		toolBar.add(btnAnhang);
+		btnAnhang.addActionListener(this);
+		
 		getContentPane().setLayout(groupLayout);
 		
 		JMenuBar menuBar = new JMenuBar();
@@ -165,9 +172,30 @@ public class MailFrame extends JFrame implements ActionListener {
 		mnEmailFormat.add(mntmHtml);
 	}
 
+	public void addMailAccount(MailAccount ac) {
+		cBSender.addItem(ac);
+		
+		if(cBSender.getSelectedIndex() == -1)
+			cBSender.setSelectedIndex(0);
+	}
+	
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
-		// TODO Auto-generated method stub
+		Object sender = arg0.getSource();
+		
+		if(sender == btnSenden) {
+			sendeMail();
+		}
 
+	}
+	
+	private void sendeMail() {
+		String[] to = tTo.getText().split(",");
+		String[] cc = tCC.getText().split(",");
+		String subject = tSubject.getText();
+		String text = tpMailtext.getText();
+		
+		MailAccount acc = (MailAccount)cBSender.getSelectedItem();
+		acc.sendeMail(to, cc, subject, text);
 	}
 }
