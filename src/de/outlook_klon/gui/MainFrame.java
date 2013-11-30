@@ -6,6 +6,8 @@ import java.awt.event.WindowEvent;
 
 import javax.swing.JFrame;
 import javax.swing.JTree;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.*;
@@ -26,11 +28,12 @@ import de.outlook_klon.logik.Benutzer;
 import de.outlook_klon.logik.mailclient.Authentifizierungsart;
 import de.outlook_klon.logik.mailclient.ImapServer;
 import de.outlook_klon.logik.mailclient.MailAccount;
+import de.outlook_klon.logik.mailclient.MailInfo;
 import de.outlook_klon.logik.mailclient.ServerSettings;
 import de.outlook_klon.logik.mailclient.SmtpServer;
 import de.outlook_klon.logik.mailclient.Verbindungssicherheit;
 
-public class MainFrame extends JFrame implements ActionListener, TreeSelectionListener {
+public class MainFrame extends JFrame implements ActionListener, TreeSelectionListener, ListSelectionListener {
 	private static final long serialVersionUID = 817918826034684858L;
 	
 	private JTable tblMails;
@@ -39,16 +42,20 @@ public class MainFrame extends JFrame implements ActionListener, TreeSelectionLi
     private JMenuItem mntmTermin;
     private JMenuItem mntmBeenden;
     private JButton btnAbrufen;
+    private JTree tree;
+    private JTextPane tpPreview;
     
     private Benutzer benutzer;
 	
 	public MainFrame() {
 		benutzer = new Benutzer();
-		/*benutzer.addMailAccount(new MailAccount(
+		/*
+		benutzer.addMailAccount(
+		  	new MailAccount(
 				new ImapServer(
 					new ServerSettings(
-						<Host>, 
-						<Port>, 
+					<Host>, 
+					<Port>, 
 						Verbindungssicherheit.SSL_TLS, 
 						Authentifizierungsart.NORMAL
 					)	
@@ -65,18 +72,20 @@ public class MainFrame extends JFrame implements ActionListener, TreeSelectionLi
 				<User>, 
 				<PW>
 			)
-		);*/
+		);
+		*/
 		
 		JSplitPane horizontalSplitPane = new JSplitPane();
 		
-		JTree tree = new JTree();
-		tree.setModel(new DefaultTreeModel(
-			new DefaultMutableTreeNode("[root]") {
-				{
-				}
-			}
-		));
+		DefaultMutableTreeNode root = new DefaultMutableTreeNode("[root]");
+		tree = new JTree();
 		tree.setRootVisible(false);
+		tree.setEditable(true);
+		tree.setModel(new DefaultTreeModel(root));
+		tree.expandPath(new TreePath(root.getPath()));
+		ladeOrdner();
+		tree.addTreeSelectionListener(this);
+		
 		horizontalSplitPane.setLeftComponent(tree);
 		
 		JSplitPane verticalSplitPane = new JSplitPane();
@@ -84,24 +93,36 @@ public class MainFrame extends JFrame implements ActionListener, TreeSelectionLi
 		verticalSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
 		horizontalSplitPane.setRightComponent(verticalSplitPane);
 		
-		tblMails = new JTable();
+		tblMails = new JTable() {
+			private static final long serialVersionUID = 1L;
+
+			public boolean isCellEditable(int row, int column) {                
+	                return false;               
+	        };
+	    };
 		tblMails.setModel(new DefaultTableModel(
 			new Object[][] {
 			},
 			new String[] {
-				"Betreff", "Von", "Datum"
+				"ID", "Betreff", "Von", "Datum"
 			}
 		) {
-			Class[] columnTypes = new Class[] {
-				String.class, String.class, String.class
+			private static final long serialVersionUID = 1L;
+			Class<?>[] columnTypes = new Class<?>[] {
+				String.class, String.class, String.class, String.class
 			};
-			public Class getColumnClass(int columnIndex) {
+			public Class<?> getColumnClass(int columnIndex) {
 				return columnTypes[columnIndex];
 			}
 		});
+		tblMails.removeColumn(tblMails.getColumn("ID"));
+		
+		tblMails.getColumnModel().getColumn(0).setResizable(false);
+		tblMails.getColumnModel().getColumn(0).setPreferredWidth(19);
+		tblMails.getColumnModel().getSelectionModel().addListSelectionListener(this);
 		verticalSplitPane.setLeftComponent(tblMails);
 		
-		JTextPane tpPreview = new JTextPane();
+		tpPreview = new JTextPane();
 		verticalSplitPane.setRightComponent(tpPreview);
 		
 		JToolBar toolBar = new JToolBar();
@@ -150,15 +171,73 @@ public class MainFrame extends JFrame implements ActionListener, TreeSelectionLi
 		mntmBeenden.addActionListener(this);
 		mndatei.add(mntmBeenden);
 	}
+	
+	private void pfadZuNode(String pfad, DefaultMutableTreeNode parent) {
+		String name = null;
+		
+		if(pfad.contains("/")) {
+			DefaultMutableTreeNode pfadKnoten = null;
+			name = pfad.substring(0, pfad.indexOf("/"));
+			
+			for(int j = 0; j < parent.getChildCount(); j++) {
+				DefaultMutableTreeNode child = (DefaultMutableTreeNode) parent.getChildAt(j);
+				if(child.getUserObject().equals(name)) {
+					pfadKnoten = child;
+					break;
+				}
+			}
+			
+			if(pfadKnoten == null)
+				pfadKnoten = new DefaultMutableTreeNode(name);
+			
+			pfadZuNode(pfad.substring(pfad.indexOf("/") + 1), pfadKnoten);
+		}
+		else {
+			name = pfad;
+			parent.add(new DefaultMutableTreeNode(name));
+		}	
+	}
+	
+	private void ladeOrdner() {
+		DefaultTreeModel treeModel = (DefaultTreeModel)tree.getModel();
+		DefaultMutableTreeNode rootNode = (DefaultMutableTreeNode)tree.getModel().getRoot();
+		
+		int i = 0;
+		for(MailAccount acc : benutzer) {
+			DefaultMutableTreeNode accNode = new DefaultMutableTreeNode(acc);
+			String[] ordner = acc.getOrdnerstruktur();
+			
+			for(int j = 0; j < ordner.length; j++) {
+				pfadZuNode(ordner[j], accNode);
+			}
+			
+			treeModel.insertNodeInto(accNode, rootNode, i);
+			i++;
+		}
+		
+		if(rootNode.getChildCount() != 0) {
+			tree.setRootVisible(true);
+			tree.expandPath(new TreePath(rootNode));
+			tree.setRootVisible(false);
+		}
+	}
+	
+	private void ladeMails(MailAccount ac, String pfad) {
+		MailInfo[] messages = ac.getMessages(pfad);
+		
+		DefaultTableModel model = (DefaultTableModel)tblMails.getModel();
+		model.setRowCount(0);
+		for(MailInfo info : messages) {
+			model.addRow(new Object[] {info.getID(), info.getSubject(), info.getSender(), info.getDate()});
+		}
+	}
 
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
 		Object sender = arg0.getSource();
 
 		if(sender == btnAbrufen) {
-			for(MailAccount ac : benutzer) {
-				ac.getOrdnerstruktur();
-			}
+			
 		}
 		else if(sender == mntmEmail) {
 			MailFrame mf = new MailFrame();
@@ -189,7 +268,51 @@ public class MainFrame extends JFrame implements ActionListener, TreeSelectionLi
 
 	@Override
 	public void valueChanged(TreeSelectionEvent e) {
-		TreePath path = e.getPath();
+		DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode)tree.getLastSelectedPathComponent();
+		TreeNode[] path = selectedNode.getPath();
+		
+		if(path.length > 2) {
+			DefaultMutableTreeNode mutableNode = (DefaultMutableTreeNode)path[1];
+			MailAccount account = (MailAccount)mutableNode.getUserObject();
+			
+			String strPfad = "";
+			for(int i = 2; i < path.length; i++) {
+				strPfad += path[i].toString();
+				
+				if(i != path.length - 1)
+					strPfad += "/";
+			}
+			
+			ladeMails(account, strPfad);
+		}
+		else {
+			DefaultTableModel model = (DefaultTableModel)tblMails.getModel();
+			model.setRowCount(0);
+		}
+			
+	}
+
+	@Override
+	public void valueChanged(ListSelectionEvent e) {
+		int zeile = e.getFirstIndex();
+		String id = tblMails.getModel().getValueAt(zeile, 0).toString();
+		
+		DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode)tree.getLastSelectedPathComponent();
+		TreeNode[] path = selectedNode.getPath();
+		
+		DefaultMutableTreeNode mutableNode = (DefaultMutableTreeNode)path[1];
+		MailAccount account = (MailAccount)mutableNode.getUserObject();
+		
+		String strPfad = "";
+		for(int i = 2; i < path.length; i++) {
+			strPfad += path[i].toString();
+			
+			if(i != path.length - 1)
+				strPfad += "/";
+		}
+		
+		String text = account.getMessageText(strPfad, id);
+		tpPreview.setText(text);
 	}
 
 	public static void main(String[] args) {
