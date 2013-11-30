@@ -1,8 +1,12 @@
 package de.outlook_klon.logik.mailclient;
 
+import javax.mail.BodyPart;
 import javax.mail.Folder;
+import javax.mail.Message;
 import javax.mail.MessagingException;
+import javax.mail.Multipart;
 import javax.mail.Store;
+import javax.mail.search.MessageIDTerm;
 
 /**
  * Diese Klasse stellt ein Mailkonto dar.
@@ -79,5 +83,65 @@ public class MailAccount {
 		}
 		
 		return paths;
+	}
+	
+	public MailInfo[] getMessages(String pfad) {
+		MailInfo[] ret = null;
+		
+		try {
+			Store store = inServer.getMailStore(benutzer, passwort);
+			store.connect(inServer.settings.getHost(), inServer.settings.getPort(), benutzer, passwort);
+			Folder folder = store.getFolder(pfad);
+			folder.open(Folder.READ_ONLY);
+			
+			Message[] messages = folder.getMessages();
+			ret = new MailInfo[messages.length];
+			
+			for(int i = 0; i < messages.length; i++) {
+				Message message = messages[i];
+				ret[i] = new MailInfo(message.getHeader("Message-ID")[0], message.getSubject(), message.getFrom()[0].toString(), message.getSentDate());
+			}
+			
+			store.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		return ret;
+	}
+	
+	public String getMessageText(String pfad, String messageID) {
+		String ret = null;
+		
+		try {
+			Store store = inServer.getMailStore(benutzer, passwort);
+			store.connect(inServer.settings.getHost(), inServer.settings.getPort(), benutzer, passwort);
+			
+			Folder folder = store.getFolder(pfad);
+			folder.open(Folder.READ_ONLY);
+			
+			Message[] messages = folder.search(new MessageIDTerm(messageID));
+			
+			if(messages != null && messages.length == 1) {
+				Object content = messages[0].getContent();
+				
+				if (content instanceof String) 
+			    {
+					ret = (String)content;
+			    } 
+			    else if (content instanceof Multipart) 
+			    {
+			        Multipart multipart = (Multipart) content;
+			        BodyPart part = multipart.getBodyPart(0);
+			        ret = part.getContent().toString();
+			    }   
+			}
+			
+			store.close();
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
+		
+		return ret;
 	}
 }
