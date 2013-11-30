@@ -1,6 +1,8 @@
 package de.outlook_klon.logik.mailclient;
 
+import javax.mail.Folder;
 import javax.mail.MessagingException;
+import javax.mail.Store;
 
 /**
  * Diese Klasse stellt ein Mailkonto dar.
@@ -54,7 +56,28 @@ public class MailAccount {
 		}
 	}
 	
+	/**
+	 * Gibt die Pfade aller Ordner des Servers zum Mailempfang zurück
+	 * @return Pfade aller Ordner des Servers zum Mailempfang
+	 */
 	public String[] getOrdnerstruktur() {
-		return null;
+		String[] paths = null;
+		
+		try {
+			Store store = inServer.getMailStore(benutzer, passwort);
+			store.connect(inServer.settings.getHost(), inServer.settings.getPort(), benutzer, passwort);
+			Folder[] folders = store.getDefaultFolder().list("*");
+
+			paths = new String[folders.length];
+			for(int i = 0;i<paths.length;i++) {
+				paths[i] = folders[i].getFullName();
+			}
+			
+			store.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		return paths;
 	}
 }
