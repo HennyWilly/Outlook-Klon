@@ -2,8 +2,10 @@ package de.outlook_klon.gui;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowEvent;
 
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 import javax.swing.JSplitPane;
 import javax.swing.JTextPane;
@@ -32,6 +34,9 @@ public class MailFrame extends JFrame implements ActionListener {
 	
 	private JButton btnSenden;
 	private JButton btnAnhang;
+	
+	private JMenuItem mntmDateiAnhaengen;
+	private JMenuItem mntmSchliessen;
 
 	public MailFrame() {
 		
@@ -153,10 +158,12 @@ public class MailFrame extends JFrame implements ActionListener {
 		JMenu mnAnhaengen = new JMenu("Anh\u00E4ngen");
 		mnDatei.add(mnAnhaengen);
 		
-		JMenuItem mntmDateiAnhaengen = new JMenuItem("Datei anh\u00E4ngen");
+		mntmDateiAnhaengen = new JMenuItem("Datei anh\u00E4ngen");
+		mntmDateiAnhaengen.addActionListener(this);
 		mnAnhaengen.add(mntmDateiAnhaengen);
 		
-		JMenuItem mntmSchliessen = new JMenuItem("Schlie\u00DFen");
+		mntmSchliessen = new JMenuItem("Schlie\u00DFen");
+		mntmSchliessen.addActionListener(this);
 		mnDatei.add(mntmSchliessen);
 		
 		JMenu mnOptionen = new JMenu("Optionen");
@@ -186,7 +193,12 @@ public class MailFrame extends JFrame implements ActionListener {
 		if(sender == btnSenden) {
 			sendeMail();
 		}
-
+		else if(sender == mntmDateiAnhaengen) {
+			
+		}
+		else if(sender == mntmSchliessen) {
+			this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
+		}
 	}
 	
 	private void sendeMail() {
@@ -196,6 +208,12 @@ public class MailFrame extends JFrame implements ActionListener {
 		String text = tpMailtext.getText();
 		
 		MailAccount acc = (MailAccount)cBSender.getSelectedItem();
-		acc.sendeMail(to, cc, subject, text);
+		if(acc == null) {
+			JOptionPane.showMessageDialog(null, "Es wurde keine Mailadresse angegeben, über die die Mail gesendet werden soll",
+					"Fehler", JOptionPane.OK_OPTION);
+		}
+		else {
+			acc.sendeMail(to, cc, subject, text);
+		}
 	}
 }
