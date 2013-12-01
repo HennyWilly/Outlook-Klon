@@ -144,4 +144,20 @@ public class MailAccount {
 		
 		return ret;
 	}
+	
+	public EmpfangsServer getEmpfangsServer() {
+		return inServer;
+	}
+	
+	public SendServer getSendServer() {
+		return outServer;
+	}
+	
+	public String getAdresse() {
+		return adresse;
+	}
+	
+	public String getBenutzer() {
+		return benutzer;
+	}
 }
