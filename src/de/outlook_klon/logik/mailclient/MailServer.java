@@ -12,15 +12,18 @@ public abstract class MailServer {
 	 */
 	protected ServerSettings settings;
 	
+	protected String serverTyp;
+	
 	/**
 	 * Wird von abgeleiteten Klassen aufgerufen, um interne Attribute zu initialisieren
 	 * @param settings Einstellungen zum Verbindungsaufbau
 	 */
-	protected MailServer(ServerSettings settings) {
+	protected MailServer(ServerSettings settings, String serverTyp) {
 		if(settings == null)
 			throw new NullPointerException("Servereinstellungen wurden nicht instanziiert");
 		
 		this.settings = settings;
+		this.serverTyp = serverTyp;
 	}
 	
 	/**
@@ -31,5 +34,18 @@ public abstract class MailServer {
 	 */
 	public boolean prüfeLogin(String benutzername, String passwort) {
 		throw new RuntimeException("Nicht implementiert");
+	}
+	
+	public String getServerTyp() {
+		return serverTyp;
+	}
+	
+	public ServerSettings getSettings() {
+		return settings;
+	}
+	
+	@Override
+	public String toString() {
+		return String.format("%s:%d", settings.getHost(), settings.getPort());
 	}
 }

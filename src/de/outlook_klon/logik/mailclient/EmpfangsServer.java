@@ -10,8 +10,8 @@ import javax.mail.Store;
  * @author Hendrik Karwanni
  */
 public abstract class EmpfangsServer extends MailServer {
-	protected EmpfangsServer(ServerSettings settings) {
-		super(settings);
+	protected EmpfangsServer(ServerSettings settings, String serverTyp) {
+		super(settings, serverTyp);
 	}
 
 	/**

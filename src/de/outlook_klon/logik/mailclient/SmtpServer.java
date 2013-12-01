@@ -23,7 +23,7 @@ public class SmtpServer extends SendServer{
 	 * @param settings Einstellungen zur Serververbindung
 	 */
 	public SmtpServer(ServerSettings settings) {
-		super(settings);
+		super(settings, "SMTP");
 	}
 
 	@Override

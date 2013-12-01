@@ -9,8 +9,8 @@ import javax.mail.MessagingException;
  * @author Hendrik Karwanni
  */
 public abstract class SendServer extends MailServer {
-	protected SendServer(ServerSettings settings) {
-		super(settings);
+	protected SendServer(ServerSettings settings, String serverTyp) {
+		super(settings, serverTyp);
 	}
 
 	/**

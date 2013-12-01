@@ -20,7 +20,7 @@ public class ImapServer extends EmpfangsServer {
 	 * @param settings Einstellungen zur Serververbindung
 	 */
 	public ImapServer(ServerSettings settings) {
-		super(settings);
+		super(settings, "IMAP");
 	}
 
 	@Override

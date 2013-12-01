@@ -15,7 +15,7 @@ public class Pop3Server extends EmpfangsServer {
 	 * @param settings Einstellungen zur Serververbindung
 	 */
 	public Pop3Server(ServerSettings settings) {
-		super(settings);
+		super(settings, "POP3");
 	}
 
 	@Override
