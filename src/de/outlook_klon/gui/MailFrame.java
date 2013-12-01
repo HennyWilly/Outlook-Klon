@@ -2,8 +2,11 @@ package de.outlook_klon.gui;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.WindowEvent;
 
+import javax.swing.ButtonGroup;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
@@ -23,7 +26,9 @@ import javax.swing.JButton;
 
 import de.outlook_klon.logik.mailclient.MailAccount;
 
-public class MailFrame extends JFrame implements ActionListener {
+import javax.swing.JRadioButtonMenuItem;
+
+public class MailFrame extends JFrame implements ActionListener, ItemListener {
 	private static final long serialVersionUID = 5976953616015664148L;
 	
 	private JComboBox<MailAccount> cBSender;
@@ -37,6 +42,9 @@ public class MailFrame extends JFrame implements ActionListener {
 	
 	private JMenuItem mntmDateiAnhaengen;
 	private JMenuItem mntmSchliessen;
+	
+	private JRadioButtonMenuItem rdbtnmntmReintext;
+	private JRadioButtonMenuItem rdbtnmntmHtml;
 
 	public MailFrame() {
 		
@@ -172,11 +180,18 @@ public class MailFrame extends JFrame implements ActionListener {
 		JMenu mnEmailFormat = new JMenu("E-Mail Format");
 		mnOptionen.add(mnEmailFormat);
 		
-		JMenuItem mntmReintext = new JMenuItem("Reintext");
-		mnEmailFormat.add(mntmReintext);
+		rdbtnmntmReintext = new JRadioButtonMenuItem("Reintext");
+		rdbtnmntmReintext.setSelected(true);
+		rdbtnmntmReintext.addItemListener(this);
+		mnEmailFormat.add(rdbtnmntmReintext);
 		
-		JMenuItem mntmHtml = new JMenuItem("Html");
-		mnEmailFormat.add(mntmHtml);
+		rdbtnmntmHtml = new JRadioButtonMenuItem("Html");
+		rdbtnmntmHtml.addItemListener(this);
+		mnEmailFormat.add(rdbtnmntmHtml);
+		
+		ButtonGroup group = new ButtonGroup();
+		group.add(rdbtnmntmReintext);
+		group.add(rdbtnmntmHtml);
 	}
 
 	public void addMailAccount(MailAccount ac) {
@@ -214,6 +229,19 @@ public class MailFrame extends JFrame implements ActionListener {
 		}
 		else {
 			acc.sendeMail(to, cc, subject, text);
+		}
+	}
+
+	@Override
+	public void itemStateChanged(ItemEvent arg0) {
+		JRadioButtonMenuItem sender = (JRadioButtonMenuItem)arg0.getSource();		
+		if(arg0.getStateChange() == ItemEvent.SELECTED) {
+			if(sender == rdbtnmntmReintext) {
+				tpMailtext.setContentType("text/plain");
+			}
+			else if(sender == rdbtnmntmHtml) {
+				tpMailtext.setContentType("text/html");
+			}
 		}
 	}
 }
