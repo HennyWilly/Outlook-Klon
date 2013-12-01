@@ -46,6 +46,8 @@ public class MainFrame extends JFrame implements ActionListener, TreeSelectionLi
     private JTextPane tpPreview;
     
     private Benutzer benutzer;
+    private JMenu mnEinstellungen;
+    private JMenuItem mntmKonteneinstellungen;
 	
 	public MainFrame() {
 		benutzer = new Benutzer();
@@ -149,11 +151,11 @@ public class MainFrame extends JFrame implements ActionListener, TreeSelectionLi
 		JMenuBar menuBar = new JMenuBar();
 		setJMenuBar(menuBar);
 		
-		JMenu mndatei = new JMenu("Datei");
-		menuBar.add(mndatei);
+		JMenu mnDatei = new JMenu("Datei");
+		menuBar.add(mnDatei);
 		
 		JMenu mnNewMenu = new JMenu("Neu");
-		mndatei.add(mnNewMenu);
+		mnDatei.add(mnNewMenu);
 		
 		mntmEmail = new JMenuItem("E-Mail");
 		mntmEmail.addActionListener(this);
@@ -169,7 +171,14 @@ public class MainFrame extends JFrame implements ActionListener, TreeSelectionLi
 		
 		mntmBeenden = new JMenuItem("Beenden");
 		mntmBeenden.addActionListener(this);
-		mndatei.add(mntmBeenden);
+		mnDatei.add(mntmBeenden);
+		
+		mnEinstellungen = new JMenu("Einstellungen");
+		menuBar.add(mnEinstellungen);
+		
+		mntmKonteneinstellungen = new JMenuItem("Konteneinstellungen");
+		mntmKonteneinstellungen.addActionListener(this);
+		mnEinstellungen.add(mntmKonteneinstellungen);
 	}
 	
 	private void pfadZuNode(String pfad, DefaultMutableTreeNode parent) {
@@ -263,6 +272,11 @@ public class MainFrame extends JFrame implements ActionListener, TreeSelectionLi
 		}
 		else if(sender == mntmBeenden) {
 			this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
+		}
+		else if(sender == mntmKonteneinstellungen) {
+			KontoverwaltungFrame vf = new KontoverwaltungFrame(benutzer);
+
+			vf.setVisible(true);
 		}
 	}
 
