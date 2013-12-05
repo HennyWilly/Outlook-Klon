@@ -1,5 +1,11 @@
 package de.outlook_klon.logik.mailclient;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
+
 import javax.mail.BodyPart;
 import javax.mail.Folder;
 import javax.mail.Message;
@@ -14,7 +20,9 @@ import javax.mail.search.MessageIDTerm;
  * 
  * @author Hendrik Karwanni
  */
-public class MailAccount {
+public class MailAccount implements Serializable {
+	private static final long serialVersionUID = -6324237474768366352L;
+	
 	private EmpfangsServer inServer;
 	private SendServer outServer;
 	
@@ -143,6 +151,28 @@ public class MailAccount {
 		}
 		
 		return ret;
+	}
+	
+	public void speichern() throws IOException {
+		File pfad = new File("Mail/" + adresse + "/settings.bin").getAbsoluteFile();
+		File ordner = pfad.getParentFile();
+		
+		FileOutputStream fos = null;
+		ObjectOutputStream oos = null;
+		try {
+			if(!ordner.exists()) {
+				ordner.mkdirs();
+			}
+			
+			fos = new FileOutputStream(pfad.getAbsolutePath());
+			oos = new ObjectOutputStream(fos);
+			
+			oos.writeObject(this);
+		} 
+		finally {
+			if(oos != null)
+				oos.close();
+		}
 	}
 	
 	public EmpfangsServer getEmpfangsServer() {

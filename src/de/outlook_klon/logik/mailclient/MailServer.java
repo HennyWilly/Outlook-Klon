@@ -1,12 +1,16 @@
 package de.outlook_klon.logik.mailclient;
 
+import java.io.Serializable;
+
 /**
  * Abstrakte Basisklasse für alle Mailserver.
  * Stellt grundlegende Funktionen für alle Servertypen bereit. 
  * 
  * @author Hendrik Karwanni
  */
-public abstract class MailServer {
+public abstract class MailServer implements Serializable{
+	private static final long serialVersionUID = -6369803776352038195L;
+
 	/**
 	 * Attribut, das die nötigen Einstellungen zum Aufbau einer Verbindung zu einem Mailserver enthällt
 	 */

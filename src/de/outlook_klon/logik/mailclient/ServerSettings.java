@@ -1,5 +1,7 @@
 package de.outlook_klon.logik.mailclient;
 
+import java.io.Serializable;
+
 /*
  * SMTP 587
  * IMAP 220
@@ -11,7 +13,9 @@ package de.outlook_klon.logik.mailclient;
  * 
  * @author Hendrik Karwanni
  */
-public class ServerSettings {
+public class ServerSettings implements Serializable {
+	private static final long serialVersionUID = -2113634498937441789L;
+	
 	private String host;
 	private int port;
 	private Verbindungssicherheit vSicherheit;
