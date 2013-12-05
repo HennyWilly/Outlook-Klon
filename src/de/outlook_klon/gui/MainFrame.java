@@ -2,6 +2,7 @@ package de.outlook_klon.gui;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
 import javax.swing.JFrame;
@@ -179,6 +180,14 @@ public class MainFrame extends JFrame implements ActionListener, TreeSelectionLi
 		mntmKonteneinstellungen = new JMenuItem("Konteneinstellungen");
 		mntmKonteneinstellungen.addActionListener(this);
 		mnEinstellungen.add(mntmKonteneinstellungen);
+		
+		this.addWindowListener(new WindowAdapter() {
+			@Override
+		    public void windowClosing(WindowEvent windowEvent) {
+				benutzer.speichern();
+		        System.exit(0);
+		    }
+		});
 	}
 	
 	private void pfadZuNode(String pfad, DefaultMutableTreeNode parent) {
