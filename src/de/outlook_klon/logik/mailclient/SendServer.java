@@ -1,5 +1,8 @@
 package de.outlook_klon.logik.mailclient;
 
+import java.io.File;
+import java.io.IOException;
+
 import javax.mail.MessagingException;
 
 /**
@@ -9,6 +12,8 @@ import javax.mail.MessagingException;
  * @author Hendrik Karwanni
  */
 public abstract class SendServer extends MailServer {
+	private static final long serialVersionUID = -4191787147022537178L;
+
 	protected SendServer(ServerSettings settings, String serverTyp) {
 		super(settings, serverTyp);
 	}
@@ -25,5 +30,10 @@ public abstract class SendServer extends MailServer {
 	 * @param text Text der Mail
 	 * @throws MessagingException Tritt auf, wenn das Senden der Mail fehlschlägt
 	 */
-	public abstract void sendeMail(String user, String pw, String from, String[] to, String[] cc, String subject, String text) throws MessagingException;
+	public abstract void sendeMail(String user, String pw, String from, String[] to, String[] cc, String subject, String text, String format, File[] attachment) 
+			throws MessagingException, IOException ;
+	
+	public boolean prüfeLogin(String benutzername, String passwort){
+		throw new RuntimeException("Nicht implementiert");
+	}
 }
