@@ -9,7 +9,8 @@ import javax.mail.Store;
  * @author Hendrik Karwanni
  */
 public class Pop3Server extends EmpfangsServer {
-	
+	private static final long serialVersionUID = 926746044207884587L;
+
 	/**
 	 * Erstellt eine neue Instanz eines Pop3-Servers mit den übergebenen Einstellungen
 	 * @param settings Einstellungen zur Serververbindung
