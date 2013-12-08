@@ -36,9 +36,7 @@ public abstract class MailServer implements Serializable{
 	 * @param passwort Passwort des Benutzers
 	 * @return true, wenn die Anmeldedaten korrekt waren; sonst false
 	 */
-	public boolean prüfeLogin(String benutzername, String passwort) {
-		throw new RuntimeException("Nicht implementiert");
-	}
+	public abstract boolean prüfeLogin(String benutzername, String passwort);
 	
 	public String getServerTyp() {
 		return serverTyp;
