@@ -1,5 +1,7 @@
 package de.outlook_klon.logik.mailclient;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.Properties;
 
 import javax.mail.Authenticator;
@@ -9,7 +11,9 @@ import javax.mail.PasswordAuthentication;
 import javax.mail.Session;
 import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeMultipart;
 
 /**
  * Diese Klasse stellt einen Simple-Mail-Transport-Server(SMTP) dar.
@@ -17,6 +21,7 @@ import javax.mail.internet.MimeMessage;
  * @author Hendrik Karwanni
  */
 public class SmtpServer extends SendServer{
+	private static final long serialVersionUID = -4486714062786025360L;
 
 	/**
 	 * Erstellt eine neue Instanz eines SMTP-Servers mit den übergebenen Einstellungen
@@ -27,7 +32,8 @@ public class SmtpServer extends SendServer{
 	}
 
 	@Override
-	public void sendeMail(final String user, final String pw, String from, String[] to, String[] cc, String subject, String text) throws MessagingException {     
+	public void sendeMail(final String user, final String pw, String from, String[] to, String[] cc, String subject, String text, String format, File[] attachments) 
+						throws MessagingException, IOException {     
 		Authenticator auth = new Authenticator() {
 			@Override
             protected PasswordAuthentication getPasswordAuthentication() {
@@ -66,13 +72,30 @@ public class SmtpServer extends SendServer{
 					new InternetAddress(strTo));
 		}
 		
-		for(String strCC : cc) {
-			mail.addRecipient(RecipientType.CC, 
-					new InternetAddress(strCC));
-		}
+		if(cc.length > 0 && !cc[0].isEmpty())
+			for(String strCC : cc) {
+				mail.addRecipient(RecipientType.CC, 
+						new InternetAddress(strCC));
+			}
 		
 		mail.setSubject(subject);
-		mail.setText(text);
+		
+
+		MimeMultipart multiPart = new MimeMultipart();
+		MimeBodyPart textPart = new MimeBodyPart();
+		textPart.setText(text, "utf-8", format);
+		textPart.setDisposition(MimeBodyPart.INLINE);
+		multiPart.addBodyPart(textPart);
+		
+		if(attachments != null) {
+			for(File attachment : attachments) {
+				MimeBodyPart attachmentPart = new MimeBodyPart();
+				attachmentPart.attachFile(attachment);
+				attachmentPart.setDisposition(MimeBodyPart.ATTACHMENT);
+				multiPart.addBodyPart(attachmentPart);
+			}			
+		}
+		mail.setContent(multiPart);
 		
 		Transport transport = null;
 		if(sicherheit == Verbindungssicherheit.SSL_TLS) {
