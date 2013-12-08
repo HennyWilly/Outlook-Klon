@@ -5,6 +5,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.util.regex.Pattern;
 
 import javax.mail.BodyPart;
 import javax.mail.Folder;
@@ -23,6 +24,10 @@ import javax.mail.search.MessageIDTerm;
 public class MailAccount implements Serializable {
 	private static final long serialVersionUID = -6324237474768366352L;
 	
+	//Quelle "mkyong.com"
+	private static final Pattern mailPattern = 
+			Pattern.compile("^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$");
+	
 	private EmpfangsServer inServer;
 	private SendServer outServer;
 	
@@ -37,10 +42,19 @@ public class MailAccount implements Serializable {
 	 * @param adresse E-Mail-Adresse, das dem Konto zugeordnet ist
 	 * @param benutzer Benutzername, der zur Anmeldung verwendet werden soll
 	 * @param passwort Passwort, das zur Anmeldung verwendet werden soll
+	 * @throws NullPointerException Tritt auf, wenn mindestens eine der Server-Instanzen null ist
+	 * @throws IllegalArgumentException Tritt auf, wenn die übergebene Mailadresse ungültig ist
 	 */
-	public MailAccount(EmpfangsServer inServer, SendServer outServer, String adresse, String benutzer, String passwort) {
+	public MailAccount(EmpfangsServer inServer, SendServer outServer, String adresse, String benutzer, String passwort) 
+						throws NullPointerException, IllegalArgumentException {
+		if(inServer == null || outServer == null)
+			throw new NullPointerException("Die übergebenen Server dürfen nicht <null> sein");
+		
 		this.inServer = inServer;
 		this.outServer = outServer;
+		
+		if(!mailPattern.matcher(adresse).matches())
+			throw new IllegalArgumentException("Die übergebene Zeichenfolge entspricht keiner gültigen Mailadresse!");
 		
 		this.adresse = adresse;
 		this.benutzer = benutzer;
@@ -58,13 +72,13 @@ public class MailAccount implements Serializable {
 	 * @param cc CCs der Mail
 	 * @param subject Betreff der Mail
 	 * @param text Text der Mail
+	 * @throws MessagingException Tritt auf, wenn der Sendevorgang fehlgeschlagen ist
 	 */
-	public void sendeMail(String[] to, String[] cc, String subject, String text) {
+	public void sendeMail(String[] to, String[] cc, String subject, String text, String format, File[] attachment) throws MessagingException {
 		try {
-			outServer.sendeMail(benutzer, passwort, adresse, to, cc, subject, text);
-		} catch (MessagingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			outServer.sendeMail(benutzer, passwort, adresse, to, cc, subject, text, format, attachment);
+		} catch (IOException ioex) {
+			ioex.printStackTrace();
 		}
 	}
 	
@@ -81,7 +95,7 @@ public class MailAccount implements Serializable {
 			Folder[] folders = store.getDefaultFolder().list("*");
 
 			paths = new String[folders.length];
-			for(int i = 0;i<paths.length;i++) {
+			for(int i = 0; i < paths.length; i++) {
 				paths[i] = folders[i].getFullName();
 			}
 			
@@ -173,6 +187,11 @@ public class MailAccount implements Serializable {
 			if(oos != null)
 				oos.close();
 		}
+	}
+	
+	public boolean validieren() {
+		return inServer.prüfeLogin(benutzer, passwort) 
+				&& outServer.prüfeLogin(benutzer, passwort);
 	}
 	
 	public EmpfangsServer getEmpfangsServer() {
