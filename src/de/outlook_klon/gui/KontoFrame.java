@@ -2,9 +2,11 @@ package de.outlook_klon.gui;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowEvent;
 
 import javax.swing.DefaultComboBoxModel;
-import javax.swing.JFrame;
+import javax.swing.JDialog;
+import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 import javax.swing.JLabel;
 import javax.swing.JPasswordField;
@@ -15,13 +17,20 @@ import javax.swing.JButton;
 
 import de.outlook_klon.logik.mailclient.Authentifizierungsart;
 import de.outlook_klon.logik.mailclient.EmpfangsServer;
+import de.outlook_klon.logik.mailclient.ImapServer;
 import de.outlook_klon.logik.mailclient.MailAccount;
+import de.outlook_klon.logik.mailclient.Pop3Server;
 import de.outlook_klon.logik.mailclient.SendServer;
 import de.outlook_klon.logik.mailclient.ServerSettings;
+import de.outlook_klon.logik.mailclient.SmtpServer;
 import de.outlook_klon.logik.mailclient.Verbindungssicherheit;
 
-public class KontoFrame extends JFrame implements ActionListener {
+public class KontoFrame extends JDialog implements ActionListener {
 	private static final long serialVersionUID = -8114432074006047938L;
+	
+	private MailAccount mailAccount;
+	private MailAccount tmpAccount;
+	
 	private JTextField txtMail;
 	private JPasswordField passwordField;
 	private JTextField txtInServer;
@@ -37,85 +46,84 @@ public class KontoFrame extends JFrame implements ActionListener {
 	private JComboBox<Verbindungssicherheit> cBOutVerbindungssicherheit;
 	private JComboBox<Authentifizierungsart> cBOutAuthentifizierung;
 	
-	private void Init() {
-		this.setSize(711, 305);
+	private JButton btnTesten;
+	private JButton btnAbbrechen;
+	private JButton btnFertig;
+	
+	private void initFrame() {
+		this.setModal(true);
+		this.setSize(750, 305);
 		this.setResizable(false);
 		
 		txtMail = new JTextField();
-		txtMail.setBounds(95, 11, 167, 20);
+		txtMail.setBounds(140, 11, 167, 20);
 		txtMail.setColumns(10);
 		
 		JLabel lblMail = new JLabel("E-Mail-Adresse:");
-		lblMail.setBounds(10, 14, 75, 14);
+		lblMail.setBounds(10, 14, 120, 14);
 		
 		JLabel lblPasswort = new JLabel("Passwort:");
-		lblPasswort.setBounds(37, 45, 48, 14);
+		lblPasswort.setBounds(37, 45, 93, 14);
 		
 		passwordField = new JPasswordField();
-		passwordField.setBounds(95, 42, 167, 20);
+		passwordField.setBounds(140, 42, 167, 20);
 		
 		JPanel GroupBox = new JPanel();
-		GroupBox.setBounds(10, 87, 685, 137);
-		
-		JButton btnAbbrechen = new JButton("Abbrechen");
-		btnAbbrechen.setBounds(610, 235, 85, 23);
-		
-		JButton btnTesten = new JButton("Testen");
-		btnTesten.setBounds(420, 235, 85, 23);
+		GroupBox.setBounds(10, 87, 724, 137);
 		
 		JLabel lblPosteingangserver = new JLabel("Posteingang-Server:");
-		lblPosteingangserver.setBounds(10, 37, 99, 14);
+		lblPosteingangserver.setBounds(10, 37, 138, 14);
 		
 		cbInProtokoll = new JComboBox<String>();
-		cbInProtokoll.setBounds(119, 34, 57, 20);
+		cbInProtokoll.setBounds(158, 34, 57, 20);
 		cbInProtokoll.setModel(
 				new DefaultComboBoxModel<String>(new String[] {"POP3", "IMAP" }));
 		
 		txtInServer = new JTextField();
-		txtInServer.setBounds(187, 34, 162, 20);
+		txtInServer.setBounds(226, 34, 162, 20);
 		txtInServer.setColumns(10);
 		
 		spInPort = new JSpinner();
-		spInPort.setBounds(355, 34, 54, 20);
+		spInPort.setBounds(394, 34, 54, 20);
 		
 		cBInVerbindungssicherheit = new JComboBox<Verbindungssicherheit>();
-		cBInVerbindungssicherheit.setBounds(415, 34, 127, 20);
+		cBInVerbindungssicherheit.setBounds(454, 34, 127, 20);
 		cBInVerbindungssicherheit.setModel(
 				new DefaultComboBoxModel<Verbindungssicherheit>(Verbindungssicherheit.values()));
 		
 		cBInAuthentifizierung = new JComboBox<Authentifizierungsart>();
-		cBInAuthentifizierung.setBounds(548, 34, 127, 20);
+		cBInAuthentifizierung.setBounds(587, 34, 127, 20);
 		cBInAuthentifizierung.setModel(
 				new DefaultComboBoxModel<Authentifizierungsart>(Authentifizierungsart.values()));
 		
 		JLabel lblPostausgangsserver = new JLabel("Postausgang-Server:");
-		lblPostausgangsserver.setBounds(10, 65, 105, 14);
+		lblPostausgangsserver.setBounds(10, 65, 138, 14);
 		
 		txtOutServer = new JTextField();
-		txtOutServer.setBounds(187, 65, 162, 20);
+		txtOutServer.setBounds(226, 65, 162, 20);
 		txtOutServer.setColumns(10);
 		
 		spOutPort = new JSpinner();
-		spOutPort.setBounds(355, 65, 54, 20);
+		spOutPort.setBounds(394, 65, 54, 20);
 		
 		cBOutVerbindungssicherheit = new JComboBox<Verbindungssicherheit>();
-		cBOutVerbindungssicherheit.setBounds(415, 65, 127, 20);
+		cBOutVerbindungssicherheit.setBounds(454, 65, 127, 20);
 		cBOutVerbindungssicherheit.setModel(
 				new DefaultComboBoxModel<Verbindungssicherheit>(Verbindungssicherheit.values()));
 		
 		cBOutAuthentifizierung = new JComboBox<Authentifizierungsart>();
-		cBOutAuthentifizierung.setBounds(548, 64, 127, 20);
+		cBOutAuthentifizierung.setBounds(587, 64, 127, 20);
 		cBOutAuthentifizierung.setModel(
 				new DefaultComboBoxModel<Authentifizierungsart>(Authentifizierungsart.values()));
 		
 		JLabel lblSmtp = new JLabel("SMTP");
-		lblSmtp.setBounds(121, 65, 26, 14);
+		lblSmtp.setBounds(160, 65, 55, 14);
 		
 		JLabel lblBenutzername = new JLabel("Benutzername:");
-		lblBenutzername.setBounds(36, 106, 73, 14);
+		lblBenutzername.setBounds(10, 106, 138, 14);
 		
 		txtBenutzername = new JTextField();
-		txtBenutzername.setBounds(187, 103, 162, 20);
+		txtBenutzername.setBounds(226, 103, 162, 20);
 		txtBenutzername.setColumns(10);
 		getContentPane().setLayout(null);
 		getContentPane().add(lblMail);
@@ -140,35 +148,44 @@ public class KontoFrame extends JFrame implements ActionListener {
 		GroupBox.add(txtBenutzername);
 		
 		JLabel lblServeradresse = new JLabel("Server-Adresse");
-		lblServeradresse.setBounds(187, 11, 87, 14);
+		lblServeradresse.setBounds(226, 11, 162, 14);
 		GroupBox.add(lblServeradresse);
 		
 		JLabel lblPort = new JLabel("Port");
-		lblPort.setBounds(355, 11, 46, 14);
+		lblPort.setBounds(394, 11, 54, 14);
 		GroupBox.add(lblPort);
 		
 		JLabel lblSsl = new JLabel("SSL");
-		lblSsl.setBounds(415, 11, 46, 14);
+		lblSsl.setBounds(454, 11, 123, 14);
 		GroupBox.add(lblSsl);
 		
 		JLabel lblAuthentifizierung = new JLabel("Authentifizierung");
-		lblAuthentifizierung.setBounds(548, 11, 99, 14);
+		lblAuthentifizierung.setBounds(587, 11, 127, 14);
 		GroupBox.add(lblAuthentifizierung);
-		getContentPane().add(btnTesten);
+		
+		btnAbbrechen = new JButton("Abbrechen");
+		btnAbbrechen.setBounds(610, 235, 85, 23);
+		btnAbbrechen.addActionListener(this);
 		getContentPane().add(btnAbbrechen);
 		
-		JButton btnFertig = new JButton("Fertig");
+		btnTesten = new JButton("Testen");
+		btnTesten.setBounds(420, 235, 85, 23);
+		btnTesten.addActionListener(this);
+		getContentPane().add(btnTesten);
+		
+		btnFertig = new JButton("Fertig");
 		btnFertig.setEnabled(false);
 		btnFertig.setBounds(515, 235, 85, 23);
+		btnFertig.addActionListener(this);
 		getContentPane().add(btnFertig);
 	}
 	
 	public KontoFrame() {
-		Init();
+		initFrame();
 	}
 	
 	public KontoFrame(MailAccount acc) {
-		Init();
+		initFrame();
 		
 		EmpfangsServer inServer = acc.getEmpfangsServer();
 		SendServer outServer = acc.getSendServer();
@@ -195,9 +212,63 @@ public class KontoFrame extends JFrame implements ActionListener {
 		}
 	}
 
+	public MailAccount showDialog() {
+		setVisible(true);
+	    return mailAccount;
+	}
+	
 	@Override
-	public void actionPerformed(ActionEvent arg0) {
-		// TODO Auto-generated method stub
+	public void actionPerformed(ActionEvent arg) {
+		Object sender = arg.getSource();
+		
+		if(sender == btnTesten) {
+			
+			
+			ServerSettings empfangsSettings = new ServerSettings(
+					txtInServer.getText(), 
+					(int)spInPort.getValue(), 
+					cBInVerbindungssicherheit.getItemAt(cBInVerbindungssicherheit.getSelectedIndex()), 
+					cBInAuthentifizierung.getItemAt(cBInAuthentifizierung.getSelectedIndex()));
+			EmpfangsServer empfang = null;
+			if(cbInProtokoll.getSelectedItem().equals("IMAP")) {
+				empfang = new ImapServer(empfangsSettings);
+			}
+			else if(cbInProtokoll.getSelectedItem().equals("POP3")) {
+				empfang = new Pop3Server(empfangsSettings);
+			}
+			else {
+				throw new RuntimeException("Unbekanntes Protokoll ausgewählt");
+			}
+
+			ServerSettings sendeSettings = new ServerSettings(
+					txtOutServer.getText(), 
+					(int)spOutPort.getValue(), 
+					cBOutVerbindungssicherheit.getItemAt(cBOutVerbindungssicherheit.getSelectedIndex()), 
+					cBOutAuthentifizierung.getItemAt(cBOutAuthentifizierung.getSelectedIndex()));
+			SendServer senden = new SmtpServer(sendeSettings);
+			
+			tmpAccount = new MailAccount(
+					empfang,
+					senden, 
+					txtMail.getText(), 
+					txtBenutzername.getText(), 
+					new String(passwordField.getPassword())
+				);
+			
+			boolean gueltig = tmpAccount.validieren();
+			
+			btnFertig.setEnabled(gueltig);
+			if(!gueltig)
+				JOptionPane.showMessageDialog(this, "Die übergebenen Daten sind ungültig", "Fehler", JOptionPane.OK_OPTION);
+		}
+		else if(sender == btnAbbrechen) {
+			mailAccount = null;
+			this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
+		}
+		else if(sender == btnFertig) {
+			mailAccount = tmpAccount;
+			this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
+		}
 
 	}
 }
