@@ -26,13 +26,8 @@ import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.JButton;
 
 import de.outlook_klon.logik.Benutzer;
-import de.outlook_klon.logik.mailclient.Authentifizierungsart;
-import de.outlook_klon.logik.mailclient.ImapServer;
 import de.outlook_klon.logik.mailclient.MailAccount;
 import de.outlook_klon.logik.mailclient.MailInfo;
-import de.outlook_klon.logik.mailclient.ServerSettings;
-import de.outlook_klon.logik.mailclient.SmtpServer;
-import de.outlook_klon.logik.mailclient.Verbindungssicherheit;
 
 public class MainFrame extends JFrame implements ActionListener, TreeSelectionListener, ListSelectionListener {
 	private static final long serialVersionUID = 817918826034684858L;
@@ -52,31 +47,6 @@ public class MainFrame extends JFrame implements ActionListener, TreeSelectionLi
 	
 	public MainFrame() {
 		benutzer = new Benutzer();
-		/*
-		benutzer.addMailAccount(
-		  	new MailAccount(
-				new ImapServer(
-					new ServerSettings(
-					<Host>, 
-					<Port>, 
-						Verbindungssicherheit.SSL_TLS, 
-						Authentifizierungsart.NORMAL
-					)	
-				),
-				new SmtpServer(
-					new ServerSettings(
-						<Host>,
-						<Port>,
-						Verbindungssicherheit.STARTTLS,
-						Authentifizierungsart.NORMAL
-					)
-				), 
-				<Mail>, 
-				<User>, 
-				<PW>
-			)
-		);
-		*/
 		
 		JSplitPane horizontalSplitPane = new JSplitPane();
 		
