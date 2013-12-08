@@ -14,7 +14,8 @@ import javax.mail.Store;
  * @author Hendrik Karwanni
  */
 public class ImapServer extends EmpfangsServer {
-	
+	private static final long serialVersionUID = 3401491699856582843L;
+
 	/**
 	 * Erstellt eine neue Instanz eines IMAP-Servers mit den übergebenen Einstellungen
 	 * @param settings Einstellungen zur Serververbindung
