@@ -4,7 +4,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
 
-import javax.swing.JFrame;
+import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
@@ -14,9 +14,10 @@ import javax.swing.JButton;
 
 import de.outlook_klon.logik.kontakte.Kontakt;
 
-public class KontaktFrame extends JFrame implements ActionListener {
+public class KontaktFrame extends JDialog implements ActionListener {
 	private static final long serialVersionUID = 1466530984514818388L;
-	private static final String formatString = "Kontakt von %s bearbeiten";
+	private static final String formatStringErstellen = "Kontakt erstellen";
+	private static final String formatStringBearbeiten = "Kontakt von %s bearbeiten";
 
 	private Kontakt mKontakt;
 	
@@ -33,10 +34,8 @@ public class KontaktFrame extends JFrame implements ActionListener {
 	private JButton btnOK;
 	private JButton btnAbbrechen;
 
-	public KontaktFrame(Kontakt k) {
-		mKontakt = k;
-
-		this.setTitle(String.format(formatString, mKontakt));
+	private void initFrame() {
+		this.setModal(true);
 		this.setResizable(false);
 		this.setLocationRelativeTo(null);
 		this.setSize(685, 285);
@@ -51,31 +50,14 @@ public class KontaktFrame extends JFrame implements ActionListener {
 		JLabel lblPrivat = new JLabel("Privat: ");
 		JLabel lblMobil = new JLabel("Mobil: ");
 		
-		tVorname = new JTextField(mKontakt.getVorname());
 		tVorname.setColumns(10);
-		
-		tName = new JTextField(mKontakt.getNachname());
 		tName.setColumns(10);
-		
-		tAnzeigename = new JTextField(mKontakt.getAnzeigename());
 		tAnzeigename.setColumns(10);
-		
-		tSpitzname = new JTextField(mKontakt.getSpitzname());
 		tSpitzname.setColumns(10);
-		
-		tEmailadresse_1 = new JTextField(mKontakt.getMail1().toString());
 		tEmailadresse_1.setColumns(10);
-		
-		tEmailadresse_2 = new JTextField(mKontakt.getMail2().toString());
 		tEmailadresse_2.setColumns(10);
-		
-		tDienstlich = new JTextField(mKontakt.getTelDienst());
 		tDienstlich.setColumns(10);
-		
-		tPrivat = new JTextField(mKontakt.getTelPrivat());
 		tPrivat.setColumns(10);
-		
-		tMobil = new JTextField(mKontakt.getTelMobil());
 		tMobil.setColumns(10);
 		
 		btnOK = new JButton("OK");
@@ -165,21 +147,62 @@ public class KontaktFrame extends JFrame implements ActionListener {
 		);
 		getContentPane().setLayout(groupLayout);
 	}
+	
+	public KontaktFrame() {
+		mKontakt = null;
+		this.setTitle(formatStringErstellen);
+		
+		tVorname = new JTextField();
+		tName = new JTextField();
+		tAnzeigename = new JTextField();
+		tSpitzname = new JTextField();
+		tEmailadresse_1 = new JTextField();
+		tEmailadresse_2 = new JTextField();
+		tDienstlich = new JTextField();
+		tPrivat = new JTextField();
+		tMobil = new JTextField();
+		
+		initFrame();
+	}
+	
+	public KontaktFrame(Kontakt k) {
+		mKontakt = k;
+		this.setTitle(String.format(formatStringBearbeiten, mKontakt));
+		
+		tVorname = new JTextField(mKontakt.getVorname());
+		tName = new JTextField(mKontakt.getNachname());
+		tAnzeigename = new JTextField(mKontakt.getAnzeigename());
+		tSpitzname = new JTextField(mKontakt.getSpitzname());
+		tEmailadresse_1 = new JTextField(mKontakt.getMail1().toString());
+		tEmailadresse_2 = new JTextField(mKontakt.getMail2().toString());
+		tDienstlich = new JTextField(mKontakt.getTelDienst());
+		tPrivat = new JTextField(mKontakt.getTelPrivat());
+		tMobil = new JTextField(mKontakt.getTelMobil());
+		
+		initFrame();
+	}
 
 	@Override
 	public void actionPerformed(ActionEvent arg) {
 		Object e = arg.getSource();
 		
 		if(e == btnOK) {
-			mKontakt.setVorname(tVorname.getText());
-			mKontakt.setNachname(tName.getText());
-			mKontakt.setAnzeigename(tAnzeigename.getText());
-			mKontakt.setSpitzname(tSpitzname.getText());
-			mKontakt.setMail1(tEmailadresse_1.getText());
-			mKontakt.setMail2(tEmailadresse_2.getText());
-			mKontakt.setTelDienst(tDienstlich.getText());
-			mKontakt.setTelPrivat(tPrivat.getText());
-			mKontakt.setTelMobil(tMobil.getText());
+			if(mKontakt == null)
+				mKontakt = new Kontakt(tName.getText(), tVorname.getText(), 
+						tAnzeigename.getText(), tSpitzname.getText(),
+						tEmailadresse_1.getText(), tEmailadresse_2.getText(),
+						tPrivat.getText(), tDienstlich.getText(), tMobil.getText());
+			else {
+				mKontakt.setVorname(tVorname.getText());
+				mKontakt.setNachname(tName.getText());
+				mKontakt.setAnzeigename(tAnzeigename.getText());
+				mKontakt.setSpitzname(tSpitzname.getText());
+				mKontakt.setMail1(tEmailadresse_1.getText());
+				mKontakt.setMail2(tEmailadresse_2.getText());
+				mKontakt.setTelDienst(tDienstlich.getText());
+				mKontakt.setTelPrivat(tPrivat.getText());
+				mKontakt.setTelMobil(tMobil.getText());
+			}
 			
 			this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
 		}
