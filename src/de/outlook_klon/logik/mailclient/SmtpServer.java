@@ -7,7 +7,6 @@ import java.util.Properties;
 import javax.mail.Authenticator;
 import javax.mail.Message.RecipientType;
 import javax.mail.MessagingException;
-import javax.mail.PasswordAuthentication;
 import javax.mail.Session;
 import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
@@ -32,14 +31,9 @@ public class SmtpServer extends SendServer{
 	}
 
 	@Override
-	public void sendeMail(final String user, final String pw, String from, String[] to, String[] cc, String subject, String text, String format, File[] attachments) 
+	public void sendeMail(String user, String pw, String from, String[] to, String[] cc, String subject, String text, String format, File[] attachments) 
 						throws MessagingException, IOException {     
-		Authenticator auth = new Authenticator() {
-			@Override
-            protected PasswordAuthentication getPasswordAuthentication() {
-                return new PasswordAuthentication(user, pw);
-            }
-		};
+		Authenticator auth = new StandardAuthentificator(user, pw);
 		
 		String host = settings.getHost();
 		int port = settings.getPort();

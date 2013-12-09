@@ -4,7 +4,6 @@ import java.util.Properties;
 
 import javax.mail.Authenticator;
 import javax.mail.NoSuchProviderException;
-import javax.mail.PasswordAuthentication;
 import javax.mail.Session;
 import javax.mail.Store;
 
@@ -25,13 +24,8 @@ public class ImapServer extends EmpfangsServer {
 	}
 
 	@Override
-	public Store getMailStore(final String user, final String pw) throws NoSuchProviderException {
-		Authenticator auth = new Authenticator() {
-			@Override
-            protected PasswordAuthentication getPasswordAuthentication() {
-                return new PasswordAuthentication(user, pw);
-            }
-		};
+	public Store getMailStore(String user, String pw) throws NoSuchProviderException {
+		Authenticator auth = new StandardAuthentificator(user, pw);
 		
 		Properties props = System.getProperties();
 		props.put("mail.imap.host", settings.getHost());
