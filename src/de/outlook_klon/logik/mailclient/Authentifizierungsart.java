@@ -7,5 +7,6 @@ package de.outlook_klon.logik.mailclient;
  */
 public enum Authentifizierungsart {
 	NORMAL,
-	KERBEROS
+	KERBEROS,
+	NTLM
 }
