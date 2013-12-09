@@ -24,6 +24,10 @@ public class Benutzer implements Iterable<MailAccount> {
 	private Terminkalendar termine;
 	private ArrayList<MailAccount> konten;
 	
+	/**
+	 * Erstellt eine neue Instanz der Klasse Benutzer.
+	 * Ließt, wenn vorhanden, die gespeicherten Daten aus.
+	 */
 	public Benutzer() {
 		kontakte = new Kontaktverwaltung();
 		termine = new Terminkalendar();
@@ -73,14 +77,27 @@ public class Benutzer implements Iterable<MailAccount> {
 		return konten.iterator();
 	}
 
+	/**
+	 * Gibt die Instanz der Kontaktverwaltung zurück
+	 * @return Kontaktverwaltung des Benutzers
+	 */
 	public Kontaktverwaltung getKontakte() {
 		return kontakte;
 	}
-	
+
+	/**
+	 * Gibt die Instanz der Terminverwaltung zurück
+	 * @return Terminverwaltung des Benutzers
+	 */
 	public Terminkalendar getTermine() {
 		return termine;
 	}
 	
+	/**
+	 * Fügt die übergebene Instanz eines MailAccounts dem Benutzer hinzu
+	 * @param ma Hinzuzufügender MailAccount
+	 * @return true, wenn der übergebene MailAccount nicht <code>null</code> ist; sonst false
+	 */
 	public boolean addMailAccount(MailAccount ma) {
 		if(ma == null)
 			return false;
@@ -89,6 +106,9 @@ public class Benutzer implements Iterable<MailAccount> {
 		return true;
 	}
 	
+	/**
+	 * Speichert die Daten des Benutzers
+	 */
 	public void speichern() {
 		for(MailAccount acc : konten) {
 			try {

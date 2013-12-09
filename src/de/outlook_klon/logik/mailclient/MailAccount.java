@@ -167,6 +167,10 @@ public class MailAccount implements Serializable {
 		return ret;
 	}
 	
+	/**
+	 * Speichert die Instanz des MailAccounts auf der Festplatte
+	 * @throws IOException Tritt auf, wenn die Daten nicht gespeicherten werden konnten.
+	 */
 	public void speichern() throws IOException {
 		File pfad = new File("Mail/" + adresse + "/settings.bin").getAbsoluteFile();
 		File ordner = pfad.getParentFile();
@@ -189,23 +193,44 @@ public class MailAccount implements Serializable {
 		}
 	}
 	
+	/**
+	 * Prüft, ob mit den Daten der MailAccount-Instanz eine erfolgreiche Verbindung 
+	 * zum Empfangs- und zum Versandtserver hergestellt werden konnte 
+	 * @return true, wenn die Verbindungen erfolgreich waren; sonst false
+	 */
 	public boolean validieren() {
 		return inServer.prüfeLogin(benutzer, passwort) 
 				&& outServer.prüfeLogin(benutzer, passwort);
 	}
 	
+	/**
+	 * Gibt die MailServer-Instanz zum Empfangen von Mails zurück
+	 * @return MailServer zum Empfangen von Mails
+	 */
 	public EmpfangsServer getEmpfangsServer() {
 		return inServer;
 	}
-	
+
+	/**
+	 * Gibt die MailServer-Instanz zum Versandt von Mails zurück
+	 * @return MailServer zum Versandt von Mails
+	 */
 	public SendServer getSendServer() {
 		return outServer;
 	}
 	
+	/**
+	 * Gibt die Mailadresse des MailAccounts zurück
+	 * @return Mailadresse des MailAccounts
+	 */
 	public String getAdresse() {
 		return adresse;
 	}
-	
+
+	/**
+	 * Gibt den Benutzernamen für den MailAccount zurück
+	 * @return Benutzername für den MailAccount
+	 */
 	public String getBenutzer() {
 		return benutzer;
 	}

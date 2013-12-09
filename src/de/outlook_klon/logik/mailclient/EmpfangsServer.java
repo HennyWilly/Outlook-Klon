@@ -13,6 +13,11 @@ import javax.mail.Store;
 public abstract class EmpfangsServer extends MailServer {
 	private static final long serialVersionUID = -6475925504329915182L;
 
+	/**
+	 * Ruft den protected-Konstruktor der Oberklasse auf
+	 * @param settings Einstellungen zur Verbindung mit dem Server
+	 * @param serverTyp Beschreibender String zum Servertyp
+	 */
 	protected EmpfangsServer(ServerSettings settings, String serverTyp) {
 		super(settings, serverTyp);
 	}
@@ -38,7 +43,6 @@ public abstract class EmpfangsServer extends MailServer {
 				try {
 					store.close();
 				} catch (MessagingException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}

@@ -32,7 +32,7 @@ public class ServerSettings implements Serializable {
 	 * @throws IllegalArgumentException Tritt auf, wenn <code>port</code> kein korrekter Port ist.
 	 */
 	public ServerSettings(String host, int port, Verbindungssicherheit vSicherheit, Authentifizierungsart authentifizierung) 
-	throws NullPointerException, IllegalArgumentException {
+			throws NullPointerException, IllegalArgumentException {
 		if(host == null)
 			throw new NullPointerException("Der Hostname darf nicht null sein");
 		if(port < 0 || port  > 49151)
