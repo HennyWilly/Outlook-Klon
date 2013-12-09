@@ -31,6 +31,7 @@ public class MailAccount implements Serializable {
 	private EmpfangsServer inServer;
 	private SendServer outServer;
 	
+	private String anzeigename;
 	private String adresse;
 	private String benutzer;
 	private String passwort;
@@ -39,13 +40,14 @@ public class MailAccount implements Serializable {
 	 * Erstellt eine neue Instanz der Klasse Mailkonto mit den übergebenen Parametern
 	 * @param inServer Server-Instanz, die zum Empfangen von Mails verwendet wird
 	 * @param outServer Server-Instanz, die zum Senden von Mails verwendet wird
+	 * @param anzeigename Anzeigename für ausgehende E-Mails
 	 * @param adresse E-Mail-Adresse, das dem Konto zugeordnet ist
 	 * @param benutzer Benutzername, der zur Anmeldung verwendet werden soll
 	 * @param passwort Passwort, das zur Anmeldung verwendet werden soll
 	 * @throws NullPointerException Tritt auf, wenn mindestens eine der Server-Instanzen null ist
 	 * @throws IllegalArgumentException Tritt auf, wenn die übergebene Mailadresse ungültig ist
 	 */
-	public MailAccount(EmpfangsServer inServer, SendServer outServer, String adresse, String benutzer, String passwort) 
+	public MailAccount(EmpfangsServer inServer, SendServer outServer, String anzeigename, String adresse, String benutzer, String passwort) 
 						throws NullPointerException, IllegalArgumentException {
 		if(inServer == null || outServer == null)
 			throw new NullPointerException("Die übergebenen Server dürfen nicht <null> sein");
@@ -56,6 +58,7 @@ public class MailAccount implements Serializable {
 		if(!mailPattern.matcher(adresse).matches())
 			throw new IllegalArgumentException("Die übergebene Zeichenfolge entspricht keiner gültigen Mailadresse!");
 		
+		this.anzeigename = anzeigename;
 		this.adresse = adresse;
 		this.benutzer = benutzer;
 		this.passwort = passwort;
@@ -76,7 +79,7 @@ public class MailAccount implements Serializable {
 	 */
 	public void sendeMail(String[] to, String[] cc, String subject, String text, String format, File[] attachment) throws MessagingException {
 		try {
-			outServer.sendeMail(benutzer, passwort, adresse, to, cc, subject, text, format, attachment);
+			outServer.sendeMail(benutzer, passwort, anzeigename, to, cc, subject, text, format, attachment);
 		} catch (IOException ioex) {
 			ioex.printStackTrace();
 		}
@@ -233,5 +236,9 @@ public class MailAccount implements Serializable {
 	 */
 	public String getBenutzer() {
 		return benutzer;
+	}
+	
+	public String getAnzeigename() {
+		return anzeigename;
 	}
 }

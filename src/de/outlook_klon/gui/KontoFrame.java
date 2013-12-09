@@ -30,7 +30,8 @@ public class KontoFrame extends JDialog implements ActionListener {
 	
 	private MailAccount mailAccount;
 	private MailAccount tmpAccount;
-	
+
+	private JTextField txtAnzeigename;
 	private JTextField txtMail;
 	private JPasswordField passwordField;
 	private JTextField txtInServer;
@@ -52,24 +53,24 @@ public class KontoFrame extends JDialog implements ActionListener {
 	
 	private void initFrame() {
 		this.setModal(true);
-		this.setSize(750, 305);
+		this.setSize(750, 350);
 		this.setResizable(false);
 		
 		txtMail = new JTextField();
-		txtMail.setBounds(140, 11, 167, 20);
+		txtMail.setBounds(140, 58, 167, 20);
 		txtMail.setColumns(10);
 		
 		JLabel lblMail = new JLabel("E-Mail-Adresse:");
-		lblMail.setBounds(10, 14, 120, 14);
+		lblMail.setBounds(10, 61, 120, 14);
 		
 		JLabel lblPasswort = new JLabel("Passwort:");
-		lblPasswort.setBounds(37, 45, 93, 14);
+		lblPasswort.setBounds(37, 92, 93, 14);
 		
 		passwordField = new JPasswordField();
-		passwordField.setBounds(140, 42, 167, 20);
+		passwordField.setBounds(140, 89, 167, 20);
 		
 		JPanel GroupBox = new JPanel();
-		GroupBox.setBounds(10, 87, 724, 137);
+		GroupBox.setBounds(10, 120, 724, 137);
 		
 		JLabel lblPosteingangserver = new JLabel("Posteingang-Server:");
 		lblPosteingangserver.setBounds(10, 37, 138, 14);
@@ -164,20 +165,29 @@ public class KontoFrame extends JDialog implements ActionListener {
 		GroupBox.add(lblAuthentifizierung);
 		
 		btnAbbrechen = new JButton("Abbrechen");
-		btnAbbrechen.setBounds(610, 235, 85, 23);
+		btnAbbrechen.setBounds(649, 288, 85, 23);
 		btnAbbrechen.addActionListener(this);
 		getContentPane().add(btnAbbrechen);
 		
 		btnTesten = new JButton("Testen");
-		btnTesten.setBounds(420, 235, 85, 23);
+		btnTesten.setBounds(459, 288, 85, 23);
 		btnTesten.addActionListener(this);
 		getContentPane().add(btnTesten);
 		
 		btnFertig = new JButton("Fertig");
 		btnFertig.setEnabled(false);
-		btnFertig.setBounds(515, 235, 85, 23);
+		btnFertig.setBounds(554, 288, 85, 23);
 		btnFertig.addActionListener(this);
 		getContentPane().add(btnFertig);
+		
+		JLabel lblAnzeigename = new JLabel("Anzeigename:");
+		lblAnzeigename.setBounds(10, 14, 120, 14);
+		getContentPane().add(lblAnzeigename);
+		
+		txtAnzeigename = new JTextField();
+		txtAnzeigename.setColumns(10);
+		txtAnzeigename.setBounds(140, 11, 167, 20);
+		getContentPane().add(txtAnzeigename);
 	}
 	
 	public KontoFrame() {
@@ -190,6 +200,7 @@ public class KontoFrame extends JDialog implements ActionListener {
 		EmpfangsServer inServer = acc.getEmpfangsServer();
 		SendServer outServer = acc.getSendServer();
 
+		txtAnzeigename.setText(acc.getAnzeigename());
 		txtMail.setText(acc.getAdresse());
 		txtBenutzername.setText(acc.getBenutzer());
 		
@@ -250,6 +261,7 @@ public class KontoFrame extends JDialog implements ActionListener {
 			tmpAccount = new MailAccount(
 					empfang,
 					senden, 
+					txtAnzeigename.getText(),
 					txtMail.getText(), 
 					txtBenutzername.getText(), 
 					new String(passwordField.getPassword())

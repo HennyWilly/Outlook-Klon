@@ -23,7 +23,7 @@ public abstract class SendServer extends MailServer {
 	 * Die Implementierung des Vorgangs ist vom Serverprotokoll abhängig 
 	 * @param user Benutzername des Senders
 	 * @param pw Passwort des Senders
-	 * @param from E-Mail-Adresse des Senders
+	 * @param from Anzeigename des Senders
 	 * @param to Ziele der Mail
 	 * @param cc CCs der Mail
 	 * @param subject Betreff der Mail
