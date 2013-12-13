@@ -182,6 +182,12 @@ public class KontaktFrame extends JDialog implements ActionListener {
 		initFrame();
 	}
 
+	public Kontakt showDialog() {
+		setVisible(true);
+		
+		return mKontakt;
+	}
+
 	@Override
 	public void actionPerformed(ActionEvent arg) {
 		Object e = arg.getSource();

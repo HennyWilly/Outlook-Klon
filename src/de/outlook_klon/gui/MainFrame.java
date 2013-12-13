@@ -239,7 +239,7 @@ public class MainFrame extends JFrame implements ActionListener, TreeSelectionLi
 			mf.setVisible(true);
 		}
 		else if(sender == mntmKontakt) {
-			AdressbuchFrame af = new AdressbuchFrame();
+			AdressbuchFrame af = new AdressbuchFrame(benutzer.getKontakte());
 
 			af.setSize(this.getSize());
 			af.setExtendedState(this.getExtendedState());
