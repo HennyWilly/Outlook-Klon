@@ -99,7 +99,7 @@ public class Benutzer implements Iterable<MailAccount> {
 	 * @return true, wenn der übergebene MailAccount nicht <code>null</code> ist; sonst false
 	 */
 	public boolean addMailAccount(MailAccount ma) {
-		if(ma == null)
+		if(ma == null || konten.contains(ma))
 			return false;
 		
 		konten.add(ma);
