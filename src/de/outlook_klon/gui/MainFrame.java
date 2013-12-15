@@ -15,6 +15,7 @@ import javax.swing.tree.*;
 import javax.swing.JSplitPane;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -59,7 +60,8 @@ public class MainFrame extends JFrame implements ActionListener, TreeSelectionLi
 		ladeOrdner();
 		tree.addTreeSelectionListener(this);
 		
-		horizontalSplitPane.setLeftComponent(tree);
+		JScrollPane treeScroller = new JScrollPane(tree);
+		horizontalSplitPane.setLeftComponent(treeScroller);
 		
 		JSplitPane verticalSplitPane = new JSplitPane();
 		verticalSplitPane.setContinuousLayout(true);
@@ -90,13 +92,15 @@ public class MainFrame extends JFrame implements ActionListener, TreeSelectionLi
 		});
 		tblMails.removeColumn(tblMails.getColumn("ID"));
 		
-		tblMails.getColumnModel().getColumn(0).setResizable(false);
-		tblMails.getColumnModel().getColumn(0).setPreferredWidth(19);
 		tblMails.getColumnModel().getSelectionModel().addListSelectionListener(this);
-		verticalSplitPane.setLeftComponent(tblMails);
+		
+		JScrollPane mailScroller = new JScrollPane(tblMails);
+		verticalSplitPane.setLeftComponent(mailScroller);
 		
 		tpPreview = new JTextPane();
-		verticalSplitPane.setRightComponent(tpPreview);
+		tpPreview.setEditable(false);
+		JScrollPane previewScroller = new JScrollPane(tpPreview);
+		verticalSplitPane.setRightComponent(previewScroller);
 		
 		JToolBar toolBar = new JToolBar();
 		
@@ -255,7 +259,16 @@ public class MainFrame extends JFrame implements ActionListener, TreeSelectionLi
 		else if(sender == mntmKonteneinstellungen) {
 			KontoverwaltungFrame vf = new KontoverwaltungFrame(benutzer);
 
-			vf.setVisible(true);
+			MailAccount[] accounts = vf.showDialog();
+			if(accounts != null) {
+				boolean refresh = false;
+				for(MailAccount acc : accounts) {
+					if(benutzer.addMailAccount(acc))
+						refresh = true;
+				}
+				if(refresh)
+					ladeOrdner();
+			}
 		}
 	}
 
@@ -305,7 +318,9 @@ public class MainFrame extends JFrame implements ActionListener, TreeSelectionLi
 		}
 		
 		String text = account.getMessageText(strPfad, id);
+		tpPreview.setEditable(true);
 		tpPreview.setText(text);
+		tpPreview.setEditable(false);
 	}
 
 	public static void main(String[] args) {

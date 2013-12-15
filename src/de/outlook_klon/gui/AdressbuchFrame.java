@@ -9,6 +9,7 @@ import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.ListSelectionModel;
 
@@ -75,14 +76,18 @@ public class AdressbuchFrame extends JFrame implements ActionListener, ListSelec
 		tblKontakte.getColumnModel().getColumn(1).setPreferredWidth(91);
 		tblKontakte.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		tblKontakte.getColumnModel().getSelectionModel().addListSelectionListener(this);
-		verticalSplit.setLeftComponent(tblKontakte);
+		
+		JScrollPane kontakteScroller = new JScrollPane(tblKontakte);
+		verticalSplit.setLeftComponent(kontakteScroller);
 		
 		txtDetails = new JTextPane();
 		verticalSplit.setRightComponent(txtDetails);
 		
 		lstListen = new JList<String>(new DefaultListModel<String>());
 		lstListen.addListSelectionListener(this);
-		horizontalSplit.setLeftComponent(lstListen);
+		
+		JScrollPane listerScroller = new JScrollPane(lstListen);
+		horizontalSplit.setLeftComponent(listerScroller);
 		
 		JMenuBar menuBar = new JMenuBar();
 		setJMenuBar(menuBar);
@@ -103,7 +108,7 @@ public class AdressbuchFrame extends JFrame implements ActionListener, ListSelec
 		
 		mntDateiBeenden = new JMenuItem("Beenden");
 		mntDateiBeenden.addActionListener(this);
-		menuBar.add(mntDateiBeenden);
+		mnDatei.add(mntDateiBeenden);
 		
 		aktualisiereKontaktlisten();
 		lstListen.setSelectedIndex(0);

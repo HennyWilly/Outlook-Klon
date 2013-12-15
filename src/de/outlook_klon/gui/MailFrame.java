@@ -11,6 +11,7 @@ import javax.swing.DefaultListModel;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.JSplitPane;
 import javax.swing.JTextPane;
@@ -29,6 +30,7 @@ import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JList;
 
 import java.io.File;
+
 import javax.mail.MessagingException;
 
 import de.outlook_klon.logik.mailclient.MailAccount;
@@ -52,7 +54,7 @@ public class MailFrame extends JFrame implements ActionListener, ItemListener {
 	private JRadioButtonMenuItem rdbtnmntmHtml;
 	
 	private JList<File> lstAnhang;
-
+	
 	public MailFrame() {
 		
 		JToolBar toolBar = new JToolBar();
@@ -64,6 +66,7 @@ public class MailFrame extends JFrame implements ActionListener, ItemListener {
 		splitPane.setLeftComponent(panel);
 		
 		JSplitPane splitHead = new JSplitPane();
+		
 		GroupLayout gl_panel = new GroupLayout(panel);
 		gl_panel.setHorizontalGroup(
 			gl_panel.createParallelGroup(Alignment.LEADING)
@@ -84,7 +87,6 @@ public class MailFrame extends JFrame implements ActionListener, ItemListener {
 		
 		tTo = new JTextField();
 		tTo.setColumns(10);
-		
 		
 		tCC = new JTextField();
 		tCC.setColumns(10);
@@ -138,11 +140,17 @@ public class MailFrame extends JFrame implements ActionListener, ItemListener {
 		panel_1.setLayout(gl_panel_1);
 		
 		lstAnhang = new JList<File>(new DefaultListModel<File>());
-		splitHead.setRightComponent(lstAnhang);
+		
+		JScrollPane anhangScroller = new JScrollPane(lstAnhang);
+		splitHead.setRightComponent(anhangScroller);
+		
 		panel.setLayout(gl_panel);
 		
 		tpMailtext = new JTextPane();
-		splitPane.setRightComponent(tpMailtext);
+		
+		JScrollPane textScroller = new JScrollPane(tpMailtext);
+		splitPane.setRightComponent(textScroller);
+		
 		GroupLayout groupLayout = new GroupLayout(getContentPane());
 		groupLayout.setHorizontalGroup(
 			groupLayout.createParallelGroup(Alignment.LEADING)

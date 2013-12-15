@@ -2,10 +2,12 @@ package de.outlook_klon.gui;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowEvent;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JDialog;
 import javax.swing.JList;
+import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.JButton;
 
@@ -15,10 +17,16 @@ import de.outlook_klon.logik.mailclient.MailAccount;
 public class KontoverwaltungFrame extends JDialog implements ActionListener {
 	private static final long serialVersionUID = -5036893845172118794L;
 	
+	private MailAccount[] meineAccounts;
+	
 	private JButton btnNeuesKonto;
 	private JList<MailAccount> lstKonten;
+	private JButton btnAbbrechen;
+	private JButton btnOK;
 
 	public KontoverwaltungFrame(Benutzer benutzer) {
+		meineAccounts = null;
+		
 		setSize(711, 695);
 		setResizable(false);
 		
@@ -34,20 +42,31 @@ public class KontoverwaltungFrame extends JDialog implements ActionListener {
 		lstKonten = new JList<MailAccount>(listModel);
 		lstKonten.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		lstKonten.setBounds(10, 11, 239, 570);
-		getContentPane().add(lstKonten);
+		
+		JScrollPane kontenScroller = new JScrollPane(lstKonten);		
+		kontenScroller.setBounds(lstKonten.getBounds());
+		getContentPane().add(kontenScroller);
 		
 		btnNeuesKonto = new JButton("Neues E-Mail-Konto");
 		btnNeuesKonto.setBounds(10, 592, 169, 23);
 		btnNeuesKonto.addActionListener(this);
 		getContentPane().add(btnNeuesKonto);
 		
-		JButton btnAbbrechen = new JButton("Abbrechen");
+		btnAbbrechen = new JButton("Abbrechen");
 		btnAbbrechen.setBounds(583, 633, 112, 23);
+		btnAbbrechen.addActionListener(this);
 		getContentPane().add(btnAbbrechen);
 		
-		JButton btnOK = new JButton("OK");
+		btnOK = new JButton("OK");
 		btnOK.setBounds(484, 633, 89, 23);
+		btnOK.addActionListener(this);
 		getContentPane().add(btnOK);
+	}
+
+	public MailAccount[] showDialog() {
+		setVisible(true);
+		
+		return meineAccounts;
 	}
 	
 	@Override
@@ -61,6 +80,18 @@ public class KontoverwaltungFrame extends JDialog implements ActionListener {
 				DefaultListModel<MailAccount> model = (DefaultListModel<MailAccount>)lstKonten.getModel();
 				model.addElement(acc);
 			}
+		}
+		else if(sender == btnOK) {
+			DefaultListModel<MailAccount> model = (DefaultListModel<MailAccount>)lstKonten.getModel();	
+			meineAccounts = new MailAccount[model.getSize()];
+			for(int i = 0; i< meineAccounts.length; i++) {
+				meineAccounts[i] = model.get(i);
+			}
+			this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
+		}
+		else if(sender == btnAbbrechen) {
+			meineAccounts = null;
+			this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
 		}
 	}
 }
