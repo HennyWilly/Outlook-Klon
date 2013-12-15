@@ -7,11 +7,11 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.regex.Pattern;
 
-import javax.mail.BodyPart;
 import javax.mail.Folder;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.Multipart;
+import javax.mail.Part;
 import javax.mail.Store;
 import javax.mail.search.MessageIDTerm;
 
@@ -135,6 +135,54 @@ public class MailAccount implements Serializable {
 		return ret;
 	}
 	
+	/**
+	 * Durchsucht den übergebenen Part nach dem Text der E-Mail
+	 * @param p Part-Objekt, indem der Text gesucht werden soll
+	 * @return Text der E-Mail
+	 */
+	private String getText(Part p) throws MessagingException, IOException {
+		if (p.isMimeType("text/*")) {
+			return (String)p.getContent();
+		}
+		
+		if (p.isMimeType("multipart/alternative")) {
+			Multipart mp = (Multipart)p.getContent();
+			String text = null;
+			for (int i = 0; i < mp.getCount(); i++) {
+			    Part bp = mp.getBodyPart(i);
+			    if (bp.isMimeType("text/plain")) {
+				    if (text == null)
+				        text = getText(bp);
+				    continue;
+					} 
+			    else if (bp.isMimeType("text/html")) {
+			        String s = getText(bp);
+			        if (s != null)
+			            return s;
+				} 
+				else 
+					return getText(bp);
+			}
+			return text;
+		} 
+		else if (p.isMimeType("multipart/*")) {
+			Multipart mp = (Multipart)p.getContent();
+			for (int i = 0; i < mp.getCount(); i++) {
+			    String s = getText(mp.getBodyPart(i));
+			    if (s != null)
+			        return s;
+			}
+		}
+		
+		return null;
+	}
+	
+	/**
+	 * Gibt den Text zur E-Mail mit der übergebenen ID in dem übergebenen Ordner zurück
+	 * @param pfad Ordnerpfad innerhalb des MailServers
+	 * @param messageID ID der zu suchenden E-Mail
+	 * @return Text der gefundenen E-Mail
+	 */
 	public String getMessageText(String pfad, String messageID) {
 		String ret = null;
 		
@@ -148,18 +196,7 @@ public class MailAccount implements Serializable {
 			Message[] messages = folder.search(new MessageIDTerm(messageID));
 			
 			if(messages != null && messages.length == 1) {
-				Object content = messages[0].getContent();
-				
-				if (content instanceof String) 
-			    {
-					ret = (String)content;
-			    } 
-			    else if (content instanceof Multipart) 
-			    {
-			        Multipart multipart = (Multipart) content;
-			        BodyPart part = multipart.getBodyPart(0);
-			        ret = part.getContent().toString();
-			    }   
+				ret = getText(messages[0]);
 			}
 			
 			store.close();
