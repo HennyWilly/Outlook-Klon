@@ -215,9 +215,6 @@ public class KontaktFrame extends JDialog implements ActionListener {
 		else if(e == btnAbbrechen) {
 			this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
 		}
-		else  {
-			throw new RuntimeException("Ein Element hat ein Event abgefeuert");
-		}
 	}
 
 }
