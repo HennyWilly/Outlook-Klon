@@ -3,7 +3,9 @@ package de.outlook_klon.gui;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
+import java.io.UnsupportedEncodingException;
 
+import javax.mail.internet.InternetAddress;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JDialog;
 import javax.swing.JOptionPane;
@@ -200,8 +202,8 @@ public class KontoFrame extends JDialog implements ActionListener {
 		EmpfangsServer inServer = acc.getEmpfangsServer();
 		SendServer outServer = acc.getSendServer();
 
-		txtAnzeigename.setText(acc.getAnzeigename());
-		txtMail.setText(acc.getAdresse());
+		txtAnzeigename.setText(acc.getAdresse().getPersonal());
+		txtMail.setText(acc.getAdresse().getAddress());
 		txtBenutzername.setText(acc.getBenutzer());
 		
 		if(inServer != null) {
@@ -258,20 +260,23 @@ public class KontoFrame extends JDialog implements ActionListener {
 					cBOutAuthentifizierung.getItemAt(cBOutAuthentifizierung.getSelectedIndex()));
 			SendServer senden = new SmtpServer(sendeSettings);
 			
-			tmpAccount = new MailAccount(
-					empfang,
-					senden, 
-					txtAnzeigename.getText(),
-					txtMail.getText(), 
-					txtBenutzername.getText(), 
-					new String(passwordField.getPassword())
-				);
-			
-			boolean gueltig = tmpAccount.validieren();
-			
-			btnFertig.setEnabled(gueltig);
-			if(!gueltig)
-				JOptionPane.showMessageDialog(this, "Die übergebenen Daten sind ungültig", "Fehler", JOptionPane.OK_OPTION);
+			try {
+				tmpAccount = new MailAccount(
+						empfang,
+						senden, 
+						new InternetAddress(txtMail.getText(), txtAnzeigename.getText()),
+						txtBenutzername.getText(), 
+						new String(passwordField.getPassword())
+					);
+				
+				boolean gueltig = tmpAccount.validieren();
+				
+				btnFertig.setEnabled(gueltig);
+				if(!gueltig)
+					JOptionPane.showMessageDialog(this, "Die übergebenen Daten sind ungültig", "Fehler", JOptionPane.OK_OPTION);
+			} catch (UnsupportedEncodingException e) {
+				JOptionPane.showMessageDialog(this, e.getLocalizedMessage(), "Fehler", JOptionPane.OK_OPTION);
+			}
 		}
 		else if(sender == btnAbbrechen) {
 			mailAccount = null;
