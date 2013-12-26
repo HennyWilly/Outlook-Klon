@@ -31,7 +31,7 @@ public class SmtpServer extends SendServer{
 	}
 
 	@Override
-	public void sendeMail(String user, String pw, String from, String[] to, String[] cc, String subject, String text, String format, File[] attachments) 
+	public void sendeMail(String user, String pw, InternetAddress from, InternetAddress[] to, InternetAddress[] cc, String subject, String text, String format, File[] attachments) 
 						throws MessagingException, IOException {     
 		Authenticator auth = new StandardAuthentificator(user, pw);
 		
@@ -40,9 +40,9 @@ public class SmtpServer extends SendServer{
 		Verbindungssicherheit sicherheit = settings.getVerbingungssicherheit();
 		
 		Properties props = new Properties();
-		props.put("mail.smtp.user", from);
-		props.put("mail.smtp.host", host);
-		props.put("mail.smtp.port", port);
+		//props.put("mail.smtp.user", user);
+		//props.put("mail.smtp.host", host);
+		//props.put("mail.smtp.port", port);
 		props.put("mail.smtp.debug", "true");
 		props.put("mail.smtp.auth", "true");
 		
@@ -59,17 +59,15 @@ public class SmtpServer extends SendServer{
 		session.setDebug(true);
         
 		MimeMessage mail = new MimeMessage(session);
-		mail.setFrom(new InternetAddress(from));
+		mail.setFrom(from);
 		
-		for(String strTo : to) {
-			mail.addRecipient(RecipientType.TO, 
-					new InternetAddress(strTo));
+		for(InternetAddress adrTo : to) {
+			mail.addRecipient(RecipientType.TO, adrTo);
 		}
 		
-		if(cc.length > 0 && !cc[0].isEmpty())
-			for(String strCC : cc) {
-				mail.addRecipient(RecipientType.CC, 
-						new InternetAddress(strCC));
+		if(cc.length > 0)
+			for(InternetAddress adrCC : cc) {
+				mail.addRecipient(RecipientType.CC, adrCC);
 			}
 		
 		mail.setSubject(subject);
@@ -77,7 +75,7 @@ public class SmtpServer extends SendServer{
 
 		MimeMultipart multiPart = new MimeMultipart();
 		MimeBodyPart textPart = new MimeBodyPart();
-		textPart.setText(text, "utf-8", format);
+		textPart.setContent(text, format);
 		textPart.setDisposition(MimeBodyPart.INLINE);
 		multiPart.addBodyPart(textPart);
 		
