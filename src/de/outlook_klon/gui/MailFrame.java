@@ -8,13 +8,13 @@ import java.awt.event.WindowEvent;
 
 import javax.swing.ButtonGroup;
 import javax.swing.DefaultListModel;
+import javax.swing.JEditorPane;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.JSplitPane;
-import javax.swing.JTextPane;
 import javax.swing.JPanel;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
@@ -30,19 +30,26 @@ import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JList;
 
 import java.io.File;
+import java.io.UnsupportedEncodingException;
 
+import javax.mail.Address;
 import javax.mail.MessagingException;
+import javax.mail.internet.AddressException;
+import javax.mail.internet.InternetAddress;
 
 import de.outlook_klon.logik.mailclient.MailAccount;
+import de.outlook_klon.logik.mailclient.MailInfo;
 
 public class MailFrame extends JFrame implements ActionListener, ItemListener {
 	private static final long serialVersionUID = 5976953616015664148L;
 	
 	private JComboBox<MailAccount> cBSender;
+	private JTextField tSender;
+	
 	private JTextField tTo;
 	private JTextField tCC;
 	private JTextField tSubject;
-	private JTextPane tpMailtext;
+	private JEditorPane tpMailtext;
 	
 	private JButton btnSenden;
 	private JButton btnAnhang;
@@ -55,8 +62,7 @@ public class MailFrame extends JFrame implements ActionListener, ItemListener {
 	
 	private JList<File> lstAnhang;
 	
-	public MailFrame() {
-		
+	private void initGui(boolean neu) {
 		JToolBar toolBar = new JToolBar();
 		
 		JSplitPane splitPane = new JSplitPane();
@@ -95,6 +101,7 @@ public class MailFrame extends JFrame implements ActionListener, ItemListener {
 		tSubject.setColumns(10);
 		
 		cBSender = new JComboBox<MailAccount>();
+		tSender = new JTextField();
 		GroupLayout gl_panel_1 = new GroupLayout(panel_1);
 		gl_panel_1.setHorizontalGroup(
 			gl_panel_1.createParallelGroup(Alignment.LEADING)
@@ -108,7 +115,7 @@ public class MailFrame extends JFrame implements ActionListener, ItemListener {
 						.addComponent(lSubject, GroupLayout.PREFERRED_SIZE, 46, GroupLayout.PREFERRED_SIZE))
 					.addGap(2)
 					.addGroup(gl_panel_1.createParallelGroup(Alignment.LEADING)
-						.addComponent(cBSender, 0, 301, Short.MAX_VALUE)
+						.addComponent(neu ? cBSender : tSender, 0, 301, Short.MAX_VALUE)
 						.addComponent(tTo, GroupLayout.DEFAULT_SIZE, 301, Short.MAX_VALUE)
 						.addComponent(tCC, GroupLayout.DEFAULT_SIZE, 301, Short.MAX_VALUE)
 						.addComponent(tSubject, GroupLayout.DEFAULT_SIZE, 301, Short.MAX_VALUE))
@@ -120,7 +127,7 @@ public class MailFrame extends JFrame implements ActionListener, ItemListener {
 					.addContainerGap()
 					.addGroup(gl_panel_1.createParallelGroup(Alignment.BASELINE)
 						.addComponent(lSender)
-						.addComponent(cBSender, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+						.addComponent(neu ? cBSender : tSender, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
 					.addPreferredGap(ComponentPlacement.RELATED)
 					.addGroup(gl_panel_1.createParallelGroup(Alignment.LEADING)
 						.addGroup(gl_panel_1.createSequentialGroup()
@@ -146,7 +153,7 @@ public class MailFrame extends JFrame implements ActionListener, ItemListener {
 		
 		panel.setLayout(gl_panel);
 		
-		tpMailtext = new JTextPane();
+		tpMailtext = new JEditorPane();
 		
 		JScrollPane textScroller = new JScrollPane(tpMailtext);
 		splitPane.setRightComponent(textScroller);
@@ -214,7 +221,43 @@ public class MailFrame extends JFrame implements ActionListener, ItemListener {
 		group.add(rdbtnmntmReintext);
 		group.add(rdbtnmntmHtml);
 	}
+	
+	private String appendAddresses(Address[] addr) {
+		if(addr == null)
+			return "";
+		
+		StringBuilder sb = new StringBuilder();
+		
+		for(int i = 0; i < addr.length; i++) {
+			InternetAddress inet = (InternetAddress)addr[i];
+			
+			sb.append(inet.toUnicodeString());
+			
+			if(i < addr.length - 1)
+				sb.append("; ");
+		}
+		
+		return sb.toString();
+	}
+	
+	public MailFrame() {
+		initGui(true);		
+	}
 
+	public MailFrame(MailInfo mail, String pfad, MailAccount parent) throws MessagingException {
+		initGui(false);
+		
+		parent.getWholeMessage(pfad, mail);
+		
+		tSender.setText(((InternetAddress)mail.getSender()).toUnicodeString());
+		tSubject.setText(mail.getSubject());
+		tTo.setText(appendAddresses(mail.getTo()));
+		tCC.setText(appendAddresses(mail.getCc()));
+		
+		tpMailtext.setContentType(mail.getContentType());
+		tpMailtext.setText(mail.getText());
+	}
+	
 	public void addMailAccount(MailAccount ac) {
 		cBSender.addItem(ac);
 		
@@ -222,9 +265,27 @@ public class MailFrame extends JFrame implements ActionListener, ItemListener {
 			cBSender.setSelectedIndex(0);
 	}
 	
+	InternetAddress[] unicodifyAddresses(String addresses) {
+	    InternetAddress[] recips = null;
+		try {
+			recips = InternetAddress.parse(addresses, false);
+		    for(int i=0; i<recips.length; i++) {
+		        try {
+		            recips[i] = new InternetAddress(recips[i].getAddress(), recips[i].getPersonal(), "utf-8");
+		        } catch(UnsupportedEncodingException uee) {
+		            throw new RuntimeException("utf-8 not valid encoding?", uee);
+		        }
+		    }
+		} catch (AddressException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	    return recips;
+	}
+	
 	private void sendeMail() {
-		String[] to = tTo.getText().split(",");
-		String[] cc = tCC.getText().split(",");
+		InternetAddress[] to = unicodifyAddresses(tTo.getText());
+		InternetAddress[] cc = unicodifyAddresses(tCC.getText());
 		String subject = tSubject.getText();
 		String text = tpMailtext.getText();
 		
