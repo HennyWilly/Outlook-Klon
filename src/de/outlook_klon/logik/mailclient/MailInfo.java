@@ -2,32 +2,79 @@ package de.outlook_klon.logik.mailclient;
 
 import java.util.Date;
 
+import javax.mail.Address;
+
 public class MailInfo {
 	private String id;
 	private String subject;
-	private String sender;
+	private Address sender;
 	private Date date;
+	private String text;
+	private String contentType;
+	private Address[] to;
+	private Address[] cc;
 	
-	public MailInfo(String id, String subject, String sender, Date date) {
-		this.id = id;
-		this.subject = subject;
-		this.sender = sender;
+	public Address[] getCc() {
+		return cc;
+	}
+	
+	public void setCc(Address[] cc) {
+		this.cc = cc;
+	}
+	
+	public Address[] getTo() {
+		return to;
+	}
+	
+	public void setTo(Address[] to) {
+		this.to = to;
+	}
+	
+	public String getContentType() {
+		return contentType;
+	}
+	
+	public void setContentType(String contentType) {
+		this.contentType = contentType;
+	}
+	
+	public String getText() {
+		return text;
+	}
+	
+	public void setText(String text) {
+		this.text = text;
+	}
+	
+	public Date getDate() {
+		return date;
+	}
+	
+	public void setDate(Date date) {
 		this.date = date;
 	}
 	
-	public String getID() {
-		return id;
+	public Address getSender() {
+		return sender;
+	}
+	
+	public void setSender(Address sender) {
+		this.sender = sender;
 	}
 	
 	public String getSubject() {
 		return subject;
 	}
 	
-	public String getSender() {
-		return sender;
+	public void setSubject(String subject) {
+		this.subject = subject;
 	}
 	
-	public Date getDate() {
-		return date;
+	public String getID() {
+		return id;
+	}
+	
+	public void setID(String id) {
+		this.id = id;
 	}
 }
