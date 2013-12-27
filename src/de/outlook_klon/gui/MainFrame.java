@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Enumeration;
 import java.util.Locale;
 import java.util.Date;
 
@@ -340,7 +341,17 @@ public class MainFrame extends JFrame implements ActionListener, TreeSelectionLi
 		DefaultMutableTreeNode rootNode = (DefaultMutableTreeNode)tree.getModel().getRoot();
 		
 		int i = 0;
+		outer:
 		for(MailAccount acc : benutzer) {
+		    DefaultMutableTreeNode node = null;
+		    Enumeration<?> e = rootNode.children();
+		    while (e.hasMoreElements()) {
+		      node = (DefaultMutableTreeNode) e.nextElement();
+		      if (acc.equals(node.getUserObject())) {
+		        continue outer;
+		      }
+		    }
+		    
 			DefaultMutableTreeNode accNode = new DefaultMutableTreeNode(acc);
 			String[] ordner = acc.getOrdnerstruktur();
 			
