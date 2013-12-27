@@ -141,7 +141,7 @@ public class MainFrame extends JFrame implements ActionListener, TreeSelectionLi
 		tblMails.setModel(new DefaultTableModel(new Object[][] { }, new String[] { "MailInfo", "Betreff", "Von", "Datum" }) {
 				private static final long serialVersionUID = 1L;
 				Class<?>[] columnTypes = new Class<?>[] {
-					MailInfo.class, String.class, String.class, Date.class
+					MailInfo.class, String.class, InternetAddress.class, Date.class
 				};
 				public Class<?> getColumnClass(int columnIndex) {
 					return columnTypes[columnIndex];
@@ -170,9 +170,39 @@ public class MainFrame extends JFrame implements ActionListener, TreeSelectionLi
 			private static final long serialVersionUID = -7924546013019100383L;
 
 			public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-	        	value = dateFormater.format(value);
+				value = dateFormater.format(value);
 				
 				Component comp = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+	        	
+	        	DefaultTableModel model = (DefaultTableModel)table.getModel();
+	        	Object obj = model.getValueAt(row, 0);
+	        	if(obj instanceof MailInfo) {
+	        		MailInfo info = (MailInfo) obj;
+    				if(isSelected || info.isRead()) 
+    					comp.setFont(comp.getFont().deriveFont(Font.PLAIN));
+    				else
+    					comp.setFont(comp.getFont().deriveFont(Font.BOLD)); 
+	        	}
+	        	
+	        	return comp;
+    		}
+		});
+		tblMails.setDefaultRenderer(InternetAddress.class, new DefaultTableCellRenderer() {
+			private static final long serialVersionUID = -7924546013019100383L;
+
+			public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+				InternetAddress data = (InternetAddress)value;
+				String personal = data.getPersonal();
+				String address = data.getAddress();
+				
+				String str = "";
+				
+				if(personal != null && !personal.trim().isEmpty())
+					str = personal;
+				else
+					str = address;
+				
+				Component comp = super.getTableCellRendererComponent(table, str, isSelected, hasFocus, row, column);
 	        	
 	        	DefaultTableModel model = (DefaultTableModel)table.getModel();
 	        	Object obj = model.getValueAt(row, 0);
@@ -417,7 +447,7 @@ public class MainFrame extends JFrame implements ActionListener, TreeSelectionLi
 		DefaultTableModel model = (DefaultTableModel)tblMails.getModel();
 		model.setRowCount(0);
 		for(MailInfo info : messages) {
-			model.addRow(new Object[] {info, info.getSubject(), ((InternetAddress)info.getSender()).toUnicodeString(), info.getDate()});
+			model.addRow(new Object[] {info, info.getSubject(), info.getSender(), info.getDate()});
 		}
 		sortTable();
 	}
