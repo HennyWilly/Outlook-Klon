@@ -319,7 +319,8 @@ public class MailFrame extends JFrame implements ActionListener, ItemListener {
 			DefaultListModel<File> model = (DefaultListModel<File>)lstAnhang.getModel();
 			
 			for(File file : files) {
-				model.addElement(file);
+				if(file.exists())
+					model.addElement(file);
 			}
 		}
 	}
