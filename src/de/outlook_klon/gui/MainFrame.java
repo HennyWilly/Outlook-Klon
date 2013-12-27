@@ -292,7 +292,6 @@ public class MainFrame extends JFrame implements ActionListener, TreeSelectionLi
 	    sorter.sort();
 	}
 
-	
 	private String nodeZuPfad(DefaultMutableTreeNode knoten) {
 		StringBuilder sb = new StringBuilder();
 		
@@ -494,9 +493,11 @@ public class MainFrame extends JFrame implements ActionListener, TreeSelectionLi
 	public void valueChanged(ListSelectionEvent e) {
 		if(!e.getValueIsAdjusting()) {
 			DefaultTableModel model =  (DefaultTableModel)tblMails.getModel();
-			int zeile = tblMails.getSelectedRow();
-			if(zeile < 0)
+			int viewZeile = tblMails.getSelectedRow();
+			if(viewZeile < 0)
 				return;
+			
+			int zeile = tblMails.convertRowIndexToModel(viewZeile);
 			
 			MailInfo info = (MailInfo) model.getValueAt(zeile, 0);
 			
