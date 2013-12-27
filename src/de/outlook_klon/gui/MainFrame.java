@@ -27,7 +27,6 @@ import javax.swing.JSplitPane;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 import javax.swing.Icon;
@@ -59,7 +58,10 @@ public class MainFrame extends JFrame implements ActionListener, TreeSelectionLi
 	private static DateFormat dateFormater = DateFormat.getDateTimeInstance(DateFormat.FULL, DateFormat.MEDIUM, Locale.getDefault());
 	
 	private JPopupMenu tablePopup;
+	private JMenuItem popupOeffnen;
 	private JMenuItem popupLoeschen;
+	private JMenuItem popupAntworten;
+	private JMenuItem popupWeiterleiten;
 	
 	private JTable tblMails;
     private JMenuItem mntmEmail;
@@ -109,13 +111,25 @@ public class MainFrame extends JFrame implements ActionListener, TreeSelectionLi
     }
     
     private void initTabelle(JSplitPane verticalSplitPane) {
+    	popupOeffnen = new JMenuItem("Öffnen");
+    	popupOeffnen.addActionListener(this);
+    	
     	popupLoeschen = new JMenuItem("Löschen");
 		popupLoeschen.addActionListener(this);
+		
+		popupAntworten = new JMenuItem("Antworten");
+		popupAntworten.addActionListener(this);
+		
+		popupWeiterleiten = new JMenuItem("Weiterleiten");
+		popupWeiterleiten.addActionListener(this);
 		
 		tablePopup = new JPopupMenu();
 		tablePopup.add(new JMenu("Kopiere nach"));
 		tablePopup.add(new JMenu("Verschiebe nach"));
+		tablePopup.add(popupOeffnen);
 		tablePopup.add(popupLoeschen);
+		tablePopup.add(popupAntworten);
+		tablePopup.add(popupWeiterleiten);
 		
 		tblMails = new JTable() {
 			private static final long serialVersionUID = 1L;
@@ -132,9 +146,8 @@ public class MainFrame extends JFrame implements ActionListener, TreeSelectionLi
 				public Class<?> getColumnClass(int columnIndex) {
 					return columnTypes[columnIndex];
 				}
-			});    
-	    
-		TableCellRenderer stringTableCellRenderer = new DefaultTableCellRenderer() {
+			});    		
+		tblMails.setDefaultRenderer(String.class, new DefaultTableCellRenderer() {
 			private static final long serialVersionUID = -7924546013019100383L;
 
 			public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
@@ -152,14 +165,14 @@ public class MainFrame extends JFrame implements ActionListener, TreeSelectionLi
 	        	
 	        	return comp;
     		}
-		};   
-		TableCellRenderer dateTableCellRenderer = new DefaultTableCellRenderer() {
+		});
+		tblMails.setDefaultRenderer(Date.class, new DefaultTableCellRenderer() {
 			private static final long serialVersionUID = -7924546013019100383L;
 
 			public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-				Component comp = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-				
 	        	value = dateFormater.format(value);
+				
+				Component comp = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 	        	
 	        	DefaultTableModel model = (DefaultTableModel)table.getModel();
 	        	Object obj = model.getValueAt(row, 0);
@@ -173,10 +186,7 @@ public class MainFrame extends JFrame implements ActionListener, TreeSelectionLi
 	        	
 	        	return comp;
     		}
-		};
-		
-		tblMails.setDefaultRenderer(String.class, stringTableCellRenderer);
-		tblMails.setDefaultRenderer(Date.class, dateTableCellRenderer);
+		});
 		
 	    TableRowSorter<TableModel> myRowSorter = new TableRowSorter<TableModel>(tblMails.getModel());
 	    myRowSorter.setSortsOnUpdates(true);
