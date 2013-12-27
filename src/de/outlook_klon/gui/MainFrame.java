@@ -1,6 +1,7 @@
 package de.outlook_klon.gui;
 
 import java.awt.Component;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -133,18 +134,49 @@ public class MainFrame extends JFrame implements ActionListener, TreeSelectionLi
 				}
 			});    
 	    
-		TableCellRenderer tableCellRenderer = new DefaultTableCellRenderer() {
+		TableCellRenderer stringTableCellRenderer = new DefaultTableCellRenderer() {
 			private static final long serialVersionUID = -7924546013019100383L;
 
 			public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-	        	if( value instanceof Date) 
-	        		value = dateFormater.format(value);
-	        	return super.getTableCellRendererComponent(table, value, isSelected,
-	        		hasFocus, row, column);
+				Component comp = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+	        	
+	        	DefaultTableModel model = (DefaultTableModel)table.getModel();
+	        	Object obj = model.getValueAt(row, 0);
+	        	if(obj instanceof MailInfo) {
+	        		MailInfo info = (MailInfo) obj;
+	        		if(isSelected || info.isRead()) 
+    					comp.setFont(comp.getFont().deriveFont(Font.PLAIN));
+    				else
+    					comp.setFont(comp.getFont().deriveFont(Font.BOLD)); 
+	        	}
+	        	
+	        	return comp;
+    		}
+		};   
+		TableCellRenderer dateTableCellRenderer = new DefaultTableCellRenderer() {
+			private static final long serialVersionUID = -7924546013019100383L;
+
+			public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+				Component comp = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+				
+	        	value = dateFormater.format(value);
+	        	
+	        	DefaultTableModel model = (DefaultTableModel)table.getModel();
+	        	Object obj = model.getValueAt(row, 0);
+	        	if(obj instanceof MailInfo) {
+	        		MailInfo info = (MailInfo) obj;
+    				if(isSelected || info.isRead()) 
+    					comp.setFont(comp.getFont().deriveFont(Font.PLAIN));
+    				else
+    					comp.setFont(comp.getFont().deriveFont(Font.BOLD)); 
+	        	}
+	        	
+	        	return comp;
     		}
 		};
 		
-		tblMails.getColumnModel().getColumn(3).setCellRenderer(tableCellRenderer);
+		tblMails.setDefaultRenderer(String.class, stringTableCellRenderer);
+		tblMails.setDefaultRenderer(Date.class, dateTableCellRenderer);
 		
 	    TableRowSorter<TableModel> myRowSorter = new TableRowSorter<TableModel>(tblMails.getModel());
 	    myRowSorter.setSortsOnUpdates(true);

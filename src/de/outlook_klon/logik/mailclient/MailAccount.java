@@ -10,6 +10,7 @@ import java.util.Date;
 import javax.mail.Address;
 import javax.mail.BodyPart;
 import javax.mail.Flags;
+import javax.mail.Flags.Flag;
 import javax.mail.Folder;
 import javax.mail.Message;
 import javax.mail.Message.RecipientType;
@@ -150,9 +151,10 @@ public class MailAccount implements Serializable {
 	 */
 	public MailInfo[] getMessages(String pfad) {
 		MailInfo[] ret = null;
-		
+
+		Store store = null;
 		try {
-			Store store = inServer.getMailStore(benutzer, passwort);
+			store = inServer.getMailStore(benutzer, passwort);
 			store.connect(inServer.settings.getHost(), inServer.settings.getPort(), benutzer, passwort);
 			Folder folder = store.getFolder(pfad);
 			folder.open(Folder.READ_ONLY);
@@ -164,21 +166,30 @@ public class MailAccount implements Serializable {
 				Message message = messages[i];
 				
 				String id = message.getHeader("Message-ID")[0];
+				boolean read = message.isSet(Flag.SEEN);
 				String subject = message.getSubject();
 				Address from = message.getFrom()[0];
 				Date sendDate = message.getSentDate();
 				
 				ret[i] = new MailInfo();
 				ret[i].setID(id);
+				ret[i].setRead(read);
 				ret[i].setSubject(subject);
 				ret[i].setSender(from);
 				ret[i].setDate(sendDate);
 			}
 			
 			folder.close(true);
-			store.close();
 		} catch (Exception e) {
 			e.printStackTrace();
+		} finally {
+			if(store != null && store.isConnected())
+				try {
+					store.close();
+				} catch (MessagingException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 		}
 		
 		return ret;
@@ -268,7 +279,7 @@ public class MailAccount implements Serializable {
 			store.connect(inServer.settings.getHost(), inServer.settings.getPort(), benutzer, passwort);
 			
 			Folder folder = store.getFolder(pfad);
-			folder.open(Folder.READ_ONLY);
+			folder.open(Folder.READ_WRITE);
 			
 			Message message = infoToMessage(messageInfo, folder);
 			
@@ -277,6 +288,10 @@ public class MailAccount implements Serializable {
 					messageInfo.setText(getText(message));
 				if(messageInfo.getContentType() == null)
 					messageInfo.setContentType(getTyp(message));
+				if(!messageInfo.isRead()) {
+					message.setFlag(Flag.SEEN, true);
+					messageInfo.setRead(true);
+				}
 			}
 			
 			folder.close(true);
@@ -334,6 +349,10 @@ public class MailAccount implements Serializable {
 					if(cc == null)
 						cc = new Address[0];
 					messageInfo.setCc(cc);
+				}
+				if(!messageInfo.isRead()) {
+					message.setFlag(Flag.SEEN, true);
+					messageInfo.setRead(true);
 				}
 			}
 			

@@ -6,6 +6,7 @@ import javax.mail.Address;
 
 public class MailInfo {
 	private String id;
+	private boolean read;
 	private String subject;
 	private Address sender;
 	private Date date;
@@ -70,6 +71,14 @@ public class MailInfo {
 		this.subject = subject;
 	}
 	
+	public boolean isRead() {
+		return read;
+	}
+
+	public void setRead(boolean read) {
+		this.read = read;
+	}
+
 	public String getID() {
 		return id;
 	}
