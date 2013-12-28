@@ -319,6 +319,12 @@ public class MailFrame extends JFrame implements ItemListener {
 		
 		tpMailtext.setText(mail.getText());
 		tpMailtext.setEditable(false);
+		
+		DefaultListModel<File> model = (DefaultListModel<File>)lstAnhang.getModel();
+		String[] attachments = mail.getAttachment();
+		for(int i = 0; i < attachments.length; i++) {
+			model.addElement(new File(attachments[i]));
+		}
 	}
 	
 	/**

@@ -14,6 +14,7 @@ public class MailInfo {
 	private String contentType;
 	private Address[] to;
 	private Address[] cc;
+	private String[] attachment;
 	
 	public Address[] getCc() {
 		return cc;
@@ -85,5 +86,13 @@ public class MailInfo {
 	
 	public void setID(String id) {
 		this.id = id;
+	}
+
+	public String[] getAttachment() {
+		return attachment;
+	}
+
+	public void setAttachment(String[] attachment) {
+		this.attachment = attachment;
 	}
 }

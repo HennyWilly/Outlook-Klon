@@ -5,6 +5,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
 
 import javax.mail.Address;
@@ -312,7 +313,7 @@ public class MailAccount implements Serializable {
 		if(messageInfo.getText() != null && messageInfo.getContentType() != null && 
 				messageInfo.getSubject() != null && messageInfo.getSender() != null && 
 				messageInfo.getDate() != null && messageInfo.getTo() != null && 
-				messageInfo.getCc() != null) 
+				messageInfo.getCc() != null && messageInfo.getAttachment() != null) 
 			return;
 		
 		Store store = null;
@@ -353,6 +354,21 @@ public class MailAccount implements Serializable {
 				if(!messageInfo.isRead()) {
 					message.setFlag(Flag.SEEN, true);
 					messageInfo.setRead(true);
+				}
+				if(messageInfo.getAttachment() == null) {
+					ArrayList<String> attachment = new ArrayList<String>();
+					if(message.getContent() instanceof Multipart) {
+						Multipart mp = (Multipart)message.getContent();
+						for(int i = 0; i < mp.getCount(); i++) {
+							BodyPart bp = mp.getBodyPart(i);
+							String filename = bp.getFileName();
+							
+							if(filename != null && !filename.isEmpty())
+								attachment.add(bp.getFileName());
+						}
+					}
+					
+					messageInfo.setAttachment(attachment.toArray(new String[attachment.size()]));
 				}
 			}
 			
