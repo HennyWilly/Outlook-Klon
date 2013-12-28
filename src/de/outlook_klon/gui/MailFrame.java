@@ -7,8 +7,8 @@ import java.awt.event.ItemListener;
 import java.awt.event.WindowEvent;
 
 import javax.swing.ButtonGroup;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListModel;
-import javax.swing.JEditorPane;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -20,7 +20,10 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
+import javax.swing.JTextPane;
 import javax.swing.LayoutStyle.ComponentPlacement;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.JMenuBar;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
@@ -40,7 +43,7 @@ import javax.mail.internet.InternetAddress;
 import de.outlook_klon.logik.mailclient.MailAccount;
 import de.outlook_klon.logik.mailclient.MailInfo;
 
-public class MailFrame extends JFrame implements ActionListener, ItemListener {
+public class MailFrame extends JFrame implements ItemListener {
 	private static final long serialVersionUID = 5976953616015664148L;
 	
 	private JComboBox<MailAccount> cBSender;
@@ -49,7 +52,7 @@ public class MailFrame extends JFrame implements ActionListener, ItemListener {
 	private JTextField tTo;
 	private JTextField tCC;
 	private JTextField tSubject;
-	private JEditorPane tpMailtext;
+	private JTextPane tpMailtext;
 	
 	private JButton btnSenden;
 	private JButton btnAnhang;
@@ -61,6 +64,60 @@ public class MailFrame extends JFrame implements ActionListener, ItemListener {
 	private JRadioButtonMenuItem rdbtnmntmHtml;
 	
 	private JList<File> lstAnhang;
+	
+	private String charset;
+	
+	private void close() {
+		this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
+	}
+	
+	private void initMenu() {
+		JMenuBar menuBar = new JMenuBar();
+		setJMenuBar(menuBar);
+		
+		JMenu mnDatei = new JMenu("Datei");
+		menuBar.add(mnDatei);
+		
+		JMenu mnAnhaengen = new JMenu("Anh\u00E4ngen");
+		mnDatei.add(mnAnhaengen);
+		
+		mntmDateiAnhaengen = new JMenuItem("Datei anh\u00E4ngen");
+		mntmDateiAnhaengen.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				anhangHinzufügen();
+			}
+		});
+		mnAnhaengen.add(mntmDateiAnhaengen);
+		
+		mntmSchliessen = new JMenuItem("Schlie\u00DFen");
+		mntmSchliessen.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				close();
+			}
+		});
+		mnDatei.add(mntmSchliessen);
+		
+		JMenu mnOptionen = new JMenu("Optionen");
+		menuBar.add(mnOptionen);
+		
+		JMenu mnEmailFormat = new JMenu("E-Mail Format");
+		mnOptionen.add(mnEmailFormat);
+		
+		rdbtnmntmReintext = new JRadioButtonMenuItem("Reintext");
+		rdbtnmntmReintext.setSelected(true);
+		rdbtnmntmReintext.addItemListener(this);
+		mnEmailFormat.add(rdbtnmntmReintext);
+		
+		rdbtnmntmHtml = new JRadioButtonMenuItem("Html");
+		rdbtnmntmHtml.addItemListener(this);
+		mnEmailFormat.add(rdbtnmntmHtml);
+		
+		ButtonGroup group = new ButtonGroup();
+		group.add(rdbtnmntmReintext);
+		group.add(rdbtnmntmHtml);
+	}
 	
 	private void initGui(boolean neu) {
 		JToolBar toolBar = new JToolBar();
@@ -99,6 +156,22 @@ public class MailFrame extends JFrame implements ActionListener, ItemListener {
 		
 		tSubject = new JTextField();
 		tSubject.setColumns(10);
+		tSubject.getDocument().addDocumentListener(new DocumentListener() {
+			@Override
+			public void removeUpdate(DocumentEvent arg0) {
+				updateCaption();
+			}
+			
+			@Override
+			public void insertUpdate(DocumentEvent arg0) {
+				updateCaption();
+			}
+			
+			@Override
+			public void changedUpdate(DocumentEvent arg0) {
+				updateCaption();
+			}
+		});
 		
 		cBSender = new JComboBox<MailAccount>();
 		tSender = new JTextField();
@@ -153,7 +226,7 @@ public class MailFrame extends JFrame implements ActionListener, ItemListener {
 		
 		panel.setLayout(gl_panel);
 		
-		tpMailtext = new JEditorPane();
+		tpMailtext = new JTextPane();
 		
 		JScrollPane textScroller = new JScrollPane(tpMailtext);
 		splitPane.setRightComponent(textScroller);
@@ -177,53 +250,29 @@ public class MailFrame extends JFrame implements ActionListener, ItemListener {
 		
 		btnSenden = new JButton("Senden");
 		toolBar.add(btnSenden);
-		btnSenden.addActionListener(this);
+		btnSenden.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				sendeMail();
+			}
+		});
 		
 		btnAnhang = new JButton("Anhang");
+		btnAnhang.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				anhangHinzufügen();
+			}
+		});
 		toolBar.add(btnAnhang);
-		btnAnhang.addActionListener(this);
 		
 		getContentPane().setLayout(groupLayout);
 		
-		JMenuBar menuBar = new JMenuBar();
-		setJMenuBar(menuBar);
-		
-		JMenu mnDatei = new JMenu("Datei");
-		menuBar.add(mnDatei);
-		
-		JMenu mnAnhaengen = new JMenu("Anh\u00E4ngen");
-		mnDatei.add(mnAnhaengen);
-		
-		mntmDateiAnhaengen = new JMenuItem("Datei anh\u00E4ngen");
-		mntmDateiAnhaengen.addActionListener(this);
-		mnAnhaengen.add(mntmDateiAnhaengen);
-		
-		mntmSchliessen = new JMenuItem("Schlie\u00DFen");
-		mntmSchliessen.addActionListener(this);
-		mnDatei.add(mntmSchliessen);
-		
-		JMenu mnOptionen = new JMenu("Optionen");
-		menuBar.add(mnOptionen);
-		
-		JMenu mnEmailFormat = new JMenu("E-Mail Format");
-		mnOptionen.add(mnEmailFormat);
-		
-		rdbtnmntmReintext = new JRadioButtonMenuItem("Reintext");
-		rdbtnmntmReintext.setSelected(true);
-		rdbtnmntmReintext.addItemListener(this);
-		mnEmailFormat.add(rdbtnmntmReintext);
-		
-		rdbtnmntmHtml = new JRadioButtonMenuItem("Html");
-		rdbtnmntmHtml.addItemListener(this);
-		mnEmailFormat.add(rdbtnmntmHtml);
-		
-		ButtonGroup group = new ButtonGroup();
-		group.add(rdbtnmntmReintext);
-		group.add(rdbtnmntmHtml);
+		initMenu();
 	}
 	
 	private String appendAddresses(Address[] addr) {
-		if(addr == null)
+		if(addr == null || addr.length == 0)
 			return "";
 		
 		StringBuilder sb = new StringBuilder();
@@ -241,6 +290,7 @@ public class MailFrame extends JFrame implements ActionListener, ItemListener {
 	}
 	
 	public MailFrame() {
+		setTitle("<Kein Betreff>");
 		initGui(true);		
 	}
 
@@ -248,18 +298,62 @@ public class MailFrame extends JFrame implements ActionListener, ItemListener {
 		initGui(false);
 		
 		parent.getWholeMessage(pfad, mail);
+		charset = mail.getContentType().split("; ")[1];
 		
 		tSender.setText(((InternetAddress)mail.getSender()).toUnicodeString());
+		tSender.setEditable(false);
+		
 		tSubject.setText(mail.getSubject());
+		tSubject.setEditable(false);
+		
 		tTo.setText(appendAddresses(mail.getTo()));
+		tTo.setEditable(false);
+		
+		tCC.setText(appendAddresses(mail.getCc()));
+		tCC.setEditable(false);
+		
+		if(mail.getContentType().toLowerCase().startsWith("text/plain"))
+			rdbtnmntmReintext.setSelected(true);
+		else
+			rdbtnmntmHtml.setSelected(true);
+		
+		tpMailtext.setText(mail.getText());
+		tpMailtext.setEditable(false);
+	}
+	
+	/**
+	 * @param weiterleiten Weiterleiten -> true; Antworten -> false
+	 */
+	public MailFrame(MailInfo mail, String pfad, MailAccount parent, boolean weiterleiten) throws MessagingException {
+		initGui(true);
+		
+		parent.getWholeMessage(pfad, mail);
+
+		String subject = (weiterleiten ? "Fwd: " : "Re: ") + mail.getSubject();
+		
+		addMailAccount(parent);
+		cBSender.setSelectedItem(parent);
+		
+		tSubject.setText(subject);
+		
+		if(weiterleiten == false)
+			tTo.setText(((InternetAddress)mail.getSender()).toUnicodeString());
 		tCC.setText(appendAddresses(mail.getCc()));
 		
-		tpMailtext.setContentType(mail.getContentType());
+		if(mail.getContentType().toLowerCase().startsWith("text/plain"))
+			rdbtnmntmReintext.setSelected(true);
+		else
+			rdbtnmntmHtml.setSelected(true);
+		
 		tpMailtext.setText(mail.getText());
 	}
 	
 	public void addMailAccount(MailAccount ac) {
-		cBSender.addItem(ac);
+		DefaultComboBoxModel<MailAccount> model = (DefaultComboBoxModel<MailAccount>) cBSender.getModel();
+		
+		if(model.getIndexOf(ac) == -1 ) {
+			cBSender.addItem(ac);
+		}
 		
 		if(cBSender.getSelectedIndex() == -1)
 			cBSender.setSelectedIndex(0);
@@ -325,31 +419,34 @@ public class MailFrame extends JFrame implements ActionListener, ItemListener {
 		}
 	}
 	
-	@Override
-	public void actionPerformed(ActionEvent arg0) {
-		Object sender = arg0.getSource();
+	private void updateCaption() {
+		String text = tSubject.getText();
 		
-		if(sender == btnSenden) {
-			sendeMail();
-		}
-		else if(sender == mntmDateiAnhaengen || sender == btnAnhang) {
-			anhangHinzufügen();
-		}
-		else if(sender == mntmSchliessen) {
-			this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
-		}
+		if(text.trim().isEmpty())
+			this.setTitle("<Kein Betreff>");
+		else
+			this.setTitle(text);
 	}
 
 	@Override
 	public void itemStateChanged(ItemEvent arg0) {
 		JRadioButtonMenuItem sender = (JRadioButtonMenuItem)arg0.getSource();		
 		if(arg0.getStateChange() == ItemEvent.SELECTED) {
+			boolean editable = tpMailtext.isEditable();
+			
+			String tmp = tpMailtext.getText();
+			String contentType = "";
+			
 			if(sender == rdbtnmntmReintext) {
-				tpMailtext.setContentType("text/plain");
+				contentType = "TEXT/plain; " + charset;
 			}
 			else if(sender == rdbtnmntmHtml) {
-				tpMailtext.setContentType("text/html");
+				contentType = "TEXT/html; " + charset;
 			}
+			tpMailtext.setEditable(true);
+			tpMailtext.setContentType(contentType);
+			tpMailtext.setText(tmp);
+			tpMailtext.setEditable(editable);
 		}
 	}
 }
