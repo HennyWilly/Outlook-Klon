@@ -51,8 +51,9 @@ import javax.mail.internet.InternetAddress;
 import de.outlook_klon.logik.Benutzer;
 import de.outlook_klon.logik.mailclient.MailAccount;
 import de.outlook_klon.logik.mailclient.MailInfo;
+import javax.swing.JSeparator;
 
-public class MainFrame extends JFrame implements ActionListener, TreeSelectionListener, ListSelectionListener {
+public class MainFrame extends JFrame implements TreeSelectionListener, ListSelectionListener {
 	private static final long serialVersionUID = 817918826034684858L;
 	
 	private static DateFormat dateFormater = DateFormat.getDateTimeInstance(DateFormat.FULL, DateFormat.MEDIUM, Locale.getDefault());
@@ -73,8 +74,14 @@ public class MainFrame extends JFrame implements ActionListener, TreeSelectionLi
     private JTextPane tpPreview;
     
     private Benutzer benutzer;
-    private JMenu mnEinstellungen;
+    private JMenu mnExtras;
     private JMenuItem mntmKonteneinstellungen;
+    private JMenuItem mntmAdressbuch;
+    private JMenuItem mntmKalendar;
+	
+	private void close() {
+		this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
+	}
 	
     private void initMenu() {
 		JMenuBar menuBar = new JMenuBar();
@@ -87,46 +94,134 @@ public class MainFrame extends JFrame implements ActionListener, TreeSelectionLi
 		mnDatei.add(mnNewMenu);
 		
 		mntmEmail = new JMenuItem("E-Mail");
-		mntmEmail.addActionListener(this);
+		mntmEmail.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				oeffneMailFrame();
+			}
+		});
 		mnNewMenu.add(mntmEmail);
 		
 		mntmKontakt = new JMenuItem("Kontakt");
-		mntmKontakt.addActionListener(this);
+		mntmKontakt.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				oeffneAdressbuchFrame();
+			}
+		});
 		mnNewMenu.add(mntmKontakt);
 		
 		mntmTermin = new JMenuItem("Termin");
-		mntmTermin.addActionListener(this);
+		mntmTermin.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+			}
+		});
 		mnNewMenu.add(mntmTermin);
 		
 		mntmBeenden = new JMenuItem("Beenden");
-		mntmBeenden.addActionListener(this);
+		mntmBeenden.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				close();
+			}
+		});
 		mnDatei.add(mntmBeenden);
 		
-		mnEinstellungen = new JMenu("Einstellungen");
-		menuBar.add(mnEinstellungen);
+		mnExtras = new JMenu("Extras");
+		menuBar.add(mnExtras);
 		
 		mntmKonteneinstellungen = new JMenuItem("Konteneinstellungen");
-		mntmKonteneinstellungen.addActionListener(this);
-		mnEinstellungen.add(mntmKonteneinstellungen);
+		mntmKonteneinstellungen.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				oeffneKontoverwaltungFrame();
+			}
+		});
+		
+		mntmAdressbuch = new JMenuItem("Adressbuch");
+		mnExtras.add(mntmAdressbuch);
+		
+		mntmKalendar = new JMenuItem("Kalendar");
+		mnExtras.add(mntmKalendar);
+		
+		mnExtras.add(new JSeparator());
+		mnExtras.add(mntmKonteneinstellungen);
     }
     
     private void initTabelle(JSplitPane verticalSplitPane) {
     	popupOeffnen = new JMenuItem("Öffnen");
-    	popupOeffnen.addActionListener(this);
+    	popupOeffnen.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				DefaultTableModel model = (DefaultTableModel)tblMails.getModel();
+			  
+				int viewZeile = tblMails.getSelectedRow();
+				if(viewZeile < 0)
+					return;
+				
+				int row = tblMails.convertRowIndexToModel(viewZeile);
+				MailInfo mailID = (MailInfo)model.getValueAt(row, 0);
+				
+				oeffneMail(mailID);
+			}
+		});
     	
     	popupLoeschen = new JMenuItem("Löschen");
-		popupLoeschen.addActionListener(this);
+		popupLoeschen.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				MailInfo[] infos = ausgewaehlteMailInfo();
+				String pfad = nodeZuPfad((DefaultMutableTreeNode)tree.getLastSelectedPathComponent());
+				MailAccount acc = ausgewaehlterAccount();
+				
+				try {
+					acc.loescheMails(infos, pfad);
+				} catch (MessagingException ex) {
+					ex.printStackTrace();
+				}
+			}
+		});
 		
 		popupAntworten = new JMenuItem("Antworten");
-		popupAntworten.addActionListener(this);
+		popupAntworten.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				DefaultTableModel model = (DefaultTableModel)tblMails.getModel();
+				  
+				int viewZeile = tblMails.getSelectedRow();
+				if(viewZeile < 0)
+					return;
+				
+				int row = tblMails.convertRowIndexToModel(viewZeile);
+				MailInfo mailID = (MailInfo)model.getValueAt(row, 0);
+				
+				antworten(mailID);
+			}
+		});
 		
 		popupWeiterleiten = new JMenuItem("Weiterleiten");
-		popupWeiterleiten.addActionListener(this);
+		popupWeiterleiten.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				DefaultTableModel model = (DefaultTableModel)tblMails.getModel();
+				  
+				int viewZeile = tblMails.getSelectedRow();
+				if(viewZeile < 0)
+					return;
+				
+				int row = tblMails.convertRowIndexToModel(viewZeile);
+				MailInfo mailID = (MailInfo)model.getValueAt(row, 0);
+				
+				weiterleiten(mailID);
+			}
+		});
 		
 		tablePopup = new JPopupMenu();
+		tablePopup.add(popupOeffnen);
 		tablePopup.add(new JMenu("Kopiere nach"));
 		tablePopup.add(new JMenu("Verschiebe nach"));
-		tablePopup.add(popupOeffnen);
 		tablePopup.add(popupLoeschen);
 		tablePopup.add(popupAntworten);
 		tablePopup.add(popupWeiterleiten);
@@ -237,26 +332,14 @@ public class MainFrame extends JFrame implements ActionListener, TreeSelectionLi
 				if (e.getClickCount() == 2) {
 					DefaultTableModel model = (DefaultTableModel)tblMails.getModel();
 					  
-					int row = tblMails.getSelectedRow();
+					int viewZeile = tblMails.getSelectedRow();
+					if(viewZeile < 0)
+						return;
+					
+					int row = tblMails.convertRowIndexToModel(viewZeile);
 					MailInfo mailID = (MailInfo)model.getValueAt(row, 0);
 					  
-					Object userObject = null;
-					DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode)tree.getLastSelectedPathComponent();
-					do {
-						userObject = selectedNode.getUserObject();
-						if(userObject instanceof MailAccount)
-							break;
-						selectedNode = (DefaultMutableTreeNode)selectedNode.getParent();  
-					} while(true);
-				     
-					MailFrame mf;
-					try {
-						mf = new MailFrame(mailID, nodeZuPfad((DefaultMutableTreeNode)tree.getLastSelectedPathComponent()), (MailAccount) userObject);
-						mf.setVisible(true);
-					} catch (MessagingException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					}
+					oeffneMail(mailID);
 				}
 			}
 		});
@@ -304,6 +387,7 @@ public class MainFrame extends JFrame implements ActionListener, TreeSelectionLi
     }
     
 	public MainFrame() {
+		setTitle("MailClient");
 		benutzer = new Benutzer();
 		
 		JSplitPane horizontalSplitPane = new JSplitPane();
@@ -325,7 +409,12 @@ public class MainFrame extends JFrame implements ActionListener, TreeSelectionLi
 		JToolBar toolBar = new JToolBar();
 		
 		btnAbrufen = new JButton("Abrufen");
-		btnAbrufen.addActionListener(this);
+		btnAbrufen.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+			}
+		});
 		toolBar.add(btnAbrufen);
 		GroupLayout groupLayout = new GroupLayout(getContentPane());
 		groupLayout.setHorizontalGroup(
@@ -352,6 +441,75 @@ public class MainFrame extends JFrame implements ActionListener, TreeSelectionLi
 		        System.exit(0);
 		    }
 		});
+	}
+	
+	private void antworten(MailInfo info) {
+		MailAccount acc = ausgewaehlterAccount();
+		String pfad = nodeZuPfad((DefaultMutableTreeNode)tree.getLastSelectedPathComponent());
+	     
+		MailFrame mf;
+		try {
+			mf = new MailFrame(info, pfad, acc, false);
+			mf.setVisible(true);
+		} catch (MessagingException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+	}
+	
+	private void weiterleiten(MailInfo info) {
+		MailAccount acc = ausgewaehlterAccount();
+		String pfad = nodeZuPfad((DefaultMutableTreeNode)tree.getLastSelectedPathComponent());
+	     
+		MailFrame mf;
+		try {
+			mf = new MailFrame(info, pfad, acc, true);
+			mf.setVisible(true);
+		} catch (MessagingException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+	}
+	
+	private void oeffneMailFrame() {
+		MailFrame mf = new MailFrame();
+		
+		for(MailAccount ac : benutzer) {
+			mf.addMailAccount(ac);
+		}
+		
+		mf.setSize(this.getSize());
+		mf.setExtendedState(this.getExtendedState());
+		mf.setVisible(true);
+	}
+	
+	private void oeffneAdressbuchFrame() {
+		AdressbuchFrame af = new AdressbuchFrame(benutzer.getKontakte());
+
+		af.setSize(this.getSize());
+		af.setExtendedState(this.getExtendedState());
+		af.setVisible(true);
+	}
+	
+	private void oeffneKontoverwaltungFrame() {
+		KontoverwaltungFrame vf = new KontoverwaltungFrame(benutzer);
+
+		MailAccount[] accounts = vf.showDialog();
+		if(accounts != null) {
+			boolean refresh = false;
+			for(MailAccount acc : accounts) {
+				if(benutzer.addMailAccount(acc)) {
+					try {
+						acc.speichern();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+					refresh = true;
+				}
+			}
+			if(refresh)
+				ladeOrdner();
+		}
 	}
 	
 	private void sortTable() {
@@ -478,68 +636,17 @@ public class MainFrame extends JFrame implements ActionListener, TreeSelectionLi
 		return (MailAccount)userObject;
 	}
 	
-	@Override
-	public void actionPerformed(ActionEvent arg0) {
-		Object sender = arg0.getSource();
-
-		if(sender == btnAbrufen) {
-			
-		}
-		else if(sender == mntmEmail) {
-			MailFrame mf = new MailFrame();
-			
-			for(MailAccount ac : benutzer) {
-				mf.addMailAccount(ac);
-			}
-			
-			mf.setSize(this.getSize());
-			mf.setExtendedState(this.getExtendedState());
+	private void oeffneMail(MailInfo info) {
+		MailAccount acc = ausgewaehlterAccount();
+		String pfad = nodeZuPfad((DefaultMutableTreeNode)tree.getLastSelectedPathComponent());
+	     
+		MailFrame mf;
+		try {
+			mf = new MailFrame(info, pfad, acc);
 			mf.setVisible(true);
-		}
-		else if(sender == mntmKontakt) {
-			AdressbuchFrame af = new AdressbuchFrame(benutzer.getKontakte());
-
-			af.setSize(this.getSize());
-			af.setExtendedState(this.getExtendedState());
-			af.setVisible(true);
-			
-		}
-		else if(sender == mntmTermin) {
-			
-		}
-		else if(sender == mntmBeenden) {
-			this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
-		}
-		else if(sender == mntmKonteneinstellungen) {
-			KontoverwaltungFrame vf = new KontoverwaltungFrame(benutzer);
-
-			MailAccount[] accounts = vf.showDialog();
-			if(accounts != null) {
-				boolean refresh = false;
-				for(MailAccount acc : accounts) {
-					if(benutzer.addMailAccount(acc)) {
-						try {
-							acc.speichern();
-						} catch (IOException e) {
-							e.printStackTrace();
-						}
-						refresh = true;
-					}
-				}
-				if(refresh)
-					ladeOrdner();
-			}
-		}
-		else if(sender == popupLoeschen) {
-			MailInfo[] infos = ausgewaehlteMailInfo();
-			String pfad = nodeZuPfad((DefaultMutableTreeNode)tree.getLastSelectedPathComponent());
-			MailAccount acc = ausgewaehlterAccount();
-			
-			try {
-				acc.loescheMails(infos, pfad);
-			} catch (MessagingException e) {
-				e.printStackTrace();
-			}
+		} catch (MessagingException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
 		}
 	}
 
@@ -552,11 +659,17 @@ public class MainFrame extends JFrame implements ActionListener, TreeSelectionLi
 			MailAccount account = ausgewaehlterAccount();
 			String pfad = nodeZuPfad(selectedNode);
 			
+			String ordnerName = selectedNode.toString();
+			
+			setTitle(ordnerName + " - " + account.getAdresse().getAddress());
+			
 			ladeMails(account, pfad);
 		}
 		else {
 			DefaultTableModel model = (DefaultTableModel)tblMails.getModel();
 			model.setRowCount(0);
+			
+			setTitle(((MailAccount)userObject).getAdresse().getAddress());
 		}
 			
 	}
@@ -566,8 +679,9 @@ public class MainFrame extends JFrame implements ActionListener, TreeSelectionLi
 		if(!e.getValueIsAdjusting()) {
 			DefaultTableModel model =  (DefaultTableModel)tblMails.getModel();
 			int viewZeile = tblMails.getSelectedRow();
-			if(viewZeile < 0)
+			if(viewZeile < 0) {
 				return;
+			}
 			
 			int zeile = tblMails.convertRowIndexToModel(viewZeile);
 			
