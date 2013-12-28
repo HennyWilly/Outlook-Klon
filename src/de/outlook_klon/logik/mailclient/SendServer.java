@@ -36,6 +36,6 @@ public abstract class SendServer extends MailServer {
 	
 	public boolean prüfeLogin(String benutzername, String passwort){
 		return true;
-		//throw new RuntimeException("Nicht implementiert");
+		//TODO Prüfen des Logins
 	}
 }
