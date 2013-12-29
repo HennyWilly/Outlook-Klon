@@ -14,7 +14,7 @@ import javax.swing.JButton;
 
 import de.outlook_klon.logik.kontakte.Kontakt;
 
-public class KontaktFrame extends JDialog implements ActionListener {
+public class KontaktFrame extends JDialog {
 	private static final long serialVersionUID = 1466530984514818388L;
 	private static final String formatStringErstellen = "Kontakt erstellen";
 	private static final String formatStringBearbeiten = "Kontakt von %s bearbeiten";
@@ -34,6 +34,10 @@ public class KontaktFrame extends JDialog implements ActionListener {
 	private JButton btnOK;
 	private JButton btnAbbrechen;
 
+	private void close() {
+		this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
+	}
+	
 	private void initFrame() {
 		this.setModal(true);
 		this.setResizable(false);
@@ -61,10 +65,37 @@ public class KontaktFrame extends JDialog implements ActionListener {
 		tMobil.setColumns(10);
 		
 		btnOK = new JButton("OK");
-		btnOK.addActionListener(this);
+		btnOK.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				if(mKontakt == null)
+					mKontakt = new Kontakt(tName.getText(), tVorname.getText(), 
+							tAnzeigename.getText(), tSpitzname.getText(),
+							tEmailadresse_1.getText(), tEmailadresse_2.getText(),
+							tPrivat.getText(), tDienstlich.getText(), tMobil.getText());
+				else {
+					mKontakt.setVorname(tVorname.getText());
+					mKontakt.setNachname(tName.getText());
+					mKontakt.setAnzeigename(tAnzeigename.getText());
+					mKontakt.setSpitzname(tSpitzname.getText());
+					mKontakt.setMail1(tEmailadresse_1.getText());
+					mKontakt.setMail2(tEmailadresse_2.getText());
+					mKontakt.setTelDienst(tDienstlich.getText());
+					mKontakt.setTelPrivat(tPrivat.getText());
+					mKontakt.setTelMobil(tMobil.getText());
+				}
+				
+				close();
+			}
+		});
 		
 		btnAbbrechen = new JButton("Abbrechen");
-		btnAbbrechen.addActionListener(this);
+		btnAbbrechen.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				close();
+			}
+		});
 		
 		GroupLayout groupLayout = new GroupLayout(getContentPane());
 		groupLayout.setHorizontalGroup(
@@ -187,34 +218,4 @@ public class KontaktFrame extends JDialog implements ActionListener {
 		
 		return mKontakt;
 	}
-
-	@Override
-	public void actionPerformed(ActionEvent arg) {
-		Object e = arg.getSource();
-		
-		if(e == btnOK) {
-			if(mKontakt == null)
-				mKontakt = new Kontakt(tName.getText(), tVorname.getText(), 
-						tAnzeigename.getText(), tSpitzname.getText(),
-						tEmailadresse_1.getText(), tEmailadresse_2.getText(),
-						tPrivat.getText(), tDienstlich.getText(), tMobil.getText());
-			else {
-				mKontakt.setVorname(tVorname.getText());
-				mKontakt.setNachname(tName.getText());
-				mKontakt.setAnzeigename(tAnzeigename.getText());
-				mKontakt.setSpitzname(tSpitzname.getText());
-				mKontakt.setMail1(tEmailadresse_1.getText());
-				mKontakt.setMail2(tEmailadresse_2.getText());
-				mKontakt.setTelDienst(tDienstlich.getText());
-				mKontakt.setTelPrivat(tPrivat.getText());
-				mKontakt.setTelMobil(tMobil.getText());
-			}
-			
-			this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
-		}
-		else if(e == btnAbbrechen) {
-			this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
-		}
-	}
-
 }
