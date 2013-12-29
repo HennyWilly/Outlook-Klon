@@ -522,7 +522,18 @@ public class MainFrame extends JFrame implements TreeSelectionListener, ListSele
 		Tkf.setExtendedState(this.getExtendedState());
 		Tkf.setVisible(true);
 	}
+<<<<<<< HEAD
 		
+=======
+	
+	
+	
+	
+	
+	
+	
+	
+>>>>>>> branch 'master' of https://github.com/HennyWilly/Outlook-Klon.git
 	private void oeffneAdressbuchFrame() {
 		AdressbuchFrame af = new AdressbuchFrame(benutzer.getKontakte());
 
