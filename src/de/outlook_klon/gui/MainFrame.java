@@ -115,7 +115,7 @@ public class MainFrame extends JFrame implements TreeSelectionListener, ListSele
 		mntmTermin.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
+				oeffneKalenderFrame();				//fürs erste
 			}
 		});
 		mnNewMenu.add(mntmTermin);
@@ -144,6 +144,15 @@ public class MainFrame extends JFrame implements TreeSelectionListener, ListSele
 		mnExtras.add(mntmAdressbuch);
 		
 		mntmKalendar = new JMenuItem("Kalendar");
+		mntmKalendar.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				oeffneKalenderFrame();
+			}
+		});
+		
+		
 		mnExtras.add(mntmKalendar);
 		
 		mnExtras.add(new JSeparator());
@@ -482,6 +491,21 @@ public class MainFrame extends JFrame implements TreeSelectionListener, ListSele
 		mf.setExtendedState(this.getExtendedState());
 		mf.setVisible(true);
 	}
+	
+	private void oeffneKalenderFrame() {
+		TerminkalenderFrame Tkf = new TerminkalenderFrame(benutzer.getTermine());
+		
+		Tkf.setSize(this.getSize());
+		Tkf.setExtendedState(this.getExtendedState());
+		Tkf.setVisible(true);
+	}
+	
+	
+	
+	
+	
+	
+	
 	
 	private void oeffneAdressbuchFrame() {
 		AdressbuchFrame af = new AdressbuchFrame(benutzer.getKontakte());

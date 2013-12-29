@@ -10,7 +10,7 @@ import java.util.Iterator;
 
 import de.outlook_klon.logik.kontakte.Kontaktverwaltung;
 import de.outlook_klon.logik.mailclient.MailAccount;
-import de.outlook_klon.logik.kalendar.Terminkalendar;
+import de.outlook_klon.logik.kalendar.Terminkalender;
 
 /**
  * Diese Klasse stellt den Benutzer dar.
@@ -21,7 +21,7 @@ import de.outlook_klon.logik.kalendar.Terminkalendar;
  */
 public class Benutzer implements Iterable<MailAccount> {
 	private Kontaktverwaltung kontakte;
-	private Terminkalendar termine;
+	private Terminkalender termine;
 	private ArrayList<MailAccount> konten;
 	
 	/**
@@ -30,11 +30,13 @@ public class Benutzer implements Iterable<MailAccount> {
 	 */
 	public Benutzer() {
 		kontakte = new Kontaktverwaltung();
-		termine = new Terminkalendar();
+		termine = new Terminkalender();
 		
 		konten = new ArrayList<MailAccount>();
 		
 		File file = new File("Mail").getAbsoluteFile();
+		if(!file.exists())
+			file.mkdirs();
 		String[] directories = file.list(new FilenameFilter() {
 		  @Override
 		  public boolean accept(File dir, String name) {
@@ -89,7 +91,7 @@ public class Benutzer implements Iterable<MailAccount> {
 	 * Gibt die Instanz der Terminverwaltung zurück
 	 * @return Terminverwaltung des Benutzers
 	 */
-	public Terminkalendar getTermine() {
+	public Terminkalender getTermine() {
 		return termine;
 	}
 	

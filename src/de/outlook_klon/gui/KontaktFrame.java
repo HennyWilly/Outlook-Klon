@@ -38,6 +38,7 @@ public class KontaktFrame extends JDialog {
 		this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
 	}
 	
+	
 	private void initFrame() {
 		this.setModal(true);
 		this.setResizable(false);
@@ -108,7 +109,6 @@ public class KontaktFrame extends JDialog {
 		
 		btnAbbrechen = new JButton("Abbrechen");
 		btnAbbrechen.addActionListener(new ActionListener() {
-			@Override
 			public void actionPerformed(ActionEvent e) {
 				close();
 			}
