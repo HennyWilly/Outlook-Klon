@@ -4,6 +4,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.event.WindowEvent;
 
 import javax.swing.ButtonGroup;
@@ -43,8 +45,19 @@ import javax.mail.internet.InternetAddress;
 import de.outlook_klon.logik.mailclient.MailAccount;
 import de.outlook_klon.logik.mailclient.MailInfo;
 
-public class MailFrame extends JFrame implements ItemListener {
+public class MailFrame extends JFrame implements ItemListener {	
 	private static final long serialVersionUID = 5976953616015664148L;
+	
+	private enum MailModus {
+		NEU,
+		OEFFNEN,
+		ANTWORT,
+		WEITERLEITEN
+	}
+	
+	private MailModus modus;
+	private MailInfo info;
+	private String relPfad;
 	
 	private JComboBox<MailAccount> cBSender;
 	private JTextField tSender;
@@ -79,6 +92,7 @@ public class MailFrame extends JFrame implements ItemListener {
 		menuBar.add(mnDatei);
 		
 		JMenu mnAnhaengen = new JMenu("Anh\u00E4ngen");
+		mnAnhaengen.setVisible(modus == MailModus.NEU);
 		mnDatei.add(mnAnhaengen);
 		
 		mntmDateiAnhaengen = new JMenuItem("Datei anh\u00E4ngen");
@@ -119,7 +133,25 @@ public class MailFrame extends JFrame implements ItemListener {
 		group.add(rdbtnmntmHtml);
 	}
 	
-	private void initGui(boolean neu) {
+	private void initListe(JSplitPane splitHead) {
+		lstAnhang = new JList<File>(new DefaultListModel<File>());
+		
+		JScrollPane anhangScroller = new JScrollPane(lstAnhang);
+		splitHead.setRightComponent(anhangScroller);
+		
+		if(modus == MailModus.OEFFNEN) {
+			lstAnhang.addMouseListener(new MouseAdapter() {
+				public void mouseClicked(MouseEvent e) {
+					if (e.getClickCount() == 2) {
+						File selected = lstAnhang.getSelectedValue();
+						anhangSpeichern(selected.getName());
+					}
+				}
+			});
+		}
+	}
+	
+	private void initGui() {
 		JToolBar toolBar = new JToolBar();
 		
 		JSplitPane splitPane = new JSplitPane();
@@ -188,7 +220,7 @@ public class MailFrame extends JFrame implements ItemListener {
 						.addComponent(lSubject, GroupLayout.PREFERRED_SIZE, 46, GroupLayout.PREFERRED_SIZE))
 					.addGap(2)
 					.addGroup(gl_panel_1.createParallelGroup(Alignment.LEADING)
-						.addComponent(neu ? cBSender : tSender, 0, 301, Short.MAX_VALUE)
+						.addComponent(modus != MailModus.OEFFNEN ? cBSender : tSender, 0, 301, Short.MAX_VALUE)
 						.addComponent(tTo, GroupLayout.DEFAULT_SIZE, 301, Short.MAX_VALUE)
 						.addComponent(tCC, GroupLayout.DEFAULT_SIZE, 301, Short.MAX_VALUE)
 						.addComponent(tSubject, GroupLayout.DEFAULT_SIZE, 301, Short.MAX_VALUE))
@@ -200,7 +232,7 @@ public class MailFrame extends JFrame implements ItemListener {
 					.addContainerGap()
 					.addGroup(gl_panel_1.createParallelGroup(Alignment.BASELINE)
 						.addComponent(lSender)
-						.addComponent(neu ? cBSender : tSender, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+						.addComponent(modus != MailModus.OEFFNEN ? cBSender : tSender, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
 					.addPreferredGap(ComponentPlacement.RELATED)
 					.addGroup(gl_panel_1.createParallelGroup(Alignment.LEADING)
 						.addGroup(gl_panel_1.createSequentialGroup()
@@ -219,10 +251,8 @@ public class MailFrame extends JFrame implements ItemListener {
 		);
 		panel_1.setLayout(gl_panel_1);
 		
-		lstAnhang = new JList<File>(new DefaultListModel<File>());
 		
-		JScrollPane anhangScroller = new JScrollPane(lstAnhang);
-		splitHead.setRightComponent(anhangScroller);
+		initListe(splitHead);
 		
 		panel.setLayout(gl_panel);
 		
@@ -290,12 +320,22 @@ public class MailFrame extends JFrame implements ItemListener {
 	}
 	
 	public MailFrame() {
+		modus = MailModus.NEU;
+		
 		setTitle("<Kein Betreff>");
-		initGui(true);		
+		initGui();		
 	}
 
 	public MailFrame(MailInfo mail, String pfad, MailAccount parent) throws MessagingException {
-		initGui(false);
+		modus = MailModus.OEFFNEN;
+		
+		initGui();
+		
+		info = mail;
+		relPfad = pfad;
+		
+		addMailAccount(parent);
+		cBSender.setSelectedItem(parent);
 		
 		parent.getWholeMessage(pfad, mail);
 		charset = mail.getContentType().split("; ")[1];
@@ -331,14 +371,16 @@ public class MailFrame extends JFrame implements ItemListener {
 	 * @param weiterleiten Weiterleiten -> true; Antworten -> false
 	 */
 	public MailFrame(MailInfo mail, String pfad, MailAccount parent, boolean weiterleiten) throws MessagingException {
-		initGui(true);
+		modus = weiterleiten ? MailModus.WEITERLEITEN : MailModus.ANTWORT;
+		
+		initGui();
+		
+		info = mail;
+		relPfad = pfad;
 		
 		parent.getWholeMessage(pfad, mail);
 
 		String subject = (weiterleiten ? "Fwd: " : "Re: ") + mail.getSubject();
-		
-		addMailAccount(parent);
-		cBSender.setSelectedItem(parent);
 		
 		tSubject.setText(subject);
 		
@@ -421,6 +463,23 @@ public class MailFrame extends JFrame implements ItemListener {
 			for(File file : files) {
 				if(file.exists())
 					model.addElement(file);
+			}
+		}
+	}
+	
+	private void anhangSpeichern(String name) {
+		JFileChooser fc = new JFileChooser();
+		fc.setSelectedFile(new File(name));
+		
+		if(fc.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
+			String pfad = fc.getSelectedFile().getAbsolutePath();
+			MailAccount acc = (MailAccount)cBSender.getSelectedItem();
+			
+			try {
+				acc.anhangSpeichern(info, relPfad, name, pfad);
+			} catch(Exception ex) {
+				JOptionPane.showMessageDialog(this, "Es ist ein Fehler beim Speichern des Anhangs aufgetreten: \n" + ex.getLocalizedMessage(),
+						"Fehler", JOptionPane.OK_OPTION);
 			}
 		}
 	}
