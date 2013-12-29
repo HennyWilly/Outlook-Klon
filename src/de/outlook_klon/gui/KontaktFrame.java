@@ -53,15 +53,32 @@ public class KontaktFrame extends JDialog {
 		JLabel lblDienstlich = new JLabel("Dienstlich: ");
 		JLabel lblPrivat = new JLabel("Privat: ");
 		JLabel lblMobil = new JLabel("Mobil: ");
-		
+
+		tVorname = new JTextField();
 		tVorname.setColumns(10);
+		
+		tName = new JTextField();
 		tName.setColumns(10);
+
+		tAnzeigename = new JTextField();
 		tAnzeigename.setColumns(10);
+
+		tSpitzname = new JTextField();
 		tSpitzname.setColumns(10);
+
+		tEmailadresse_1 = new JTextField();
 		tEmailadresse_1.setColumns(10);
+
+		tEmailadresse_2 = new JTextField();
 		tEmailadresse_2.setColumns(10);
+
+		tDienstlich = new JTextField();
 		tDienstlich.setColumns(10);
+
+		tPrivat = new JTextField();
 		tPrivat.setColumns(10);
+
+		tMobil = new JTextField();
 		tMobil.setColumns(10);
 		
 		btnOK = new JButton("OK");
@@ -183,16 +200,6 @@ public class KontaktFrame extends JDialog {
 		mKontakt = null;
 		this.setTitle(formatStringErstellen);
 		
-		tVorname = new JTextField();
-		tName = new JTextField();
-		tAnzeigename = new JTextField();
-		tSpitzname = new JTextField();
-		tEmailadresse_1 = new JTextField();
-		tEmailadresse_2 = new JTextField();
-		tDienstlich = new JTextField();
-		tPrivat = new JTextField();
-		tMobil = new JTextField();
-		
 		initFrame();
 	}
 	
@@ -200,17 +207,17 @@ public class KontaktFrame extends JDialog {
 		mKontakt = k;
 		this.setTitle(String.format(formatStringBearbeiten, mKontakt));
 		
-		tVorname = new JTextField(mKontakt.getVorname());
-		tName = new JTextField(mKontakt.getNachname());
-		tAnzeigename = new JTextField(mKontakt.getAnzeigename());
-		tSpitzname = new JTextField(mKontakt.getSpitzname());
-		tEmailadresse_1 = new JTextField(mKontakt.getMail1().toString());
-		tEmailadresse_2 = new JTextField(mKontakt.getMail2().toString());
-		tDienstlich = new JTextField(mKontakt.getTelDienst());
-		tPrivat = new JTextField(mKontakt.getTelPrivat());
-		tMobil = new JTextField(mKontakt.getTelMobil());
-		
 		initFrame();
+		
+		tVorname.setText(mKontakt.getVorname());
+		tName.setText(mKontakt.getNachname());
+		tAnzeigename.setText(mKontakt.getAnzeigename());
+		tSpitzname.setText(mKontakt.getSpitzname());
+		tEmailadresse_1.setText(mKontakt.getMail1().toString());
+		tEmailadresse_2.setText(mKontakt.getMail2().toString());
+		tDienstlich.setText(mKontakt.getTelDienst());
+		tPrivat.setText(mKontakt.getTelPrivat());
+		tMobil.setText(mKontakt.getTelMobil());
 	}
 
 	public Kontakt showDialog() {
