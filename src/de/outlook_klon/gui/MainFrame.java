@@ -51,6 +51,7 @@ import javax.mail.internet.InternetAddress;
 import de.outlook_klon.logik.Benutzer;
 import de.outlook_klon.logik.mailclient.MailAccount;
 import de.outlook_klon.logik.mailclient.MailInfo;
+
 import javax.swing.JSeparator;
 
 public class MainFrame extends JFrame implements TreeSelectionListener, ListSelectionListener {
@@ -115,7 +116,7 @@ public class MainFrame extends JFrame implements TreeSelectionListener, ListSele
 		mntmTermin.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
+				oeffneKalenderFrame();				//fürs erste
 			}
 		});
 		mnNewMenu.add(mntmTermin);
@@ -144,6 +145,15 @@ public class MainFrame extends JFrame implements TreeSelectionListener, ListSele
 		mnExtras.add(mntmAdressbuch);
 		
 		mntmKalendar = new JMenuItem("Kalendar");
+		mntmKalendar.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				oeffneKalenderFrame();
+			}
+		});
+		
+		
 		mnExtras.add(mntmKalendar);
 		
 		mnExtras.add(new JSeparator());
@@ -326,7 +336,7 @@ public class MainFrame extends JFrame implements TreeSelectionListener, ListSele
 		
 		tblMails.removeColumn(tblMails.getColumn("MailInfo"));
 		tblMails.getSelectionModel().addListSelectionListener(this);
-		tblMails.setComponentPopupMenu(tablePopup);
+		//tblMails.setComponentPopupMenu(tablePopup);
 		tblMails.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(MouseEvent e) {
 				if (e.getClickCount() == 2) {
@@ -341,6 +351,14 @@ public class MainFrame extends JFrame implements TreeSelectionListener, ListSele
 					  
 					oeffneMail(mailID);
 				}
+			}
+			
+			public void mousePressed(MouseEvent e) {
+				oeffnePopupTabelle(e);
+			}
+			
+			public void mouseReleased(MouseEvent e) {
+				oeffnePopupTabelle(e);
 			}
 		});
 		
@@ -450,6 +468,13 @@ public class MainFrame extends JFrame implements TreeSelectionListener, ListSele
 		MailFrame mf;
 		try {
 			mf = new MailFrame(info, pfad, acc, false);
+			
+			for(MailAccount ac : benutzer) {
+				mf.addMailAccount(ac);
+			}
+			
+			mf.setSize(this.getSize());
+			mf.setExtendedState(this.getExtendedState());
 			mf.setVisible(true);
 		} catch (MessagingException e1) {
 			// TODO Auto-generated catch block
@@ -464,6 +489,13 @@ public class MainFrame extends JFrame implements TreeSelectionListener, ListSele
 		MailFrame mf;
 		try {
 			mf = new MailFrame(info, pfad, acc, true);
+			
+			for(MailAccount ac : benutzer) {
+				mf.addMailAccount(ac);
+			}
+			
+			mf.setSize(this.getSize());
+			mf.setExtendedState(this.getExtendedState());
 			mf.setVisible(true);
 		} catch (MessagingException e1) {
 			// TODO Auto-generated catch block
@@ -483,6 +515,14 @@ public class MainFrame extends JFrame implements TreeSelectionListener, ListSele
 		mf.setVisible(true);
 	}
 	
+	private void oeffneKalenderFrame() {
+		TerminkalenderFrame Tkf = new TerminkalenderFrame(benutzer.getTermine());
+		
+		Tkf.setSize(this.getSize());
+		Tkf.setExtendedState(this.getExtendedState());
+		Tkf.setVisible(true);
+	}
+		
 	private void oeffneAdressbuchFrame() {
 		AdressbuchFrame af = new AdressbuchFrame(benutzer.getKontakte());
 
@@ -643,16 +683,36 @@ public class MainFrame extends JFrame implements TreeSelectionListener, ListSele
 		MailFrame mf;
 		try {
 			mf = new MailFrame(info, pfad, acc);
+			
+			mf.setSize(this.getSize());
+			mf.setExtendedState(this.getExtendedState());
 			mf.setVisible(true);
 		} catch (MessagingException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
 	}
+	
+	private void oeffnePopupTabelle(MouseEvent e) {
+		if (e.isPopupTrigger()) {
+			int zeile = tblMails.rowAtPoint(e.getPoint());
+			int spalte = tblMails.columnAtPoint(e.getPoint());
+			
+			if(zeile >= 0 && spalte >= 0) {
+				tblMails.setRowSelectionInterval(zeile, zeile);
+				
+				tablePopup.show(tblMails, e.getX(), e.getY());
+			}
+	    }
+	}
 
 	@Override
 	public void valueChanged(TreeSelectionEvent e) {
 		DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode)tree.getLastSelectedPathComponent();
+		if(selectedNode == null) {
+			throw new NullPointerException("Hier tritt manchmal eine Exception auf :(");
+		}
+		
 		Object userObject = selectedNode.getUserObject();
 		
 		if(!(userObject instanceof MailAccount)) {
