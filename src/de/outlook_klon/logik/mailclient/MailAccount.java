@@ -20,6 +20,7 @@ import javax.mail.Multipart;
 import javax.mail.Part;
 import javax.mail.Store;
 import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.search.MessageIDTerm;
 import javax.mail.search.SearchTerm;
@@ -568,6 +569,8 @@ public class MailAccount implements Serializable {
 				}
 			}
 			
+			//TODO Löschen von Mails, ohne dass die Ordner eine Trash-Flag haben
+			
 			result = true;
 		} finally {
 			if(mailStore != null && mailStore.isConnected()) {
@@ -577,6 +580,41 @@ public class MailAccount implements Serializable {
 					e.printStackTrace();
 				}
 			}
+		}
+		
+		return result;
+	}
+	
+	public boolean anhangSpeichern(MailInfo mail, String pfad, String anhangName, String zielPfad) throws IOException, MessagingException {
+		boolean result = true;
+		Store mailStore = null;
+		
+		try {
+			mailStore = inServer.getMailStore(benutzer, passwort);
+			mailStore.connect(inServer.settings.getHost(), inServer.settings.getPort(), benutzer, passwort);
+			
+			Folder ordner = mailStore.getFolder(pfad);
+			ordner.open(Folder.READ_WRITE);
+			
+			Message message = infoToMessage(mail, ordner);
+			String contentType = message.getContentType();
+			if(contentType.contains("multipart")) {
+				Multipart multipart = (Multipart)message.getContent();
+				for(int i = 0; i < multipart.getCount(); i++) {
+					MimeBodyPart part = (MimeBodyPart) multipart.getBodyPart(i);
+					String disposition = part.getDisposition();
+					String fileName = part.getFileName();
+				    if (Part.ATTACHMENT.equalsIgnoreCase(disposition) || (fileName != null && !fileName.trim().isEmpty())) {
+				    	if(anhangName.equals(fileName))
+				    		part.saveFile(zielPfad);
+				    }
+				}
+			}
+		} finally {
+			if(mailStore != null && mailStore.isConnected())
+				try {
+					mailStore.close();
+				} catch (MessagingException e) { }
 		}
 		
 		return result;
