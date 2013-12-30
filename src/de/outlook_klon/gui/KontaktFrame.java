@@ -4,10 +4,13 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
 
+import javax.mail.internet.AddressException;
+import javax.mail.internet.InternetAddress;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
+import javax.swing.JOptionPane;
 import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.JTextField;
 import javax.swing.JButton;
@@ -37,7 +40,6 @@ public class KontaktFrame extends JDialog {
 	private void close() {
 		this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
 	}
-	
 	
 	private void initFrame() {
 		this.setModal(true);
@@ -86,24 +88,32 @@ public class KontaktFrame extends JDialog {
 		btnOK.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				if(mKontakt == null)
-					mKontakt = new Kontakt(tName.getText(), tVorname.getText(), 
-							tAnzeigename.getText(), tSpitzname.getText(),
-							tEmailadresse_1.getText(), tEmailadresse_2.getText(),
-							tPrivat.getText(), tDienstlich.getText(), tMobil.getText());
-				else {
-					mKontakt.setVorname(tVorname.getText());
-					mKontakt.setNachname(tName.getText());
-					mKontakt.setAnzeigename(tAnzeigename.getText());
-					mKontakt.setSpitzname(tSpitzname.getText());
-					mKontakt.setMail1(tEmailadresse_1.getText());
-					mKontakt.setMail2(tEmailadresse_2.getText());
-					mKontakt.setTelDienst(tDienstlich.getText());
-					mKontakt.setTelPrivat(tPrivat.getText());
-					mKontakt.setTelMobil(tMobil.getText());
+				try {
+					InternetAddress mail1 = tEmailadresse_1.getText().trim().isEmpty() ? null : new InternetAddress(tEmailadresse_1.getText());
+					InternetAddress mail2 = tEmailadresse_2.getText().trim().isEmpty() ? null : new InternetAddress(tEmailadresse_2.getText());
+					
+					if(mKontakt == null)
+						mKontakt = new Kontakt(tName.getText(), tVorname.getText(), 
+								tAnzeigename.getText(), tSpitzname.getText(),
+								mail1, mail2,
+								tPrivat.getText(), tDienstlich.getText(), tMobil.getText());
+					else {
+						mKontakt.setVorname(tVorname.getText());
+						mKontakt.setNachname(tName.getText());
+						mKontakt.setAnzeigename(tAnzeigename.getText());
+						mKontakt.setSpitzname(tSpitzname.getText());
+						mKontakt.setMail1(mail1);
+						mKontakt.setMail2(mail2);
+						mKontakt.setTelDienst(tDienstlich.getText());
+						mKontakt.setTelPrivat(tPrivat.getText());
+						mKontakt.setTelMobil(tMobil.getText());
+					}
+					
+					close();
+				} catch (AddressException ex) {
+					parseFehler(ex);
 				}
 				
-				close();
 			}
 		});
 		
@@ -209,15 +219,23 @@ public class KontaktFrame extends JDialog {
 		
 		initFrame();
 		
+		String mail1 = mKontakt.getMail1() == null ? "" : mKontakt.getMail1().toUnicodeString();
+		String mail2 = mKontakt.getMail2() == null ? "" : mKontakt.getMail2().toUnicodeString();
+		
 		tVorname.setText(mKontakt.getVorname());
 		tName.setText(mKontakt.getNachname());
 		tAnzeigename.setText(mKontakt.getAnzeigename());
 		tSpitzname.setText(mKontakt.getSpitzname());
-		tEmailadresse_1.setText(mKontakt.getMail1().toString());
-		tEmailadresse_2.setText(mKontakt.getMail2().toString());
+		tEmailadresse_1.setText(mail1);
+		tEmailadresse_2.setText(mail2);
 		tDienstlich.setText(mKontakt.getTelDienst());
 		tPrivat.setText(mKontakt.getTelPrivat());
 		tMobil.setText(mKontakt.getTelMobil());
+	}
+	
+	private void parseFehler(AddressException ex) {
+		JOptionPane.showMessageDialog(this, "Es ist ein Fehler beim Parsen einer Mailadresse aufgetreten:\n" + ex.getLocalizedMessage(),
+				"Fehler", JOptionPane.OK_OPTION);
 	}
 
 	public Kontakt showDialog() {
