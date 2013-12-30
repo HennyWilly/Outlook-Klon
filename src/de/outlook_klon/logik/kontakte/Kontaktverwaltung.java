@@ -3,6 +3,7 @@ package de.outlook_klon.logik.kontakte;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Set;
 
 /**
  * Diese Klasse stellt die Verwaltung für die Kontakte des Bentzers dar
@@ -82,7 +83,8 @@ public class Kontaktverwaltung {
 	 * @return Namen aller Kontaktlisten
 	 */
 	public String[] getListen() {	
-		return mKontakte.keySet().toArray(new String[0]);
+		Set<String> arrayListe = mKontakte.keySet();
+		return arrayListe.toArray(new String[mKontakte.size()]);
 	}
 	
 	/**
@@ -91,6 +93,7 @@ public class Kontaktverwaltung {
 	 * @return Kontakte der übergebenen Liste
 	 */
 	public Kontakt[] getKontakte(String liste) {
-		return mKontakte.get(liste).toArray(new Kontakt[0]);
+		ArrayList<Kontakt> arrayliste = mKontakte.get(liste);
+		return arrayliste.toArray(new Kontakt[arrayliste.size()]);
 	}
 }
