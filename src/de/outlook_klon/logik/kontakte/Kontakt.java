@@ -1,5 +1,7 @@
 package de.outlook_klon.logik.kontakte;
 
+import javax.mail.internet.InternetAddress;
+
 /**
  * Dies ist eine Datenklasse, die die Daten von einem Kontakt des Benutzers speichert.
  * 
@@ -10,8 +12,8 @@ public class Kontakt {
 	private String mVorname;
 	private String mAnzeigename;
 	private String mSpitzname;
-	private String mMail1;
-	private String mMail2;
+	private InternetAddress mMail1;
+	private InternetAddress mMail2;
 	private String mTelDienst;
 	private String mTelMobil;
 	private String mTelPrivat;
@@ -29,7 +31,7 @@ public class Kontakt {
 	 * @param telMobil Mobiltelefonnummer des Kontakts
 	 */
 	public Kontakt(String nachname, String vorname, String anzeigename, String spitzname, 
-			String mail1, String mail2, String telPrivat, String telDienst, String telMobil) {
+			InternetAddress mail1, InternetAddress mail2, String telPrivat, String telDienst, String telMobil) {
 		setNachname(nachname);
 		setVorname(vorname);
 		setAnzeigename(anzeigename);
@@ -114,7 +116,7 @@ public class Kontakt {
 	 * Setter für die erste E-Mail-Adresse des Kontakts
 	 * @param mail1 Zu setzende E-Mail-Adresse
 	 */
-	public void setMail1(String mail1) {
+	public void setMail1(InternetAddress mail1) {
 		this.mMail1 = mail1;
 	}
 
@@ -122,7 +124,7 @@ public class Kontakt {
 	 * Getter für die erste E-Mail-Adresse des Kontakts
 	 * @return Erste E-Mail-Adresse
 	 */
-	public String getMail1() {
+	public InternetAddress getMail1() {
 		return mMail1;
 	}
 	
@@ -130,7 +132,7 @@ public class Kontakt {
 	 * Setter für die zweite E-Mail-Adresse des Kontaks
 	 * @param mail2 Zu setzende E-Mail-Adresse
 	 */
-	public void setMail2(String mail2) {
+	public void setMail2(InternetAddress mail2) {
 		this.mMail2 = mail2;
 	}
 
@@ -138,7 +140,7 @@ public class Kontakt {
 	 * Getter für die zweite E-Mail-Adresse des Kontakts
 	 * @return Zweite E-Mail-Adresse
 	 */
-	public String getMail2() {
+	public InternetAddress getMail2() {
 		return mMail2;
 	}
 
