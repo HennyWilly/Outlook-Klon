@@ -107,7 +107,7 @@ public class MainFrame extends JFrame implements TreeSelectionListener, ListSele
 		mntmKontakt.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				oeffneAdressbuchFrame();
+				oeffneAdressbuchFrame(true);
 			}
 		});
 		mnNewMenu.add(mntmKontakt);
@@ -142,6 +142,12 @@ public class MainFrame extends JFrame implements TreeSelectionListener, ListSele
 		});
 		
 		mntmAdressbuch = new JMenuItem("Adressbuch");
+		mntmAdressbuch.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				oeffneAdressbuchFrame(false);
+			}
+		});
 		mnExtras.add(mntmAdressbuch);
 		
 		mntmKalendar = new JMenuItem("Kalendar");
@@ -523,8 +529,8 @@ public class MainFrame extends JFrame implements TreeSelectionListener, ListSele
 		Tkf.setVisible(true);
 	}
 	
-	private void oeffneAdressbuchFrame() {
-		AdressbuchFrame af = new AdressbuchFrame(benutzer.getKontakte());
+	private void oeffneAdressbuchFrame(boolean neu) {
+		AdressbuchFrame af = new AdressbuchFrame(benutzer.getKontakte(), neu);
 
 		af.setSize(this.getSize());
 		af.setExtendedState(this.getExtendedState());
