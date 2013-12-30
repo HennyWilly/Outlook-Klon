@@ -1,8 +1,10 @@
 package de.outlook_klon.logik.mailclient;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -166,24 +168,36 @@ public class MailAccount implements Serializable {
 			
 			for(int i = 0; i < messages.length; i++) {
 				Message message = messages[i];
-				
 				String id = message.getHeader("Message-ID")[0];
-				boolean read = message.isSet(Flag.SEEN);
-				String subject = message.getSubject();
-				Address from = message.getFrom()[0];
-				Date sendDate = message.getSentDate();
 				
-				ret[i] = new MailInfo();
-				ret[i].setID(id);
-				ret[i].setRead(read);
-				ret[i].setSubject(subject);
-				ret[i].setSender(from);
-				ret[i].setDate(sendDate);
+				String dateiname = id.replace(">", "").replace("<", "");
+				File lokalerPfad = new File("Mail/" + adresse.getAddress() + "/" + pfad + "/"  + dateiname + ".mail").getAbsoluteFile();
+				MailInfo tmp = ladeMailInfo(lokalerPfad);
+				
+				if(tmp != null) {
+					ret[i] = tmp;
+				}
+				else {
+					boolean read = message.isSet(Flag.SEEN);
+					String subject = message.getSubject();
+					Address from = message.getFrom()[0];
+					Date sendDate = message.getSentDate();
+					
+					ret[i] = new MailInfo();
+					ret[i].setID(id);
+					ret[i].setRead(read);
+					ret[i].setSubject(subject);
+					ret[i].setSender(from);
+					ret[i].setDate(sendDate);
+					
+					speichereMailInfo(ret[i], lokalerPfad);
+				}
 			}
 			
 			folder.close(true);
 		} catch (Exception e) {
-			e.printStackTrace();
+			if(ret == null) 
+				ret = new MailInfo[0];
 		} finally {
 			if(store != null && store.isConnected())
 				try {
@@ -294,6 +308,12 @@ public class MailAccount implements Serializable {
 					message.setFlag(Flag.SEEN, true);
 					messageInfo.setRead(true);
 				}
+
+				String id = messageInfo.getID();
+				String dateiname = id.replace(">", "").replace("<", "");
+				File lokalerPfad = new File("Mail/" + adresse.getAddress() + "/" + pfad + "/"  + dateiname + ".mail").getAbsoluteFile();
+				
+				speichereMailInfo(messageInfo, lokalerPfad);
 			}
 			
 			folder.close(true);
@@ -371,6 +391,12 @@ public class MailAccount implements Serializable {
 					
 					messageInfo.setAttachment(attachment.toArray(new String[attachment.size()]));
 				}
+
+				String id = messageInfo.getID();
+				String dateiname = id.replace(">", "").replace("<", "");
+				File lokalerPfad = new File("Mail/" + adresse.getAddress() + "/" + pfad + "/"  + dateiname + ".mail").getAbsoluteFile();
+				
+				speichereMailInfo(messageInfo, lokalerPfad);
 			}
 			
 			folder.close(true);
@@ -618,6 +644,49 @@ public class MailAccount implements Serializable {
 		}
 		
 		return result;
+	}
+	
+	private void speichereMailInfo(MailInfo info, File zielDatei) throws IOException {
+		zielDatei = zielDatei.getAbsoluteFile();
+		File ordner = zielDatei.getParentFile();
+		
+		FileOutputStream fos = null;
+		ObjectOutputStream oos = null;
+		try {
+			if(!ordner.exists()) {
+				ordner.mkdirs();
+			}
+			
+			fos = new FileOutputStream(zielDatei);
+			oos = new ObjectOutputStream(fos);
+			
+			oos.writeObject(info);
+		} 
+		finally {
+			if(oos != null)
+				oos.close();
+		}
+	}
+	
+	private MailInfo ladeMailInfo(File datei) throws ClassNotFoundException, IOException {
+		MailInfo geladen = null;
+
+		datei = datei.getAbsoluteFile();
+		if(datei.exists()) {
+			FileInputStream fis = null;
+			ObjectInputStream ois = null;
+			try {
+				fis = new FileInputStream(datei);
+				ois = new ObjectInputStream(fis);
+				
+				geladen = (MailInfo)ois.readObject();
+			}
+			finally {
+				ois.close();
+			}
+		}
+		
+		return geladen;
 	}
 	
 	/**

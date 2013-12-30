@@ -1,10 +1,13 @@
 package de.outlook_klon.logik.mailclient;
 
+import java.io.Serializable;
 import java.util.Date;
 
 import javax.mail.Address;
 
-public class MailInfo {
+public class MailInfo implements Serializable{
+	private static final long serialVersionUID = 7484178938043380415L;
+	
 	private String id;
 	private boolean read;
 	private String subject;
