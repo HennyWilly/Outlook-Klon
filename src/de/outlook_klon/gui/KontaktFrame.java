@@ -1,7 +1,11 @@
 package de.outlook_klon.gui;
 
+import java.awt.Component;
+import java.awt.Container;
+import java.awt.FocusTraversalPolicy;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Vector;
 
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
@@ -10,6 +14,8 @@ import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.JOptionPane;
 import javax.swing.LayoutStyle.ComponentPlacement;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.JTextField;
 import javax.swing.JButton;
 
@@ -17,8 +23,10 @@ import de.outlook_klon.logik.kontakte.Kontakt;
 
 public class KontaktFrame extends ExtendedDialog<Kontakt> {
 	private static final long serialVersionUID = 1466530984514818388L;
-	private static final String formatStringErstellen = "Kontakt erstellen";
-	private static final String formatStringBearbeiten = "Kontakt von %s bearbeiten";
+	private static final String formatStringErstellen1 = "Neuer Kontakt";
+	private static final String formatStringErstellen2 = "Neuer Kontakt für %s";
+	private static final String formatStringBearbeiten1 = "Kontakt bearbeiten";
+	private static final String formatStringBearbeiten2 = "Kontakt von %s bearbeiten";
 
 	private Kontakt mKontakt;
 	
@@ -35,6 +43,43 @@ public class KontaktFrame extends ExtendedDialog<Kontakt> {
 	private JButton btnOK;
 	private JButton btnAbbrechen;
 	
+	public static class VectorFocusTraversalPolicy extends FocusTraversalPolicy
+	{
+		Vector<Component> order;
+		
+		public VectorFocusTraversalPolicy(Vector<Component> order) {
+			this.order = new Vector<Component>(order.size());
+			this.order.addAll(order);
+		}
+		
+		public Component getComponentAfter(Container focusCycleRoot, Component aComponent)
+		{
+			int idx = (order.indexOf(aComponent) + 1) % order.size();
+			return order.get(idx);
+		}
+		
+		public Component getComponentBefore(Container focusCycleRoot, Component aComponent)
+		{
+			int idx = order.indexOf(aComponent) - 1;
+			if (idx < 0) {
+				idx = order.size() - 1;
+			}
+			return order.get(idx);
+		}
+		
+		public Component getDefaultComponent(Container focusCycleRoot) {
+			return getFirstComponent(focusCycleRoot);
+		}
+		
+		public Component getLastComponent(Container focusCycleRoot) {
+			return order.lastElement();
+		}
+		
+		public Component getFirstComponent(Container focusCycleRoot) {
+			return order.get(0);
+		}
+	}
+	
 	private void initFrame() {
 		this.setLocationRelativeTo(null);
 		this.setSize(685, 285);
@@ -48,15 +93,63 @@ public class KontaktFrame extends ExtendedDialog<Kontakt> {
 		JLabel lblDienstlich = new JLabel("Dienstlich: ");
 		JLabel lblPrivat = new JLabel("Privat: ");
 		JLabel lblMobil = new JLabel("Mobil: ");
-
+		
 		tVorname = new JTextField();
 		tVorname.setColumns(10);
+		tVorname.getDocument().addDocumentListener(new DocumentListener() {
+			@Override
+			public void removeUpdate(DocumentEvent arg0) {
+				aktualisiereAnzeigename();
+			}
+			
+			@Override
+			public void insertUpdate(DocumentEvent arg0) {
+				aktualisiereAnzeigename();
+			}
+			
+			@Override
+			public void changedUpdate(DocumentEvent arg0) {
+				aktualisiereAnzeigename();
+			}
+		});
 		
 		tName = new JTextField();
 		tName.setColumns(10);
+		tName.getDocument().addDocumentListener(new DocumentListener() {
+			@Override
+			public void removeUpdate(DocumentEvent arg0) {
+				aktualisiereAnzeigename();
+			}
+			
+			@Override
+			public void insertUpdate(DocumentEvent arg0) {
+				aktualisiereAnzeigename();
+			}
+			
+			@Override
+			public void changedUpdate(DocumentEvent arg0) {
+				aktualisiereAnzeigename();
+			}
+		});
 
 		tAnzeigename = new JTextField();
 		tAnzeigename.setColumns(10);
+		tAnzeigename.getDocument().addDocumentListener(new DocumentListener() {
+			@Override
+			public void removeUpdate(DocumentEvent arg0) {
+				aktualisiereTitel();
+			}
+			
+			@Override
+			public void insertUpdate(DocumentEvent arg0) {
+				aktualisiereTitel();
+			}
+			
+			@Override
+			public void changedUpdate(DocumentEvent arg0) {
+				aktualisiereTitel();
+			}
+		});
 
 		tSpitzname = new JTextField();
 		tSpitzname.setColumns(10);
@@ -196,18 +289,33 @@ public class KontaktFrame extends ExtendedDialog<Kontakt> {
 					.addGap(23))
 		);
 		getContentPane().setLayout(groupLayout);
+		
+		Vector<Component> tabOrder = new Vector<Component>();
+		tabOrder.add(tVorname);
+		tabOrder.add(tName);
+		tabOrder.add(tAnzeigename);
+		tabOrder.add(tSpitzname);
+		tabOrder.add(tEmailadresse_1);
+		tabOrder.add(tEmailadresse_2);
+		tabOrder.add(tDienstlich);
+		tabOrder.add(tPrivat);
+		tabOrder.add(tMobil);
+		tabOrder.add(btnOK);
+		tabOrder.add(btnAbbrechen);
+		
+		setFocusTraversalPolicy(new VectorFocusTraversalPolicy(tabOrder));
 	}
 	
 	public KontaktFrame() {
 		mKontakt = null;
-		this.setTitle(formatStringErstellen);
+		this.setTitle(formatStringErstellen1);
 		
 		initFrame();
 	}
 	
 	public KontaktFrame(Kontakt k) {
 		mKontakt = k;
-		this.setTitle(String.format(formatStringBearbeiten, mKontakt));
+		this.setTitle(String.format(formatStringBearbeiten2, mKontakt));
 		
 		initFrame();
 		
@@ -223,6 +331,34 @@ public class KontaktFrame extends ExtendedDialog<Kontakt> {
 		tDienstlich.setText(mKontakt.getTelDienst());
 		tPrivat.setText(mKontakt.getTelPrivat());
 		tMobil.setText(mKontakt.getTelMobil());
+	}
+	
+	private void aktualisiereAnzeigename() {
+		tAnzeigename.setText(tVorname.getText() + " " + tName.getText());
+	}
+	
+	private void aktualisiereTitel() {
+		String name = tAnzeigename.getText();
+		String titel = null;
+		
+		if(mKontakt == null) {
+			if(name != null & !name.trim().isEmpty()) {
+				titel = String.format(formatStringErstellen2, name);
+			}
+			else {
+				titel = formatStringErstellen1;
+			}
+		}
+		else {
+			if(name != null & !name.trim().isEmpty()) {
+				titel = String.format(formatStringBearbeiten2, name);
+			}
+			else {
+				titel = formatStringBearbeiten1;
+			}
+		}
+		
+		setTitle(titel);
 	}
 	
 	private void parseFehler(AddressException ex) {
