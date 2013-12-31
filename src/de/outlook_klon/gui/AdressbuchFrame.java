@@ -6,12 +6,18 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
 import javax.swing.DefaultListModel;
+import javax.swing.GroupLayout;
+import javax.swing.GroupLayout.Alignment;
+import javax.swing.JButton;
+import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
+import javax.swing.JTextField;
+import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.ListSelectionModel;
 
 import java.awt.BorderLayout;
@@ -30,8 +36,12 @@ public class AdressbuchFrame extends ExtendedFrame {
 	private static final long serialVersionUID = 2142631007771154882L;
 
 	private JPopupMenu tablePopup;
-	private JMenuItem popupOeffnen;
-	private JMenuItem popupLoeschen;
+	private JMenuItem popupTabelleOeffnen;
+	private JMenuItem popupTabelleLoeschen;
+	
+	private JPopupMenu listenPopup;
+	private JMenuItem popupListenUmbennen;
+	private JMenuItem popupListenLoeschen;
 	
 	private JTable tblKontakte;
 	private JTextPane txtDetails;
@@ -43,11 +53,88 @@ public class AdressbuchFrame extends ExtendedFrame {
 	
 	private Kontaktverwaltung verwaltung;
 	
+	private final class ListenDialog extends ExtendedDialog<String> {
+		private static final long serialVersionUID = 1L;
+		
+		private String mListe;
+		private JTextField txtListe;
+		
+		private void initGUI() {
+			setSize(355, 130);
+			
+			txtListe = new JTextField();
+			txtListe.setColumns(10);
+			
+			JButton btnOK = new JButton("OK");
+			btnOK.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent arg0) {
+					mListe = txtListe.getText();
+					close();
+				}
+			});
+			
+			JButton btnAbbruch = new JButton("Abbruch");
+			btnAbbruch.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					close();
+				}
+			});
+			
+			JLabel lblNameDerListe = new JLabel("Name der Liste:");
+			GroupLayout groupLayout = new GroupLayout(getContentPane());
+			groupLayout.setHorizontalGroup(
+				groupLayout.createParallelGroup(Alignment.LEADING)
+					.addGroup(groupLayout.createSequentialGroup()
+						.addContainerGap()
+						.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
+							.addGroup(groupLayout.createSequentialGroup()
+								.addComponent(btnOK, GroupLayout.PREFERRED_SIZE, 72, GroupLayout.PREFERRED_SIZE)
+								.addPreferredGap(ComponentPlacement.RELATED)
+								.addComponent(btnAbbruch))
+							.addComponent(lblNameDerListe)
+							.addComponent(txtListe, GroupLayout.DEFAULT_SIZE, 322, Short.MAX_VALUE))
+						.addContainerGap())
+			);
+			groupLayout.setVerticalGroup(
+				groupLayout.createParallelGroup(Alignment.LEADING)
+					.addGroup(groupLayout.createSequentialGroup()
+						.addGap(10)
+						.addComponent(lblNameDerListe)
+						.addPreferredGap(ComponentPlacement.RELATED)
+						.addComponent(txtListe, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+						.addGap(18)
+						.addGroup(groupLayout.createParallelGroup(Alignment.BASELINE)
+							.addComponent(btnOK)
+							.addComponent(btnAbbruch))
+						.addContainerGap())
+			);
+			getContentPane().setLayout(groupLayout);
+		}
+		
+		public ListenDialog() {
+			initGUI();
+
+			setTitle("Neue Liste erstellen");
+		}
+		
+		public ListenDialog(String liste) {
+			initGUI();
+			
+			txtListe.setText(liste);
+			setTitle("Liste bearbeiten");
+		}
+		
+		@Override
+		protected String getDialogResult() {
+			return mListe;
+		}
+	}
+	
 	private void initTabelle(JSplitPane verticalSplit) {
 		tablePopup = new JPopupMenu();
 		
-		popupOeffnen = new JMenuItem("Öffnen");
-    	popupOeffnen.addActionListener(new ActionListener() {
+		popupTabelleOeffnen = new JMenuItem("Öffnen");
+		popupTabelleOeffnen.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				DefaultTableModel model = (DefaultTableModel)tblKontakte.getModel();
@@ -62,10 +149,10 @@ public class AdressbuchFrame extends ExtendedFrame {
 				bearbeiteKontakt(referenz);
 			}
 		});
-    	tablePopup.add(popupOeffnen);
+    	tablePopup.add(popupTabelleOeffnen);
     	
-    	popupLoeschen = new JMenuItem("Löschen");
-		popupLoeschen.addActionListener(new ActionListener() {
+    	popupTabelleLoeschen = new JMenuItem("Löschen");
+    	popupTabelleLoeschen.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				Kontakt[] kontakte = ausgewaehlteKontakte();
@@ -77,7 +164,7 @@ public class AdressbuchFrame extends ExtendedFrame {
 				aktualisiereTabelle(liste);
 			}
 		});
-		tablePopup.add(popupLoeschen);
+		tablePopup.add(popupTabelleLoeschen);
 		
 		tblKontakte = new JTable() {
 			private static final long serialVersionUID = 1L;
@@ -91,12 +178,12 @@ public class AdressbuchFrame extends ExtendedFrame {
 				{null, null, null},
 			},
 			new String[] {
-				"Referenz", "Name", "E-Mail-Adresse"
+				"Referenz", "Name", "E-Mail-Adresse", "Tel. dienstlich"
 			}
 		) {
 			private static final long serialVersionUID = 1L;
 			Class<?>[] columnTypes = new Class<?>[] {
-				Kontakt.class, String.class, String.class
+				Kontakt.class, String.class, String.class, String.class
 			};
 			public Class<?> getColumnClass(int columnIndex) {
 				return columnTypes[columnIndex];
@@ -157,6 +244,61 @@ public class AdressbuchFrame extends ExtendedFrame {
 		verticalSplit.setLeftComponent(kontakteScroller);
 	}
 	
+	private void initListen(JSplitPane horizontalSplit) {
+		listenPopup = new JPopupMenu();
+		
+		popupListenUmbennen = new JMenuItem("Umbennen");
+		popupListenUmbennen.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				listeUmbenennen(aktuelleListe());
+			}
+		});
+		listenPopup.add(popupListenUmbennen);
+    	
+    	popupListenLoeschen = new JMenuItem("Löschen");
+    	popupListenLoeschen.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				DefaultListModel<String> model = (DefaultListModel<String>) lstListen.getModel();
+				String liste = aktuelleListe();
+				
+				verwaltung.löscheListe(liste);
+				model.removeElement(liste);
+				
+				aktualisiereTabelle(liste);
+			}
+		});
+    	listenPopup.add(popupListenLoeschen);
+		
+		lstListen = new JList<String>(new DefaultListModel<String>());
+		lstListen.addListSelectionListener(new ListSelectionListener() {
+			@Override
+			public void valueChanged(ListSelectionEvent arg0) {
+				aktualisiereTabelle(aktuelleListe());
+			}
+		});
+
+		lstListen.addMouseListener(new MouseAdapter() {
+			public void mouseClicked(MouseEvent e) {
+				if (e.getClickCount() == 2) {
+					listeUmbenennen(aktuelleListe());
+				}
+			}
+			
+			public void mousePressed(MouseEvent e) {
+				oeffnePopupListen(e);
+			}
+			
+			public void mouseReleased(MouseEvent e) {
+				oeffnePopupListen(e);
+			}
+		});
+		
+		JScrollPane listerScroller = new JScrollPane(lstListen);
+		horizontalSplit.setLeftComponent(listerScroller);
+	}
+	
 	private void initGUI() {
 		JSplitPane horizontalSplit = new JSplitPane();
 		getContentPane().add(horizontalSplit, BorderLayout.CENTER);
@@ -170,16 +312,7 @@ public class AdressbuchFrame extends ExtendedFrame {
 		txtDetails = new JTextPane();
 		verticalSplit.setRightComponent(txtDetails);
 		
-		lstListen = new JList<String>(new DefaultListModel<String>());
-		lstListen.addListSelectionListener(new ListSelectionListener() {
-			@Override
-			public void valueChanged(ListSelectionEvent arg0) {
-				aktualisiereTabelle(aktuelleListe());
-			}
-		});
-		
-		JScrollPane listerScroller = new JScrollPane(lstListen);
-		horizontalSplit.setLeftComponent(listerScroller);
+		initListen(horizontalSplit);
 		
 		JMenuBar menuBar = new JMenuBar();
 		setJMenuBar(menuBar);
@@ -194,13 +327,7 @@ public class AdressbuchFrame extends ExtendedFrame {
 		mntDateiNeuKontakt.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				KontaktFrame kf = new KontaktFrame();
-				Kontakt returnKontakt = kf.showDialog();
-				
-				if(returnKontakt != null) {
-					verwaltung.addKontakt(returnKontakt);
-					aktualisiereTabelle(aktuelleListe());
-				}
+				neuerKontakt();
 			}
 		});
 		mnNewMenu.add(mntDateiNeuKontakt);
@@ -209,9 +336,13 @@ public class AdressbuchFrame extends ExtendedFrame {
 		mntDateiNeuListe.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				//TODO Neue Kontaktliste erstellen
+				ListenDialog ld = new ListenDialog();
+				String liste = ld.showDialog();
 				
-				aktualisiereKontaktlisten();
+				if(liste != null) {
+					verwaltung.addListe(liste);
+					aktualisiereKontaktlisten();
+				}
 			}
 		});
 		mnNewMenu.add(mntDateiNeuListe);
@@ -253,12 +384,18 @@ public class AdressbuchFrame extends ExtendedFrame {
 	}
 	
 	private void aktualisiereTabelle(String liste) {
+		if(liste == null) 
+			return;
+		
 		DefaultTableModel model = (DefaultTableModel)tblKontakte.getModel();
 		model.setRowCount(0);
 		
 		Kontakt[] kontakte = verwaltung.getKontakte(liste);
+		if(kontakte == null)
+			return;
+		
 		for(Kontakt k : kontakte) {
-			model.addRow(new Object[] {k, k.getVorname() + " " + k.getNachname(), k.getMail1()});
+			model.addRow(new Object[] {k, k.getAnzeigename(), k.getMail1(), k.getTelDienst()});
 		}
 	}
 	
@@ -275,8 +412,10 @@ public class AdressbuchFrame extends ExtendedFrame {
 		Kontakt k = kf.showDialog();
 		
 		if(k != null) {
-			verwaltung.addKontakt(k);
-			aktualisiereTabelle(aktuelleListe());
+			String liste = aktuelleListe();
+			
+			verwaltung.addKontakt(k, liste);
+			aktualisiereTabelle(liste);
 		}
 	}
 	
@@ -286,6 +425,16 @@ public class AdressbuchFrame extends ExtendedFrame {
 		
 		if( k != null) {
 			aktualisiereTabelle(aktuelleListe());
+		}
+	}
+	
+	private void listeUmbenennen(String liste) {
+		ListenDialog ld = new ListenDialog(liste);
+		String neuerName = ld.showDialog();
+		
+		if(neuerName != null) {
+			verwaltung.renameListe(liste, neuerName);
+			aktualisiereKontaktlisten();
 		}
 	}
 	
@@ -310,6 +459,18 @@ public class AdressbuchFrame extends ExtendedFrame {
 				tblKontakte.setRowSelectionInterval(zeile, zeile);
 				
 				tablePopup.show(tblKontakte, e.getX(), e.getY());
+			}
+	    }
+	}
+	
+	private void oeffnePopupListen(MouseEvent e) {
+		if (e.isPopupTrigger()) {
+			int zeile = lstListen.locationToIndex(e.getPoint());
+			
+			if(zeile >= 0) {
+				lstListen.setSelectedIndex(zeile);
+				
+				listenPopup.show(lstListen, e.getX(), e.getY());
 			}
 	    }
 	}
