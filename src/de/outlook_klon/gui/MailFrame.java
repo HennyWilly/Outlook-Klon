@@ -12,7 +12,6 @@ import javax.swing.ButtonGroup;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListModel;
 import javax.swing.JFileChooser;
-import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
@@ -45,7 +44,7 @@ import javax.mail.internet.InternetAddress;
 import de.outlook_klon.logik.mailclient.MailAccount;
 import de.outlook_klon.logik.mailclient.MailInfo;
 
-public class MailFrame extends JFrame implements ItemListener {	
+public class MailFrame extends ExtendedFrame implements ItemListener {	
 	private static final long serialVersionUID = 5976953616015664148L;
 	
 	private enum MailModus {
@@ -79,10 +78,6 @@ public class MailFrame extends JFrame implements ItemListener {
 	private JList<File> lstAnhang;
 	
 	private String charset;
-	
-	private void close() {
-		this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
-	}
 	
 	private void initMenu() {
 		JMenuBar menuBar = new JMenuBar();

@@ -2,11 +2,9 @@ package de.outlook_klon.gui;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.WindowEvent;
 
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
-import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
@@ -17,7 +15,7 @@ import javax.swing.JButton;
 
 import de.outlook_klon.logik.kontakte.Kontakt;
 
-public class KontaktFrame extends JDialog {
+public class KontaktFrame extends ExtendedDialog<Kontakt> {
 	private static final long serialVersionUID = 1466530984514818388L;
 	private static final String formatStringErstellen = "Kontakt erstellen";
 	private static final String formatStringBearbeiten = "Kontakt von %s bearbeiten";
@@ -36,14 +34,8 @@ public class KontaktFrame extends JDialog {
 
 	private JButton btnOK;
 	private JButton btnAbbrechen;
-
-	private void close() {
-		this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
-	}
 	
 	private void initFrame() {
-		this.setModal(true);
-		this.setResizable(false);
 		this.setLocationRelativeTo(null);
 		this.setSize(685, 285);
 		
@@ -238,9 +230,8 @@ public class KontaktFrame extends JDialog {
 				"Fehler", JOptionPane.OK_OPTION);
 	}
 
-	public Kontakt showDialog() {
-		setVisible(true);
-		
+	@Override
+	protected Kontakt getDialogResult() {
 		return mKontakt;
 	}
 }

@@ -4,10 +4,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.WindowEvent;
 
 import javax.swing.DefaultListModel;
-import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -28,7 +26,7 @@ import javax.swing.JList;
 import de.outlook_klon.logik.kontakte.Kontakt;
 import de.outlook_klon.logik.kontakte.Kontaktverwaltung;
 
-public class AdressbuchFrame extends JFrame {
+public class AdressbuchFrame extends ExtendedFrame {
 	private static final long serialVersionUID = 2142631007771154882L;
 
 	private JPopupMenu tablePopup;
@@ -44,10 +42,6 @@ public class AdressbuchFrame extends JFrame {
 	private JMenuItem mntDateiBeenden;
 	
 	private Kontaktverwaltung verwaltung;
-	
-	private void close() {
-		this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
-	}
 	
 	private void initTabelle(JSplitPane verticalSplit) {
 		tablePopup = new JPopupMenu();

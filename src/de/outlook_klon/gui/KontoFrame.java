@@ -2,12 +2,10 @@ package de.outlook_klon.gui;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.WindowEvent;
 import java.io.UnsupportedEncodingException;
 
 import javax.mail.internet.InternetAddress;
 import javax.swing.DefaultComboBoxModel;
-import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 import javax.swing.JLabel;
@@ -27,7 +25,7 @@ import de.outlook_klon.logik.mailclient.ServerSettings;
 import de.outlook_klon.logik.mailclient.SmtpServer;
 import de.outlook_klon.logik.mailclient.Verbindungssicherheit;
 
-public class KontoFrame extends JDialog implements ActionListener {
+public class KontoFrame extends ExtendedDialog<MailAccount> implements ActionListener {
 	private static final long serialVersionUID = -8114432074006047938L;
 	
 	private MailAccount mailAccount;
@@ -54,9 +52,7 @@ public class KontoFrame extends JDialog implements ActionListener {
 	private JButton btnFertig;
 	
 	private void initFrame() {
-		this.setModal(true);
 		this.setSize(750, 350);
-		this.setResizable(false);
 		
 		txtMail = new JTextField();
 		txtMail.setBounds(140, 58, 167, 20);
@@ -224,11 +220,6 @@ public class KontoFrame extends JDialog implements ActionListener {
 			cBOutAuthentifizierung.setSelectedItem(settings.getAuthentifizierungsart());
 		}
 	}
-
-	public MailAccount showDialog() {
-		setVisible(true);
-	    return mailAccount;
-	}
 	
 	@Override
 	public void actionPerformed(ActionEvent arg) {
@@ -280,12 +271,17 @@ public class KontoFrame extends JDialog implements ActionListener {
 		}
 		else if(sender == btnAbbrechen) {
 			mailAccount = null;
-			this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
+			close();
 		}
 		else if(sender == btnFertig) {
 			mailAccount = tmpAccount;
-			this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
+			close();
 		}
 
+	}
+
+	@Override
+	protected MailAccount getDialogResult() {
+		return mailAccount;
 	}
 }

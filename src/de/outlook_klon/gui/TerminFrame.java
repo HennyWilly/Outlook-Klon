@@ -3,11 +3,9 @@ package de.outlook_klon.gui;
 import javax.swing.JLabel;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.WindowEvent;
 
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
-import javax.swing.JDialog;
 import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.JSpinner;
 import javax.swing.JTextField;
@@ -18,10 +16,9 @@ import javax.swing.JButton;
 
 import de.outlook_klon.logik.kalendar.Termin;
 
-public class TerminFrame extends JDialog {
-	
-
+public class TerminFrame extends ExtendedDialog<Termin> {
 	private static final long serialVersionUID = 8451017422297429822L;
+	
 	private JTextField textBetreff;
 	private JTextField textBeschreibung;
 	private JTextField textOrt;
@@ -29,15 +26,9 @@ public class TerminFrame extends JDialog {
 	private JSpinner date1;
 	private JSpinner date2;
 	
-	private Termin mTermin;
-	
-	private void close() {
-		this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
-	}
-	
+	private Termin mTermin;	
 	
 	private void initFrame() {
-		setModal(true);
 		setTitle("Termin");
 		JLabel lblNBetreff = new JLabel("Betreff:");
 		JLabel lblOrt = new JLabel("Ort:");
@@ -174,14 +165,9 @@ public class TerminFrame extends JDialog {
 		
 		
 	}
-	
-	
-	
-	
-	
-	public Termin showDialog() {
-		setVisible(true);
-		
+
+	@Override
+	protected Termin getDialogResult() {
 		return mTermin;
 	}
 	

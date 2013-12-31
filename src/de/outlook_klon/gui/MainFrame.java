@@ -54,7 +54,7 @@ import de.outlook_klon.logik.mailclient.MailInfo;
 
 import javax.swing.JSeparator;
 
-public class MainFrame extends JFrame implements TreeSelectionListener, ListSelectionListener {
+public class MainFrame extends ExtendedFrame implements TreeSelectionListener, ListSelectionListener {
 	private static final long serialVersionUID = 817918826034684858L;
 	
 	private static DateFormat dateFormater = DateFormat.getDateTimeInstance(DateFormat.FULL, DateFormat.MEDIUM, Locale.getDefault());
@@ -79,10 +79,6 @@ public class MainFrame extends JFrame implements TreeSelectionListener, ListSele
     private JMenuItem mntmKonteneinstellungen;
     private JMenuItem mntmAdressbuch;
     private JMenuItem mntmKalendar;
-	
-	private void close() {
-		this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
-	}
 	
     private void initMenu() {
 		JMenuBar menuBar = new JMenuBar();

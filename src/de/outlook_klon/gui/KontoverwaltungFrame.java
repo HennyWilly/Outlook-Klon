@@ -2,10 +2,8 @@ package de.outlook_klon.gui;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.WindowEvent;
 
 import javax.swing.DefaultListModel;
-import javax.swing.JDialog;
 import javax.swing.JList;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
@@ -14,7 +12,7 @@ import javax.swing.JButton;
 import de.outlook_klon.logik.Benutzer;
 import de.outlook_klon.logik.mailclient.MailAccount;
 
-public class KontoverwaltungFrame extends JDialog implements ActionListener {
+public class KontoverwaltungFrame extends ExtendedDialog<MailAccount[]> implements ActionListener {
 	private static final long serialVersionUID = -5036893845172118794L;
 	
 	private MailAccount[] meineAccounts;
@@ -28,9 +26,6 @@ public class KontoverwaltungFrame extends JDialog implements ActionListener {
 		meineAccounts = null;
 		
 		setSize(711, 695);
-		setResizable(false);
-		
-		setModal(true);
 		setTitle("Konten-Einstellungen");
 		getContentPane().setLayout(null);
 		
@@ -62,12 +57,6 @@ public class KontoverwaltungFrame extends JDialog implements ActionListener {
 		btnOK.addActionListener(this);
 		getContentPane().add(btnOK);
 	}
-
-	public MailAccount[] showDialog() {
-		setVisible(true);
-		
-		return meineAccounts;
-	}
 	
 	@Override
 	public void actionPerformed(ActionEvent arg) {
@@ -87,11 +76,16 @@ public class KontoverwaltungFrame extends JDialog implements ActionListener {
 			for(int i = 0; i< meineAccounts.length; i++) {
 				meineAccounts[i] = model.get(i);
 			}
-			this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
+			close();
 		}
 		else if(sender == btnAbbrechen) {
 			meineAccounts = null;
-			this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
+			close();
 		}
+	}
+
+	@Override
+	protected MailAccount[] getDialogResult() {
+		return meineAccounts;
 	}
 }
