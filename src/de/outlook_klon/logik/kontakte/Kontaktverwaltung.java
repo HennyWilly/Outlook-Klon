@@ -77,6 +77,25 @@ public class Kontaktverwaltung {
 		ArrayList<Kontakt> zielListe = mKontakte.get(liste);
 		zielListe.remove(kontakt);
 	}
+
+	/**
+	 * Löscht die übergebene Liste aus der Verwaltung
+	 * @param liste Liste, die gelöscht werden soll
+	 */
+	public void löscheListe(String liste) {
+		mKontakte.remove(liste);
+	}
+	
+	/**
+	 * Benennt die Liste mit dem übergebenen alten Namen zum neuen Namen um
+	 * @param alt Alter Name der Liste
+	 * @param neu Neuer Name der Liste
+	 */
+	public void renameListe(String alt, String neu) {
+		ArrayList<Kontakt> liste = mKontakte.remove(alt);
+		if(liste != null) 
+			mKontakte.put(neu, liste);
+	}
 	
 	/**
 	 * Gibt die Namen aller Kontaktlisten der Verwaltung zurück
@@ -93,6 +112,9 @@ public class Kontaktverwaltung {
 	 * @return Kontakte der übergebenen Liste
 	 */
 	public Kontakt[] getKontakte(String liste) {
+		if(liste == null)
+			return null;
+		
 		ArrayList<Kontakt> arrayliste = mKontakte.get(liste);
 		return arrayliste.toArray(new Kontakt[arrayliste.size()]);
 	}
