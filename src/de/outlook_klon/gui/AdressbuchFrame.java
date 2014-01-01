@@ -13,6 +13,7 @@ import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
@@ -38,10 +39,12 @@ public class AdressbuchFrame extends ExtendedFrame {
 	private JPopupMenu tablePopup;
 	private JMenuItem popupTabelleOeffnen;
 	private JMenuItem popupTabelleLoeschen;
+	private JMenuItem popupTabelleVerfassen;
 	
 	private JPopupMenu listenPopup;
 	private JMenuItem popupListenUmbennen;
 	private JMenuItem popupListenLoeschen;
+	private JMenuItem popupListenVerfassen;
 	
 	private JTable tblKontakte;
 	private JTextPane txtDetails;
@@ -51,6 +54,7 @@ public class AdressbuchFrame extends ExtendedFrame {
 	private JMenuItem mntDateiNeuListe;
 	private JMenuItem mntDateiBeenden;
 	
+	private MainFrame parent;
 	private Kontaktverwaltung verwaltung;
 	
 	private final class ListenDialog extends ExtendedDialog<String> {
@@ -150,6 +154,15 @@ public class AdressbuchFrame extends ExtendedFrame {
 			}
 		});
     	tablePopup.add(popupTabelleOeffnen);
+		
+    	popupTabelleVerfassen = new JMenuItem("Verfassen");
+    	popupTabelleVerfassen.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				verfassen(ausgewaehlteKontakte());
+			}
+		});
+    	tablePopup.add(popupTabelleVerfassen);
     	
     	popupTabelleLoeschen = new JMenuItem("Löschen");
     	popupTabelleLoeschen.addActionListener(new ActionListener() {
@@ -255,6 +268,16 @@ public class AdressbuchFrame extends ExtendedFrame {
 			}
 		});
 		listenPopup.add(popupListenUmbennen);
+		
+		popupListenVerfassen = new JMenuItem("Verfassen");
+		popupListenVerfassen.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				Kontakt[] kontakte = verwaltung.getKontakte(aktuelleListe());
+				verfassen(kontakte);
+			}
+		});
+		listenPopup.add(popupListenVerfassen);
     	
     	popupListenLoeschen = new JMenuItem("Löschen");
     	popupListenLoeschen.addActionListener(new ActionListener() {
@@ -357,7 +380,9 @@ public class AdressbuchFrame extends ExtendedFrame {
 		mnDatei.add(mntDateiBeenden);
 	}
 	
-	public AdressbuchFrame(Kontaktverwaltung kv, boolean neu) {
+	public AdressbuchFrame(MainFrame parent, Kontaktverwaltung kv, boolean neu) {
+		setTitle("Adressbuch");
+		this.parent = parent;
 		verwaltung = kv;
 		
 		initGUI();
@@ -404,7 +429,30 @@ public class AdressbuchFrame extends ExtendedFrame {
 	}
 	
 	private void aktualisiereDetails(Kontakt k) {
-		//TODO Detailansicht aktualisieren
+		StringBuilder sb = new StringBuilder();
+		
+		if(!k.getVorname().trim().isEmpty())
+			sb.append("Vorname: ").append(k.getVorname()).append('\n');
+		if(!k.getNachname().trim().isEmpty())
+			sb.append("Nachname: ").append(k.getNachname()).append('\n');
+		if(!k.getAnzeigename().trim().isEmpty())
+			sb.append("Anzeigename: ").append(k.getAnzeigename()).append('\n');
+		if(!k.getSpitzname().trim().isEmpty())
+			sb.append("Spitzname: ").append(k.getSpitzname()).append('\n');
+		if(k.getMail1() != null)
+			sb.append("E-Mail-Adresse: ").append(k.getMail1().toUnicodeString()).append('\n');
+		if(k.getMail2() != null)
+			sb.append("2. E-Mail-Adresse: ").append(k.getMail2().toUnicodeString()).append('\n');
+		if(!k.getTelDienst().trim().isEmpty())
+			sb.append("Telefonnummer (dienstlich): ").append(k.getTelDienst()).append('\n');
+		if(!k.getTelPrivat().trim().isEmpty())
+			sb.append("Telefonnummer (privat): ").append(k.getTelPrivat()).append('\n');
+		if(!k.getTelMobil().trim().isEmpty())
+			sb.append("Telefonnummer (mobil): ").append(k.getTelMobil()).append('\n');
+		
+		txtDetails.setEditable(true);
+		txtDetails.setText(sb.toString());
+		txtDetails.setEditable(false);
 	}
 	
 	private void neuerKontakt() {
@@ -433,8 +481,13 @@ public class AdressbuchFrame extends ExtendedFrame {
 		String neuerName = ld.showDialog();
 		
 		if(neuerName != null) {
-			verwaltung.renameListe(liste, neuerName);
-			aktualisiereKontaktlisten();
+			try {
+				verwaltung.renameListe(liste, neuerName);
+				aktualisiereKontaktlisten();
+			}
+			catch(IllegalArgumentException ex) {
+				JOptionPane.showMessageDialog(this, ex.getMessage(), "Fehler", JOptionPane.ERROR_MESSAGE);
+			}
 		}
 	}
 	
@@ -448,6 +501,10 @@ public class AdressbuchFrame extends ExtendedFrame {
 		}
 		
 		return kontakte;
+	}
+	
+	private void verfassen(Kontakt[] kontakte) {
+		parent.neueMail(kontakte);
 	}
 
 	private void oeffnePopupTabelle(MouseEvent e) {

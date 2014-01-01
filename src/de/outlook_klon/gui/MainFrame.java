@@ -31,6 +31,7 @@ import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
+import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
 import javax.swing.JMenuBar;
@@ -49,6 +50,7 @@ import javax.mail.MessagingException;
 import javax.mail.internet.InternetAddress;
 
 import de.outlook_klon.logik.Benutzer;
+import de.outlook_klon.logik.kontakte.Kontakt;
 import de.outlook_klon.logik.mailclient.MailAccount;
 import de.outlook_klon.logik.mailclient.MailInfo;
 
@@ -94,7 +96,7 @@ public class MainFrame extends ExtendedFrame implements TreeSelectionListener, L
 		mntmEmail.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				oeffneMailFrame();
+				neueMail();
 			}
 		});
 		mnNewMenu.add(mntmEmail);
@@ -457,7 +459,12 @@ public class MainFrame extends ExtendedFrame implements TreeSelectionListener, L
 		this.addWindowListener(new WindowAdapter() {
 			@Override
 		    public void windowClosing(WindowEvent windowEvent) {
-				benutzer.speichern();
+				try {
+					benutzer.speichern();
+				} catch (IOException e) {
+					JOptionPane.showMessageDialog(windowEvent.getComponent(),
+							"Die Einstellungen konnten nicht gespeichert werden!", "Fehler", JOptionPane.ERROR_MESSAGE);
+				}
 		        System.exit(0);
 		    }
 		});
@@ -505,8 +512,20 @@ public class MainFrame extends ExtendedFrame implements TreeSelectionListener, L
 		}
 	}
 	
-	private void oeffneMailFrame() {
+	private void neueMail() {
 		MailFrame mf = new MailFrame();
+		
+		for(MailAccount ac : benutzer) {
+			mf.addMailAccount(ac);
+		}
+		
+		mf.setSize(this.getSize());
+		mf.setExtendedState(this.getExtendedState());
+		mf.setVisible(true);
+	}
+	
+	public void neueMail(Kontakt[] kontakte) {
+		MailFrame mf = new MailFrame(kontakte);
 		
 		for(MailAccount ac : benutzer) {
 			mf.addMailAccount(ac);
@@ -526,7 +545,7 @@ public class MainFrame extends ExtendedFrame implements TreeSelectionListener, L
 	}
 	
 	private void oeffneAdressbuchFrame(boolean neu) {
-		AdressbuchFrame af = new AdressbuchFrame(benutzer.getKontakte(), neu);
+		AdressbuchFrame af = new AdressbuchFrame(this, benutzer.getKontakte(), neu);
 
 		af.setSize(this.getSize());
 		af.setExtendedState(this.getExtendedState());
@@ -541,11 +560,6 @@ public class MainFrame extends ExtendedFrame implements TreeSelectionListener, L
 			boolean refresh = false;
 			for(MailAccount acc : accounts) {
 				if(benutzer.addMailAccount(acc)) {
-					try {
-						acc.speichern();
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
 					refresh = true;
 				}
 			}
