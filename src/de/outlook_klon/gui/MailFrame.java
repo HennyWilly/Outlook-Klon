@@ -35,12 +35,14 @@ import javax.swing.JList;
 
 import java.io.File;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 
 import javax.mail.Address;
 import javax.mail.MessagingException;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 
+import de.outlook_klon.logik.kontakte.Kontakt;
 import de.outlook_klon.logik.mailclient.MailAccount;
 import de.outlook_klon.logik.mailclient.MailInfo;
 
@@ -318,7 +320,24 @@ public class MailFrame extends ExtendedFrame implements ItemListener {
 		modus = MailModus.NEU;
 		
 		setTitle("<Kein Betreff>");
-		initGui();		
+		initGui();
+	}
+	
+	public MailFrame(Kontakt[] kontakte) {
+		modus = MailModus.NEU;
+		
+		setTitle("<Kein Betreff>");
+		initGui();
+		
+		ArrayList<InternetAddress> adressen = new ArrayList<InternetAddress>();
+		for(Kontakt k : kontakte) {
+			if(k.getMail1() == null)
+				continue;
+			adressen.add(k.getMail1());
+		}
+		
+		String adressString = appendAddresses(adressen.toArray(new InternetAddress[adressen.size()]));
+		tTo.setText(adressString);
 	}
 
 	public MailFrame(MailInfo mail, String pfad, MailAccount parent) throws MessagingException {
