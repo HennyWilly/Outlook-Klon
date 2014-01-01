@@ -41,6 +41,47 @@ public class Terminkalender implements Iterable<Termin> {
 		mTermine.remove(termin);
 	}
 	
+	public boolean ueberschneidung(Termin a){
+		Date startA = a.getStart();
+		Date endeA = a.getEnde();
+		
+		for(Termin b : this)
+		{
+			Date startB = b.getStart();
+			Date endeB = b.getEnde();
+					//IF-Abfrage des Todes
+			if      (((startA.before(startB))&& (endeA.after(startB))) || ((startA.before(endeB)) && (endeA.after(endeB)))
+					|| ((startB.before(startA)) && (endeB.after(startA))) || ((startB.before(endeA)) && (endeB.after(endeA))))
+			
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+	
+					
+	
+	
+	public Termin getOldest(){
+		Termin t = mTermine.get(0);
+		
+		for(Termin a : mTermine) {
+			if (a.getStart().before(t.getStart()))
+			{
+				t=a;
+			}
+		}
+		return t;
+	}
+	
+
+	
+	public int getSize(){
+		return mTermine.size();
+		}
+	
+	
 	/**
 	 * Entfernt alle Termine aus der Verwaltung, die am übergebenen Tag stattfinden
 	 * @param tag Date-Objekt, welches den Tag enthällt, an dem alle Termine entfernt werden

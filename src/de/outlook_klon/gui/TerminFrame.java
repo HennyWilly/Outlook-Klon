@@ -29,6 +29,7 @@ public class TerminFrame extends ExtendedDialog<Termin> {
 	private Termin mTermin;	
 	
 	private void initFrame() {
+		setSize(455, 306);
 		setTitle("Termin");
 		JLabel lblNBetreff = new JLabel("Betreff:");
 		JLabel lblOrt = new JLabel("Ort:");
@@ -68,6 +69,9 @@ public class TerminFrame extends ExtendedDialog<Termin> {
 					mTermin.setText(textBeschreibung.getText());
 					mTermin.setStartUndEnde(model1.getDate(), model2.getDate());
 				}
+				
+				
+				
 				
 				close();
 			}

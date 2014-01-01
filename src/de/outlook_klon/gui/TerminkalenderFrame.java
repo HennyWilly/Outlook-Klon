@@ -3,12 +3,14 @@ package de.outlook_klon.gui;
 import javax.swing.JMenuBar;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import java.awt.BorderLayout;
 import javax.swing.JSplitPane;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 
 import javax.swing.JTable;
 import javax.swing.JTextPane;
@@ -78,20 +80,49 @@ public class TerminkalenderFrame extends ExtendedFrame {
 		splitPane_1.setRightComponent(textPane);
 		getContentPane().add(splitPane);
 		
-		aktualisiereTabelle();
+		aktualisiere2Tabelle();
 
 	}
 	
 	
-	private void aktualisiereTabelle() {
+	/*private void aktualisiereTabelle() {
 		DefaultTableModel model = (DefaultTableModel)tblTermine.getModel();
 		model.setRowCount(0);
 		
 		for(Termin t : kalender) {
 			model.addRow(new Object[] {t.getBetreff(), t.getText(), t.getStart().toString()});
 		}
-	}
+	}*/
 
+	private void aktualisiere2Tabelle() {
+		DefaultTableModel model = (DefaultTableModel)tblTermine.getModel();
+		model.setRowCount(0);
+		
+		
+		ArrayList<Termin> dummdumm = new ArrayList<Termin>();
+		for(Termin a:kalender)
+		{
+			dummdumm.add(a);
+		}
+		
+		Terminkalender EinwegKalender = new Terminkalender();		
+		
+		for(int i=0; i< dummdumm.size(); i++)
+		{
+			EinwegKalender.addTermin(dummdumm.get(i));
+		}
+		
+		int anzahl = EinwegKalender.getSize();
+		
+		for(int i=0; i<anzahl;i++) {
+			Termin a = EinwegKalender.getOldest();
+			model.addRow(new Object[] {a.getBetreff(), a.getText(), a.getStart().toString()});
+			EinwegKalender.löscheTermin(a);
+		}
+	}
+	
+	
+	
 
 	
 	private void oeffneTerminFrame() {
@@ -102,8 +133,15 @@ public class TerminkalenderFrame extends ExtendedFrame {
 		if(dummy != null)
 		{
 			kalender.addTermin(dummy);
-			aktualisiereTabelle();
+			if(kalender.ueberschneidung(dummy))
+			{
+				JOptionPane.showMessageDialog(this, "ACHTUNG! Überschneidung mit bereits vorhandenem Termin. Evtl. Sollten Sie ihre Termine überprüfen.", "KAMEHAME HAAAA", JOptionPane.WARNING_MESSAGE);
+			}
+			
+			aktualisiere2Tabelle();
 		}
+		
+		
 	}
 	
 	
