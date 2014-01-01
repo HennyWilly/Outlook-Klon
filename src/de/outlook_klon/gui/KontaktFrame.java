@@ -174,14 +174,26 @@ public class KontaktFrame extends ExtendedDialog<Kontakt> {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				try {
-					InternetAddress mail1 = tEmailadresse_1.getText().trim().isEmpty() ? null : new InternetAddress(tEmailadresse_1.getText());
-					InternetAddress mail2 = tEmailadresse_2.getText().trim().isEmpty() ? null : new InternetAddress(tEmailadresse_2.getText());
+					InternetAddress mail1 = tEmailadresse_1.getText().trim().isEmpty() ? null : new InternetAddress(tEmailadresse_1.getText(), true);
+					InternetAddress mail2 = tEmailadresse_2.getText().trim().isEmpty() ? null : new InternetAddress(tEmailadresse_2.getText(), true);
 					
-					if(mKontakt == null)
+					if(mail1 == null && mail2 != null) {
+						mail1 = mail2;
+						mail2 = null;
+					}
+					
+					if(mail1 == null && tVorname.getText().trim().isEmpty() && tName.getText().trim().isEmpty() && 
+							tAnzeigename.getText().trim().isEmpty()) {
+						zuWenigInfos();
+						return;
+					}
+					
+					if(mKontakt == null){
 						mKontakt = new Kontakt(tName.getText(), tVorname.getText(), 
 								tAnzeigename.getText(), tSpitzname.getText(),
 								mail1, mail2,
 								tPrivat.getText(), tDienstlich.getText(), tMobil.getText());
+					}
 					else {
 						mKontakt.setVorname(tVorname.getText());
 						mKontakt.setNachname(tName.getText());
@@ -363,7 +375,12 @@ public class KontaktFrame extends ExtendedDialog<Kontakt> {
 	
 	private void parseFehler(AddressException ex) {
 		JOptionPane.showMessageDialog(this, "Es ist ein Fehler beim Parsen einer Mailadresse aufgetreten:\n" + ex.getLocalizedMessage(),
-				"Fehler", JOptionPane.OK_OPTION);
+				"Fehler", JOptionPane.ERROR_MESSAGE);
+	}
+	
+	private void zuWenigInfos() {
+		JOptionPane.showMessageDialog(this, "Sie müssen mindestens eine der folgenden Angaben machen:\n" + 
+				"E-Mail-Adresse, Vorname, Name, Anzeigename", "Informationen fehlen", JOptionPane.WARNING_MESSAGE);
 	}
 
 	@Override
