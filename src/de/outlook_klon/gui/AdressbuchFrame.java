@@ -40,6 +40,7 @@ public class AdressbuchFrame extends ExtendedFrame {
 	private JMenuItem popupTabelleOeffnen;
 	private JMenuItem popupTabelleLoeschen;
 	private JMenuItem popupTabelleVerfassen;
+	private JMenu popupTabelleListeHinzufügen;
 	
 	private JPopupMenu listenPopup;
 	private JMenuItem popupListenUmbennen;
@@ -179,6 +180,9 @@ public class AdressbuchFrame extends ExtendedFrame {
 		});
 		tablePopup.add(popupTabelleLoeschen);
 		
+		popupTabelleListeHinzufügen = new JMenu();
+		tablePopup.add(popupTabelleListeHinzufügen);
+		
 		tblKontakte = new JTable() {
 			private static final long serialVersionUID = 1L;
 
@@ -214,16 +218,20 @@ public class AdressbuchFrame extends ExtendedFrame {
 					if(row == -1)
 						return;
 					
-					int zeileModel = tblKontakte.convertRowIndexToModel(row);
 					DefaultTableModel model = (DefaultTableModel)tblKontakte.getModel();
 					int length = model.getDataVector().size();
 					
 					if(length > 0) {
+						int zeileModel = tblKontakte.convertRowIndexToModel(row);
+						
 						Kontakt referenz = (Kontakt)model.getValueAt(zeileModel, 0);
 						aktualisiereDetails(referenz);
 					}
-					else
-						txtDetails.setText("");
+					else {
+						txtDetails.setEditable(true);
+						txtDetails.setText(null);
+						txtDetails.setEditable(false);
+					}
 				}
 			}
 		});
@@ -305,7 +313,10 @@ public class AdressbuchFrame extends ExtendedFrame {
 		lstListen.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(MouseEvent e) {
 				if (e.getClickCount() == 2) {
-					listeUmbenennen(aktuelleListe());
+					String liste = aktuelleListe();
+					
+					if(!Kontaktverwaltung.DEFAULT.equals(liste))
+						listeUmbenennen(aktuelleListe());
 				}
 			}
 			
@@ -406,9 +417,14 @@ public class AdressbuchFrame extends ExtendedFrame {
 		}
 		
 		lstListen.setSelectedValue(selected, true);
+		
+		tablePopup.remove(popupTabelleListeHinzufügen);
+		popupTabelleListeHinzufügen = generiereListenmenü();
+		if(popupTabelleListeHinzufügen.getMenuComponentCount() > 0)
+			tablePopup.add(popupTabelleListeHinzufügen);
 	}
 	
-	private void aktualisiereTabelle(String liste) {
+	private void aktualisiereTabelle(String liste) {		
 		if(liste == null) 
 			return;
 		
@@ -422,6 +438,8 @@ public class AdressbuchFrame extends ExtendedFrame {
 		for(Kontakt k : kontakte) {
 			model.addRow(new Object[] {k, k.getAnzeigename(), k.getMail1(), k.getTelDienst()});
 		}
+		
+		aktualisiereDetails(null);
 	}
 	
 	private String aktuelleListe() {
@@ -431,24 +449,26 @@ public class AdressbuchFrame extends ExtendedFrame {
 	private void aktualisiereDetails(Kontakt k) {
 		StringBuilder sb = new StringBuilder();
 		
-		if(!k.getVorname().trim().isEmpty())
-			sb.append("Vorname: ").append(k.getVorname()).append('\n');
-		if(!k.getNachname().trim().isEmpty())
-			sb.append("Nachname: ").append(k.getNachname()).append('\n');
-		if(!k.getAnzeigename().trim().isEmpty())
-			sb.append("Anzeigename: ").append(k.getAnzeigename()).append('\n');
-		if(!k.getSpitzname().trim().isEmpty())
-			sb.append("Spitzname: ").append(k.getSpitzname()).append('\n');
-		if(k.getMail1() != null)
-			sb.append("E-Mail-Adresse: ").append(k.getMail1().toUnicodeString()).append('\n');
-		if(k.getMail2() != null)
-			sb.append("2. E-Mail-Adresse: ").append(k.getMail2().toUnicodeString()).append('\n');
-		if(!k.getTelDienst().trim().isEmpty())
-			sb.append("Telefonnummer (dienstlich): ").append(k.getTelDienst()).append('\n');
-		if(!k.getTelPrivat().trim().isEmpty())
-			sb.append("Telefonnummer (privat): ").append(k.getTelPrivat()).append('\n');
-		if(!k.getTelMobil().trim().isEmpty())
-			sb.append("Telefonnummer (mobil): ").append(k.getTelMobil()).append('\n');
+		if(k != null) {
+			if(!k.getVorname().trim().isEmpty())
+				sb.append("Vorname: ").append(k.getVorname()).append('\n');
+			if(!k.getNachname().trim().isEmpty())
+				sb.append("Nachname: ").append(k.getNachname()).append('\n');
+			if(!k.getAnzeigename().trim().isEmpty())
+				sb.append("Anzeigename: ").append(k.getAnzeigename()).append('\n');
+			if(!k.getSpitzname().trim().isEmpty())
+				sb.append("Spitzname: ").append(k.getSpitzname()).append('\n');
+			if(k.getMail1() != null)
+				sb.append("E-Mail-Adresse: ").append(k.getMail1().toUnicodeString()).append('\n');
+			if(k.getMail2() != null)
+				sb.append("2. E-Mail-Adresse: ").append(k.getMail2().toUnicodeString()).append('\n');
+			if(!k.getTelDienst().trim().isEmpty())
+				sb.append("Telefonnummer (dienstlich): ").append(k.getTelDienst()).append('\n');
+			if(!k.getTelPrivat().trim().isEmpty())
+				sb.append("Telefonnummer (privat): ").append(k.getTelPrivat()).append('\n');
+			if(!k.getTelMobil().trim().isEmpty())
+				sb.append("Telefonnummer (mobil): ").append(k.getTelMobil()).append('\n');
+		}
 		
 		txtDetails.setEditable(true);
 		txtDetails.setText(sb.toString());
@@ -460,10 +480,8 @@ public class AdressbuchFrame extends ExtendedFrame {
 		Kontakt k = kf.showDialog();
 		
 		if(k != null) {
-			String liste = aktuelleListe();
-			
-			verwaltung.addKontakt(k, liste);
-			aktualisiereTabelle(liste);
+			verwaltung.addKontakt(k);
+			aktualisiereTabelle(aktuelleListe());
 		}
 	}
 	
@@ -472,7 +490,10 @@ public class AdressbuchFrame extends ExtendedFrame {
 		kf.showDialog();
 		
 		if( k != null) {
+			int zeile = tblKontakte.convertRowIndexToModel(tblKontakte.getSelectedRow());
 			aktualisiereTabelle(aktuelleListe());
+			int zeileView = tblKontakte.convertRowIndexToView(zeile);
+			tblKontakte.setRowSelectionInterval(zeileView, zeileView);
 		}
 	}
 	
@@ -484,6 +505,7 @@ public class AdressbuchFrame extends ExtendedFrame {
 			try {
 				verwaltung.renameListe(liste, neuerName);
 				aktualisiereKontaktlisten();
+				lstListen.setSelectedValue(neuerName, true);
 			}
 			catch(IllegalArgumentException ex) {
 				JOptionPane.showMessageDialog(this, ex.getMessage(), "Fehler", JOptionPane.ERROR_MESSAGE);
@@ -527,8 +549,46 @@ public class AdressbuchFrame extends ExtendedFrame {
 			if(zeile >= 0) {
 				lstListen.setSelectedIndex(zeile);
 				
+				String liste = lstListen.getSelectedValue();
+				boolean istAdressbuch = liste.equals(Kontaktverwaltung.DEFAULT);
+				
+				popupListenLoeschen.setEnabled(!istAdressbuch);
+				popupListenUmbennen.setEnabled(!istAdressbuch);
+				
 				listenPopup.show(lstListen, e.getX(), e.getY());
 			}
 	    }
+	}
+	
+	private JMenu generiereListenmenü() {
+		JMenu menu = new JMenu("Zu Liste zuordnen");
+		DefaultListModel<String> model = (DefaultListModel<String>) lstListen.getModel();
+
+		for(int i = 0; i < model.getSize(); i++) {
+			String item = model.get(i);
+			if(!Kontaktverwaltung.DEFAULT.equals(item)) {
+				JMenuItem menuItem = new JMenuItem(item);
+				menuItem.addActionListener(new ActionListener() {
+					@Override
+					public void actionPerformed(ActionEvent arg0) {
+						String titel = ((JMenuItem)arg0.getSource()).getText();
+						listeHinzufuegen(ausgewaehlteKontakte(), titel);
+					}
+				});
+				menu.add(menuItem);
+			}
+		}
+		
+		return menu;
+	}
+	
+	private void listeHinzufuegen(Kontakt[] kontakte, String liste) {
+		for(Kontakt k : kontakte) {
+			try {
+				verwaltung.addKontaktZuListe(k, liste);
+			} catch (IllegalArgumentException ex) {
+				//Ignoriere Fehler
+			}
+		}
 	}
 }
