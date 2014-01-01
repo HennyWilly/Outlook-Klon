@@ -1,5 +1,6 @@
 package de.outlook_klon.logik.kontakte;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -10,7 +11,9 @@ import java.util.Set;
  * 
  * @author Hendrik Karwanni
  */
-public class Kontaktverwaltung {
+public class Kontaktverwaltung implements Serializable {
+	private static final long serialVersionUID = -5634887633796780397L;
+
 	private HashMap<String, ArrayList<Kontakt>> mKontakte;
 	
 	private static final String DEFAULT = "Adressbuch";
@@ -123,6 +126,9 @@ public class Kontaktverwaltung {
 	public void renameListe(String alt, String neu) {
 		if(alt == null || alt.trim().isEmpty() || neu == null || neu.trim().isEmpty()) 
 			throw new NullPointerException("Die Listennamen dürfen nicht leer sein!");
+		
+		if(DEFAULT.equals(alt))
+			throw new IllegalArgumentException("Das Standardadressbuch darf nicht umbenannt werden");
 		
 		ArrayList<Kontakt> liste = mKontakte.remove(alt);
 		if(liste == null)

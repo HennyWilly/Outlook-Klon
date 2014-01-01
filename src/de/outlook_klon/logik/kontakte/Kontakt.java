@@ -1,5 +1,6 @@
 package de.outlook_klon.logik.kontakte;
 
+import java.io.Serializable;
 import javax.mail.internet.InternetAddress;
 
 /**
@@ -7,7 +8,9 @@ import javax.mail.internet.InternetAddress;
  * 
  * @author Hendrik Karwanni
  */
-public class Kontakt {
+public class Kontakt implements Serializable {
+	private static final long serialVersionUID = -4417684942862339869L;
+	
 	private String mNachname;
 	private String mVorname;
 	private String mAnzeigename;

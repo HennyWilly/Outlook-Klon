@@ -410,32 +410,6 @@ public class MailAccount implements Serializable {
 	}
 	
 	/**
-	 * Speichert die Instanz des MailAccounts auf der Festplatte
-	 * @throws IOException Tritt auf, wenn die Daten nicht gespeicherten werden konnten.
-	 */
-	public void speichern() throws IOException {
-		File pfad = new File("Mail/" + adresse.getAddress() + "/settings.bin").getAbsoluteFile();
-		File ordner = pfad.getParentFile();
-		
-		FileOutputStream fos = null;
-		ObjectOutputStream oos = null;
-		try {
-			if(!ordner.exists()) {
-				ordner.mkdirs();
-			}
-			
-			fos = new FileOutputStream(pfad.getAbsolutePath());
-			oos = new ObjectOutputStream(fos);
-			
-			oos.writeObject(this);
-		} 
-		finally {
-			if(oos != null)
-				oos.close();
-		}
-	}
-	
-	/**
 	 * Gibt das Message-Objekt zur ID in der übergebenen MailInfo im übergebenen Ordner zurück.
 	 * @param mail MailInfo-Objekt, das die ID zur suchenden Message enthällt
 	 * @param ordner Ordner, in dem gesucht werden soll
