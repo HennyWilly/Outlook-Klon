@@ -22,15 +22,21 @@ import de.outlook_klon.logik.kalendar.Terminkalender;
  * @author Hendrik Karwanni
  */
 public class Benutzer implements Iterable<MailAccount> {
-	private static final String ACCOUNT_PATTERN = "Mail/%s/settings.bin";
-	private static final String KONTAKT_PFAD = "Mail/Kontakte.bin";
+	private static final String DATEN_ORDNER = "Mail";
+	private static final String ACCOUNT_PATTERN = DATEN_ORDNER + "/%s/settings.bin";
+	private static final String KONTAKT_PFAD = DATEN_ORDNER + "/Kontakte.bin";
 	
 	private Kontaktverwaltung kontakte;
 	private Terminkalender termine;
 	private ArrayList<MailAccount> konten;
 	
+	/**
+	 * Deserialisiert das Objekt, welches in der übergebenen Datei gespeichert wurde
+	 * @param datei Verweis auf die Datei, in der das zu deserialisierende Objekt gespeichert wurde
+	 * @return Das deserialisierte Objekt, oder <code>null</code>, falls das Objekt nicht deserialisiert werden konnte
+	 */
 	@SuppressWarnings("unchecked")
-	private <T> T deserialisiereObjekt(File datei) {
+	private static <T> T deserialisiereObjekt(File datei) {
 		if(!datei.exists())
 			return null;
 		
@@ -41,8 +47,7 @@ public class Benutzer implements Iterable<MailAccount> {
 			fis = new FileInputStream(datei.getAbsolutePath());
 			ois = new ObjectInputStream(fis);
 			
-			object = (T)ois.readObject();
-				
+			object = (T)ois.readObject();	
 		} catch (Exception e) { }
 		finally {
 			try {
@@ -53,7 +58,13 @@ public class Benutzer implements Iterable<MailAccount> {
 		return object;
 	}
 	
-	private <T> void serialisiereObjekt(T objekt, File datei) throws IOException {
+	/**
+	 * Serialisiert das übergebene Objekt in die übergebene Datei
+	 * @param objekt Objekt, das serialisiert werden soll
+	 * @param datei Verweis auf die Datei, in der das zu serialisierende Objekt gespeichert werden soll
+	 * @throws IOException Tritt auf, wenn das Objekt nicht serialisiert werden konnte
+	 */
+	private static <T> void serialisiereObjekt(T objekt, File datei) throws IOException {
 		FileOutputStream fos = null;
 		ObjectOutputStream oos = null;
 		try {
@@ -80,7 +91,7 @@ public class Benutzer implements Iterable<MailAccount> {
 		
 		konten = new ArrayList<MailAccount>();
 		
-		File file = new File("Mail").getAbsoluteFile();
+		File file = new File(DATEN_ORDNER).getAbsoluteFile();
 		if(!file.exists())
 			file.mkdirs();
 		String[] directories = file.list(new FilenameFilter() {
@@ -91,7 +102,7 @@ public class Benutzer implements Iterable<MailAccount> {
 		});
 		
 		for(String directory : directories) {
-			String settings = file + "\\" + directory + "\\settings.bin";
+			String settings = String.format(ACCOUNT_PATTERN, directory);
 			File datei = new File(settings).getAbsoluteFile();
 			
 			MailAccount geladen = deserialisiereObjekt(datei);
