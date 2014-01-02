@@ -18,11 +18,9 @@ import javax.swing.JButton;
 
 import de.outlook_klon.logik.Benutzer;
 import de.outlook_klon.logik.kalendar.Termin;
-import javax.swing.JList;
 import javax.swing.JComboBox;
 import javax.swing.DefaultComboBoxModel;
 import de.outlook_klon.logik.kontakte.*;
-import de.outlook_klon.gui.*;
 
 public class TerminFrame extends ExtendedDialog<Termin> {
 	private static final long serialVersionUID = 8451017422297429822L;
@@ -34,8 +32,8 @@ public class TerminFrame extends ExtendedDialog<Termin> {
 	private JSpinner date1;
 	private JSpinner date2;
 	
-	//private JComboBox comboKontakt;
-	
+	private JComboBox<String> comboKontakt;
+		
 	private Termin mTermin;	
 	
 	private void initFrame() {
@@ -46,6 +44,7 @@ public class TerminFrame extends ExtendedDialog<Termin> {
 		JLabel lblNewLabel = new JLabel("Startzeit:");
 		JLabel lblEndzeit = new JLabel("Endzeit:");
 		JLabel lblBeschreibung = new JLabel("Beschreibung:");
+		JLabel lblKontakt = new JLabel("Kontakt:");
 		
 		textBetreff = new JTextField();
 		textBetreff.setColumns(10);
@@ -63,6 +62,8 @@ public class TerminFrame extends ExtendedDialog<Termin> {
 		date2.setModel(new SpinnerDateModel(new Date(), null, null, Calendar.DAY_OF_YEAR));
 		
 		//comboKontakt = new JComboBox();
+		//comboKontakt.setModel(new DefaultComboBoxModel(birne)); --->ist weiter unten zu finden
+
 		
 		JButton btnOk = new JButton("OK");
 		btnOk.addActionListener(new ActionListener() {
@@ -72,7 +73,7 @@ public class TerminFrame extends ExtendedDialog<Termin> {
 				SpinnerDateModel model2 = (SpinnerDateModel)date2.getModel();
 				
 				if(mTermin == null) {
-					mTermin = new Termin(textBetreff.getText(),textOrt.getText(), model1.getDate(), model2.getDate(), textBeschreibung.getText());
+					mTermin = new Termin(textBetreff.getText(),textOrt.getText(), model1.getDate(), model2.getDate(), textBeschreibung.getText(), comboKontakt.getSelectedItem().toString());
 				}
 				else {
 
@@ -82,14 +83,9 @@ public class TerminFrame extends ExtendedDialog<Termin> {
 					mTermin.setStartUndEnde(model1.getDate(), model2.getDate());
 				}
 				
-				
-				
-				
 				close();
 			}
 		});
-		
-		
 		
 		
 		
@@ -101,7 +97,7 @@ public class TerminFrame extends ExtendedDialog<Termin> {
 			}
 		});
 		
-		JLabel lblKontakt = new JLabel("Kontakt:");
+		
 		
 		
 		ArrayList<String> apfel = new ArrayList<String>();
@@ -117,9 +113,8 @@ public class TerminFrame extends ExtendedDialog<Termin> {
 			birne[i]=apfel.get(i-1);
 		}
 		
-		
-		JComboBox comboKontakt = new JComboBox();
-		comboKontakt.setModel(new DefaultComboBoxModel(birne));
+		comboKontakt = new JComboBox<String>();
+		comboKontakt.setModel(new DefaultComboBoxModel<String>(birne));
 		
 		GroupLayout groupLayout = new GroupLayout(getContentPane());
 		groupLayout.setHorizontalGroup(

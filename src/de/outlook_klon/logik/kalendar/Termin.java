@@ -13,6 +13,7 @@ public class Termin {
 	private Date mStart;
 	private Date mEnde;
 	private String mText;
+	private String kontaktMail;
 	
 	/**
 	 * Erstellt eine neue Instanz der Klasse mit den übergebenen Werten
@@ -22,11 +23,12 @@ public class Termin {
 	 * @param ende Endzeitpunkt des Termins
 	 * @param text Text des Termins
 	 */
-	public Termin(String betreff, String ort, Date start, Date ende, String text) {	
+	public Termin(String betreff, String ort, Date start, Date ende, String text, String kontakt) {	
 		setBetreff(betreff);
 		setOrt(ort);
 		setStartUndEnde(start, ende);
 		setText(text);
+		setkontaktMail(kontakt);
 	}
 
 	/**
@@ -103,5 +105,13 @@ public class Termin {
 	 */
 	public String getText() {
 		return mText;
+	}
+	
+	public void setkontaktMail(String txt) {
+		this.kontaktMail = txt;
+	}
+	
+	public String getkontaktMail() {
+		return kontaktMail;
 	}
 }
