@@ -18,13 +18,16 @@ import javax.swing.table.DefaultTableModel;
 
 import de.outlook_klon.logik.kalendar.Termin;
 import de.outlook_klon.logik.kalendar.Terminkalender;
+import de.outlook_klon.logik.kontakte.Kontakt;
 
 public class TerminkalenderFrame extends ExtendedFrame {
 
 	private static final long serialVersionUID = 1L;
 
 	private JTable tblTermine;
+	private JTextPane textDetails;
 	private Terminkalender kalender;	
+
 
 	public TerminkalenderFrame(Terminkalender Tk) {
 		kalender = Tk;
@@ -34,6 +37,8 @@ public class TerminkalenderFrame extends ExtendedFrame {
 		
 		JMenu mnDatei = new JMenu("Datei");
 		menuBar.add(mnDatei);
+		
+		
 		
 		JMenuItem mntmTerminHinzufgen = new JMenuItem("Termin hinzuf\u00FCgen");
 		mntmTerminHinzufgen.addActionListener(new ActionListener() {
@@ -71,13 +76,15 @@ public class TerminkalenderFrame extends ExtendedFrame {
 			new String[] {
 				"Betreff", "Kontakt", "Datum"
 			}
+
 		));
+		
 		
 		JScrollPane scrollPane_1 = new JScrollPane(tblTermine);
 		splitPane_1.setLeftComponent(scrollPane_1);
 		
-		JTextPane textPane = new JTextPane();
-		splitPane_1.setRightComponent(textPane);
+		JTextPane textDetails = new JTextPane();
+		splitPane_1.setRightComponent(textDetails);
 		getContentPane().add(splitPane);
 		
 		aktualisiere2Tabelle();
@@ -121,6 +128,32 @@ public class TerminkalenderFrame extends ExtendedFrame {
 		}
 	}
 	
+	
+	
+	private void aktualisiereDetails(Termin t) {
+		StringBuilder sbshop = new StringBuilder();
+		
+		if(t != null) {
+			
+			if(t.getBetreff().trim().isEmpty())
+				sbshop.append("Betreff: ").append(t.getBetreff()).append('\n');
+			if(!t.getOrt().trim().isEmpty())
+				sbshop.append("Ort: ").append(t.getOrt()).append('\n');
+			if(!t.getStart().toString().trim().isEmpty())
+				sbshop.append("Startzeit: ").append(t.getStart().toString()).append('\n');
+			if(!t.getEnde().toString().trim().isEmpty())
+				sbshop.append("Ende: ").append(t.getEnde().toString()).append('\n');
+			if(!t.getText().trim().isEmpty())
+				sbshop.append("Info: ").append(t.getBetreff()).append('\n');
+			}
+		
+		textDetails.setEditable(true);
+		textDetails.setText(sbshop.toString());
+		textDetails.setEditable(false);
+		
+	//Quelle: Hendtrick Karwannni
+		
+	}
 	
 	
 

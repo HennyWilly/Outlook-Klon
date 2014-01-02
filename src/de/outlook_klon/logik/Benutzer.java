@@ -26,6 +26,14 @@ public class Benutzer implements Iterable<MailAccount> {
 	private static final String ACCOUNT_PATTERN = DATEN_ORDNER + "/%s/settings.bin";
 	private static final String KONTAKT_PFAD = DATEN_ORDNER + "/Kontakte.bin";
 	
+	private static Benutzer singleton;
+	
+	public static Benutzer getInstanz() {
+		if(singleton == null)
+			singleton = new Benutzer();
+		return singleton;
+	}
+	
 	private Kontaktverwaltung kontakte;
 	private Terminkalender termine;
 	private ArrayList<MailAccount> konten;
@@ -83,7 +91,7 @@ public class Benutzer implements Iterable<MailAccount> {
 	 * Erstellt eine neue Instanz der Klasse Benutzer.
 	 * Lieﬂt, wenn vorhanden, die gespeicherten Daten aus.
 	 */
-	public Benutzer() {
+	private Benutzer() {
 		termine = new Terminkalender();
 		kontakte = deserialisiereObjekt(new File(KONTAKT_PFAD));
 		if(kontakte == null)

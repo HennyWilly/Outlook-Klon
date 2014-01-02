@@ -10,11 +10,19 @@ import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.JSpinner;
 import javax.swing.JTextField;
 import javax.swing.SpinnerDateModel;
+
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Calendar;
 import javax.swing.JButton;
 
+import de.outlook_klon.logik.Benutzer;
 import de.outlook_klon.logik.kalendar.Termin;
+import javax.swing.JList;
+import javax.swing.JComboBox;
+import javax.swing.DefaultComboBoxModel;
+import de.outlook_klon.logik.kontakte.*;
+import de.outlook_klon.gui.*;
 
 public class TerminFrame extends ExtendedDialog<Termin> {
 	private static final long serialVersionUID = 8451017422297429822L;
@@ -25,6 +33,8 @@ public class TerminFrame extends ExtendedDialog<Termin> {
 	
 	private JSpinner date1;
 	private JSpinner date2;
+	
+	//private JComboBox comboKontakt;
 	
 	private Termin mTermin;	
 	
@@ -47,10 +57,12 @@ public class TerminFrame extends ExtendedDialog<Termin> {
 		textOrt.setColumns(10);
 		
 		date1 = new JSpinner();
-		date1.setModel(new SpinnerDateModel(new Date(1388271600000L), null, null, Calendar.DAY_OF_YEAR));
+		date1.setModel(new SpinnerDateModel(new Date(), null, null, Calendar.DAY_OF_YEAR));
 		
 		date2 = new JSpinner();
-		date2.setModel(new SpinnerDateModel(new Date(1388271600000L), null, null, Calendar.DAY_OF_YEAR));
+		date2.setModel(new SpinnerDateModel(new Date(), null, null, Calendar.DAY_OF_YEAR));
+		
+		//comboKontakt = new JComboBox();
 		
 		JButton btnOk = new JButton("OK");
 		btnOk.addActionListener(new ActionListener() {
@@ -89,11 +101,31 @@ public class TerminFrame extends ExtendedDialog<Termin> {
 			}
 		});
 		
+		JLabel lblKontakt = new JLabel("Kontakt:");
+		
+		
+		ArrayList<String> apfel = new ArrayList<String>();
+		for (Kontakt k : Benutzer.getInstanz().getKontakte().getKontakte(Kontaktverwaltung.DEFAULT)) {
+			if(k.getMail1() != null) 
+				apfel.add(k.getMail1().getAddress());
+		}
+		int lol = apfel.size()+1;
+		String[] birne = new String[lol];
+		birne[0]="";
+		for (int i=1; i<lol; i++)
+		{
+			birne[i]=apfel.get(i-1);
+		}
+		
+		
+		JComboBox comboKontakt = new JComboBox();
+		comboKontakt.setModel(new DefaultComboBoxModel(birne));
+		
 		GroupLayout groupLayout = new GroupLayout(getContentPane());
 		groupLayout.setHorizontalGroup(
 			groupLayout.createParallelGroup(Alignment.LEADING)
 				.addGroup(groupLayout.createSequentialGroup()
-					.addGroup(groupLayout.createParallelGroup(Alignment.LEADING, false)
+					.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
 						.addGroup(groupLayout.createSequentialGroup()
 							.addGap(23)
 							.addComponent(btnOk)
@@ -101,28 +133,34 @@ public class TerminFrame extends ExtendedDialog<Termin> {
 							.addComponent(btnAbbrechen))
 						.addGroup(groupLayout.createSequentialGroup()
 							.addContainerGap()
-							.addComponent(lblBeschreibung, GroupLayout.PREFERRED_SIZE, 89, GroupLayout.PREFERRED_SIZE)
-							.addGap(41)
-							.addComponent(textBeschreibung))
+							.addGroup(groupLayout.createParallelGroup(Alignment.LEADING, false)
+								.addGroup(groupLayout.createSequentialGroup()
+									.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
+										.addComponent(lblNewLabel)
+										.addComponent(lblEndzeit, GroupLayout.PREFERRED_SIZE, 45, GroupLayout.PREFERRED_SIZE)
+										.addComponent(lblOrt, GroupLayout.PREFERRED_SIZE, 53, GroupLayout.PREFERRED_SIZE)
+										.addComponent(lblNBetreff, GroupLayout.PREFERRED_SIZE, 53, GroupLayout.PREFERRED_SIZE))
+									.addGap(77)
+									.addGroup(groupLayout.createParallelGroup(Alignment.LEADING, false)
+										.addComponent(date1, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+										.addComponent(date2, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+										.addComponent(textBetreff, GroupLayout.DEFAULT_SIZE, 286, Short.MAX_VALUE)
+										.addComponent(textOrt, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)))
+								.addGroup(groupLayout.createSequentialGroup()
+									.addComponent(lblBeschreibung, GroupLayout.PREFERRED_SIZE, 89, GroupLayout.PREFERRED_SIZE)
+									.addGap(41)
+									.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
+										.addComponent(textBeschreibung)
+										.addComponent(comboKontakt, 0, 286, Short.MAX_VALUE)))))
 						.addGroup(groupLayout.createSequentialGroup()
 							.addContainerGap()
-							.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
-								.addComponent(lblNewLabel)
-								.addComponent(lblEndzeit, GroupLayout.PREFERRED_SIZE, 45, GroupLayout.PREFERRED_SIZE)
-								.addComponent(lblOrt, GroupLayout.PREFERRED_SIZE, 53, GroupLayout.PREFERRED_SIZE)
-								.addComponent(lblNBetreff, GroupLayout.PREFERRED_SIZE, 53, GroupLayout.PREFERRED_SIZE))
-							.addGap(77)
-							.addGroup(groupLayout.createParallelGroup(Alignment.LEADING, false)
-								.addComponent(date1, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-								.addComponent(date2, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-								.addComponent(textBetreff, GroupLayout.DEFAULT_SIZE, 286, Short.MAX_VALUE)
-								.addComponent(textOrt))))
-					.addContainerGap(8, Short.MAX_VALUE))
+							.addComponent(lblKontakt)))
+					.addContainerGap(23, Short.MAX_VALUE))
 		);
 		groupLayout.setVerticalGroup(
-			groupLayout.createParallelGroup(Alignment.LEADING)
+			groupLayout.createParallelGroup(Alignment.TRAILING)
 				.addGroup(groupLayout.createSequentialGroup()
-					.addGap(42)
+					.addGap(27)
 					.addGroup(groupLayout.createParallelGroup(Alignment.BASELINE)
 						.addComponent(lblNBetreff)
 						.addComponent(textBetreff, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
@@ -143,6 +181,10 @@ public class TerminFrame extends ExtendedDialog<Termin> {
 					.addGroup(groupLayout.createParallelGroup(Alignment.BASELINE)
 						.addComponent(lblBeschreibung)
 						.addComponent(textBeschreibung, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+					.addGap(18)
+					.addGroup(groupLayout.createParallelGroup(Alignment.BASELINE)
+						.addComponent(lblKontakt)
+						.addComponent(comboKontakt, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
 					.addPreferredGap(ComponentPlacement.RELATED, 33, Short.MAX_VALUE)
 					.addGroup(groupLayout.createParallelGroup(Alignment.BASELINE)
 						.addComponent(btnOk)
@@ -174,8 +216,4 @@ public class TerminFrame extends ExtendedDialog<Termin> {
 	protected Termin getDialogResult() {
 		return mTermin;
 	}
-	
-	
-	
-	
 }

@@ -118,7 +118,7 @@ public class MainFrame extends ExtendedFrame implements TreeSelectionListener, L
 		mntmTermin.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				oeffneKalenderFrame();				//fürs erste
+				oeffneKalenderFrame();				//fürs Erste
 			}
 		});
 		mnNewMenu.add(mntmTermin);
@@ -428,7 +428,7 @@ public class MainFrame extends ExtendedFrame implements TreeSelectionListener, L
     
 	public MainFrame() {
 		setTitle("MailClient");
-		benutzer = new Benutzer();
+		benutzer = Benutzer.getInstanz();
 		
 		JSplitPane horizontalSplitPane = new JSplitPane();
 		
@@ -557,7 +557,6 @@ public class MainFrame extends ExtendedFrame implements TreeSelectionListener, L
 	
 	private void oeffneKalenderFrame() {
 		TerminkalenderFrame Tkf = new TerminkalenderFrame(benutzer.getTermine());
-		
 		Tkf.setSize(this.getSize());
 		Tkf.setExtendedState(this.getExtendedState());
 		Tkf.setVisible(true);
