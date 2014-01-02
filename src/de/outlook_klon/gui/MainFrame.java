@@ -20,6 +20,8 @@ import javax.swing.JFrame;
 import javax.swing.JTree;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.event.TreeExpansionEvent;
+import javax.swing.event.TreeExpansionListener;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.*;
@@ -66,6 +68,8 @@ public class MainFrame extends ExtendedFrame implements TreeSelectionListener, L
 	private JMenuItem popupLoeschen;
 	private JMenuItem popupAntworten;
 	private JMenuItem popupWeiterleiten;
+	private JMenu popupKopieren;
+	private JMenu popupVerschieben;
 	
 	private JTable tblMails;
     private JMenuItem mntmEmail;
@@ -164,7 +168,7 @@ public class MainFrame extends ExtendedFrame implements TreeSelectionListener, L
 		mnExtras.add(mntmKonteneinstellungen);
     }
     
-    private void initTabelle(JSplitPane verticalSplitPane) {
+    private void initTabellePopup() {
     	popupOeffnen = new JMenuItem("Öffnen");
     	popupOeffnen.addActionListener(new ActionListener() {
 			@Override
@@ -186,15 +190,7 @@ public class MainFrame extends ExtendedFrame implements TreeSelectionListener, L
 		popupLoeschen.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				MailInfo[] infos = ausgewaehlteMailInfo();
-				String pfad = nodeZuPfad((DefaultMutableTreeNode)tree.getLastSelectedPathComponent());
-				MailAccount acc = ausgewaehlterAccount();
-				
-				try {
-					acc.loescheMails(infos, pfad);
-				} catch (MessagingException ex) {
-					ex.printStackTrace();
-				}
+				loescheMail();
 			}
 		});
 		
@@ -232,14 +228,19 @@ public class MainFrame extends ExtendedFrame implements TreeSelectionListener, L
 			}
 		});
 		
+		popupKopieren = new JMenu("Kopieren");
+		popupVerschieben = new JMenu("Verschieben");
+		
 		tablePopup = new JPopupMenu();
 		tablePopup.add(popupOeffnen);
-		tablePopup.add(new JMenu("Kopiere nach"));
-		tablePopup.add(new JMenu("Verschiebe nach"));
 		tablePopup.add(popupLoeschen);
 		tablePopup.add(popupAntworten);
 		tablePopup.add(popupWeiterleiten);
-		
+		tablePopup.add(popupKopieren);
+		tablePopup.add(popupVerschieben);
+    }
+    
+    private void initTabelle(JSplitPane verticalSplitPane) {		
 		tblMails = new JTable() {
 			private static final long serialVersionUID = 1L;
 
@@ -397,6 +398,23 @@ public class MainFrame extends ExtendedFrame implements TreeSelectionListener, L
                 return c;
             }
 		});
+		tree.addTreeExpansionListener(new TreeExpansionListener() {
+			@Override
+			public void treeExpanded(TreeExpansionEvent arg0) { }
+			
+			@Override
+			public void treeCollapsed(TreeExpansionEvent e) {
+				DefaultTreeModel model = (DefaultTreeModel)tree.getModel();
+				DefaultMutableTreeNode node = (DefaultMutableTreeNode)tree.getLastSelectedPathComponent();
+				
+				TreePath nodePath = new TreePath(model.getPathToRoot(node));
+				TreePath path = e.getPath();
+				
+				if(path.isDescendant(nodePath)){
+					tree.setSelectionPath(path);
+				}
+			}
+		});
 		tree.setRootVisible(false);
 		tree.setEditable(true);
 		tree.setModel(new DefaultTreeModel(root));
@@ -414,6 +432,7 @@ public class MainFrame extends ExtendedFrame implements TreeSelectionListener, L
 		
 		JSplitPane horizontalSplitPane = new JSplitPane();
 		
+		initTabellePopup();
 		initTree(horizontalSplitPane);
 		
 		JSplitPane verticalSplitPane = new JSplitPane();
@@ -623,7 +642,7 @@ public class MainFrame extends ExtendedFrame implements TreeSelectionListener, L
 	
 	private void ladeOrdner() {
 		DefaultTreeModel treeModel = (DefaultTreeModel)tree.getModel();
-		DefaultMutableTreeNode rootNode = (DefaultMutableTreeNode)tree.getModel().getRoot();
+		DefaultMutableTreeNode rootNode = (DefaultMutableTreeNode) treeModel.getRoot();
 		
 		int i = 0;
 		outer:
@@ -667,12 +686,15 @@ public class MainFrame extends ExtendedFrame implements TreeSelectionListener, L
 	}
 
 	private MailInfo[] ausgewaehlteMailInfo() {
-		MailInfo[] infos = new MailInfo[tblMails.getSelectedRowCount()];
-		int[] indizes = tblMails.getSelectedRows();
 		DefaultTableModel model = (DefaultTableModel)tblMails.getModel();
 		
+		MailInfo[] infos = new MailInfo[tblMails.getSelectedRowCount()];
+		int[] indizes = tblMails.getSelectedRows();
+		
 		for(int i = 0; i < infos.length; i++) {
-			infos[i] = (MailInfo)model.getValueAt(indizes[i], 0);
+			int modelIndex = tblMails.convertRowIndexToModel(indizes[i]);
+			
+			infos[i] = (MailInfo)model.getValueAt(modelIndex, 0);
 		}
 		
 		return infos;
@@ -680,6 +702,9 @@ public class MainFrame extends ExtendedFrame implements TreeSelectionListener, L
 	
 	private MailAccount ausgewaehlterAccount() {
 		DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode)tree.getLastSelectedPathComponent();
+		if(selectedNode == null)
+			return null;
+		
 		Object userObject = null;
 		
 		do {
@@ -693,8 +718,9 @@ public class MainFrame extends ExtendedFrame implements TreeSelectionListener, L
 	}
 	
 	private void oeffneMail(MailInfo info) {
-		MailAccount acc = ausgewaehlterAccount();
-		String pfad = nodeZuPfad((DefaultMutableTreeNode)tree.getLastSelectedPathComponent());
+		MailAccount acc = ausgewaehlterAccount();		
+		DefaultMutableTreeNode selected = (DefaultMutableTreeNode)tree.getLastSelectedPathComponent();		
+		String pfad = nodeZuPfad(selected);
 	     
 		MailFrame mf;
 		try {
@@ -704,8 +730,8 @@ public class MainFrame extends ExtendedFrame implements TreeSelectionListener, L
 			mf.setExtendedState(this.getExtendedState());
 			mf.setVisible(true);
 		} catch (MessagingException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
+			JOptionPane.showMessageDialog(this, "Es ist ein Fehler beim Öffnen der Mail aufgetreten:\n" + e1.getMessage(), 
+					"Fehler", JOptionPane.ERROR_MESSAGE);
 		}
 	}
 	
@@ -717,9 +743,158 @@ public class MainFrame extends ExtendedFrame implements TreeSelectionListener, L
 			if(zeile >= 0 && spalte >= 0) {
 				tblMails.setRowSelectionInterval(zeile, zeile);
 				
+				tablePopup.remove(popupKopieren);
+				popupKopieren = generiereOrdnerMenu(popupKopieren.getText(), "In Ordner kopieren");
+				tablePopup.add(popupKopieren);
+				
+				tablePopup.remove(popupVerschieben);
+				popupVerschieben = generiereOrdnerMenu(popupVerschieben.getText(), "In Ordner verschieben");
+				tablePopup.add(popupVerschieben);
+				
 				tablePopup.show(tblMails, e.getX(), e.getY());
 			}
 	    }
+	}
+	
+	private JMenuItem generiereOrdnerMenu(String pfad, String operation, DefaultMutableTreeNode node, boolean ordner, String itemTitel) {
+		ActionListener menuListener = new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				JMenuItem item = (JMenuItem) e.getSource();
+				String pfad = (String) item.getClientProperty("PFAD");
+				String typ = (String) item.getClientProperty("TYP");
+				
+				if(typ.equals("Kopieren")) {
+					kopiereMail(pfad);
+				}
+				else if(typ.equals("Verschieben")) {
+					verschiebeMail(pfad);
+				}
+				else
+					throw new IllegalArgumentException("Typ \'" + typ + "\' ungültig");
+			}
+		};
+		
+		String menuTitel = null;
+		Object userObject = node.getUserObject();
+		
+		if(userObject instanceof MailAccount) {
+			MailAccount acc = (MailAccount) userObject;
+			menuTitel = acc.getAdresse().getAddress();
+		}
+		else {
+			menuTitel = node.getUserObject().toString();
+		}
+		
+		pfad += menuTitel;
+		
+		JMenuItem untermenu = null;
+		int childCount = node.getChildCount();
+		
+		if(childCount > 0) {
+			untermenu = new JMenu(menuTitel);
+			
+			if(ordner) {
+				JMenuItem item = new JMenuItem(itemTitel);
+				item.putClientProperty("TYP", operation);
+				item.putClientProperty("PFAD", pfad);
+				item.addActionListener(menuListener);
+				
+				untermenu.add(item);
+				untermenu.add(new JSeparator());
+			}
+			
+			for(int i = 0; i < childCount; i++) {
+				DefaultMutableTreeNode child = (DefaultMutableTreeNode) node.getChildAt(i);
+				untermenu.add(generiereOrdnerMenu(pfad + "/", operation, child, true, itemTitel));
+			}
+		}
+		else {
+			untermenu = new JMenuItem(menuTitel);
+			untermenu.putClientProperty("TYP", operation);
+			untermenu.putClientProperty("PFAD", pfad);
+			untermenu.addActionListener(menuListener);
+		}
+		
+		return untermenu;
+	}
+	
+	private JMenu generiereOrdnerMenu(String titel, String itemTitel) {
+		DefaultTreeModel treeModel = (DefaultTreeModel)tree.getModel();
+		DefaultMutableTreeNode rootNode = (DefaultMutableTreeNode) treeModel.getRoot();
+		
+		for(int i = 0; i < rootNode.getChildCount(); i++) {
+			DefaultMutableTreeNode child = (DefaultMutableTreeNode) rootNode.getChildAt(i);
+			
+			if(child.getUserObject() == ausgewaehlterAccount()) {
+				JMenu neu = new JMenu(titel);
+
+				for(int j = 0; j < child.getChildCount(); j++) {
+					DefaultMutableTreeNode subchild = (DefaultMutableTreeNode) child.getChildAt(j);
+					neu.add(generiereOrdnerMenu("", titel, subchild, true, itemTitel));
+				}
+				
+				return neu;
+			}
+		}
+		
+		return null;
+	}
+	
+	private void kopiereMail(String ziel) {
+		MailAccount acc = ausgewaehlterAccount();
+		MailInfo[] infos = ausgewaehlteMailInfo();
+		String quelle = nodeZuPfad((DefaultMutableTreeNode)tree.getLastSelectedPathComponent());
+		
+		try {
+			acc.kopiereMails(infos, quelle, ziel);
+		} catch (MessagingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	private void verschiebeMail(String ziel) {
+		MailAccount acc = ausgewaehlterAccount();
+		MailInfo[] infos = ausgewaehlteMailInfo();
+		String quelle = nodeZuPfad((DefaultMutableTreeNode)tree.getLastSelectedPathComponent());
+		
+		try {
+			acc.verschiebeMails(infos, quelle, ziel);
+			
+			DefaultTableModel model = (DefaultTableModel) tblMails.getModel();
+			int row = tblMails.getSelectedRow();
+			while(row != -1) {
+				int mapped = tblMails.convertRowIndexToModel(row);
+				model.removeRow(mapped);
+				
+				row = tblMails.getSelectedRow();
+			}
+		} catch (MessagingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	private void loescheMail() {
+		MailInfo[] infos = ausgewaehlteMailInfo();
+		String pfad = nodeZuPfad((DefaultMutableTreeNode)tree.getLastSelectedPathComponent());
+		MailAccount acc = ausgewaehlterAccount();
+		
+		try {
+			if(acc.loescheMails(infos, pfad)) {
+				DefaultTableModel model = (DefaultTableModel) tblMails.getModel();
+				int row = tblMails.getSelectedRow();
+				while(row != -1) {
+					int mapped = tblMails.convertRowIndexToModel(row);
+					model.removeRow(mapped);
+					
+					row = tblMails.getSelectedRow();
+				}
+			}
+		} catch (MessagingException ex) {
+			ex.printStackTrace();
+		}
 	}
 
 	@Override
