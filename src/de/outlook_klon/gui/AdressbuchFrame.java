@@ -6,6 +6,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
 import javax.swing.DefaultListModel;
+import javax.swing.DefaultListSelectionModel;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.JButton;
@@ -213,8 +214,9 @@ public class AdressbuchFrame extends ExtendedFrame {
 		tblKontakte.getSelectionModel().addListSelectionListener(new ListSelectionListener() {	
 			@Override
 			public void valueChanged(ListSelectionEvent e) {
-				if(!e.getValueIsAdjusting()) {					
-					int row = e.getFirstIndex();
+				if(!e.getValueIsAdjusting()) {		
+					DefaultListSelectionModel sender = (DefaultListSelectionModel) e.getSource();			
+					int row = sender.getMinSelectionIndex();
 					if(row == -1)
 						return;
 					
