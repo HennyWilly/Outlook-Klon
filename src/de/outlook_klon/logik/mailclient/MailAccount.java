@@ -442,16 +442,24 @@ public class MailAccount implements Serializable {
 	 */
 	private void kopieren(MailInfo[] mails, Folder quellOrdner, Folder zielOrdner, boolean löschen) throws MessagingException {
 		Message[] messages = infoToMessage(mails, quellOrdner);
+		String quellPfad = quellOrdner.getFullName();
+		String zielPfad = zielOrdner.getFullName();
 		
 		quellOrdner.copyMessages(messages, zielOrdner);
-		
-		if(löschen) {
-			for(Message m : messages) {
-				m.setFlag(Flags.Flag.DELETED, true);
-			}
+		for(int i = 0; i < messages.length; i++) {
+			try {
+				speichereMailInfo(mails[i], zielPfad);
+			} catch (IOException e) { }
 			
-			quellOrdner.expunge();
+			if(löschen) {
+				if(!messages[i].isExpunged())
+					messages[i].setFlag(Flags.Flag.DELETED, true);
+				löscheMailInfo(mails[i], quellPfad);
+			}
 		}
+		
+		if(löschen) 
+			quellOrdner.expunge();
 	}
 
 	/**
@@ -468,7 +476,9 @@ public class MailAccount implements Serializable {
 			mailStore.connect(inServer.settings.getHost(), inServer.settings.getPort(), benutzer, passwort);
 			
 			Folder quellOrdner = mailStore.getFolder(quellPfad);
+			quellOrdner.open(Folder.READ_WRITE);
 			Folder zielOrdner = mailStore.getFolder(zielPfad);
+			zielOrdner.open(Folder.READ_WRITE);
 			
 			kopieren(mails, quellOrdner, zielOrdner, true);
 		} finally {
@@ -496,7 +506,9 @@ public class MailAccount implements Serializable {
 			mailStore.connect(inServer.settings.getHost(), inServer.settings.getPort(), benutzer, passwort);
 			
 			Folder quellOrdner = mailStore.getFolder(quellPfad);
+			quellOrdner.open(Folder.READ_ONLY);
 			Folder zielOrdner = mailStore.getFolder(zielPfad);
+			zielOrdner.open(Folder.READ_WRITE);
 			
 			kopieren(mails, quellOrdner, zielOrdner, false);
 		} finally {
@@ -548,18 +560,17 @@ public class MailAccount implements Serializable {
 			if(binFolder != null) {
 				String binPfad = binFolder.getFullName();
 				if(!pfad.equals(binPfad)) {
-					kopieren(mails, ordner, binFolder, true);
-				}
-				else {
-					Message[] messages = infoToMessage(mails, ordner);
-					for(Message m : messages) {
-						if(!m.isExpunged())
-							m.setFlag(Flags.Flag.DELETED, true);
-					}
-					
-					ordner.expunge();
+					kopieren(mails, ordner, binFolder, false);
+					return true;
 				}
 			}
+			Message[] messages = infoToMessage(mails, ordner);
+			for(Message m : messages) {
+				if(!m.isExpunged())
+					m.setFlag(Flags.Flag.DELETED, true);
+			}
+			
+			ordner.expunge();
 			
 			//TODO Löschen von Mails, ohne dass die Ordner eine Trash-Flag haben
 			
@@ -656,6 +667,14 @@ public class MailAccount implements Serializable {
 		}
 		
 		return geladen;
+	}
+	
+	private void löscheMailInfo(MailInfo info, String pfad) {
+		String id = info.getID();
+		String dateiname = id.replace(">", "").replace("<", "");
+		File zielDatei = new File("Mail/" + adresse.getAddress() + "/" + pfad + "/"  + dateiname + ".mail").getAbsoluteFile();
+		
+		zielDatei.delete();
 	}
 	
 	/**
