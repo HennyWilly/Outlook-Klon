@@ -190,7 +190,7 @@ public class MailAccount implements Serializable {
 					ret[i].setSender(from);
 					ret[i].setDate(sendDate);
 					
-					speichereMailInfo(ret[i], lokalerPfad);
+					speichereMailInfo(ret[i], pfad);
 				}
 			}
 			
@@ -308,12 +308,8 @@ public class MailAccount implements Serializable {
 					message.setFlag(Flag.SEEN, true);
 					messageInfo.setRead(true);
 				}
-
-				String id = messageInfo.getID();
-				String dateiname = id.replace(">", "").replace("<", "");
-				File lokalerPfad = new File("Mail/" + adresse.getAddress() + "/" + pfad + "/"  + dateiname + ".mail").getAbsoluteFile();
 				
-				speichereMailInfo(messageInfo, lokalerPfad);
+				speichereMailInfo(messageInfo, pfad);
 			}
 			
 			folder.close(true);
@@ -391,12 +387,8 @@ public class MailAccount implements Serializable {
 					
 					messageInfo.setAttachment(attachment.toArray(new String[attachment.size()]));
 				}
-
-				String id = messageInfo.getID();
-				String dateiname = id.replace(">", "").replace("<", "");
-				File lokalerPfad = new File("Mail/" + adresse.getAddress() + "/" + pfad + "/"  + dateiname + ".mail").getAbsoluteFile();
 				
-				speichereMailInfo(messageInfo, lokalerPfad);
+				speichereMailInfo(messageInfo, pfad);
 			}
 			
 			folder.close(true);
@@ -620,8 +612,11 @@ public class MailAccount implements Serializable {
 		return result;
 	}
 	
-	private void speichereMailInfo(MailInfo info, File zielDatei) throws IOException {
-		zielDatei = zielDatei.getAbsoluteFile();
+	private void speichereMailInfo(MailInfo info, String pfad) throws IOException {
+		String id = info.getID();
+		String dateiname = id.replace(">", "").replace("<", "");
+		File zielDatei = new File("Mail/" + adresse.getAddress() + "/" + pfad + "/"  + dateiname + ".mail").getAbsoluteFile();
+		
 		File ordner = zielDatei.getParentFile();
 		
 		FileOutputStream fos = null;
