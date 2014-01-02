@@ -28,6 +28,11 @@ public class Benutzer implements Iterable<MailAccount> {
 	
 	private static Benutzer singleton;
 	
+	/**
+	 * Gibt die einzige Instanz der Klasse Benutzer zurück.
+	 * Beim ersten Aufruf wird eine neue Instanz der Klasse erstellt.
+	 * @return Einzige Instanz der Klasse
+	 */
 	public static Benutzer getInstanz() {
 		if(singleton == null)
 			singleton = new Benutzer();
