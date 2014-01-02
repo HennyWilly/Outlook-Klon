@@ -1,5 +1,6 @@
 package de.outlook_klon.gui;
 
+import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -21,9 +22,6 @@ import javax.swing.JSplitPane;
 import javax.swing.JTextField;
 import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.ListSelectionModel;
-
-import java.awt.BorderLayout;
-
 import javax.swing.JTable;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -346,7 +344,8 @@ public class AdressbuchFrame extends ExtendedFrame {
 		initTabelle(verticalSplit);
 		
 		txtDetails = new JTextPane();
-		verticalSplit.setRightComponent(txtDetails);
+		JScrollPane detailsScroller = new JScrollPane(txtDetails);
+		verticalSplit.setRightComponent(detailsScroller);
 		
 		initListen(horizontalSplit);
 		
