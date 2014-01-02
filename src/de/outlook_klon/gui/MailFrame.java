@@ -39,8 +39,8 @@ import java.util.ArrayList;
 
 import javax.mail.Address;
 import javax.mail.MessagingException;
-import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
+import javax.mail.internet.ParseException;
 
 import de.outlook_klon.logik.kontakte.Kontakt;
 import de.outlook_klon.logik.mailclient.MailAccount;
@@ -421,27 +421,32 @@ public class MailFrame extends ExtendedFrame implements ItemListener {
 			cBSender.setSelectedIndex(0);
 	}
 	
-	InternetAddress[] unicodifyAddresses(String addresses) {
-	    InternetAddress[] recips = null;
-		try {
-			recips = InternetAddress.parse(addresses, false);
-		    for(int i=0; i<recips.length; i++) {
-		        try {
-		            recips[i] = new InternetAddress(recips[i].getAddress(), recips[i].getPersonal(), "utf-8");
-		        } catch(UnsupportedEncodingException uee) {
-		            throw new RuntimeException("utf-8 not valid encoding?", uee);
-		        }
-		    }
-		} catch (AddressException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+	InternetAddress[] unicodifyAddresses(String addresses) throws ParseException {
+		addresses = addresses.replace(';', ',');
+		
+	    InternetAddress[] recips = InternetAddress.parse(addresses, true);
+	    
+	    for(int i=0; i<recips.length; i++) {
+	        try {
+	            recips[i] = new InternetAddress(recips[i].getAddress(), recips[i].getPersonal(), "utf-8");
+	        } catch(UnsupportedEncodingException uee) { }
+	    }
+		    
 	    return recips;
 	}
 	
 	private void sendeMail() {
-		InternetAddress[] to = unicodifyAddresses(tTo.getText());
-		InternetAddress[] cc = unicodifyAddresses(tCC.getText());
+		InternetAddress[] to = null;
+		InternetAddress[] cc = null;
+		
+		try {
+			to = unicodifyAddresses(tTo.getText());
+			cc = unicodifyAddresses(tCC.getText());
+		} catch (ParseException e) {
+			JOptionPane.showMessageDialog(this, e.getMessage(), "Fehler", JOptionPane.ERROR_MESSAGE);
+			return;
+		}
+		
 		String subject = tSubject.getText();
 		String text = tpMailtext.getText();
 		
