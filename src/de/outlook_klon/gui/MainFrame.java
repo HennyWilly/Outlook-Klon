@@ -931,6 +931,10 @@ public class MainFrame extends ExtendedFrame implements TreeSelectionListener, L
 			DefaultTableModel model =  (DefaultTableModel)tblMails.getModel();
 			int viewZeile = tblMails.getSelectedRow();
 			if(viewZeile < 0) {
+				tpPreview.setEditable(true);
+				tpPreview.setText("");
+				tpPreview.setEditable(false);
+				
 				return;
 			}
 			
