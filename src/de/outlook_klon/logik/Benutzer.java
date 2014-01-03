@@ -23,7 +23,8 @@ import de.outlook_klon.logik.kalendar.Terminkalender;
  */
 public class Benutzer implements Iterable<MailAccount> {
 	private static final String DATEN_ORDNER = "Mail";
-	private static final String ACCOUNT_PATTERN = DATEN_ORDNER + "/%s/settings.bin";
+	private static final String ACCOUNT_PATTERN = DATEN_ORDNER + "/%s";
+	private static final String ACCOUNTSETTINGS_PATTERN = ACCOUNT_PATTERN + "/settings.bin";
 	private static final String KONTAKT_PFAD = DATEN_ORDNER + "/Kontakte.bin";
 	
 	private static Benutzer singleton;
@@ -115,7 +116,7 @@ public class Benutzer implements Iterable<MailAccount> {
 		});
 		
 		for(String directory : directories) {
-			String settings = String.format(ACCOUNT_PATTERN, directory);
+			String settings = String.format(ACCOUNTSETTINGS_PATTERN, directory);
 			File datei = new File(settings).getAbsoluteFile();
 			
 			MailAccount geladen = deserialisiereObjekt(datei);
@@ -165,6 +166,46 @@ public class Benutzer implements Iterable<MailAccount> {
 	}
 	
 	/**
+	 * Löscht rekursiv die Datei oder den Ordner mit allen Unterordnern und Dateien
+	 * @param f Verweis auf den zu löschenden Eintrag im Dateisystem
+	 * @throws IOException Tritt auf, wenn eine der Dateien nicht gelöscht werden konnte
+	 */
+	private void deleteRecursive(File f) throws IOException {
+		if(f.isDirectory()) {
+			File[] files = f.listFiles();
+			for(File file : files)
+				deleteRecursive(file);
+		}
+		
+		if(!f.delete())
+			throw new IOException("Datei \'" + f.getPath() + "\' konnte nicht gelöscht werden");
+	}
+	
+	/**
+	 * Entfernt den übergebenen Account aus der Verwaltung
+	 * @param ma Zu löschender Account
+	 * @return true, wenn das löschen erfolgreich war; sonst false
+	 * @throws IOException Tritt auf, wenn einer der gespeicherten Dateien nicht gelöscht werden konnte
+	 */
+	public boolean entferneMailAccount(MailAccount ma) throws IOException {
+		if(konten.remove(ma)) {
+			String pfad = String.format(ACCOUNT_PATTERN, ma.getAdresse().getAddress());
+			File ordner = new File(pfad);
+			if(ordner.exists()) {
+				try {
+					deleteRecursive(ordner);
+					return true;
+				} catch (IOException e) {
+					addMailAccount(ma);
+					throw e;
+				}
+			}
+		}
+		
+		return false;
+	}
+	
+	/**
 	 * Speichert die Daten des Benutzers
 	 */
 	public void speichern() throws IOException {
@@ -188,7 +229,7 @@ public class Benutzer implements Iterable<MailAccount> {
 	 * @throws IOException Tritt auf, wenn der MailAccount nicht gespeichert werden konnte
 	 */
 	private void speichereMailAccount(MailAccount acc) throws IOException {
-		String strPfad = String.format(ACCOUNT_PATTERN, acc.getAdresse().getAddress());
+		String strPfad = String.format(ACCOUNTSETTINGS_PATTERN, acc.getAdresse().getAddress());
 		
 		File pfad = new File(strPfad).getAbsoluteFile();
 		File ordner = pfad.getParentFile();
