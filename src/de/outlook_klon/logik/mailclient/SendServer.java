@@ -33,9 +33,4 @@ public abstract class SendServer extends MailServer {
 	 */
 	public abstract void sendeMail(String user, String pw, InternetAddress from, InternetAddress[] to, InternetAddress[] cc, String subject, String text, String format, File[] attachment) 
 			throws MessagingException, IOException ;
-	
-	public boolean prüfeLogin(String benutzername, String passwort){
-		return true;
-		//TODO Prüfen des Logins
-	}
 }

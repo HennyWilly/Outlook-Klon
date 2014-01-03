@@ -30,7 +30,7 @@ public abstract class EmpfangsServer extends MailServer {
 	 */
 	public abstract Store getMailStore(String user, String pw) throws NoSuchProviderException;
 	
-	public boolean prüfeLogin(String benutzername, String passwort){
+	public boolean pruefeLogin(String benutzername, String passwort){
 		Store store = null;
 		
 		try {

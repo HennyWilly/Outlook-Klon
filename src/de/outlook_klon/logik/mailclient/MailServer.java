@@ -11,7 +11,7 @@ import javax.mail.PasswordAuthentication;
  * 
  * @author Hendrik Karwanni
  */
-public abstract class MailServer implements Serializable{
+public abstract class MailServer implements Serializable {
 	private static final long serialVersionUID = -6369803776352038195L;
 
 	/**
@@ -66,7 +66,7 @@ public abstract class MailServer implements Serializable{
 	 * @param passwort Passwort des Benutzers
 	 * @return true, wenn die Anmeldedaten korrekt waren; sonst false
 	 */
-	public abstract boolean prüfeLogin(String benutzername, String passwort);
+	public abstract boolean pruefeLogin(String benutzername, String passwort);
 	
 	/**
 	 * Gibt den beschreibenden String zum Servertyp zurück

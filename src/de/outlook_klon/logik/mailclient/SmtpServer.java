@@ -101,4 +101,53 @@ public class SmtpServer extends SendServer{
 		transport.sendMessage(mail, mail.getAllRecipients());
 		transport.close();
 	}
+	
+	public boolean pruefeLogin(String benutzername, String passwort){
+		Authenticator auth = new StandardAuthentificator(benutzername, passwort);
+		
+		String host = settings.getHost();
+		int port = settings.getPort();
+		Verbindungssicherheit sicherheit = settings.getVerbingungssicherheit();
+		
+		Properties props = new Properties();
+		//props.put("mail.smtp.user", user);
+		//props.put("mail.smtp.host", host);
+		//props.put("mail.smtp.port", port);
+		props.put("mail.smtp.debug", "true");
+		props.put("mail.smtp.auth", "true");
+		
+		if(sicherheit == Verbindungssicherheit.STARTTLS) {
+			props.put("mail.smtp.starttls.enable","true");
+		}
+		else if(sicherheit == Verbindungssicherheit.SSL_TLS) {
+			props.put("mail.smtp.socketFactory.port", port);
+			props.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
+			props.put("mail.smtp.socketFactory.fallback", "false");
+		}
+		
+        Session session = Session.getInstance(props, auth);
+		session.setDebug(true);
+		
+		Transport transport = null;
+		try {
+			if(sicherheit == Verbindungssicherheit.SSL_TLS) {
+				transport = session.getTransport("smtps");
+			}
+			else {
+				transport = session.getTransport("smtp");
+			}
+			
+			transport.connect(host, port, benutzername, passwort);
+		} catch(Exception ex) {
+			return false;
+		} finally {
+			if(transport != null && transport.isConnected()) {
+				try {
+					transport.close();
+				} catch (MessagingException e) { }
+			}
+		}
+
+		return true;
+	}
 }
