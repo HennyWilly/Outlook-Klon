@@ -205,23 +205,23 @@ public class MailFrame extends ExtendedFrame implements ItemListener {
 		
 		cBSender = new JComboBox<MailAccount>();
 		tSender = new JTextField();
+		
 		GroupLayout gl_panel_1 = new GroupLayout(panel_1);
 		gl_panel_1.setHorizontalGroup(
 			gl_panel_1.createParallelGroup(Alignment.LEADING)
 				.addGroup(gl_panel_1.createSequentialGroup()
 					.addContainerGap()
 					.addGroup(gl_panel_1.createParallelGroup(Alignment.LEADING)
-						.addGroup(gl_panel_1.createParallelGroup(Alignment.LEADING)
-							.addComponent(lSender, Alignment.TRAILING, GroupLayout.PREFERRED_SIZE, 46, GroupLayout.PREFERRED_SIZE)
-							.addComponent(lTo, Alignment.TRAILING, GroupLayout.PREFERRED_SIZE, 46, GroupLayout.PREFERRED_SIZE))
+						.addComponent(lSender, GroupLayout.PREFERRED_SIZE, 46, GroupLayout.PREFERRED_SIZE)
+						.addComponent(lTo, GroupLayout.PREFERRED_SIZE, 46, GroupLayout.PREFERRED_SIZE)
 						.addComponent(lCC, GroupLayout.PREFERRED_SIZE, 46, GroupLayout.PREFERRED_SIZE)
 						.addComponent(lSubject, GroupLayout.PREFERRED_SIZE, 46, GroupLayout.PREFERRED_SIZE))
-					.addGap(2)
+					.addPreferredGap(ComponentPlacement.RELATED)
 					.addGroup(gl_panel_1.createParallelGroup(Alignment.LEADING)
-						.addComponent(modus != MailModus.OEFFNEN ? cBSender : tSender, 0, 301, Short.MAX_VALUE)
-						.addComponent(tTo, GroupLayout.DEFAULT_SIZE, 301, Short.MAX_VALUE)
-						.addComponent(tCC, GroupLayout.DEFAULT_SIZE, 301, Short.MAX_VALUE)
-						.addComponent(tSubject, GroupLayout.DEFAULT_SIZE, 301, Short.MAX_VALUE))
+						.addComponent(modus != MailModus.OEFFNEN ? cBSender : tSender, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+						.addComponent(tTo, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 6, Short.MAX_VALUE)
+						.addComponent(tCC, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 6, Short.MAX_VALUE)
+						.addComponent(tSubject, GroupLayout.DEFAULT_SIZE, 6, Short.MAX_VALUE))
 					.addContainerGap())
 		);
 		gl_panel_1.setVerticalGroup(
@@ -232,19 +232,17 @@ public class MailFrame extends ExtendedFrame implements ItemListener {
 						.addComponent(lSender)
 						.addComponent(modus != MailModus.OEFFNEN ? cBSender : tSender, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
 					.addPreferredGap(ComponentPlacement.RELATED)
-					.addGroup(gl_panel_1.createParallelGroup(Alignment.LEADING)
-						.addGroup(gl_panel_1.createSequentialGroup()
-							.addComponent(tTo, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-							.addGap(5)
-							.addComponent(tCC, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-							.addGap(3)
-							.addComponent(tSubject, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-						.addGroup(gl_panel_1.createSequentialGroup()
-							.addComponent(lTo)
-							.addGap(11)
-							.addComponent(lCC)
-							.addPreferredGap(ComponentPlacement.UNRELATED)
-							.addComponent(lSubject)))
+					.addGroup(gl_panel_1.createParallelGroup(Alignment.BASELINE)
+						.addComponent(lTo)
+						.addComponent(tTo, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+					.addGap(5)
+					.addGroup(gl_panel_1.createParallelGroup(Alignment.BASELINE)
+						.addComponent(lCC)
+						.addComponent(tCC, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+					.addGap(3)
+					.addGroup(gl_panel_1.createParallelGroup(Alignment.BASELINE)
+						.addComponent(lSubject)
+						.addComponent(tSubject, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
 					.addContainerGap())
 		);
 		panel_1.setLayout(gl_panel_1);
