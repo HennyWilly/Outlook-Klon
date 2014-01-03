@@ -6,7 +6,7 @@ import java.util.GregorianCalendar;
 import java.util.Iterator;
 
 /**
- * Diese Klasse stellt die Verwaltung für die Termine des Bentzers dar
+ * Diese Klasse stellt die Verwaltung für die Termine des Benutzers dar
  * 
  * @author Hendrik Karwanni
  */
@@ -41,46 +41,54 @@ public class Terminkalender implements Iterable<Termin> {
 		mTermine.remove(termin);
 	}
 	
+	/**
+	 * Gibt zurück, ob sich die Termine der Verwaltung mit dem übergebenen Termin überschneiden
+	 * @param a Zu vergleichender Termin
+	 * @return true, wenn sich mindestens ein Termin überschneidet; sonst false
+	 */
 	public boolean ueberschneidung(Termin a){
 		Date startA = a.getStart();
 		Date endeA = a.getEnde();
 		
-		for(Termin b : this)
+		for(Termin b : mTermine)
 		{
 			Date startB = b.getStart();
 			Date endeB = b.getEnde();
 					//IF-Abfrage des Todes
-			if      (((startA.before(startB))&& (endeA.after(startB))) || ((startA.before(endeB)) && (endeA.after(endeB)))
-					|| ((startB.before(startA)) && (endeB.after(startA))) || ((startB.before(endeA)) && (endeB.after(endeA))))
+			if ((startA.before(startB) && endeA.after(startB)) || (startA.before(endeB) && endeA.after(endeB)) 
+					|| (startB.before(startA) && endeB.after(startA)) || (startB.before(endeA) && endeB.after(endeA)))
 			
 			{
 				return true;
 			}
 		}
 		return false;
-	}
+	}	
 	
-					
-	
-	
-	public Termin getOldest(){
+	/**
+	 * Gibt den Termin zurück, der am spätesten beginnt
+	 * @return Termin-Objekt, das zeitlich am spätesten beginnt
+	 */
+	public Termin getOldest() {
+		if(mTermine.size() == 0)
+			return null;
+		
 		Termin t = mTermine.get(0);
 		
 		for(Termin a : mTermine) {
 			if (a.getStart().before(t.getStart()))
-			{
 				t=a;
-			}
 		}
 		return t;
 	}
 	
-
-	
-	public int getSize(){
+	/**
+	 * Gibt die Anzahl der Termine der Verwaltung zurück
+	 * @return Anzahl der Termine
+	 */
+	public int getSize() {
 		return mTermine.size();
-		}
-	
+	}
 	
 	/**
 	 * Entfernt alle Termine aus der Verwaltung, die am übergebenen Tag stattfinden
