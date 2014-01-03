@@ -202,10 +202,7 @@ public class MailAccount implements Serializable {
 			if(store != null && store.isConnected())
 				try {
 					store.close();
-				} catch (MessagingException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+				} catch (MessagingException e) { }
 		}
 		
 		return ret;
@@ -572,7 +569,7 @@ public class MailAccount implements Serializable {
 			
 			ordner.expunge();
 			
-			//TODO Löschen von Mails, ohne dass die Ordner eine Trash-Flag haben
+			//TODO TESTEN!!!
 			
 			result = true;
 		} finally {
@@ -687,10 +684,10 @@ public class MailAccount implements Serializable {
 		boolean outValid = false;
 		
 		if(inServer != null)
-			inValid = inServer.prüfeLogin(benutzer, passwort);
+			inValid = inServer.pruefeLogin(benutzer, passwort);
 		
 		if(outServer != null)
-			outValid = outServer.prüfeLogin(benutzer, passwort);
+			outValid = outServer.pruefeLogin(benutzer, passwort);
 		
 		return inValid && outValid;
 	}
