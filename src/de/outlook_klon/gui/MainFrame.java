@@ -560,6 +560,31 @@ public class MainFrame extends ExtendedFrame implements TreeSelectionListener, L
 		MailAccount[] accounts = vf.showDialog();
 		if(accounts != null) {
 			boolean refresh = false;
+			
+			DefaultTreeModel treeModel = (DefaultTreeModel)tree.getModel();
+			DefaultMutableTreeNode rootNode = (DefaultMutableTreeNode) treeModel.getRoot();
+			
+			outer:
+			for(int i = 0; i < rootNode.getChildCount(); i++) {
+				DefaultMutableTreeNode node = (DefaultMutableTreeNode) rootNode.getChildAt(i);
+				MailAccount treeAccount = (MailAccount) node.getUserObject();
+				
+				for(MailAccount acc : accounts) {
+					if(acc == treeAccount) 
+						continue outer;
+				}
+				
+				try {
+					benutzer.entferneMailAccount(treeAccount);
+					rootNode.remove(node);
+					treeModel.reload();
+					refresh = true;
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+			
 			for(MailAccount acc : accounts) {
 				if(benutzer.addMailAccount(acc)) {
 					refresh = true;
