@@ -1,5 +1,6 @@
 package de.outlook_klon.logik.kalendar;
 
+import java.io.Serializable;
 import java.util.Date;
 
 /**
@@ -7,7 +8,9 @@ import java.util.Date;
  * 
  * @author Hendrik Karwanni
  */
-public class Termin {
+public class Termin implements Serializable{
+	private static final long serialVersionUID = 6997576125673406382L;
+	
 	private String mBetreff;
 	private String mOrt;
 	private Date mStart;

@@ -26,6 +26,7 @@ public class Benutzer implements Iterable<MailAccount> {
 	private static final String ACCOUNT_PATTERN = DATEN_ORDNER + "/%s";
 	private static final String ACCOUNTSETTINGS_PATTERN = ACCOUNT_PATTERN + "/settings.bin";
 	private static final String KONTAKT_PFAD = DATEN_ORDNER + "/Kontakte.bin";
+	private static final String TERMIN_PFAD = DATEN_ORDNER + "/Termine.bin";
 	
 	private static Benutzer singleton;
 	
@@ -64,9 +65,11 @@ public class Benutzer implements Iterable<MailAccount> {
 			object = (T)ois.readObject();	
 		} catch (Exception e) { }
 		finally {
-			try {
-				ois.close();
-			} catch (IOException e) { }
+			if(ois != null) {
+				try {
+					ois.close();
+				} catch (IOException e) { }
+			}
 		}
 		
 		return object;
@@ -95,10 +98,13 @@ public class Benutzer implements Iterable<MailAccount> {
 	
 	/**
 	 * Erstellt eine neue Instanz der Klasse Benutzer.
-	 * Lieﬂt, wenn vorhanden, die gespeicherten Daten aus.
+	 * Liest, wenn vorhanden, die gespeicherten Daten aus.
 	 */
 	private Benutzer() {
-		termine = new Terminkalender();
+		termine = deserialisiereObjekt(new File(TERMIN_PFAD));
+		if(termine == null)
+			termine = new Terminkalender();
+		
 		kontakte = deserialisiereObjekt(new File(KONTAKT_PFAD));
 		if(kontakte == null)
 			kontakte = new Kontaktverwaltung();
@@ -214,6 +220,7 @@ public class Benutzer implements Iterable<MailAccount> {
 		}
 		
 		File kontaktPfad = new File(KONTAKT_PFAD).getAbsoluteFile();
+		File terminPfad = new File(TERMIN_PFAD).getAbsoluteFile();
 		File ordner = kontaktPfad.getParentFile();
 		
 		if(!ordner.exists()) {
@@ -221,6 +228,7 @@ public class Benutzer implements Iterable<MailAccount> {
 		}
 		
 		serialisiereObjekt(kontakte, kontaktPfad);
+		serialisiereObjekt(termine, terminPfad);
 	}
 	
 	/**

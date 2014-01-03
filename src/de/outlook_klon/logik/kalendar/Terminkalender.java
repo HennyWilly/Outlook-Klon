@@ -1,5 +1,6 @@
 package de.outlook_klon.logik.kalendar;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -10,7 +11,9 @@ import java.util.Iterator;
  * 
  * @author Hendrik Karwanni
  */
-public class Terminkalender implements Iterable<Termin> {
+public class Terminkalender implements Iterable<Termin>, Serializable {
+	private static final long serialVersionUID = 3595324672069971302L;
+	
 	private ArrayList<Termin> mTermine;
 
 	/**

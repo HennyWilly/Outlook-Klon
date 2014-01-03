@@ -81,6 +81,7 @@ public class TerminFrame extends ExtendedDialog<Termin> {
 					mTermin.setOrt(textOrt.getText());
 					mTermin.setText(textBeschreibung.getText());
 					mTermin.setStartUndEnde(model1.getDate(), model2.getDate());
+					mTermin.setKontaktMail(comboKontakt.getSelectedItem().toString());
 				}
 				
 				close();
