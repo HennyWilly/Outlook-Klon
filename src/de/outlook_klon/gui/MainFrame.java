@@ -497,10 +497,6 @@ public class MainFrame extends ExtendedFrame implements TreeSelectionListener, L
 		try {
 			mf = new MailFrame(info, pfad, acc, false);
 			
-			for(MailAccount ac : benutzer) {
-				mf.addMailAccount(ac);
-			}
-			
 			mf.setSize(this.getSize());
 			mf.setExtendedState(this.getExtendedState());
 			mf.setVisible(true);
@@ -518,10 +514,6 @@ public class MainFrame extends ExtendedFrame implements TreeSelectionListener, L
 		try {
 			mf = new MailFrame(info, pfad, acc, true);
 			
-			for(MailAccount ac : benutzer) {
-				mf.addMailAccount(ac);
-			}
-			
 			mf.setSize(this.getSize());
 			mf.setExtendedState(this.getExtendedState());
 			mf.setVisible(true);
@@ -534,10 +526,6 @@ public class MainFrame extends ExtendedFrame implements TreeSelectionListener, L
 	private void neueMail() {
 		MailFrame mf = new MailFrame();
 		
-		for(MailAccount ac : benutzer) {
-			mf.addMailAccount(ac);
-		}
-		
 		mf.setSize(this.getSize());
 		mf.setExtendedState(this.getExtendedState());
 		mf.setVisible(true);
@@ -546,24 +534,20 @@ public class MainFrame extends ExtendedFrame implements TreeSelectionListener, L
 	public void neueMail(Kontakt[] kontakte) {
 		MailFrame mf = new MailFrame(kontakte);
 		
-		for(MailAccount ac : benutzer) {
-			mf.addMailAccount(ac);
-		}
-		
 		mf.setSize(this.getSize());
 		mf.setExtendedState(this.getExtendedState());
 		mf.setVisible(true);
 	}
 	
 	private void oeffneKalenderFrame() {
-		TerminkalenderFrame Tkf = new TerminkalenderFrame(benutzer.getTermine());
+		TerminkalenderFrame Tkf = new TerminkalenderFrame();
 		Tkf.setSize(this.getSize());
 		Tkf.setExtendedState(this.getExtendedState());
 		Tkf.setVisible(true);
 	}
 	
 	private void oeffneAdressbuchFrame(boolean neu) {
-		AdressbuchFrame af = new AdressbuchFrame(this, benutzer.getKontakte(), neu);
+		AdressbuchFrame af = new AdressbuchFrame(this, neu);
 
 		af.setSize(this.getSize());
 		af.setExtendedState(this.getExtendedState());
@@ -571,7 +555,7 @@ public class MainFrame extends ExtendedFrame implements TreeSelectionListener, L
 	}
 	
 	private void oeffneKontoverwaltungFrame() {
-		KontoverwaltungFrame vf = new KontoverwaltungFrame(benutzer);
+		KontoverwaltungFrame vf = new KontoverwaltungFrame();
 
 		MailAccount[] accounts = vf.showDialog();
 		if(accounts != null) {

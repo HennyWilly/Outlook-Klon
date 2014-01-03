@@ -42,6 +42,7 @@ import javax.mail.MessagingException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.ParseException;
 
+import de.outlook_klon.logik.Benutzer;
 import de.outlook_klon.logik.kontakte.Kontakt;
 import de.outlook_klon.logik.mailclient.MailAccount;
 import de.outlook_klon.logik.mailclient.MailInfo;
@@ -321,6 +322,10 @@ public class MailFrame extends ExtendedFrame implements ItemListener {
 		
 		setTitle("<Kein Betreff>");
 		initGui();
+		
+		for(MailAccount acc : Benutzer.getInstanz()) {
+			addMailAccount(acc);
+		}
 	}
 	
 	public MailFrame(Kontakt[] kontakte) {
@@ -328,6 +333,10 @@ public class MailFrame extends ExtendedFrame implements ItemListener {
 		
 		setTitle("<Kein Betreff>");
 		initGui();
+		
+		for(MailAccount ac : Benutzer.getInstanz()) {
+			addMailAccount(ac);
+		}
 		
 		ArrayList<InternetAddress> adressen = new ArrayList<InternetAddress>();
 		for(Kontakt k : kontakte) {
@@ -389,6 +398,11 @@ public class MailFrame extends ExtendedFrame implements ItemListener {
 		
 		initGui();
 		
+		for(MailAccount acc : Benutzer.getInstanz()) {
+			addMailAccount(acc);
+		}
+		cBSender.setSelectedItem(parent);
+		
 		info = mail;
 		relPfad = pfad;
 		
@@ -410,7 +424,7 @@ public class MailFrame extends ExtendedFrame implements ItemListener {
 		tpMailtext.setText(mail.getText());
 	}
 	
-	public void addMailAccount(MailAccount ac) {
+	private void addMailAccount(MailAccount ac) {
 		DefaultComboBoxModel<MailAccount> model = (DefaultComboBoxModel<MailAccount>) cBSender.getModel();
 		
 		if(model.getIndexOf(ac) == -1 ) {

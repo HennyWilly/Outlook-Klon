@@ -6,19 +6,20 @@ import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
-import java.awt.BorderLayout;
 import javax.swing.JSplitPane;
-import java.awt.Component;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.ArrayList;
-
 import javax.swing.JTable;
 import javax.swing.JTextPane;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.ArrayList;
+
+import de.outlook_klon.logik.Benutzer;
 import de.outlook_klon.logik.kalendar.Termin;
 import de.outlook_klon.logik.kalendar.Terminkalender;
 
@@ -31,8 +32,8 @@ public class TerminkalenderFrame extends ExtendedFrame {
 	private Terminkalender kalender;	
 
 
-	public TerminkalenderFrame(Terminkalender Tk) {
-		kalender = Tk;
+	public TerminkalenderFrame() {
+		kalender = Benutzer.getInstanz().getTermine();
 		
 		JMenuBar menuBar = new JMenuBar();
 		setJMenuBar(menuBar);

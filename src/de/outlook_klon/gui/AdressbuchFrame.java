@@ -29,6 +29,7 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.JTextPane;
 import javax.swing.JList;
 
+import de.outlook_klon.logik.Benutzer;
 import de.outlook_klon.logik.kontakte.Kontakt;
 import de.outlook_klon.logik.kontakte.Kontaktverwaltung;
 
@@ -392,10 +393,10 @@ public class AdressbuchFrame extends ExtendedFrame {
 		mnDatei.add(mntDateiBeenden);
 	}
 	
-	public AdressbuchFrame(MainFrame parent, Kontaktverwaltung kv, boolean neu) {
+	public AdressbuchFrame(MainFrame parent, boolean neu) {
 		setTitle("Adressbuch");
 		this.parent = parent;
-		verwaltung = kv;
+		verwaltung = Benutzer.getInstanz().getKontakte();
 		
 		initGUI();
 		

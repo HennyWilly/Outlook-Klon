@@ -11,8 +11,10 @@ import javax.swing.JButton;
 
 import de.outlook_klon.logik.Benutzer;
 import de.outlook_klon.logik.mailclient.MailAccount;
+import javax.swing.event.ListSelectionListener;
+import javax.swing.event.ListSelectionEvent;
 
-public class KontoverwaltungFrame extends ExtendedDialog<MailAccount[]> implements ActionListener {
+public class KontoverwaltungFrame extends ExtendedDialog<MailAccount[]> {
 	private static final long serialVersionUID = -5036893845172118794L;
 	
 	private MailAccount[] meineAccounts;
@@ -22,7 +24,7 @@ public class KontoverwaltungFrame extends ExtendedDialog<MailAccount[]> implemen
 	private JButton btnAbbrechen;
 	private JButton btnOK;
 
-	public KontoverwaltungFrame(Benutzer benutzer) {
+	public KontoverwaltungFrame() {
 		meineAccounts = null;
 		
 		setSize(711, 695);
@@ -30,11 +32,16 @@ public class KontoverwaltungFrame extends ExtendedDialog<MailAccount[]> implemen
 		getContentPane().setLayout(null);
 		
 		DefaultListModel<MailAccount> listModel = new DefaultListModel<MailAccount>();
-		for(MailAccount acc : benutzer) {
+		for(MailAccount acc : Benutzer.getInstanz()) {
 			listModel.addElement(acc);
 		}
 		
 		lstKonten = new JList<MailAccount>(listModel);
+		lstKonten.addListSelectionListener(new ListSelectionListener() {
+			public void valueChanged(ListSelectionEvent arg0) {
+				//TODO ListSelection Handler
+			}
+		});
 		lstKonten.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		lstKonten.setBounds(10, 11, 239, 570);
 		
@@ -44,44 +51,44 @@ public class KontoverwaltungFrame extends ExtendedDialog<MailAccount[]> implemen
 		
 		btnNeuesKonto = new JButton("Neues E-Mail-Konto");
 		btnNeuesKonto.setBounds(10, 592, 169, 23);
-		btnNeuesKonto.addActionListener(this);
+		btnNeuesKonto.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				KontoFrame kf = new KontoFrame();
+				MailAccount acc = kf.showDialog();
+				if(acc != null) {
+					DefaultListModel<MailAccount> model = (DefaultListModel<MailAccount>)lstKonten.getModel();
+					model.addElement(acc);
+				}
+			}
+		});
 		getContentPane().add(btnNeuesKonto);
 		
 		btnAbbrechen = new JButton("Abbrechen");
 		btnAbbrechen.setBounds(583, 633, 112, 23);
-		btnAbbrechen.addActionListener(this);
+		btnAbbrechen.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				meineAccounts = null;
+				close();
+			}
+		});
 		getContentPane().add(btnAbbrechen);
 		
 		btnOK = new JButton("OK");
 		btnOK.setBounds(484, 633, 89, 23);
-		btnOK.addActionListener(this);
+		btnOK.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				DefaultListModel<MailAccount> model = (DefaultListModel<MailAccount>)lstKonten.getModel();	
+				meineAccounts = new MailAccount[model.getSize()];
+				for(int i = 0; i< meineAccounts.length; i++) {
+					meineAccounts[i] = model.get(i);
+				}
+				close();
+			}
+		});
 		getContentPane().add(btnOK);
-	}
-	
-	@Override
-	public void actionPerformed(ActionEvent arg) {
-		Object sender = arg.getSource();
-		
-		if(sender == btnNeuesKonto) {
-			KontoFrame kf = new KontoFrame();
-			MailAccount acc = kf.showDialog();
-			if(acc != null) {
-				DefaultListModel<MailAccount> model = (DefaultListModel<MailAccount>)lstKonten.getModel();
-				model.addElement(acc);
-			}
-		}
-		else if(sender == btnOK) {
-			DefaultListModel<MailAccount> model = (DefaultListModel<MailAccount>)lstKonten.getModel();	
-			meineAccounts = new MailAccount[model.getSize()];
-			for(int i = 0; i< meineAccounts.length; i++) {
-				meineAccounts[i] = model.get(i);
-			}
-			close();
-		}
-		else if(sender == btnAbbrechen) {
-			meineAccounts = null;
-			close();
-		}
 	}
 
 	@Override
