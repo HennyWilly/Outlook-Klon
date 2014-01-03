@@ -16,7 +16,7 @@ public class Termin implements Serializable{
 	private Date mStart;
 	private Date mEnde;
 	private String mText;
-	private String mKontaktMail;
+	private String mBenutzerkonto;
 	
 	/**
 	 * Erstellt eine neue Instanz der Klasse mit den übergebenen Werten
@@ -26,12 +26,12 @@ public class Termin implements Serializable{
 	 * @param ende Endzeitpunkt des Termins
 	 * @param text Text des Termins
 	 */
-	public Termin(String betreff, String ort, Date start, Date ende, String text, String kontakt) {	
+	public Termin(String betreff, String ort, Date start, Date ende, String text, String benutzer) {	
 		setBetreff(betreff);
 		setOrt(ort);
 		setStartUndEnde(start, ende);
 		setText(text);
-		setKontaktMail(kontakt);
+		setBenutzerkonto(benutzer);
 	}
 
 	/**
@@ -114,15 +114,15 @@ public class Termin implements Serializable{
 	 * Setter für die Mailadresse des Kontakts
 	 * @param kontaktMail Zu setzende Mailadresse
 	 */
-	public void setKontaktMail(String kontaktMail) {
-		this.mKontaktMail = kontaktMail;
+	public void setBenutzerkonto(String benutzer) {
+		this.mBenutzerkonto = benutzer;
 	}
 	
 	/**
 	 * Getter für die MailAdresse des Kontakts
 	 * @return MailAdresse
 	 */
-	public String getKontaktMail() {
-		return mKontaktMail;
+	public String getBenutzerkonto() {
+		return mBenutzerkonto;
 	}
 }

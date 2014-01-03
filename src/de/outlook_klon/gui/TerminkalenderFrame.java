@@ -14,14 +14,20 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 
 import java.awt.BorderLayout;
-import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.util.ArrayList;
 
 import de.outlook_klon.logik.Benutzer;
 import de.outlook_klon.logik.kalendar.Termin;
 import de.outlook_klon.logik.kalendar.Terminkalender;
+import de.outlook_klon.logik.mailclient.MailAccount;
+
+import javax.swing.JPanel;
+import javax.swing.JCheckBox;
+import java.awt.GridLayout;
 
 public class TerminkalenderFrame extends ExtendedFrame {
 
@@ -30,9 +36,17 @@ public class TerminkalenderFrame extends ExtendedFrame {
 	private JTable tblTermine;
 	private JTextPane textDetails;
 	private Terminkalender kalender;	
+	
+	private ArrayList<Termin> hiddenTermine;
+	private ArrayList<Termin> mango;
+	
+	private JPanel panel;
+	
+	
 
 
 	public TerminkalenderFrame() {
+		
 		kalender = Benutzer.getInstanz().getTermine();
 		
 		JMenuBar menuBar = new JMenuBar();
@@ -65,7 +79,9 @@ public class TerminkalenderFrame extends ExtendedFrame {
 		
 		JSplitPane splitPane = new JSplitPane();
 		
-		JScrollPane scrollPane = new JScrollPane((Component) null);
+		panel = new JPanel();
+		JScrollPane scrollPane = new JScrollPane(panel);
+		panel.setLayout(new GridLayout(0, 1, 0, 0));
 		splitPane.setLeftComponent(scrollPane);
 		
 		JSplitPane splitPane_1 = new JSplitPane();
@@ -119,7 +135,12 @@ public class TerminkalenderFrame extends ExtendedFrame {
 			
 		});
 		
+		hiddenTermine = new ArrayList<>();
 		
+		mango = new ArrayList<Termin>(); //speichert alle Termine in mango ab
+		for (Termin t : Benutzer.getInstanz().getTermine()){
+			mango.add(t);
+		}
 		
 		JScrollPane scrollPane_1 = new JScrollPane(tblTermine);
 		splitPane_1.setLeftComponent(scrollPane_1);
@@ -129,7 +150,11 @@ public class TerminkalenderFrame extends ExtendedFrame {
 		getContentPane().add(splitPane);
 		
 			
+		ladeBenutzer();
+		
 		aktualisiere2Tabelle();
+		
+	
 
 	}
 	
@@ -143,7 +168,7 @@ public class TerminkalenderFrame extends ExtendedFrame {
 		}
 	}*/
 
-	private void aktualisiere2Tabelle() {
+/*	private void aktualisiere2Tabelle() {//Backup
 		DefaultTableModel model = (DefaultTableModel)tblTermine.getModel();
 		model.setRowCount(0);
 		
@@ -168,8 +193,39 @@ public class TerminkalenderFrame extends ExtendedFrame {
 			model.addRow(new Object[] {a, a.getBetreff(), a.getText(), a.getStart().toString()});
 			EinwegKalender.löscheTermin(a);
 		}
-	}
+	}*/
 	
+	
+	private void aktualisiere2Tabelle() {
+		DefaultTableModel model = (DefaultTableModel)tblTermine.getModel();
+		model.setRowCount(0);
+		
+		
+		Terminkalender EinwegKalender = new Terminkalender();		
+		
+		for(int i=0; i< mango.size(); i++)
+		{
+			if(hiddenTermine.size()>0)
+			{
+				if(!hiddenTermine.contains(mango.get(i)))
+					{
+						EinwegKalender.addTermin(mango.get(i));
+					}
+			}
+			else
+			{
+				EinwegKalender.addTermin(mango.get(i));
+			}
+		}
+		
+		int anzahl = EinwegKalender.getSize();
+		
+		for(int i=0; i<anzahl;i++) {
+			Termin a = EinwegKalender.getOldest();
+			model.addRow(new Object[] {a, a.getBetreff(), a.getText(), a.getStart().toString()});
+			EinwegKalender.löscheTermin(a);
+		}
+	}
 	
 	
 	private void aktualisiereDetails(Termin t) {
@@ -215,5 +271,58 @@ public class TerminkalenderFrame extends ExtendedFrame {
 		
 	}
 	
-	
+	private void ladeBenutzer() {
+		
+
+		ArrayList<String> apfel = new ArrayList<String>();//speichert alle Konten in apfel
+		for (MailAccount ma : Benutzer.getInstanz()) {
+			apfel.add(ma.getBenutzer());
+		}
+		
+		for(String ben : apfel) {
+			JCheckBox cb = new JCheckBox(ben);
+			
+			cb.addItemListener(new ItemListener() {
+				@Override
+				public void itemStateChanged(ItemEvent arg0) {
+					JCheckBox cb = (JCheckBox) arg0.getSource();
+					String text = cb.getText();
+					
+					if(arg0.getStateChange()==ItemEvent.SELECTED)
+					{
+						ArrayList<Termin> temp = new ArrayList<Termin>();
+						for(Termin t : hiddenTermine){
+							String benutzer = t.getBenutzerkonto();
+							
+							if(text.equals(benutzer))
+							{
+								temp.add(t);
+							}
+						}
+						for(Termin t : temp){
+							hiddenTermine.remove(t);
+						}
+							
+					}
+					else
+					{
+						for(Termin t: mango){
+							String benutzer = t.getBenutzerkonto();
+							if(text.equals(benutzer))//Name?
+							{
+								hiddenTermine.add(t);
+							}
+						}
+						
+					}
+					aktualisiere2Tabelle();
+				}
+			});
+			
+			cb.setSelected(true);
+			panel.add(cb);
+			panel.revalidate();
+			panel.repaint();
+		}
+	}
 }
