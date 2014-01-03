@@ -55,7 +55,7 @@ public class KontoFrame extends ExtendedDialog<MailAccount> implements ActionLis
 		this.setSize(750, 350);
 		
 		txtMail = new JTextField();
-		txtMail.setBounds(140, 58, 167, 20);
+		txtMail.setBounds(140, 58, 315, 20);
 		txtMail.setColumns(10);
 		
 		JLabel lblMail = new JLabel("E-Mail-Adresse:");
@@ -65,7 +65,7 @@ public class KontoFrame extends ExtendedDialog<MailAccount> implements ActionLis
 		lblPasswort.setBounds(37, 92, 93, 14);
 		
 		passwordField = new JPasswordField();
-		passwordField.setBounds(140, 89, 167, 20);
+		passwordField.setBounds(140, 89, 315, 20);
 		
 		JPanel GroupBox = new JPanel();
 		GroupBox.setBounds(10, 120, 724, 137);
@@ -184,7 +184,7 @@ public class KontoFrame extends ExtendedDialog<MailAccount> implements ActionLis
 		
 		txtAnzeigename = new JTextField();
 		txtAnzeigename.setColumns(10);
-		txtAnzeigename.setBounds(140, 11, 167, 20);
+		txtAnzeigename.setBounds(140, 11, 315, 20);
 		getContentPane().add(txtAnzeigename);
 	}
 	
