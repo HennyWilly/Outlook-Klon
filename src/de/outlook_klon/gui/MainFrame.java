@@ -963,7 +963,7 @@ public class MainFrame extends ExtendedFrame implements TreeSelectionListener, L
 			}
 			
 			tpPreview.setEditable(true);
-			tpPreview.setContentType(info.getContentType());
+			tpPreview.setContentType(info.getContentType().replace("text", "TEXT"));
 			tpPreview.setText(info.getText());
 			tpPreview.setEditable(false);
 		}
