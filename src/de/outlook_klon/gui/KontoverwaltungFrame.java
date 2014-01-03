@@ -77,6 +77,7 @@ public class KontoverwaltungFrame extends ExtendedDialog<MailAccount[]> {
 				if(!e.getValueIsAdjusting()) {
 					MailAccount acc = lstKonten.getSelectedValue();
 					
+					btnKontoEntfernen.setEnabled(acc != null);
 					aktualisiereDetails(acc);
 				}
 			}
@@ -101,7 +102,7 @@ public class KontoverwaltungFrame extends ExtendedDialog<MailAccount[]> {
 		getContentPane().add(kontenScroller);
 		
 		btnNeuesKonto = new JButton("Neues Konto");
-		btnNeuesKonto.setBounds(10, 592, 112, 23);
+		btnNeuesKonto.setBounds(10, 592, 106, 23);
 		btnNeuesKonto.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
@@ -137,6 +138,7 @@ public class KontoverwaltungFrame extends ExtendedDialog<MailAccount[]> {
 		getContentPane().add(btnOK);
 		
 		btnKontoEntfernen = new JButton("Konto entfernen");
+		btnKontoEntfernen.setEnabled(false);
 		btnKontoEntfernen.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				DefaultListModel<MailAccount> model = (DefaultListModel<MailAccount>) lstKonten.getModel();
@@ -150,7 +152,7 @@ public class KontoverwaltungFrame extends ExtendedDialog<MailAccount[]> {
 					
 			}
 		});
-		btnKontoEntfernen.setBounds(137, 592, 112, 23);
+		btnKontoEntfernen.setBounds(123, 592, 126, 23);
 		getContentPane().add(btnKontoEntfernen);
 		
 		JLabel lblIhrName = new JLabel("Ihr Name: ");
