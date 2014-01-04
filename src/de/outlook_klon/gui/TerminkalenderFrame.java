@@ -18,6 +18,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 
 import de.outlook_klon.logik.Benutzer;
@@ -61,7 +63,7 @@ public class TerminkalenderFrame extends ExtendedFrame {
 		mntmTerminHinzufgen.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				oeffneTerminFrame();
+				neuerTermin();
 			}
 		});
 		mnDatei.add(mntmTerminHinzufgen);
@@ -100,7 +102,7 @@ public class TerminkalenderFrame extends ExtendedFrame {
 			new Object[][] {
 			},
 			new String[] {
-				"Referenz", "Betreff", "Kontakt", "Datum"
+				"Referenz", "Betreff", "Beschreibung", "Datum"
 			}
 		));
 		
@@ -135,28 +137,56 @@ public class TerminkalenderFrame extends ExtendedFrame {
 			
 		});
 		
-		hiddenTermine = new ArrayList<>();
-		
-		mango = new ArrayList<Termin>(); //speichert alle Termine in mango ab
-		for (Termin t : Benutzer.getInstanz().getTermine()){
-			mango.add(t);
-		}
-		
-		JScrollPane scrollPane_1 = new JScrollPane(tblTermine);
-		splitPane_1.setLeftComponent(scrollPane_1);
-		
-		textDetails = new JTextPane();
-		splitPane_1.setRightComponent(textDetails);
-		getContentPane().add(splitPane);
-		
-			
-		ladeBenutzer();
-		
-		aktualisiere2Tabelle();
-		
-	
 
+	
+		tblTermine.addMouseListener(new MouseAdapter() {
+			public void mouseClicked(MouseEvent e) {
+				if (e.getClickCount() == 2) {
+					DefaultTableModel model = (DefaultTableModel)tblTermine.getModel();
+				  
+					int viewZeile = tblTermine.getSelectedRow();
+					if(viewZeile < 0)
+						return;
+				
+					int row = tblTermine.convertRowIndexToModel(viewZeile);
+					Termin referenz = (Termin)model.getValueAt(row, 0);
+				  
+					bearbeiteTermin(referenz);
+				}
+			}
+		});
+	
+	
+	hiddenTermine = new ArrayList<>();
+	
+	mango = new ArrayList<Termin>(); //speichert alle existierenden Termine in mango ab
+	for (Termin t : Benutzer.getInstanz().getTermine()){
+		mango.add(t);
 	}
+	
+	JScrollPane scrollPane_1 = new JScrollPane(tblTermine);
+	splitPane_1.setLeftComponent(scrollPane_1);
+	
+	textDetails = new JTextPane();
+	splitPane_1.setRightComponent(textDetails);
+	getContentPane().add(splitPane);
+	
+		
+	ladeBenutzer();
+	
+	aktualisiere2Tabelle();
+
+
+	
+	
+	
+}
+	
+	
+	
+	
+	
+	
 	
 	
 	/*private void aktualisiereTabelle() {
@@ -252,9 +282,8 @@ public class TerminkalenderFrame extends ExtendedFrame {
 	
 	
 	
-	private void oeffneTerminFrame() {
+	private void neuerTermin() {
 		TerminFrame Tf = new TerminFrame();
-		
 		Termin dummy = Tf.showDialog();
 		
 		if(dummy != null)
@@ -262,14 +291,27 @@ public class TerminkalenderFrame extends ExtendedFrame {
 			kalender.addTermin(dummy);
 			if(kalender.ueberschneidung(dummy))
 			{
-				JOptionPane.showMessageDialog(this, "ACHTUNG! Überschneidung mit bereits vorhandenem Termin. Evtl. Sollten Sie ihre Termine überprüfen.", "KAMEHAME HAAAA", JOptionPane.WARNING_MESSAGE);
+				JOptionPane.showMessageDialog(this, "ACHTUNG! Überschneidung mit bereits vorhandenem Termin. Evtl. Sollten Sie ihre Termine überprüfen.", "Warning", JOptionPane.WARNING_MESSAGE);
 			}
-			
 			aktualisiere2Tabelle();
 		}
 		
 		
 	}
+	
+	private void bearbeiteTermin(Termin t){
+		TerminFrame tf = new TerminFrame(t);
+		tf.showDialog();
+		
+		if( t != null) {
+			int zeile = tblTermine.convertRowIndexToModel(tblTermine.getSelectedRow());
+			aktualisiere2Tabelle();
+			int zeileView = tblTermine.convertRowIndexToView(zeile);
+			tblTermine.setRowSelectionInterval(zeileView, zeileView);
+		}
+	}
+	
+	
 	
 	private void ladeBenutzer() {
 		

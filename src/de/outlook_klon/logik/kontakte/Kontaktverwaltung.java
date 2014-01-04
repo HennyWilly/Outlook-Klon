@@ -7,7 +7,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Diese Klasse stellt die Verwaltung für die Kontakte des Bentzers dar
+ * Diese Klasse stellt die Verwaltung für die Kontakte des Benutzers dar
  * 
  * @author Hendrik Karwanni
  */

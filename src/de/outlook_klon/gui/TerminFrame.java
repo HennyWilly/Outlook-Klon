@@ -195,18 +195,18 @@ public class TerminFrame extends ExtendedDialog<Termin> {
 	public TerminFrame(){
 		mTermin = null;
 		initFrame();
-		
+		this.setTitle("Neuer Termin");
 	}
 	
 	public TerminFrame(Termin t){
 		mTermin = t;
 		initFrame();
+		this.setTitle("Termin bearbeiten");
 		textBetreff.setText(t.getBetreff());
 		textOrt.setText(t.getOrt());
 		textBeschreibung.setText(t.getText());
-		comboKonto.addItem(t.getBenutzerkonto());
-	
-		
+		//comboKonto.addItem(t.getBenutzerkonto());
+		comboKonto.setSelectedItem(t.getBenutzerkonto());
 		
 	}
 
