@@ -1,5 +1,6 @@
 package de.outlook_klon.gui;
 
+import java.awt.Desktop;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
@@ -11,6 +12,7 @@ import java.awt.event.WindowEvent;
 import javax.swing.ButtonGroup;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListModel;
+import javax.swing.JEditorPane;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
@@ -21,10 +23,13 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
-import javax.swing.JTextPane;
 import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.event.HyperlinkEvent;
+import javax.swing.event.HyperlinkEvent.EventType;
+import javax.swing.event.HyperlinkListener;
+import javax.swing.text.html.HTMLEditorKit;
 import javax.swing.JMenuBar;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
@@ -34,7 +39,9 @@ import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JList;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.URI;
 import java.util.ArrayList;
 
 import javax.mail.Address;
@@ -47,7 +54,7 @@ import de.outlook_klon.logik.kontakte.Kontakt;
 import de.outlook_klon.logik.mailclient.MailAccount;
 import de.outlook_klon.logik.mailclient.MailInfo;
 
-public class MailFrame extends ExtendedFrame implements ItemListener {	
+public class MailFrame extends ExtendedFrame {	
 	private static final long serialVersionUID = 5976953616015664148L;
 	
 	private enum MailModus {
@@ -67,7 +74,7 @@ public class MailFrame extends ExtendedFrame implements ItemListener {
 	private JTextField tTo;
 	private JTextField tCC;
 	private JTextField tSubject;
-	private JTextPane tpMailtext;
+	private JEditorPane tpMailtext;
 	
 	private JButton btnSenden;
 	private JButton btnAnhang;
@@ -117,13 +124,50 @@ public class MailFrame extends ExtendedFrame implements ItemListener {
 		JMenu mnEmailFormat = new JMenu("E-Mail Format");
 		mnOptionen.add(mnEmailFormat);
 		
+		ItemListener radioMenu = new ItemListener() {
+			@Override
+			public void itemStateChanged(ItemEvent arg0) {
+				JRadioButtonMenuItem sender = (JRadioButtonMenuItem)arg0.getSource();		
+				if(arg0.getStateChange() == ItemEvent.SELECTED) {
+					boolean editable = tpMailtext.isEditable();
+
+					String text = info.getText();
+					String contentType = info.getContentType();
+					
+					if(text.startsWith("<html>") && (text.endsWith("</html>") || text.endsWith("</html>\r\n"))) 
+						contentType = contentType.replace("plain", "html");
+					
+					if(sender == rdbtnmntmReintext) {
+						contentType = "TEXT/plain; " + charset;
+					}
+					else if(sender == rdbtnmntmHtml) {
+						contentType = "TEXT/html; " + charset;
+					}
+					
+					tpMailtext.setEditable(true);
+					tpMailtext.setContentType(contentType);
+					if(contentType.contains("TEXT/html")) {
+						HTMLEditorKit html = new HTMLEditorKit();
+						
+						tpMailtext.setEditorKit(html);
+						text = text.replaceAll("(\r\n|\n)", "<br/>");
+					}
+					
+					tpMailtext.setText(text);
+					tpMailtext.setEditable(editable);
+					
+					tpMailtext.setCaretPosition(0);
+				}
+			}
+		};
+		
 		rdbtnmntmReintext = new JRadioButtonMenuItem("Reintext");
 		rdbtnmntmReintext.setSelected(true);
-		rdbtnmntmReintext.addItemListener(this);
+		rdbtnmntmReintext.addItemListener(radioMenu);
 		mnEmailFormat.add(rdbtnmntmReintext);
 		
 		rdbtnmntmHtml = new JRadioButtonMenuItem("Html");
-		rdbtnmntmHtml.addItemListener(this);
+		rdbtnmntmHtml.addItemListener(radioMenu);
 		mnEmailFormat.add(rdbtnmntmHtml);
 		
 		ButtonGroup group = new ButtonGroup();
@@ -252,7 +296,35 @@ public class MailFrame extends ExtendedFrame implements ItemListener {
 		
 		panel.setLayout(gl_panel);
 		
-		tpMailtext = new JTextPane();
+		tpMailtext = new JEditorPane();
+		tpMailtext.addHyperlinkListener(new HyperlinkListener() {
+			@Override
+			public void hyperlinkUpdate(HyperlinkEvent arg0) {
+				if(arg0.getEventType() == EventType.ACTIVATED) {
+					String url = arg0.getDescription();
+					
+					if(Desktop.isDesktopSupported()) {
+						Desktop meinDesktop = Desktop.getDesktop();
+						
+						try {
+							meinDesktop.browse(new URI(url));
+						} catch(Exception e) {
+			                // TODO Auto-generated catch block
+			                e.printStackTrace();
+						}
+					}
+					else {
+						Runtime meineLaufzeit = Runtime.getRuntime();
+						try {
+							meineLaufzeit.exec("xdg-open " + url);	//Sollte bei OS mit X-Server funktionieren
+			            } catch (IOException e) {
+			                // TODO Auto-generated catch block
+			                e.printStackTrace();
+			            }
+					}
+				}
+			}
+		});
 		
 		JScrollPane textScroller = new JScrollPane(tpMailtext);
 		splitPane.setRightComponent(textScroller);
@@ -373,12 +445,19 @@ public class MailFrame extends ExtendedFrame implements ItemListener {
 		tCC.setText(appendAddresses(mail.getCc()));
 		tCC.setEditable(false);
 		
-		if(mail.getContentType().toLowerCase().startsWith("text/plain"))
+		String text = mail.getText();
+		String contentType = mail.getContentType();
+		
+		if(text.startsWith("<html>") && (text.endsWith("</html>") || text.endsWith("</html>\r\n"))) 
+			contentType = contentType.replace("plain", "html");
+		
+		if(contentType.startsWith("TEXT/plain")) {
 			rdbtnmntmReintext.setSelected(true);
+			tpMailtext.setText(text);
+		}
 		else
 			rdbtnmntmHtml.setSelected(true);
 		
-		tpMailtext.setText(mail.getText());
 		tpMailtext.setEditable(false);
 		
 		DefaultListModel<File> model = (DefaultListModel<File>)lstAnhang.getModel();
@@ -414,12 +493,19 @@ public class MailFrame extends ExtendedFrame implements ItemListener {
 			tTo.setText(((InternetAddress)mail.getSender()).toUnicodeString());
 		tCC.setText(appendAddresses(mail.getCc()));
 		
-		if(mail.getContentType().toLowerCase().startsWith("text/plain"))
+		String text = mail.getText();
+		String contentType = mail.getContentType();
+		
+		if(text.startsWith("<html>") && (text.endsWith("</html>") || text.endsWith("</html>\r\n"))) 
+			contentType = contentType.replace("plain", "html");
+		
+		if(contentType.startsWith("TEXT/plain")) {
 			rdbtnmntmReintext.setSelected(true);
-		else
+			tpMailtext.setText(text);
+		}
+		else 
 			rdbtnmntmHtml.setSelected(true);
 		
-		tpMailtext.setText(mail.getText());
 	}
 	
 	private void addMailAccount(MailAccount ac) {
@@ -522,27 +608,5 @@ public class MailFrame extends ExtendedFrame implements ItemListener {
 			this.setTitle("<Kein Betreff>");
 		else
 			this.setTitle(text);
-	}
-
-	@Override
-	public void itemStateChanged(ItemEvent arg0) {
-		JRadioButtonMenuItem sender = (JRadioButtonMenuItem)arg0.getSource();		
-		if(arg0.getStateChange() == ItemEvent.SELECTED) {
-			boolean editable = tpMailtext.isEditable();
-			
-			String tmp = tpMailtext.getText();
-			String contentType = "";
-			
-			if(sender == rdbtnmntmReintext) {
-				contentType = "TEXT/plain; " + charset;
-			}
-			else if(sender == rdbtnmntmHtml) {
-				contentType = "TEXT/html; " + charset;
-			}
-			tpMailtext.setEditable(true);
-			tpMailtext.setContentType(contentType);
-			tpMailtext.setText(tmp);
-			tpMailtext.setEditable(editable);
-		}
 	}
 }
