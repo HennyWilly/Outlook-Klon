@@ -1,6 +1,7 @@
 package de.outlook_klon.gui;
 
 import java.awt.Component;
+import java.awt.Desktop;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -9,6 +10,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
+import java.net.URI;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -18,6 +20,9 @@ import java.util.Date;
 
 import javax.swing.JFrame;
 import javax.swing.JTree;
+import javax.swing.event.HyperlinkEvent;
+import javax.swing.event.HyperlinkEvent.EventType;
+import javax.swing.event.HyperlinkListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TreeExpansionEvent;
@@ -31,11 +36,12 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
+import javax.swing.text.html.HTMLEditorKit;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
+import javax.swing.JEditorPane;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
-import javax.swing.JTextPane;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JMenu;
@@ -58,7 +64,7 @@ import de.outlook_klon.logik.mailclient.MailInfo;
 
 import javax.swing.JSeparator;
 
-public class MainFrame extends ExtendedFrame implements TreeSelectionListener, ListSelectionListener {
+public class MainFrame extends ExtendedFrame {
 	private static final long serialVersionUID = 817918826034684858L;
 	
 	private static DateFormat dateFormater = DateFormat.getDateTimeInstance(DateFormat.FULL, DateFormat.MEDIUM, Locale.getDefault());
@@ -78,7 +84,7 @@ public class MainFrame extends ExtendedFrame implements TreeSelectionListener, L
     private JMenuItem mntmBeenden;
     private JButton btnAbrufen;
     private JTree tree;
-    private JTextPane tpPreview;
+    private JEditorPane tpPreview;
     
     private Benutzer benutzer;
     private JMenu mnExtras;
@@ -340,8 +346,59 @@ public class MainFrame extends ExtendedFrame implements TreeSelectionListener, L
 	    tblMails.setRowSorter(myRowSorter);
 		
 		tblMails.removeColumn(tblMails.getColumn("MailInfo"));
-		tblMails.getSelectionModel().addListSelectionListener(this);
-		//tblMails.setComponentPopupMenu(tablePopup);
+		tblMails.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+			@Override
+			public void valueChanged(ListSelectionEvent e) {
+				if(!e.getValueIsAdjusting()) {
+					DefaultTableModel model =  (DefaultTableModel)tblMails.getModel();
+					int viewZeile = tblMails.getSelectedRow();
+					if(viewZeile < 0) {
+						tpPreview.setEditable(true);
+						tpPreview.setText("");
+						tpPreview.setEditable(false);
+						
+						return;
+					}
+					
+					int zeile = tblMails.convertRowIndexToModel(viewZeile);
+					
+					MailInfo info = (MailInfo) model.getValueAt(zeile, 0);
+					
+					DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode)tree.getLastSelectedPathComponent();
+					String pfad = nodeZuPfad(selectedNode);
+					
+					MailAccount account = ausgewaehlterAccount();
+					
+					try {
+						account.getMessageText(pfad, info);
+					} catch (MessagingException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+
+					String text = info.getText();
+					String contentType = info.getContentType();
+					
+					if(text.startsWith("<html>") && (text.endsWith("</html>") || text.endsWith("</html>\r\n"))) 
+						contentType = contentType.replace("plain", "html");
+					
+					tpPreview.setEditable(true);
+					tpPreview.setContentType(contentType);
+					if(contentType.contains("TEXT/html")) {
+						HTMLEditorKit html = new HTMLEditorKit();
+						
+						tpPreview.setEditorKit(html);
+						text = text.replaceAll("(\r\n|\n)", "<br/>");
+					}
+					
+					tpPreview.setText(text);
+					tpPreview.setEditable(false);
+					
+					tpPreview.setCaretPosition(0);
+				}
+			}
+		});
+		
 		tblMails.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(MouseEvent e) {
 				if (e.getClickCount() == 2) {
@@ -420,7 +477,34 @@ public class MainFrame extends ExtendedFrame implements TreeSelectionListener, L
 		tree.setModel(new DefaultTreeModel(root));
 		tree.expandPath(new TreePath(root.getPath()));
 		ladeOrdner();
-		tree.addTreeSelectionListener(this);
+		tree.addTreeSelectionListener(new TreeSelectionListener() {
+			@Override
+			public void valueChanged(TreeSelectionEvent e) {
+				DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode)tree.getLastSelectedPathComponent();
+				if(selectedNode == null) {
+					throw new NullPointerException("Hier tritt manchmal eine Exception auf :(");
+				}
+				
+				Object userObject = selectedNode.getUserObject();
+				
+				if(!(userObject instanceof MailAccount)) {
+					MailAccount account = ausgewaehlterAccount();
+					String pfad = nodeZuPfad(selectedNode);
+					
+					String ordnerName = selectedNode.toString();
+					
+					setTitle(ordnerName + " - " + account.getAdresse().getAddress());
+					
+					ladeMails(account, pfad);
+				}
+				else {
+					DefaultTableModel model = (DefaultTableModel)tblMails.getModel();
+					model.setRowCount(0);
+					
+					setTitle(((MailAccount)userObject).getAdresse().getAddress());
+				}
+			}
+		});
 		
 		JScrollPane treeScroller = new JScrollPane(tree);
 		splitPane.setLeftComponent(treeScroller);
@@ -442,8 +526,37 @@ public class MainFrame extends ExtendedFrame implements TreeSelectionListener, L
 		
 		initTabelle(verticalSplitPane);
 		
-		tpPreview = new JTextPane();
+		tpPreview = new JEditorPane();
 		tpPreview.setEditable(false);
+		//tpPreview.setEditorKitForContentType("TEXT/html", new HTMLEditorKit());
+		tpPreview.addHyperlinkListener(new HyperlinkListener() {
+			@Override
+			public void hyperlinkUpdate(HyperlinkEvent arg0) {
+				if(arg0.getEventType() == EventType.ACTIVATED) {
+					String url = arg0.getDescription();
+					
+					if(Desktop.isDesktopSupported()) {
+						Desktop meinDesktop = Desktop.getDesktop();
+						
+						try {
+							meinDesktop.browse(new URI(url));
+						} catch(Exception ex) {
+							
+						}
+					}
+					else {
+						Runtime meineLaufzeit = Runtime.getRuntime();
+						try {
+							meineLaufzeit.exec("xdg-open " + url);	//Sollte bei OS mit X-Server funktionieren
+			            } catch (IOException e) {
+			                // TODO Auto-generated catch block
+			                e.printStackTrace();
+			            }
+					}
+				}
+			}
+		});
+		
 		JScrollPane previewScroller = new JScrollPane(tpPreview);
 		verticalSplitPane.setRightComponent(previewScroller);
 		
@@ -902,70 +1015,6 @@ public class MainFrame extends ExtendedFrame implements TreeSelectionListener, L
 			}
 		} catch (MessagingException ex) {
 			ex.printStackTrace();
-		}
-	}
-
-	@Override
-	public void valueChanged(TreeSelectionEvent e) {
-		DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode)tree.getLastSelectedPathComponent();
-		if(selectedNode == null) {
-			throw new NullPointerException("Hier tritt manchmal eine Exception auf :(");
-		}
-		
-		Object userObject = selectedNode.getUserObject();
-		
-		if(!(userObject instanceof MailAccount)) {
-			MailAccount account = ausgewaehlterAccount();
-			String pfad = nodeZuPfad(selectedNode);
-			
-			String ordnerName = selectedNode.toString();
-			
-			setTitle(ordnerName + " - " + account.getAdresse().getAddress());
-			
-			ladeMails(account, pfad);
-		}
-		else {
-			DefaultTableModel model = (DefaultTableModel)tblMails.getModel();
-			model.setRowCount(0);
-			
-			setTitle(((MailAccount)userObject).getAdresse().getAddress());
-		}
-			
-	}
-
-	@Override
-	public void valueChanged(ListSelectionEvent e) {
-		if(!e.getValueIsAdjusting()) {
-			DefaultTableModel model =  (DefaultTableModel)tblMails.getModel();
-			int viewZeile = tblMails.getSelectedRow();
-			if(viewZeile < 0) {
-				tpPreview.setEditable(true);
-				tpPreview.setText("");
-				tpPreview.setEditable(false);
-				
-				return;
-			}
-			
-			int zeile = tblMails.convertRowIndexToModel(viewZeile);
-			
-			MailInfo info = (MailInfo) model.getValueAt(zeile, 0);
-			
-			DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode)tree.getLastSelectedPathComponent();
-			String pfad = nodeZuPfad(selectedNode);
-			
-			MailAccount account = ausgewaehlterAccount();
-			
-			try {
-				account.getMessageText(pfad, info);
-			} catch (MessagingException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-			
-			tpPreview.setEditable(true);
-			tpPreview.setContentType(info.getContentType().replace("text", "TEXT"));
-			tpPreview.setText(info.getText());
-			tpPreview.setEditable(false);
 		}
 	}
 
