@@ -40,6 +40,8 @@ public class MailInfo implements Serializable{
 	}
 	
 	public void setContentType(String contentType) {
+		contentType = contentType.replace("text", "TEXT");
+		
 		this.contentType = contentType;
 	}
 	
