@@ -5,6 +5,7 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTable;
@@ -39,6 +40,11 @@ public class TerminkalenderFrame extends ExtendedFrame {
 	private JTextPane textDetails;
 	private Terminkalender kalender;	
 	
+	private JPopupMenu terminPopup;
+	private JMenuItem popupTerminOeffnen;
+	private JMenuItem popupTerminLoeschen;
+	private JMenuItem popupTerminVerfassen;
+	
 	private ArrayList<Termin> hiddenTermine;
 	private ArrayList<Termin> mango;
 	
@@ -53,7 +59,6 @@ public class TerminkalenderFrame extends ExtendedFrame {
 		
 		JMenuBar menuBar = new JMenuBar();
 		setJMenuBar(menuBar);
-		
 		JMenu mnDatei = new JMenu("Datei");
 		menuBar.add(mnDatei);
 		
@@ -89,6 +94,9 @@ public class TerminkalenderFrame extends ExtendedFrame {
 		JSplitPane splitPane_1 = new JSplitPane();
 		splitPane_1.setOrientation(JSplitPane.VERTICAL_SPLIT);
 		splitPane.setRightComponent(splitPane_1);
+		
+		
+		
 
 		tblTermine = new JTable(){
 			private static final long serialVersionUID = 1L;
@@ -155,24 +163,25 @@ public class TerminkalenderFrame extends ExtendedFrame {
 				}
 			}
 		});
-	
-	
-	hiddenTermine = new ArrayList<>();
-	
-	mango = new ArrayList<Termin>(); //speichert alle existierenden Termine in mango ab
-	for (Termin t : Benutzer.getInstanz().getTermine()){
-		mango.add(t);
-	}
-	
-	JScrollPane scrollPane_1 = new JScrollPane(tblTermine);
-	splitPane_1.setLeftComponent(scrollPane_1);
-	
-	textDetails = new JTextPane();
-	splitPane_1.setRightComponent(textDetails);
-	getContentPane().add(splitPane);
-	
 		
-	ladeBenutzer();
+		
+	
+	
+		hiddenTermine = new ArrayList<>();
+	
+		mango = new ArrayList<Termin>(); //speichert alle existierenden Termine in mango ab
+		for (Termin t : Benutzer.getInstanz().getTermine()){
+			mango.add(t);
+		}
+	
+		JScrollPane scrollPane_1 = new JScrollPane(tblTermine);
+		splitPane_1.setLeftComponent(scrollPane_1);
+	
+		textDetails = new JTextPane();
+		splitPane_1.setRightComponent(textDetails);
+		getContentPane().add(splitPane);
+		
+		ladeBenutzer();
 	
 	aktualisiere2Tabelle();
 
@@ -367,4 +376,19 @@ public class TerminkalenderFrame extends ExtendedFrame {
 			panel.repaint();
 		}
 	}
+	
+	
+	private void oeffneTerminPopup(MouseEvent e) {
+		if (e.isPopupTrigger()) {
+			int zeile = tblTermine.rowAtPoint(e.getPoint());
+			int spalte = tblTermine.columnAtPoint(e.getPoint());
+			
+			if(zeile >= 0 && spalte >= 0) {
+				tblTermine.setRowSelectionInterval(zeile, zeile);
+				
+				terminPopup.show(tblTermine, e.getX(), e.getY());
+			}
+	    }
+	}
+	
 }
