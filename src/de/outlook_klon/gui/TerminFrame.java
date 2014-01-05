@@ -205,6 +205,8 @@ public class TerminFrame extends ExtendedDialog<Termin> {
 		textBetreff.setText(t.getBetreff());
 		textOrt.setText(t.getOrt());
 		textBeschreibung.setText(t.getText());
+		date1.setValue(t.getStart());
+		date2.setValue(t.getEnde());
 		//comboKonto.addItem(t.getBenutzerkonto());
 		comboKonto.setSelectedItem(t.getBenutzerkonto());
 		

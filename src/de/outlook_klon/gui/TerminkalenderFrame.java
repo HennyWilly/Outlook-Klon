@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import de.outlook_klon.logik.Benutzer;
 import de.outlook_klon.logik.kalendar.Termin;
 import de.outlook_klon.logik.kalendar.Terminkalender;
+import de.outlook_klon.logik.kontakte.Kontakt;
 import de.outlook_klon.logik.mailclient.MailAccount;
 
 import javax.swing.JPanel;
@@ -55,6 +56,55 @@ public class TerminkalenderFrame extends ExtendedFrame {
 
 	public TerminkalenderFrame() {
 		
+		terminPopup = new JPopupMenu();
+		
+		popupTerminOeffnen = new JMenuItem("Öffnen Bitch");
+		popupTerminOeffnen.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				DefaultTableModel model = (DefaultTableModel)tblTermine.getModel();
+			  
+				int viewZeile = tblTermine.getSelectedRow();
+				if(viewZeile < 0)
+					return;
+				
+				int row = tblTermine.convertRowIndexToModel(viewZeile);
+				Termin referenz = (Termin)model.getValueAt(row, 0);
+				
+				bearbeiteTermin(referenz);
+			}
+		});
+    	terminPopup.add(popupTerminOeffnen);
+    	
+    	popupTerminVerfassen = new JMenuItem("Verfassen Lutscher");
+    	popupTerminVerfassen.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				neuerTermin();
+			}
+		});
+    	terminPopup.add(popupTerminVerfassen);
+    	
+    	popupTerminLoeschen = new JMenuItem("Löschen Arsch");
+    	popupTerminLoeschen.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				Termin[] termine = ausgewaehlterTermin();
+				
+				for(Termin t : termine) {
+					kalender.löscheTermin(t);
+					mango.remove(t);
+				}
+				aktualisiere2Tabelle();
+			}
+		});
+    	
+		terminPopup.add(popupTerminLoeschen);
+		
+		
+		
+		
+		
 		kalender = Benutzer.getInstanz().getTermine();
 		
 		JMenuBar menuBar = new JMenuBar();
@@ -64,7 +114,7 @@ public class TerminkalenderFrame extends ExtendedFrame {
 		
 		
 		
-		JMenuItem mntmTerminHinzufgen = new JMenuItem("Termin hinzuf\u00FCgen");
+		JMenuItem mntmTerminHinzufgen = new JMenuItem("Termin hinzufügen");
 		mntmTerminHinzufgen.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -162,6 +212,15 @@ public class TerminkalenderFrame extends ExtendedFrame {
 					bearbeiteTermin(referenz);
 				}
 			}
+			
+			public void mousePressed(MouseEvent e) {
+				oeffneTerminPopup(e);
+			}
+			
+			public void mouseReleased(MouseEvent e) {
+				oeffneTerminPopup(e);
+			}
+			
 		});
 		
 		
@@ -181,14 +240,10 @@ public class TerminkalenderFrame extends ExtendedFrame {
 		splitPane_1.setRightComponent(textDetails);
 		getContentPane().add(splitPane);
 		
-		ladeBenutzer();
-	
-	aktualisiere2Tabelle();
-
-
-	
-	
-	
+		
+		aktualisiere2Tabelle();
+		ladeBenutzer();	
+		
 }
 	
 	
@@ -238,7 +293,6 @@ public class TerminkalenderFrame extends ExtendedFrame {
 	private void aktualisiere2Tabelle() {
 		DefaultTableModel model = (DefaultTableModel)tblTermine.getModel();
 		model.setRowCount(0);
-		
 		
 		Terminkalender EinwegKalender = new Terminkalender();		
 		
@@ -298,6 +352,7 @@ public class TerminkalenderFrame extends ExtendedFrame {
 		if(dummy != null)
 		{
 			kalender.addTermin(dummy);
+			mango.add(dummy);
 			if(kalender.ueberschneidung(dummy))
 			{
 				JOptionPane.showMessageDialog(this, "ACHTUNG! Überschneidung mit bereits vorhandenem Termin. Evtl. Sollten Sie ihre Termine überprüfen.", "Warning", JOptionPane.WARNING_MESSAGE);
@@ -310,14 +365,13 @@ public class TerminkalenderFrame extends ExtendedFrame {
 	
 	private void bearbeiteTermin(Termin t){
 		TerminFrame tf = new TerminFrame(t);
-		tf.showDialog();
+		t = tf.showDialog();
 		
-		if( t != null) {
-			int zeile = tblTermine.convertRowIndexToModel(tblTermine.getSelectedRow());
-			aktualisiere2Tabelle();
-			int zeileView = tblTermine.convertRowIndexToView(zeile);
-			tblTermine.setRowSelectionInterval(zeileView, zeileView);
-		}
+		int zeile = tblTermine.convertRowIndexToModel(tblTermine.getSelectedRow());
+		aktualisiere2Tabelle();
+		int zeileView = tblTermine.convertRowIndexToView(zeile);
+		tblTermine.setRowSelectionInterval(zeileView, zeileView);
+		
 	}
 	
 	
@@ -375,6 +429,19 @@ public class TerminkalenderFrame extends ExtendedFrame {
 			panel.revalidate();
 			panel.repaint();
 		}
+	}
+	
+	
+	private Termin[] ausgewaehlterTermin(){
+		Termin[] termine = new Termin[tblTermine.getSelectedRowCount()];
+		int[] indizes = tblTermine.getSelectedRows();
+		DefaultTableModel model = (DefaultTableModel)tblTermine.getModel();
+		
+		for(int i = 0; i < termine.length; i++) {
+			termine[i] = (Termin)model.getValueAt(indizes[i], 0);
+		}
+		
+		return termine;
 	}
 	
 	
