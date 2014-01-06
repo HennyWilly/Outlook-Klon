@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 
 /**
@@ -11,12 +12,12 @@ import java.util.Set;
  * 
  * @author Hendrik Karwanni
  */
-public class Kontaktverwaltung implements Serializable {
+public class Kontaktverwaltung implements Iterable<Kontakt>, Serializable {
 	private static final long serialVersionUID = -5634887633796780397L;
-
-	private HashMap<String, HashSet<Kontakt>> mKontakte;
 	
 	public static final String DEFAULT = "Adressbuch";
+
+	private final HashMap<String, HashSet<Kontakt>> mKontakte;
 	
 	/**
 	 * Erstellt eine neue Instanz der Kontaktverwaltung
@@ -30,8 +31,8 @@ public class Kontaktverwaltung implements Serializable {
 	 * Fügt den übergebenen Kontakt der Verwaltung hinzu
 	 * @param kontakt Der hinzuzufügende Kontakt
 	 */
-	public void addKontakt(Kontakt kontakt) {
-		HashSet<Kontakt> kontaktliste = mKontakte.get(DEFAULT);
+	public void addKontakt(final Kontakt kontakt) {
+		final HashSet<Kontakt> kontaktliste = mKontakte.get(DEFAULT);
 		
 		kontaktliste.add(kontakt);
 	}
@@ -41,13 +42,13 @@ public class Kontaktverwaltung implements Serializable {
 	 * @param kontakt Der hinzuzufügende Kontakt
 	 * @param liste Listen, in die eingefügt werden soll
 	 */
-	public void addKontaktZuListe(Kontakt kontakt, String liste) {
+	public void addKontaktZuListe(final Kontakt kontakt, final String liste) {
 		if(liste == null || liste.trim().isEmpty())
 			throw new NullPointerException("Der Name der Liste darf nicht leer sein.");
 		if(kontakt == null)
 			throw new NullPointerException("Instanz des Kontakts wurde nicht initialisiert");
 		
-		HashSet<Kontakt> kontaktliste = mKontakte.get(liste);
+		final HashSet<Kontakt> kontaktliste = mKontakte.get(liste);
 		if(kontaktliste == null) 
 			throw new NullPointerException("Der Listenname existiert nicht");
 		if(!kontaktliste.add(kontakt))
@@ -60,7 +61,7 @@ public class Kontaktverwaltung implements Serializable {
 	 * Fügt die übergebene Liste der Verwaltung hinzu
 	 * @param kontakt Die hinzuzufügende Liste
 	 */
-	public void addListe(String liste) {
+	public void addListe(final String liste) {
 		if(liste == null || liste.trim().isEmpty())
 			throw new NullPointerException("Der Name der Liste darf nicht leer sein.");
 		
@@ -74,12 +75,12 @@ public class Kontaktverwaltung implements Serializable {
 	 * Löscht den übergebenen Kontakt aus der Verwaltung
 	 * @param kontakt Zu löschender Kontakt
 	 */
-	public void löscheKontakt(Kontakt kontakt) {
+	public void löscheKontakt(final Kontakt kontakt) {
 		if(kontakt == null)
 			throw new NullPointerException("Instanz des Kontakts wurde nicht initialisiert");
 		
-		Collection<HashSet<Kontakt>> sammlung = mKontakte.values();
-		for(HashSet<Kontakt> liste : sammlung) {
+		final Collection<HashSet<Kontakt>> sammlung = mKontakte.values();
+		for(final HashSet<Kontakt> liste : sammlung) {
 			liste.remove(kontakt);
 		}
 	}
@@ -89,7 +90,7 @@ public class Kontaktverwaltung implements Serializable {
 	 * @param kontakt Zu löschender Kontakt
 	 * @param liste Liste, aus der der Kontakt gelöscht werden soll
 	 */
-	public void löscheKontakt(Kontakt kontakt, String liste) {		
+	public void löscheKontakt(final Kontakt kontakt, final String liste) {		
 		if(kontakt == null)
 			throw new NullPointerException("Instanz des Kontakts wurde nicht initialisiert");
 		if(liste == null || liste.trim().isEmpty())
@@ -98,7 +99,7 @@ public class Kontaktverwaltung implements Serializable {
 		if(DEFAULT.equals(liste))
 			löscheKontakt(kontakt);
 		else {
-			HashSet<Kontakt> zielListe = mKontakte.get(liste);
+			final HashSet<Kontakt> zielListe = mKontakte.get(liste);
 
 			if(zielListe == null) 
 				throw new NullPointerException("Der Listenname existiert nicht");
@@ -111,13 +112,13 @@ public class Kontaktverwaltung implements Serializable {
 	 * Löscht die übergebene Liste aus der Verwaltung
 	 * @param liste Liste, die gelöscht werden soll
 	 */
-	public void löscheListe(String liste) {
+	public void löscheListe(final String liste) {
 		if(liste == null || liste.trim().isEmpty())
 			throw new NullPointerException("Der Name der Liste darf nicht leer sein.");
 		if(DEFAULT.equals(liste))
 			throw new IllegalArgumentException("Das Standardadressbuch darf nicht entfernt werden");
 		
-		HashSet<Kontakt> listenArray = mKontakte.remove(liste);
+		final HashSet<Kontakt> listenArray = mKontakte.remove(liste);
 
 		if(listenArray == null) 
 			throw new NullPointerException("Der Listenname existiert nicht");
@@ -128,14 +129,14 @@ public class Kontaktverwaltung implements Serializable {
 	 * @param alt Alter Name der Liste
 	 * @param neu Neuer Name der Liste
 	 */
-	public void renameListe(String alt, String neu) {
+	public void renameListe(final String alt, final String neu) {
 		if(alt == null || alt.trim().isEmpty() || neu == null || neu.trim().isEmpty()) 
 			throw new NullPointerException("Die Listennamen dürfen nicht leer sein!");
 		
 		if(DEFAULT.equals(alt))
 			throw new IllegalArgumentException("Das Standardadressbuch darf nicht umbenannt werden");
 		
-		HashSet<Kontakt> liste = mKontakte.remove(alt);
+		final HashSet<Kontakt> liste = mKontakte.remove(alt);
 		if(liste == null)
 			throw new NullPointerException("Der alte Listenname existiert nicht");
 		if(mKontakte.get(neu) != null)
@@ -149,7 +150,7 @@ public class Kontaktverwaltung implements Serializable {
 	 * @return Namen aller Kontaktlisten
 	 */
 	public String[] getListen() {	
-		Set<String> listen = mKontakte.keySet();
+		final Set<String> listen = mKontakte.keySet();
 		return listen.toArray(new String[mKontakte.size()]);
 	}
 	
@@ -158,14 +159,19 @@ public class Kontaktverwaltung implements Serializable {
 	 * @param liste Name der Liste, von der die Kontakte zurückgegeben werden sollen
 	 * @return Kontakte der übergebenen Liste
 	 */
-	public Kontakt[] getKontakte(String liste) {
+	public Kontakt[] getKontakte(final String liste) {
 		if(liste == null || liste.trim().isEmpty())
 			throw new NullPointerException("Der Name der Liste darf nicht leer sein.");
 		
-		HashSet<Kontakt> set = mKontakte.get(liste);
+		final HashSet<Kontakt> set = mKontakte.get(liste);
 		if(set == null) 
 			throw new NullPointerException("Der Listenname existiert nicht");
 		
 		return set.toArray(new Kontakt[set.size()]);
+	}
+
+	@Override
+	public Iterator<Kontakt> iterator() {
+		return mKontakte.get(DEFAULT).iterator();
 	}
 }
