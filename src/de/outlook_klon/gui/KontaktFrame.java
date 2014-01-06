@@ -84,15 +84,15 @@ public class KontaktFrame extends ExtendedDialog<Kontakt> {
 		this.setLocationRelativeTo(null);
 		this.setSize(685, 285);
 		
-		JLabel lblVorname = new JLabel("Vorname: ");
-		JLabel lblName = new JLabel("Name: ");
-		JLabel lblAnzeigename = new JLabel("Anzeigename: ");
-		JLabel lblSpitzname = new JLabel("Spitzname: ");
-		JLabel lblEmailadresse_1 = new JLabel("E-Mail-Adresse: ");
-		JLabel lblEmailadresse_2 = new JLabel("2. E-Mail-Adresse: ");
-		JLabel lblDienstlich = new JLabel("Dienstlich: ");
-		JLabel lblPrivat = new JLabel("Privat: ");
-		JLabel lblMobil = new JLabel("Mobil: ");
+		final JLabel lblVorname = new JLabel("Vorname: ");
+		final JLabel lblName = new JLabel("Name: ");
+		final JLabel lblAnzeigename = new JLabel("Anzeigename: ");
+		final JLabel lblSpitzname = new JLabel("Spitzname: ");
+		final JLabel lblEmailadresse_1 = new JLabel("E-Mail-Adresse: ");
+		final JLabel lblEmailadresse_2 = new JLabel("2. E-Mail-Adresse: ");
+		final JLabel lblDienstlich = new JLabel("Dienstlich: ");
+		final JLabel lblPrivat = new JLabel("Privat: ");
+		final JLabel lblMobil = new JLabel("Mobil: ");
 		
 		tVorname = new JTextField();
 		tVorname.setColumns(10);

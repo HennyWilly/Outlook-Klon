@@ -141,7 +141,7 @@ public class TerminkalenderFrame extends ExtendedFrame {
 		panel.setLayout(new GridLayout(0, 1, 0, 0));
 		splitPane.setLeftComponent(scrollPane);
 		
-		JSplitPane splitPane_1 = new JSplitPane();
+		final JSplitPane splitPane_1 = new JSplitPane();
 		splitPane_1.setOrientation(JSplitPane.VERTICAL_SPLIT);
 		splitPane.setRightComponent(splitPane_1);
 		
@@ -233,7 +233,7 @@ public class TerminkalenderFrame extends ExtendedFrame {
 			mango.add(t);
 		}
 	
-		JScrollPane scrollPane_1 = new JScrollPane(tblTermine);
+		final JScrollPane scrollPane_1 = new JScrollPane(tblTermine);
 		splitPane_1.setLeftComponent(scrollPane_1);
 	
 		textDetails = new JTextPane();
@@ -294,7 +294,7 @@ public class TerminkalenderFrame extends ExtendedFrame {
 		DefaultTableModel model = (DefaultTableModel)tblTermine.getModel();
 		model.setRowCount(0);
 		
-		Terminkalender EinwegKalender = new Terminkalender();		
+		Terminkalender einwegKalender = new Terminkalender();		
 		
 		for(int i=0; i< mango.size(); i++)
 		{
@@ -302,21 +302,21 @@ public class TerminkalenderFrame extends ExtendedFrame {
 			{
 				if(!hiddenTermine.contains(mango.get(i)))
 					{
-						EinwegKalender.addTermin(mango.get(i));
+					einwegKalender.addTermin(mango.get(i));
 					}
 			}
 			else
 			{
-				EinwegKalender.addTermin(mango.get(i));
+				einwegKalender.addTermin(mango.get(i));
 			}
 		}
 		
-		int anzahl = EinwegKalender.getSize();
+		int anzahl = einwegKalender.getSize();
 		
 		for(int i=0; i<anzahl;i++) {
-			Termin a = EinwegKalender.getOldest();
+			Termin a = einwegKalender.getOldest();
 			model.addRow(new Object[] {a, a.getBetreff(), a.getText(), a.getStart().toString()});
-			EinwegKalender.löscheTermin(a);
+			einwegKalender.löscheTermin(a);
 		}
 	}
 	
@@ -346,8 +346,8 @@ public class TerminkalenderFrame extends ExtendedFrame {
 	
 	
 	private void neuerTermin() {
-		TerminFrame Tf = new TerminFrame();
-		Termin dummy = Tf.showDialog();
+		TerminFrame tf = new TerminFrame();
+		Termin dummy = tf.showDialog();
 		
 		if(dummy != null)
 		{

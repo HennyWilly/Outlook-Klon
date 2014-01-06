@@ -86,7 +86,7 @@ public class MainFrame extends ExtendedFrame {
     private JTree tree;
     private JEditorPane tpPreview;
     
-    private Benutzer benutzer;
+    private final Benutzer benutzer;
     private JMenu mnExtras;
     private JMenuItem mntmKonteneinstellungen;
     private JMenuItem mntmAdressbuch;
@@ -266,7 +266,7 @@ public class MainFrame extends ExtendedFrame {
 		tblMails.setDefaultRenderer(String.class, new DefaultTableCellRenderer() {
 			private static final long serialVersionUID = -7924546013019100383L;
 
-			public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+			public Component getTableCellRendererComponent(final JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
 				Component comp = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 	        	
 	        	DefaultTableModel model = (DefaultTableModel)table.getModel();
@@ -286,9 +286,9 @@ public class MainFrame extends ExtendedFrame {
 			private static final long serialVersionUID = -7924546013019100383L;
 
 			public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-				value = dateFormater.format(value);
+				String date = dateFormater.format(value);
 				
-				Component comp = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+				Component comp = super.getTableCellRendererComponent(table, date, isSelected, hasFocus, row, column);
 	        	
 	        	DefaultTableModel model = (DefaultTableModel)table.getModel();
 	        	Object obj = model.getValueAt(row, 0);
@@ -311,12 +311,7 @@ public class MainFrame extends ExtendedFrame {
 				String personal = data.getPersonal();
 				String address = data.getAddress();
 				
-				String str = "";
-				
-				if(personal != null && !personal.trim().isEmpty())
-					str = personal;
-				else
-					str = address;
+				String str = (personal != null && !personal.trim().isEmpty()) ? personal : address;
 				
 				Component comp = super.getTableCellRendererComponent(table, str, isSelected, hasFocus, row, column);
 	        	
@@ -540,8 +535,9 @@ public class MainFrame extends ExtendedFrame {
 						
 						try {
 							meinDesktop.browse(new URI(url));
-						} catch(Exception ex) {
-							
+						} catch(Exception e) {
+			                // TODO Auto-generated catch block
+			                e.printStackTrace();
 						}
 					}
 					else {
@@ -613,9 +609,8 @@ public class MainFrame extends ExtendedFrame {
 			mf.setSize(this.getSize());
 			mf.setExtendedState(this.getExtendedState());
 			mf.setVisible(true);
-		} catch (MessagingException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
+		} catch (MessagingException e) {
+			JOptionPane.showMessageDialog(this, "Antworten fehlgeschlagen: \n" + e.getMessage(), "Fehler", JOptionPane.ERROR_MESSAGE);
 		}
 	}
 	
@@ -630,9 +625,8 @@ public class MainFrame extends ExtendedFrame {
 			mf.setSize(this.getSize());
 			mf.setExtendedState(this.getExtendedState());
 			mf.setVisible(true);
-		} catch (MessagingException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
+		} catch (MessagingException e) {
+			JOptionPane.showMessageDialog(this, "Weiterleiten fehlgeschlagen: \n" + e.getMessage(), "Fehler", JOptionPane.ERROR_MESSAGE);
 		}
 	}
 	
@@ -653,10 +647,11 @@ public class MainFrame extends ExtendedFrame {
 	}
 	
 	private void oeffneKalenderFrame() {
-		TerminkalenderFrame Tkf = new TerminkalenderFrame();
-		Tkf.setSize(this.getSize());
-		Tkf.setExtendedState(this.getExtendedState());
-		Tkf.setVisible(true);
+		TerminkalenderFrame tkf = new TerminkalenderFrame();
+		
+		tkf.setSize(this.getSize());
+		tkf.setExtendedState(this.getExtendedState());
+		tkf.setVisible(true);
 	}
 	
 	private void oeffneAdressbuchFrame(boolean neu) {
@@ -740,7 +735,7 @@ public class MainFrame extends ExtendedFrame {
 		
 		if(pfad.contains("/")) {
 			DefaultMutableTreeNode pfadKnoten = null;
-			name = pfad.substring(0, pfad.indexOf("/"));
+			name = pfad.substring(0, pfad.indexOf('/'));
 			
 			for(int j = 0; j < parent.getChildCount(); j++) {
 				DefaultMutableTreeNode child = (DefaultMutableTreeNode) parent.getChildAt(j);
@@ -753,7 +748,7 @@ public class MainFrame extends ExtendedFrame {
 			if(pfadKnoten == null)
 				pfadKnoten = new DefaultMutableTreeNode(name);
 			
-			pfadZuNode(pfad.substring(pfad.indexOf("/") + 1), pfadKnoten);
+			pfadZuNode(pfad.substring(pfad.indexOf('/') + 1), pfadKnoten);
 		}
 		else {
 			name = pfad;
@@ -970,8 +965,7 @@ public class MainFrame extends ExtendedFrame {
 		try {
 			acc.kopiereMails(infos, quelle, ziel);
 		} catch (MessagingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			JOptionPane.showMessageDialog(this, "Kopieren der Mail fehlgeschlagen: \n" + e.getMessage(), "Fehler", JOptionPane.ERROR_MESSAGE);
 		}
 	}
 	
@@ -992,8 +986,7 @@ public class MainFrame extends ExtendedFrame {
 				row = tblMails.getSelectedRow();
 			}
 		} catch (MessagingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			JOptionPane.showMessageDialog(this, "Verschieben der Mail fehlgeschlagen: \n" + e.getMessage(), "Fehler", JOptionPane.ERROR_MESSAGE);
 		}
 	}
 	
@@ -1013,8 +1006,8 @@ public class MainFrame extends ExtendedFrame {
 					row = tblMails.getSelectedRow();
 				}
 			}
-		} catch (MessagingException ex) {
-			ex.printStackTrace();
+		} catch (MessagingException e) {
+			JOptionPane.showMessageDialog(this, "Löschen fehlgeschlagen: \n" + e.getMessage(), "Fehler", JOptionPane.ERROR_MESSAGE);
 		}
 	}
 

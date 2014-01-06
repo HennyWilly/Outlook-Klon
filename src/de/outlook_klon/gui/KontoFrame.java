@@ -67,8 +67,8 @@ public class KontoFrame extends ExtendedDialog<MailAccount> implements ActionLis
 		passwordField = new JPasswordField();
 		passwordField.setBounds(140, 89, 315, 20);
 		
-		JPanel GroupBox = new JPanel();
-		GroupBox.setBounds(10, 120, 724, 137);
+		JPanel groupBox = new JPanel();
+		groupBox.setBounds(10, 120, 724, 137);
 		
 		JLabel lblPosteingangserver = new JLabel("Posteingang-Server:");
 		lblPosteingangserver.setBounds(10, 37, 138, 14);
@@ -129,38 +129,38 @@ public class KontoFrame extends ExtendedDialog<MailAccount> implements ActionLis
 		getContentPane().add(lblPasswort);
 		getContentPane().add(txtMail);
 		getContentPane().add(passwordField);
-		getContentPane().add(GroupBox);
-		GroupBox.setLayout(null);
-		GroupBox.add(lblPosteingangserver);
-		GroupBox.add(cbInProtokoll);
-		GroupBox.add(lblBenutzername);
-		GroupBox.add(lblPostausgangsserver);
-		GroupBox.add(lblSmtp);
-		GroupBox.add(txtOutServer);
-		GroupBox.add(txtInServer);
-		GroupBox.add(spInPort);
-		GroupBox.add(spOutPort);
-		GroupBox.add(cBInVerbindungssicherheit);
-		GroupBox.add(cBOutVerbindungssicherheit);
-		GroupBox.add(cBInAuthentifizierung);
-		GroupBox.add(cBOutAuthentifizierung);
-		GroupBox.add(txtBenutzername);
+		getContentPane().add(groupBox);
+		groupBox.setLayout(null);
+		groupBox.add(lblPosteingangserver);
+		groupBox.add(cbInProtokoll);
+		groupBox.add(lblBenutzername);
+		groupBox.add(lblPostausgangsserver);
+		groupBox.add(lblSmtp);
+		groupBox.add(txtOutServer);
+		groupBox.add(txtInServer);
+		groupBox.add(spInPort);
+		groupBox.add(spOutPort);
+		groupBox.add(cBInVerbindungssicherheit);
+		groupBox.add(cBOutVerbindungssicherheit);
+		groupBox.add(cBInAuthentifizierung);
+		groupBox.add(cBOutAuthentifizierung);
+		groupBox.add(txtBenutzername);
 		
 		JLabel lblServeradresse = new JLabel("Server-Adresse");
 		lblServeradresse.setBounds(226, 11, 162, 14);
-		GroupBox.add(lblServeradresse);
+		groupBox.add(lblServeradresse);
 		
 		JLabel lblPort = new JLabel("Port");
 		lblPort.setBounds(394, 11, 54, 14);
-		GroupBox.add(lblPort);
+		groupBox.add(lblPort);
 		
 		JLabel lblSsl = new JLabel("SSL");
 		lblSsl.setBounds(454, 11, 123, 14);
-		GroupBox.add(lblSsl);
+		groupBox.add(lblSsl);
 		
 		JLabel lblAuthentifizierung = new JLabel("Authentifizierung");
 		lblAuthentifizierung.setBounds(587, 11, 127, 14);
-		GroupBox.add(lblAuthentifizierung);
+		groupBox.add(lblAuthentifizierung);
 		
 		btnAbbrechen = new JButton("Abbrechen");
 		btnAbbrechen.setBounds(649, 288, 85, 23);
@@ -241,7 +241,7 @@ public class KontoFrame extends ExtendedDialog<MailAccount> implements ActionLis
 				empfang = new Pop3Server(empfangsSettings);
 			}
 			else {
-				throw new RuntimeException("Unbekanntes Protokoll ausgewählt");
+				throw new UnsupportedOperationException("Unbekanntes Protokoll ausgewählt");
 			}
 
 			ServerSettings sendeSettings = new ServerSettings(

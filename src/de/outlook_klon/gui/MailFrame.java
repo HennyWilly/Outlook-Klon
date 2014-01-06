@@ -204,7 +204,7 @@ public class MailFrame extends ExtendedFrame {
 		
 		JSplitPane splitHead = new JSplitPane();
 		
-		GroupLayout gl_panel = new GroupLayout(panel);
+		final GroupLayout gl_panel = new GroupLayout(panel);
 		gl_panel.setHorizontalGroup(
 			gl_panel.createParallelGroup(Alignment.LEADING)
 				.addComponent(splitHead, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 508, Short.MAX_VALUE)
@@ -214,7 +214,7 @@ public class MailFrame extends ExtendedFrame {
 				.addComponent(splitHead, GroupLayout.DEFAULT_SIZE, 119, Short.MAX_VALUE)
 		);
 		
-		JPanel panel_1 = new JPanel();
+		final JPanel panel_1 = new JPanel();
 		splitHead.setLeftComponent(panel_1);
 		
 		JLabel lSender = new JLabel("Von:");
@@ -250,7 +250,7 @@ public class MailFrame extends ExtendedFrame {
 		cBSender = new JComboBox<MailAccount>();
 		tSender = new JTextField();
 		
-		GroupLayout gl_panel_1 = new GroupLayout(panel_1);
+		final GroupLayout gl_panel_1 = new GroupLayout(panel_1);
 		gl_panel_1.setHorizontalGroup(
 			gl_panel_1.createParallelGroup(Alignment.LEADING)
 				.addGroup(gl_panel_1.createSequentialGroup()
