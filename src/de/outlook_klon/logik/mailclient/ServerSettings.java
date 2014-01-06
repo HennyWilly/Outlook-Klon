@@ -31,7 +31,7 @@ public class ServerSettings implements Serializable {
 	 * @throws NullPointerException Tritt auf, wenn <code>host</code> gleich <code>null</code> ist.
 	 * @throws IllegalArgumentException Tritt auf, wenn <code>port</code> kein korrekter Port ist.
 	 */
-	public ServerSettings(String host, int port, Verbindungssicherheit vSicherheit, Authentifizierungsart authentifizierung) 
+	public ServerSettings(final String host, final int port, final Verbindungssicherheit vSicherheit, final Authentifizierungsart authentifizierung) 
 			throws NullPointerException, IllegalArgumentException {
 		if(host == null)
 			throw new NullPointerException("Der Hostname darf nicht null sein");

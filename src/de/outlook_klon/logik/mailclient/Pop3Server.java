@@ -19,15 +19,15 @@ public class Pop3Server extends EmpfangsServer {
 	 * Erstellt eine neue Instanz eines Pop3-Servers mit den übergebenen Einstellungen
 	 * @param settings Einstellungen zur Serververbindung
 	 */
-	public Pop3Server(ServerSettings settings) {
+	public Pop3Server(final ServerSettings settings) {
 		super(settings, "POP3");
 	}
 
 	@Override
-	public Store getMailStore(String user, String pw) throws NoSuchProviderException {
-		Authenticator auth = new StandardAuthentificator(user, pw);
+	public Store getMailStore(final String user, final String passwd) throws NoSuchProviderException {
+		final Authenticator auth = new StandardAuthentificator(user, passwd);
 		
-		Properties props = System.getProperties();
+		final Properties props = System.getProperties();
 		props.put("mail.pop3.host", settings.getHost());
 		props.put("mail.pop3.port", settings.getPort());
 		props.put("mail.pop3.auth", true);
@@ -36,7 +36,7 @@ public class Pop3Server extends EmpfangsServer {
 			props.put("mail.pop3.ssl.enable", true);
 		}
 		
-		Session session = Session.getInstance(props, auth);
+		final Session session = Session.getInstance(props, auth);
 		session.setDebug(true);
 		
 		Store store = null;

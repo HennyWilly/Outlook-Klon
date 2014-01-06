@@ -40,16 +40,14 @@ public class MailInfo implements Serializable{
 	}
 	
 	public void setContentType(String contentType) {
-		contentType = contentType.replace("text", "TEXT");
-		
-		this.contentType = contentType;
+		this.contentType = contentType.replace("text", "TEXT");
 	}
 	
 	public String getText() {
 		return text;
 	}
 	
-	public void setText(String text) {
+	public void setText(final String text) {
 		this.text = text;
 	}
 	
@@ -57,7 +55,7 @@ public class MailInfo implements Serializable{
 		return date;
 	}
 	
-	public void setDate(Date date) {
+	public void setDate(final Date date) {
 		this.date = date;
 	}
 	
@@ -65,7 +63,7 @@ public class MailInfo implements Serializable{
 		return sender;
 	}
 	
-	public void setSender(Address sender) {
+	public void setSender(final Address sender) {
 		this.sender = sender;
 	}
 	
@@ -73,7 +71,7 @@ public class MailInfo implements Serializable{
 		return subject;
 	}
 	
-	public void setSubject(String subject) {
+	public void setSubject(final String subject) {
 		this.subject = subject;
 	}
 	
@@ -81,7 +79,7 @@ public class MailInfo implements Serializable{
 		return read;
 	}
 
-	public void setRead(boolean read) {
+	public void setRead(final boolean read) {
 		this.read = read;
 	}
 
@@ -89,7 +87,7 @@ public class MailInfo implements Serializable{
 		return id;
 	}
 	
-	public void setID(String id) {
+	public void setID(final String id) {
 		this.id = id;
 	}
 
@@ -97,7 +95,7 @@ public class MailInfo implements Serializable{
 		return attachment;
 	}
 
-	public void setAttachment(String[] attachment) {
+	public void setAttachment(final String[] attachment) {
 		this.attachment = attachment;
 	}
 }

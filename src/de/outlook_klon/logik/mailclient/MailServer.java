@@ -13,20 +13,32 @@ import javax.mail.PasswordAuthentication;
  */
 public abstract class MailServer implements Serializable {
 	private static final long serialVersionUID = -6369803776352038195L;
+	
+	/**
+	 * Attribut, das die nötigen Einstellungen zum Aufbau einer Verbindung zu einem Mailserver enthällt
+	 */
+	protected ServerSettings settings;
+	
+	/**
+	 * Attribut, das die Stringdarstellung des Servertyps enthällt
+	 */
+	protected String serverTyp;
 
 	/**
 	 * Dient zur Authentifikation mit einem Benutzernamen und Passwort
 	 */
 	protected class StandardAuthentificator extends Authenticator {
-		private String benutzername;
-		private String passwort;
+		private final String benutzername;
+		private final String passwort;
 		
 		/**
 		 * Erstellt eine neue Instanz des StandardAuthentificators
 		 * @param benutzername Verwendeter Benutzername
 		 * @param passwort Verwendendetes Passwort
 		 */
-		public StandardAuthentificator(String benutzername, String passwort) {
+		public StandardAuthentificator(final String benutzername, final String passwort) {
+			super();
+			
 			this.benutzername = benutzername;
 			this.passwort = passwort;
 		}
@@ -38,21 +50,11 @@ public abstract class MailServer implements Serializable {
 	}
 	
 	/**
-	 * Attribut, das die nötigen Einstellungen zum Aufbau einer Verbindung zu einem Mailserver enthällt
-	 */
-	protected ServerSettings settings;
-	
-	/**
-	 * Attribut, das die Stringdarstellung des Servertyps enthällt
-	 */
-	protected String serverTyp;
-	
-	/**
 	 * Wird von abgeleiteten Klassen aufgerufen, um interne Attribute zu initialisieren
 	 * @param settings Einstellungen zum Verbindungsaufbau
 	 * @param serverTyp Beschreibender String zum Servertyp
 	 */
-	protected MailServer(ServerSettings settings, String serverTyp) {
+	protected MailServer(final ServerSettings settings, final String serverTyp) {
 		if(settings == null)
 			throw new NullPointerException("Servereinstellungen wurden nicht instanziiert");
 		

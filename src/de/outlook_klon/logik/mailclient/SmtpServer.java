@@ -26,20 +26,21 @@ public class SmtpServer extends SendServer{
 	 * Erstellt eine neue Instanz eines SMTP-Servers mit den übergebenen Einstellungen
 	 * @param settings Einstellungen zur Serververbindung
 	 */
-	public SmtpServer(ServerSettings settings) {
+	public SmtpServer(final ServerSettings settings) {
 		super(settings, "SMTP");
 	}
 
 	@Override
-	public void sendeMail(String user, String pw, InternetAddress from, InternetAddress[] to, InternetAddress[] cc, String subject, String text, String format, File[] attachments) 
+	public void sendeMail(final String user, final String passwd, final InternetAddress from, final InternetAddress[] to, final InternetAddress[] cc, 
+			final String subject, final String text, final String format, final File[] attachments) 
 						throws MessagingException, IOException {     
-		Authenticator auth = new StandardAuthentificator(user, pw);
+		final Authenticator auth = new StandardAuthentificator(user, passwd);
 		
-		String host = settings.getHost();
-		int port = settings.getPort();
-		Verbindungssicherheit sicherheit = settings.getVerbingungssicherheit();
+		final String host = settings.getHost();
+		final int port = settings.getPort();
+		final Verbindungssicherheit sicherheit = settings.getVerbingungssicherheit();
 		
-		Properties props = new Properties();
+		final Properties props = new Properties();
 		//props.put("mail.smtp.user", user);
 		//props.put("mail.smtp.host", host);
 		//props.put("mail.smtp.port", port);
@@ -55,33 +56,33 @@ public class SmtpServer extends SendServer{
 			props.put("mail.smtp.socketFactory.fallback", "false");
 		}
 		
-        Session session = Session.getInstance(props, auth);
+		final Session session = Session.getInstance(props, auth);
 		session.setDebug(true);
         
-		MimeMessage mail = new MimeMessage(session);
+		final MimeMessage mail = new MimeMessage(session);
 		mail.setFrom(from);
 		
-		for(InternetAddress adrTo : to) {
+		for(final InternetAddress adrTo : to) {
 			mail.addRecipient(RecipientType.TO, adrTo);
 		}
 		
 		if(cc.length > 0)
-			for(InternetAddress adrCC : cc) {
+			for(final InternetAddress adrCC : cc) {
 				mail.addRecipient(RecipientType.CC, adrCC);
 			}
 		
 		mail.setSubject(subject);
 		
 
-		MimeMultipart multiPart = new MimeMultipart();
-		MimeBodyPart textPart = new MimeBodyPart();
+		final MimeMultipart multiPart = new MimeMultipart();
+		final MimeBodyPart textPart = new MimeBodyPart();
 		textPart.setContent(text, format);
 		textPart.setDisposition(MimeBodyPart.INLINE);
 		multiPart.addBodyPart(textPart);
 		
 		if(attachments != null) {
-			for(File attachment : attachments) {
-				MimeBodyPart attachmentPart = new MimeBodyPart();
+			for(final File attachment : attachments) {
+				final MimeBodyPart attachmentPart = new MimeBodyPart();
 				attachmentPart.attachFile(attachment);
 				attachmentPart.setDisposition(MimeBodyPart.ATTACHMENT);
 				multiPart.addBodyPart(attachmentPart);
@@ -97,19 +98,21 @@ public class SmtpServer extends SendServer{
 			transport = session.getTransport("smtp");
 		}
 		
-		transport.connect(host, port, user, pw);
+		transport.connect(host, port, user, passwd);
 		transport.sendMessage(mail, mail.getAllRecipients());
 		transport.close();
 	}
 	
-	public boolean pruefeLogin(String benutzername, String passwort){
-		Authenticator auth = new StandardAuthentificator(benutzername, passwort);
+	public boolean pruefeLogin(final String benutzername, final String passwort){
+		boolean result = true;
 		
-		String host = settings.getHost();
-		int port = settings.getPort();
-		Verbindungssicherheit sicherheit = settings.getVerbingungssicherheit();
+		final Authenticator auth = new StandardAuthentificator(benutzername, passwort);
 		
-		Properties props = new Properties();
+		final String host = settings.getHost();
+		final int port = settings.getPort();
+		final Verbindungssicherheit sicherheit = settings.getVerbingungssicherheit();
+		
+		final Properties props = new Properties();
 		//props.put("mail.smtp.user", user);
 		//props.put("mail.smtp.host", host);
 		//props.put("mail.smtp.port", port);
@@ -125,7 +128,7 @@ public class SmtpServer extends SendServer{
 			props.put("mail.smtp.socketFactory.fallback", "false");
 		}
 		
-        Session session = Session.getInstance(props, auth);
+		final Session session = Session.getInstance(props, auth);
 		session.setDebug(true);
 		
 		Transport transport = null;
@@ -138,8 +141,8 @@ public class SmtpServer extends SendServer{
 			}
 			
 			transport.connect(host, port, benutzername, passwort);
-		} catch(Exception ex) {
-			return false;
+		} catch(MessagingException ex) {
+			result = false;
 		} finally {
 			if(transport != null && transport.isConnected()) {
 				try {
@@ -148,6 +151,6 @@ public class SmtpServer extends SendServer{
 			}
 		}
 
-		return true;
+		return result;
 	}
 }

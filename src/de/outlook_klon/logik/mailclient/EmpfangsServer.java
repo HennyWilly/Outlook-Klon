@@ -18,36 +18,38 @@ public abstract class EmpfangsServer extends MailServer {
 	 * @param settings Einstellungen zur Verbindung mit dem Server
 	 * @param serverTyp Beschreibender String zum Servertyp
 	 */
-	protected EmpfangsServer(ServerSettings settings, String serverTyp) {
+	protected EmpfangsServer(final ServerSettings settings, final String serverTyp) {
 		super(settings, serverTyp);
 	}
 
 	/**
 	 * Gibt den Store zurück, der die E-Mails des Anwenders enthällt
 	 * @param user Benutzername des Empfängers
-	 * @param pw Passwort des Empfängers
+	 * @param passwd Passwort des Empfängers
 	 * @return Store-Objekt, über welches man auf die Mails zugreifen kann
 	 */
-	public abstract Store getMailStore(String user, String pw) throws NoSuchProviderException;
+	public abstract Store getMailStore(String user, String passwd) throws NoSuchProviderException;
 	
-	public boolean pruefeLogin(String benutzername, String passwort){
-		Store store = null;
+	public boolean pruefeLogin(final String benutzername, final String passwort){
+		boolean result = true;
 		
+		final String host = settings.getHost();
+		final int port = settings.getPort();
+
+		Store store = null;
 		try {
 			store = getMailStore(benutzername, passwort);
-			store.connect(settings.getHost(), settings.getPort(), benutzername, passwort);
-		} catch (Exception ex) {
-			return false;
+			store.connect(host, port, benutzername, passwort);
+		} catch (MessagingException ex) {
+			result = false;
 		} finally {
 			if(store != null && store.isConnected()) {
 				try {
 					store.close();
-				} catch (MessagingException e) {
-					e.printStackTrace();
-				}
+				} catch (MessagingException e) { }
 			}
 		}
 		
-		return true;
+		return result;
 	}
 }

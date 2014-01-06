@@ -15,7 +15,7 @@ import javax.mail.internet.InternetAddress;
 public abstract class SendServer extends MailServer {
 	private static final long serialVersionUID = -4191787147022537178L;
 
-	protected SendServer(ServerSettings settings, String serverTyp) {
+	protected SendServer(final ServerSettings settings, final String serverTyp) {
 		super(settings, serverTyp);
 	}
 
@@ -23,7 +23,7 @@ public abstract class SendServer extends MailServer {
 	 * Sendet eine E-Mail über den aktuellen Server.
 	 * Die Implementierung des Vorgangs ist vom Serverprotokoll abhängig 
 	 * @param user Benutzername des Senders
-	 * @param pw Passwort des Senders
+	 * @param passwd Passwort des Senders
 	 * @param from Anzeigename des Senders
 	 * @param to Ziele der Mail
 	 * @param cc CCs der Mail
@@ -31,6 +31,6 @@ public abstract class SendServer extends MailServer {
 	 * @param text Text der Mail
 	 * @throws MessagingException Tritt auf, wenn das Senden der Mail fehlschlägt
 	 */
-	public abstract void sendeMail(String user, String pw, InternetAddress from, InternetAddress[] to, InternetAddress[] cc, String subject, String text, String format, File[] attachment) 
+	public abstract void sendeMail(String user, String passwd, InternetAddress from, InternetAddress[] to, InternetAddress[] cc, String subject, String text, String format, File[] attachment) 
 			throws MessagingException, IOException ;
 }
