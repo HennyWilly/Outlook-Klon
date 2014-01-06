@@ -43,6 +43,8 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.mail.Address;
 import javax.mail.MessagingException;
@@ -444,11 +446,14 @@ public class MailFrame extends ExtendedFrame {
 		
 		tCC.setText(appendAddresses(mail.getCc()));
 		tCC.setEditable(false);
+
+		String text = info.getText();
+		String contentType = info.getContentType();
+		String tmpText = text.replace("\r\n", "<br/>");
 		
-		String text = mail.getText();
-		String contentType = mail.getContentType();
-		
-		if(text.startsWith("<html>") && (text.endsWith("</html>") || text.endsWith("</html>\r\n"))) 
+		Pattern pattern = Pattern.compile(".*?<(\"[^\"]*\"|'[^']*'|[^'\">])*>.*?");
+		Matcher matcher = pattern.matcher(tmpText);
+		if(matcher.matches())
 			contentType = contentType.replace("plain", "html");
 		
 		if(contentType.startsWith("TEXT/plain")) {
@@ -492,11 +497,14 @@ public class MailFrame extends ExtendedFrame {
 		if(weiterleiten == false)
 			tTo.setText(((InternetAddress)mail.getSender()).toUnicodeString());
 		tCC.setText(appendAddresses(mail.getCc()));
+
+		String text = info.getText();
+		String contentType = info.getContentType();
+		String tmpText = text.replace("\r\n", "<br/>");
 		
-		String text = mail.getText();
-		String contentType = mail.getContentType();
-		
-		if(text.startsWith("<html>") && (text.endsWith("</html>") || text.endsWith("</html>\r\n"))) 
+		Pattern pattern = Pattern.compile(".*?<(\"[^\"]*\"|'[^']*'|[^'\">])*>.*?");
+		Matcher matcher = pattern.matcher(tmpText);
+		if(matcher.matches())
 			contentType = contentType.replace("plain", "html");
 		
 		if(contentType.startsWith("TEXT/plain")) {

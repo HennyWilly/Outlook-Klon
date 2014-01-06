@@ -17,6 +17,8 @@ import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.Locale;
 import java.util.Date;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.swing.JFrame;
 import javax.swing.JTree;
@@ -373,8 +375,11 @@ public class MainFrame extends ExtendedFrame {
 
 					String text = info.getText();
 					String contentType = info.getContentType();
+					String tmpText = text.replace("\r\n", "<br/>");
 					
-					if(text.startsWith("<html>") && (text.endsWith("</html>") || text.endsWith("</html>\r\n"))) 
+					Pattern pattern = Pattern.compile(".*?<(\"[^\"]*\"|'[^']*'|[^'\">])*>.*?");
+					Matcher matcher = pattern.matcher(tmpText);
+					if(matcher.matches())
 						contentType = contentType.replace("plain", "html");
 					
 					tpPreview.setEditable(true);
@@ -383,7 +388,7 @@ public class MainFrame extends ExtendedFrame {
 						HTMLEditorKit html = new HTMLEditorKit();
 						
 						tpPreview.setEditorKit(html);
-						text = text.replaceAll("(\r\n|\n)", "<br/>");
+						text = tmpText;
 					}
 					
 					tpPreview.setText(text);
