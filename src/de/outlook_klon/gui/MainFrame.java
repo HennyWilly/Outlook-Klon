@@ -1,7 +1,6 @@
 package de.outlook_klon.gui;
 
 import java.awt.Component;
-import java.awt.Desktop;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -10,21 +9,14 @@ import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
-import java.net.URI;
 import java.text.DateFormat;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.Locale;
 import java.util.Date;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.swing.JFrame;
 import javax.swing.JTree;
-import javax.swing.event.HyperlinkEvent;
-import javax.swing.event.HyperlinkEvent.EventType;
-import javax.swing.event.HyperlinkListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TreeExpansionEvent;
@@ -38,10 +30,8 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
-import javax.swing.text.html.HTMLEditorKit;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
-import javax.swing.JEditorPane;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JMenuBar;
@@ -86,7 +76,7 @@ public class MainFrame extends ExtendedFrame {
     private JMenuItem mntmBeenden;
     private JButton btnAbrufen;
     private JTree tree;
-    private JEditorPane tpPreview;
+    private HtmlEditorPane tpPreview;
     
     private final Benutzer benutzer;
     private JMenu mnExtras;
@@ -265,10 +255,27 @@ public class MainFrame extends ExtendedFrame {
 					return columnTypes[columnIndex];
 				}
 			});    		
-		tblMails.setDefaultRenderer(String.class, new DefaultTableCellRenderer() {
-			private static final long serialVersionUID = -7924546013019100383L;
+		
+		DefaultTableCellRenderer cellRenderer = new DefaultTableCellRenderer() {
+			private static final long serialVersionUID = 6837957351164997131L;
 
 			public Component getTableCellRendererComponent(final JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+				if(value instanceof Date) {
+					value = dateFormater.format(value);
+				}
+				else if(value instanceof InternetAddress) {
+					InternetAddress data = (InternetAddress)value;
+					String personal = data.getPersonal();
+					String address = data.getAddress();
+					
+					if(personal != null && !personal.trim().isEmpty()) {
+						value = personal;
+					}
+					else {
+						value = address;
+					}
+				}
+				
 				Component comp = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 	        	
 	        	DefaultTableModel model = (DefaultTableModel)table.getModel();
@@ -283,63 +290,14 @@ public class MainFrame extends ExtendedFrame {
 	        	
 	        	return comp;
     		}
-		});
-		tblMails.setDefaultRenderer(Date.class, new DefaultTableCellRenderer() {
-			private static final long serialVersionUID = -7924546013019100383L;
-
-			public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-				String date = dateFormater.format(value);
-				
-				Component comp = super.getTableCellRendererComponent(table, date, isSelected, hasFocus, row, column);
-	        	
-	        	DefaultTableModel model = (DefaultTableModel)table.getModel();
-	        	Object obj = model.getValueAt(row, 0);
-	        	if(obj instanceof MailInfo) {
-	        		MailInfo info = (MailInfo) obj;
-    				if(isSelected || info.isRead()) 
-    					comp.setFont(comp.getFont().deriveFont(Font.PLAIN));
-    				else
-    					comp.setFont(comp.getFont().deriveFont(Font.BOLD)); 
-	        	}
-	        	
-	        	return comp;
-    		}
-		});
-		tblMails.setDefaultRenderer(InternetAddress.class, new DefaultTableCellRenderer() {
-			private static final long serialVersionUID = -7924546013019100383L;
-
-			public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-				InternetAddress data = (InternetAddress)value;
-				String personal = data.getPersonal();
-				String address = data.getAddress();
-				
-				String str = (personal != null && !personal.trim().isEmpty()) ? personal : address;
-				
-				Component comp = super.getTableCellRendererComponent(table, str, isSelected, hasFocus, row, column);
-	        	
-	        	DefaultTableModel model = (DefaultTableModel)table.getModel();
-	        	Object obj = model.getValueAt(row, 0);
-	        	if(obj instanceof MailInfo) {
-	        		MailInfo info = (MailInfo) obj;
-    				if(isSelected || info.isRead()) 
-    					comp.setFont(comp.getFont().deriveFont(Font.PLAIN));
-    				else
-    					comp.setFont(comp.getFont().deriveFont(Font.BOLD)); 
-	        	}
-	        	
-	        	return comp;
-    		}
-		});
+		};
+		
+		tblMails.setDefaultRenderer(String.class, cellRenderer);
+		tblMails.setDefaultRenderer(Date.class, cellRenderer);
+		tblMails.setDefaultRenderer(InternetAddress.class, cellRenderer);
 		
 	    TableRowSorter<TableModel> myRowSorter = new TableRowSorter<TableModel>(tblMails.getModel());
 	    myRowSorter.setSortsOnUpdates(true);
-	    myRowSorter.setComparator(0, new Comparator<MailInfo>() {
-			@Override
-			public int compare(MailInfo o1, MailInfo o2) {
-				return o1.getDate().compareTo(o2.getDate());
-			}
-		});
-
 	    tblMails.setRowSorter(myRowSorter);
 		
 		tblMails.removeColumn(tblMails.getColumn("MailInfo"));
@@ -349,52 +307,15 @@ public class MainFrame extends ExtendedFrame {
 				if(!e.getValueIsAdjusting()) {
 					DefaultTableModel model =  (DefaultTableModel)tblMails.getModel();
 					int viewZeile = tblMails.getSelectedRow();
-					if(viewZeile < 0) {
-						tpPreview.setEditable(true);
-						tpPreview.setText("");
-						tpPreview.setEditable(false);
-						
-						return;
+					
+					MailInfo info = null;
+					
+					if(viewZeile >= 0) {
+						int zeile = tblMails.convertRowIndexToModel(viewZeile);
+						info = (MailInfo) model.getValueAt(zeile, 0);
 					}
 					
-					int zeile = tblMails.convertRowIndexToModel(viewZeile);
-					
-					MailInfo info = (MailInfo) model.getValueAt(zeile, 0);
-					
-					DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode)tree.getLastSelectedPathComponent();
-					String pfad = nodeZuPfad(selectedNode);
-					
-					MailAccount account = ausgewaehlterAccount();
-					
-					try {
-						account.getMessageText(pfad, info);
-					} catch (MessagingException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					}
-
-					String text = info.getText();
-					String contentType = info.getContentType();
-					String tmpText = text.replace("\r\n", "<br/>");
-					
-					Pattern pattern = Pattern.compile(".*?<(\"[^\"]*\"|'[^']*'|[^'\">])*>.*?");
-					Matcher matcher = pattern.matcher(tmpText);
-					if(matcher.matches())
-						contentType = contentType.replace("plain", "html");
-					
-					tpPreview.setEditable(true);
-					tpPreview.setContentType(contentType);
-					if(contentType.contains("TEXT/html")) {
-						HTMLEditorKit html = new HTMLEditorKit();
-						
-						tpPreview.setEditorKit(html);
-						text = tmpText;
-					}
-					
-					tpPreview.setText(text);
-					tpPreview.setEditable(false);
-					
-					tpPreview.setCaretPosition(0);
+					previewAnzeigen(info);
 				}
 			}
 		});
@@ -526,37 +447,8 @@ public class MainFrame extends ExtendedFrame {
 		
 		initTabelle(verticalSplitPane);
 		
-		tpPreview = new JEditorPane();
+		tpPreview = new HtmlEditorPane();
 		tpPreview.setEditable(false);
-		//tpPreview.setEditorKitForContentType("TEXT/html", new HTMLEditorKit());
-		tpPreview.addHyperlinkListener(new HyperlinkListener() {
-			@Override
-			public void hyperlinkUpdate(HyperlinkEvent arg0) {
-				if(arg0.getEventType() == EventType.ACTIVATED) {
-					String url = arg0.getDescription();
-					
-					if(Desktop.isDesktopSupported()) {
-						Desktop meinDesktop = Desktop.getDesktop();
-						
-						try {
-							meinDesktop.browse(new URI(url));
-						} catch(Exception e) {
-			                // TODO Auto-generated catch block
-			                e.printStackTrace();
-						}
-					}
-					else {
-						Runtime meineLaufzeit = Runtime.getRuntime();
-						try {
-							meineLaufzeit.exec("xdg-open " + url);	//Sollte bei OS mit X-Server funktionieren
-			            } catch (IOException e) {
-			                // TODO Auto-generated catch block
-			                e.printStackTrace();
-			            }
-					}
-				}
-			}
-		});
 		
 		JScrollPane previewScroller = new JScrollPane(tpPreview);
 		verticalSplitPane.setRightComponent(previewScroller);
@@ -1015,12 +907,42 @@ public class MainFrame extends ExtendedFrame {
 			JOptionPane.showMessageDialog(this, "Löschen fehlgeschlagen: \n" + e.getMessage(), "Fehler", JOptionPane.ERROR_MESSAGE);
 		}
 	}
-
-	public static void main(String[] args) {
-		MainFrame mf = new MainFrame();	
+	
+	private void previewAnzeigen(MailInfo info) {
+		if(info == null) {
+			tpPreview.setEditable(true);
+			tpPreview.setText("");
+			tpPreview.setEditable(false);
+			
+			return;
+		}
 		
-		mf.setExtendedState(JFrame.MAXIMIZED_BOTH);
-		mf.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		mf.setVisible(true);
+		DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode)tree.getLastSelectedPathComponent();
+		String pfad = nodeZuPfad(selectedNode);
+		
+		MailAccount account = ausgewaehlterAccount();
+		
+		try {
+			account.getMessageText(pfad, info);
+		} catch (MessagingException ex) {
+			JOptionPane.showMessageDialog(this, "Es ist ein Fehler beim Auslesen des Mail-Textes aufgetreten:\n" + ex.getMessage(),
+					"Fehler", JOptionPane.ERROR_MESSAGE);
+		}
+
+		String text = info.getText();
+		String contentType = info.getContentType();
+		
+		tpPreview.setText(text, contentType, true);
+		tpPreview.setEditable(false);
+		
+		tpPreview.setCaretPosition(0);
+	}
+
+	public static void main(final String[] args) {
+		final MainFrame mainFrame = new MainFrame();	
+		
+		mainFrame.setExtendedState(JFrame.MAXIMIZED_BOTH);
+		mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		mainFrame.setVisible(true);
 	}
 }

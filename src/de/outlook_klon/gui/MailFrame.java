@@ -1,6 +1,5 @@
 package de.outlook_klon.gui;
 
-import java.awt.Desktop;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
@@ -12,7 +11,6 @@ import java.awt.event.WindowEvent;
 import javax.swing.ButtonGroup;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListModel;
-import javax.swing.JEditorPane;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
@@ -26,10 +24,6 @@ import javax.swing.GroupLayout.Alignment;
 import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-import javax.swing.event.HyperlinkEvent;
-import javax.swing.event.HyperlinkEvent.EventType;
-import javax.swing.event.HyperlinkListener;
-import javax.swing.text.html.HTMLEditorKit;
 import javax.swing.JMenuBar;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
@@ -39,9 +33,7 @@ import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JList;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -76,7 +68,7 @@ public class MailFrame extends ExtendedFrame {
 	private JTextField tTo;
 	private JTextField tCC;
 	private JTextField tSubject;
-	private JEditorPane tpMailtext;
+	private HtmlEditorPane tpMailtext;
 	
 	private JButton btnSenden;
 	private JButton btnAnhang;
@@ -136,9 +128,6 @@ public class MailFrame extends ExtendedFrame {
 					String text = info.getText();
 					String contentType = info.getContentType();
 					
-					if(text.startsWith("<html>") && (text.endsWith("</html>") || text.endsWith("</html>\r\n"))) 
-						contentType = contentType.replace("plain", "html");
-					
 					if(sender == rdbtnmntmReintext) {
 						contentType = "TEXT/plain; " + charset;
 					}
@@ -147,17 +136,8 @@ public class MailFrame extends ExtendedFrame {
 					}
 					
 					tpMailtext.setEditable(true);
-					tpMailtext.setContentType(contentType);
-					if(contentType.contains("TEXT/html")) {
-						HTMLEditorKit html = new HTMLEditorKit();
-						
-						tpMailtext.setEditorKit(html);
-						text = text.replaceAll("(\r\n|\n)", "<br/>");
-					}
-					
-					tpMailtext.setText(text);
+					tpMailtext.setText(text, contentType, false);
 					tpMailtext.setEditable(editable);
-					
 					tpMailtext.setCaretPosition(0);
 				}
 			}
@@ -298,35 +278,7 @@ public class MailFrame extends ExtendedFrame {
 		
 		panel.setLayout(gl_panel);
 		
-		tpMailtext = new JEditorPane();
-		tpMailtext.addHyperlinkListener(new HyperlinkListener() {
-			@Override
-			public void hyperlinkUpdate(HyperlinkEvent arg0) {
-				if(arg0.getEventType() == EventType.ACTIVATED) {
-					String url = arg0.getDescription();
-					
-					if(Desktop.isDesktopSupported()) {
-						Desktop meinDesktop = Desktop.getDesktop();
-						
-						try {
-							meinDesktop.browse(new URI(url));
-						} catch(Exception e) {
-			                // TODO Auto-generated catch block
-			                e.printStackTrace();
-						}
-					}
-					else {
-						Runtime meineLaufzeit = Runtime.getRuntime();
-						try {
-							meineLaufzeit.exec("xdg-open " + url);	//Sollte bei OS mit X-Server funktionieren
-			            } catch (IOException e) {
-			                // TODO Auto-generated catch block
-			                e.printStackTrace();
-			            }
-					}
-				}
-			}
-		});
+		tpMailtext = new HtmlEditorPane();
 		
 		JScrollPane textScroller = new JScrollPane(tpMailtext);
 		splitPane.setRightComponent(textScroller);
@@ -451,9 +403,7 @@ public class MailFrame extends ExtendedFrame {
 		String contentType = info.getContentType();
 		String tmpText = text.replace("\r\n", "<br/>");
 		
-		Pattern pattern = Pattern.compile(".*?<(\"[^\"]*\"|'[^']*'|[^'\">])*>.*?");
-		Matcher matcher = pattern.matcher(tmpText);
-		if(matcher.matches())
+		if(!contentType.startsWith("TEXT/html") && HtmlEditorPane.istHtml(tmpText))
 			contentType = contentType.replace("plain", "html");
 		
 		if(contentType.startsWith("TEXT/plain")) {
