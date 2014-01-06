@@ -5,7 +5,7 @@ import java.util.Date;
 
 import javax.mail.Address;
 
-public class MailInfo implements Serializable{
+public class MailInfo implements Serializable, Comparable<MailInfo> {
 	private static final long serialVersionUID = 7484178938043380415L;
 	
 	private String id;
@@ -97,5 +97,10 @@ public class MailInfo implements Serializable{
 
 	public void setAttachment(final String[] attachment) {
 		this.attachment = attachment;
+	}
+
+	@Override
+	public int compareTo(MailInfo o) {
+		return date.compareTo(o.date);
 	}
 }
