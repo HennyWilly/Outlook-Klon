@@ -25,7 +25,7 @@ import de.outlook_klon.logik.mailclient.ServerSettings;
 import de.outlook_klon.logik.mailclient.SmtpServer;
 import de.outlook_klon.logik.mailclient.Verbindungssicherheit;
 
-public class KontoFrame extends ExtendedDialog<MailAccount> implements ActionListener {
+public class KontoFrame extends ExtendedDialog<MailAccount> {
 	private static final long serialVersionUID = -8114432074006047938L;
 	
 	private MailAccount mailAccount;
@@ -52,8 +52,6 @@ public class KontoFrame extends ExtendedDialog<MailAccount> implements ActionLis
 	private JButton btnFertig;
 	
 	private void initFrame() {
-		this.setSize(750, 350);
-		
 		txtMail = new JTextField();
 		txtMail.setBounds(140, 58, 315, 20);
 		txtMail.setColumns(10);
@@ -164,18 +162,35 @@ public class KontoFrame extends ExtendedDialog<MailAccount> implements ActionLis
 		
 		btnAbbrechen = new JButton("Abbrechen");
 		btnAbbrechen.setBounds(649, 288, 85, 23);
-		btnAbbrechen.addActionListener(this);
+		btnAbbrechen.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				mailAccount = null;
+				close();
+			}
+		});
 		getContentPane().add(btnAbbrechen);
 		
 		btnTesten = new JButton("Testen");
 		btnTesten.setBounds(459, 288, 85, 23);
-		btnTesten.addActionListener(this);
+		btnTesten.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				kontoObjektErzeugen();
+			}
+		});
 		getContentPane().add(btnTesten);
 		
 		btnFertig = new JButton("Fertig");
 		btnFertig.setEnabled(false);
 		btnFertig.setBounds(554, 288, 85, 23);
-		btnFertig.addActionListener(this);
+		btnFertig.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				mailAccount = tmpAccount;
+				close();
+			}
+		});
 		getContentPane().add(btnFertig);
 		
 		JLabel lblAnzeigename = new JLabel("Anzeigename:");
@@ -189,10 +204,18 @@ public class KontoFrame extends ExtendedDialog<MailAccount> implements ActionLis
 	}
 	
 	public KontoFrame() {
+		super(750, 350);
+		
+		setTitle("Neues Konto hinzufügen");
+		
 		initFrame();
 	}
 	
 	public KontoFrame(MailAccount acc) {
+		super(750, 350);
+		
+		setTitle("Konto bearbeiten");
+		
 		initFrame();
 		
 		EmpfangsServer inServer = acc.getEmpfangsServer();
@@ -221,63 +244,47 @@ public class KontoFrame extends ExtendedDialog<MailAccount> implements ActionLis
 		}
 	}
 	
-	@Override
-	public void actionPerformed(ActionEvent arg) {
-		Object sender = arg.getSource();
+	private void kontoObjektErzeugen() {
+		ServerSettings empfangsSettings = new ServerSettings(
+				txtInServer.getText(), 
+				Integer.parseInt((String)spInPort.getValue()), 
+				(Verbindungssicherheit)cBInVerbindungssicherheit.getItemAt(cBInVerbindungssicherheit.getSelectedIndex()), 
+				(Authentifizierungsart)cBInAuthentifizierung.getItemAt(cBInAuthentifizierung.getSelectedIndex()));
+		EmpfangsServer empfang = null;
+		if(cbInProtokoll.getSelectedItem().equals("IMAP")) {
+			empfang = new ImapServer(empfangsSettings);
+		}
+		else if(cbInProtokoll.getSelectedItem().equals("POP3")) {
+			empfang = new Pop3Server(empfangsSettings);
+		}
+		else {
+			throw new UnsupportedOperationException("Unbekanntes Protokoll ausgewählt");
+		}
+
+		ServerSettings sendeSettings = new ServerSettings(
+				txtOutServer.getText(), 
+				Integer.parseInt((String)spOutPort.getValue()), 
+				(Verbindungssicherheit)cBOutVerbindungssicherheit.getItemAt(cBOutVerbindungssicherheit.getSelectedIndex()), 
+				(Authentifizierungsart)cBOutAuthentifizierung.getItemAt(cBOutAuthentifizierung.getSelectedIndex()));
+		SendServer senden = new SmtpServer(sendeSettings);
 		
-		if(sender == btnTesten) {
+		try {
+			tmpAccount = new MailAccount(
+					empfang,
+					senden, 
+					new InternetAddress(txtMail.getText(), txtAnzeigename.getText()),
+					txtBenutzername.getText(), 
+					new String(passwordField.getPassword())
+				);
 			
+			boolean gueltig = tmpAccount.validieren();
 			
-			ServerSettings empfangsSettings = new ServerSettings(
-					txtInServer.getText(), 
-					(int)spInPort.getValue(), 
-					cBInVerbindungssicherheit.getItemAt(cBInVerbindungssicherheit.getSelectedIndex()), 
-					cBInAuthentifizierung.getItemAt(cBInAuthentifizierung.getSelectedIndex()));
-			EmpfangsServer empfang = null;
-			if(cbInProtokoll.getSelectedItem().equals("IMAP")) {
-				empfang = new ImapServer(empfangsSettings);
-			}
-			else if(cbInProtokoll.getSelectedItem().equals("POP3")) {
-				empfang = new Pop3Server(empfangsSettings);
-			}
-			else {
-				throw new UnsupportedOperationException("Unbekanntes Protokoll ausgewählt");
-			}
-
-			ServerSettings sendeSettings = new ServerSettings(
-					txtOutServer.getText(), 
-					(int)spOutPort.getValue(), 
-					cBOutVerbindungssicherheit.getItemAt(cBOutVerbindungssicherheit.getSelectedIndex()), 
-					cBOutAuthentifizierung.getItemAt(cBOutAuthentifizierung.getSelectedIndex()));
-			SendServer senden = new SmtpServer(sendeSettings);
-			
-			try {
-				tmpAccount = new MailAccount(
-						empfang,
-						senden, 
-						new InternetAddress(txtMail.getText(), txtAnzeigename.getText()),
-						txtBenutzername.getText(), 
-						new String(passwordField.getPassword())
-					);
-				
-				boolean gueltig = tmpAccount.validieren();
-				
-				btnFertig.setEnabled(gueltig);
-				if(!gueltig)
-					JOptionPane.showMessageDialog(this, "Die übergebenen Daten sind ungültig", "Fehler", JOptionPane.OK_OPTION);
-			} catch (UnsupportedEncodingException e) {
-				JOptionPane.showMessageDialog(this, e.getLocalizedMessage(), "Fehler", JOptionPane.OK_OPTION);
-			}
+			btnFertig.setEnabled(gueltig);
+			if(!gueltig)
+				JOptionPane.showMessageDialog(this, "Die übergebenen Daten sind ungültig", "Fehler", JOptionPane.OK_OPTION);
+		} catch (UnsupportedEncodingException e) {
+			JOptionPane.showMessageDialog(this, e.getLocalizedMessage(), "Fehler", JOptionPane.OK_OPTION);
 		}
-		else if(sender == btnAbbrechen) {
-			mailAccount = null;
-			close();
-		}
-		else if(sender == btnFertig) {
-			mailAccount = tmpAccount;
-			close();
-		}
-
 	}
 
 	@Override

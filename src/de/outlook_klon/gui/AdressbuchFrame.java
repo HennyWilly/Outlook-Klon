@@ -65,8 +65,6 @@ public class AdressbuchFrame extends ExtendedFrame {
 		private JTextField txtListe;
 		
 		private void initGUI() {
-			setSize(355, 130);
-			
 			txtListe = new JTextField();
 			txtListe.setColumns(10);
 			
@@ -117,12 +115,16 @@ public class AdressbuchFrame extends ExtendedFrame {
 		}
 		
 		public ListenDialog() {
+			super(355, 130);
+			
 			initGUI();
 
 			setTitle("Neue Liste erstellen");
 		}
 		
 		public ListenDialog(String liste) {
+			super(355, 130);
+			
 			initGUI();
 			
 			txtListe.setText(liste);

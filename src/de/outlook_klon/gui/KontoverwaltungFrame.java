@@ -22,7 +22,9 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 import de.outlook_klon.logik.Benutzer;
+import de.outlook_klon.logik.mailclient.EmpfangsServer;
 import de.outlook_klon.logik.mailclient.MailAccount;
+import de.outlook_klon.logik.mailclient.SendServer;
 
 public class KontoverwaltungFrame extends ExtendedDialog<MailAccount[]> {
 	private static final long serialVersionUID = -5036893845172118794L;
@@ -50,9 +52,10 @@ public class KontoverwaltungFrame extends ExtendedDialog<MailAccount[]> {
 	private JTextField txtAusgangAuthentifizierung;
 	
 	public KontoverwaltungFrame() {
+		super(711, 695);
+		
 		meineAccounts = null;
 		
-		setSize(711, 695);
 		setTitle("Konten-Einstellungen");
 		getContentPane().setLayout(null);
 		
@@ -328,19 +331,22 @@ public class KontoverwaltungFrame extends ExtendedDialog<MailAccount[]> {
 			txtAusgangAuthentifizierung.setText(null);
 		}
 		else {
+			EmpfangsServer empfServer = acc.getEmpfangsServer();
+			SendServer sendServer = acc.getSendServer();
+			
 			txtUser.setText(acc.getBenutzer());
 			txtMail.setText(acc.getAdresse().getAddress());
 			txtName.setText(acc.getAdresse().getPersonal());
-			txtEingangTyp.setText(acc.getEmpfangsServer().getServerTyp());
-			txtEingangServer.setText(acc.getEmpfangsServer().getSettings().getHost());
-			txtEingangPort.setText(Integer.toString(acc.getEmpfangsServer().getSettings().getPort()));
-			txtEingangSicherheit.setText(acc.getEmpfangsServer().getSettings().getVerbingungssicherheit().toString());
-			txtEingangAuthentifizierung.setText(acc.getEmpfangsServer().getSettings().getAuthentifizierungsart().toString());
-			txtAusgangTyp.setText(acc.getSendServer().getServerTyp());
-			txtAusgangServer.setText(acc.getSendServer().getSettings().getHost());
-			txtAusgangPort.setText(Integer.toString(acc.getSendServer().getSettings().getPort()));
-			txtAusgangSicherheit.setText(acc.getSendServer().getSettings().getVerbingungssicherheit().toString());
-			txtAusgangAuthentifizierung.setText(acc.getSendServer().getSettings().getAuthentifizierungsart().toString());
+			txtEingangTyp.setText(empfServer.getServerTyp());
+			txtEingangServer.setText(empfServer.getSettings().getHost());
+			txtEingangPort.setText(Integer.toString(empfServer.getSettings().getPort()));
+			txtEingangSicherheit.setText(empfServer.getSettings().getVerbingungssicherheit().toString());
+			txtEingangAuthentifizierung.setText(empfServer.getSettings().getAuthentifizierungsart().toString());
+			txtAusgangTyp.setText(sendServer.getServerTyp());
+			txtAusgangServer.setText(sendServer.getSettings().getHost());
+			txtAusgangPort.setText(Integer.toString(sendServer.getSettings().getPort()));
+			txtAusgangSicherheit.setText(sendServer.getSettings().getVerbingungssicherheit().toString());
+			txtAusgangAuthentifizierung.setText(sendServer.getSettings().getAuthentifizierungsart().toString());
 		}
 	}
 	

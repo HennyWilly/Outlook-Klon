@@ -23,6 +23,7 @@ import de.outlook_klon.logik.kontakte.Kontakt;
 
 public class KontaktFrame extends ExtendedDialog<Kontakt> {
 	private static final long serialVersionUID = 1466530984514818388L;
+	
 	private static final String formatStringErstellen1 = "Neuer Kontakt";
 	private static final String formatStringErstellen2 = "Neuer Kontakt für %s";
 	private static final String formatStringBearbeiten1 = "Kontakt bearbeiten";
@@ -45,7 +46,7 @@ public class KontaktFrame extends ExtendedDialog<Kontakt> {
 	
 	public static class VectorFocusTraversalPolicy extends FocusTraversalPolicy
 	{
-		Vector<Component> order;
+		private Vector<Component> order;
 		
 		public VectorFocusTraversalPolicy(Vector<Component> order) {
 			this.order = new Vector<Component>(order.size());
@@ -81,9 +82,6 @@ public class KontaktFrame extends ExtendedDialog<Kontakt> {
 	}
 	
 	private void initFrame() {
-		this.setLocationRelativeTo(null);
-		this.setSize(685, 285);
-		
 		final JLabel lblVorname = new JLabel("Vorname: ");
 		final JLabel lblName = new JLabel("Name: ");
 		final JLabel lblAnzeigename = new JLabel("Anzeigename: ");
@@ -319,6 +317,8 @@ public class KontaktFrame extends ExtendedDialog<Kontakt> {
 	}
 	
 	public KontaktFrame() {
+		super(685, 285);
+		
 		mKontakt = null;
 		this.setTitle(formatStringErstellen1);
 		
@@ -326,6 +326,8 @@ public class KontaktFrame extends ExtendedDialog<Kontakt> {
 	}
 	
 	public KontaktFrame(Kontakt k) {
+		super(685, 285);
+		
 		mKontakt = k;
 		this.setTitle(String.format(formatStringBearbeiten2, mKontakt));
 		
@@ -374,7 +376,7 @@ public class KontaktFrame extends ExtendedDialog<Kontakt> {
 	}
 	
 	private void parseFehler(AddressException ex) {
-		JOptionPane.showMessageDialog(this, "Es ist ein Fehler beim Parsen einer Mailadresse aufgetreten:\n" + ex.getLocalizedMessage(),
+		JOptionPane.showMessageDialog(this, "Es ist ein Fehler beim Parsen einer Mailadresse aufgetreten:\n" + ex.getMessage(),
 				"Fehler", JOptionPane.ERROR_MESSAGE);
 	}
 	

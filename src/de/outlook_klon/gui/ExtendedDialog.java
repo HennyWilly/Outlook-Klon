@@ -12,12 +12,16 @@ import javax.swing.JDialog;
  * @param <TDialogTyp> Datentyp, der vom Dialog zurückgegeben werden soll
  */
 public abstract class ExtendedDialog<TDialogTyp> extends JDialog {
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = -8078692720731679550L;
 
 	/**
 	 * Wird von Subklassen aufgerufen, um einige häufig in Dialogen verwendete Werte zu setzen.
+	 * @param breite Erzwingt die Übergabe der initialen Breite des Dialogs
+	 * @param hoehe Erzwingt die Übergabe der initialen Höhe des Dialogs
 	 */
-	protected ExtendedDialog() {
+	protected ExtendedDialog(int breite, int hoehe) {
+		this.setSize(breite, hoehe);
+		this.setLocationRelativeTo(null);
 		this.setModal(true);
 		this.setResizable(false);
 	}
