@@ -51,10 +51,29 @@ import de.outlook_klon.logik.mailclient.MailInfo;
 public class MailFrame extends ExtendedFrame {	
 	private static final long serialVersionUID = 5976953616015664148L;
 	
+	/**
+	 * Interne Aufzählung, welche die verschiedenen Arten definiert, 
+	 * in welchem Kontext das Frame geöffnet werden kann
+	 */
 	private enum MailModus {
+		/**
+		 * Es wird eine neue Mail geschieben
+		 */
 		NEU,
+		
+		/**
+		 * Es wird eine existierende Mail geöffnet
+		 */
 		OEFFNEN,
+		
+		/**
+		 * Es wird auf eine existierende Mail geantwortet
+		 */
 		ANTWORT,
+		
+		/**
+		 * Es wird eine existierende Mail weitergeleitet
+		 */
 		WEITERLEITEN
 	}
 	
@@ -125,8 +144,8 @@ public class MailFrame extends ExtendedFrame {
 				if(arg0.getStateChange() == ItemEvent.SELECTED) {
 					boolean editable = tpMailtext.isEditable();
 
-					String text = info.getText();
-					String contentType = info.getContentType();
+					String text = tpMailtext.getText();
+					String contentType = tpMailtext.getContentType();
 					
 					if(sender == rdbtnmntmReintext) {
 						contentType = "TEXT/plain; " + charset;
@@ -317,6 +336,7 @@ public class MailFrame extends ExtendedFrame {
 			}
 		});
 		toolBar.add(btnAnhang);
+		toolBar.setVisible(modus != MailModus.OEFFNEN);
 		
 		getContentPane().setLayout(groupLayout);
 		
@@ -343,6 +363,7 @@ public class MailFrame extends ExtendedFrame {
 	
 	public MailFrame() {
 		modus = MailModus.NEU;
+		charset = "";
 		
 		setTitle("<Kein Betreff>");
 		initGui();
@@ -354,6 +375,7 @@ public class MailFrame extends ExtendedFrame {
 	
 	public MailFrame(Kontakt[] kontakte) {
 		modus = MailModus.NEU;
+		charset = "";
 		
 		setTitle("<Kein Betreff>");
 		initGui();
@@ -410,8 +432,10 @@ public class MailFrame extends ExtendedFrame {
 			rdbtnmntmReintext.setSelected(true);
 			tpMailtext.setText(text);
 		}
-		else
+		else {
+			tpMailtext.setText(text);
 			rdbtnmntmHtml.setSelected(true);
+		}
 		
 		tpMailtext.setEditable(false);
 		
@@ -439,6 +463,7 @@ public class MailFrame extends ExtendedFrame {
 		relPfad = pfad;
 		
 		parent.getWholeMessage(pfad, mail);
+		charset = mail.getContentType().split("; ")[1];
 
 		String subject = (weiterleiten ? "Fwd: " : "Re: ") + mail.getSubject();
 		
@@ -461,9 +486,10 @@ public class MailFrame extends ExtendedFrame {
 			rdbtnmntmReintext.setSelected(true);
 			tpMailtext.setText(text);
 		}
-		else 
+		else {
+			tpMailtext.setText(text);
 			rdbtnmntmHtml.setSelected(true);
-		
+		}
 	}
 	
 	private void addMailAccount(MailAccount ac) {
@@ -553,7 +579,7 @@ public class MailFrame extends ExtendedFrame {
 			try {
 				acc.anhangSpeichern(info, relPfad, name, pfad);
 			} catch(Exception ex) {
-				JOptionPane.showMessageDialog(this, "Es ist ein Fehler beim Speichern des Anhangs aufgetreten: \n" + ex.getLocalizedMessage(),
+				JOptionPane.showMessageDialog(this, "Es ist ein Fehler beim Speichern des Anhangs aufgetreten: \n" + ex.getMessage(),
 						"Fehler", JOptionPane.OK_OPTION);
 			}
 		}
