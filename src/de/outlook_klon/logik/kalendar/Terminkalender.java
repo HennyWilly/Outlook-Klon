@@ -94,6 +94,49 @@ public class Terminkalender implements Iterable<Termin>, Serializable {
 	}
 	
 	/**
+	 * Gibt alle Termine in der übergebenen Zeitspanne zurück
+	 * @param start Startzeit der Auswertung
+	 * @param ende Endzeit der Auswertung
+	 * @return Termine innerhalb des intervalls
+	 */
+	public Termin[] getTermine(Date start, Date ende) {
+		if(ende.before(start))
+			throw new IllegalArgumentException("Der Startzeitpunkt darf nicht hinter dem Endzeitpunkt liegen");
+		
+		ArrayList<Termin> liste = new ArrayList<Termin>();
+		for(Termin termin : mTermine) {
+			Date startZeit = termin.getStart();
+			if(start.equals(startZeit) || (startZeit.after(start) && startZeit.before(ende)))  {
+				liste.add(termin);
+			}
+		}
+		return liste.toArray(new Termin[liste.size()]);
+	}
+	
+	/**
+	 * Gibt alle Termine des aktuellen Tages zurück
+	 * @return Termine des aktuellen Tages
+	 */
+	public Termin[] getTermine() {
+		Date jetzt = new Date();
+		
+		Date start = null;
+		Date ende = null;
+		GregorianCalendar c = new GregorianCalendar();
+		
+		c.setTime(jetzt);
+		c.set(GregorianCalendar.HOUR, 0);		//Setzt den Eintrag der Stunden auf 0
+		c.set(GregorianCalendar.MINUTE, 0);		//Setzt den Eintrag der Minuten auf 0
+		c.set(GregorianCalendar.SECOND, 0);		//Setzt den Eintrag der Sekunden auf 0
+		
+		start = c.getTime();					//Übergebener Tag mit der Uhrzeit 00:00:00
+		c.add(GregorianCalendar.DAY_OF_YEAR, 1);
+		ende = c.getTime();					//Tag um 1 höher als time1
+		
+		return getTermine(start, ende);
+	}
+	
+	/**
 	 * Entfernt alle Termine aus der Verwaltung, die am übergebenen Tag stattfinden
 	 * @param tag Date-Objekt, welches den Tag enthällt, an dem alle Termine entfernt werden
 	 */
