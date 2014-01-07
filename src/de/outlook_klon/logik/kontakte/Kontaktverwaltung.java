@@ -1,10 +1,12 @@
 package de.outlook_klon.logik.kontakte;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map.Entry;
 import java.util.Set;
 
 /**
@@ -59,7 +61,7 @@ public class Kontaktverwaltung implements Iterable<Kontakt>, Serializable {
 	
 	/**
 	 * Fügt die übergebene Liste der Verwaltung hinzu
-	 * @param kontakt Die hinzuzufügende Liste
+	 * @param liste Die hinzuzufügende Liste
 	 */
 	public void addListe(final String liste) {
 		if(liste == null || liste.trim().isEmpty())
@@ -152,6 +154,28 @@ public class Kontaktverwaltung implements Iterable<Kontakt>, Serializable {
 	public String[] getListen() {	
 		final Set<String> listen = mKontakte.keySet();
 		return listen.toArray(new String[mKontakte.size()]);
+	}
+	
+	/**
+	 * Gibt die Namen aller Kontaktlisten zurück, in denen der übergebene Kontakt eingetragen ist
+	 * @param kontakt Kontakt, zu dem die Listen bestimmt werden sollen
+	 * @return String-Array, welches die Listennamen enthällt
+	 */
+	public String[] getListen(Kontakt kontakt) {
+		ArrayList<String> listen = new ArrayList<String>();
+		
+		for(Entry<String, HashSet<Kontakt>> set : mKontakte.entrySet()) {
+			String name = set.getKey();
+			HashSet<Kontakt> inhalt = set.getValue();
+			
+			if(DEFAULT.equals(name))
+				continue;
+			
+			if(inhalt.contains(kontakt))
+				listen.add(name);
+		}
+		
+		return listen.toArray(new String[listen.size()]);
 	}
 	
 	/**
