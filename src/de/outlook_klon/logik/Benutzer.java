@@ -8,11 +8,16 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 
+import javax.mail.MessagingException;
+import javax.mail.internet.InternetAddress;
+
+import de.outlook_klon.logik.kalendar.Terminkalender;
 import de.outlook_klon.logik.kontakte.Kontaktverwaltung;
 import de.outlook_klon.logik.mailclient.MailAccount;
-import de.outlook_klon.logik.kalendar.Terminkalender;
+import de.outlook_klon.logik.mailclient.MailInfo;
 
 /**
  * Diese Klasse stellt den Benutzer dar.
@@ -33,6 +38,39 @@ public final class Benutzer implements Iterable<MailAccount> {
 	private Kontaktverwaltung kontakte;
 	private Terminkalender termine;
 	private ArrayList<MailAccount> konten;
+	private boolean anwesend;
+	
+	private class MailChecker implements Runnable {
+		private static final String FOLDER = "INBOX";
+		private MailAccount account;
+		private HashSet<MailInfo> mails;
+		
+		public MailChecker(MailAccount account) {
+			this.account = account;
+		}
+		
+		@Override
+		public void run() {
+			MailInfo[] mailInfos = account.getMessages(FOLDER);
+			mails = new HashSet<MailInfo>();
+			for(MailInfo info : mailInfos) {
+				mails.add(info);
+			}
+			
+			while(!isAnwesend()) {
+				try {
+					Thread.sleep(60000);
+				} catch (InterruptedException e) { break; }
+				MailInfo[] mailTmp = account.getMessages(FOLDER);
+				for(MailInfo info : mailTmp) {
+					if(mails.add(info) && !isAnwesend()) {
+						sendeAbwesenheitsMail(account, FOLDER, info);
+					}
+				}
+			}
+		}
+		
+	}
 	
 	/**
 	 * Gibt die einzige Instanz der Klasse Benutzer zurück.
@@ -101,6 +139,8 @@ public final class Benutzer implements Iterable<MailAccount> {
 	 * Liest, wenn vorhanden, die gespeicherten Daten aus.
 	 */
 	private Benutzer() {
+		setAnwesend(true);
+		
 		termine = deserialisiereObjekt(new File(TERMIN_PFAD));
 		if(termine == null)
 			termine = new Terminkalender();
@@ -212,6 +252,14 @@ public final class Benutzer implements Iterable<MailAccount> {
 	}
 	
 	/**
+	 * Gibt die Anzahl an MailAccounts zurück
+	 * @return Anzahl der MailAccounts
+	 */
+	public int getAnzahlKonten() {
+		return konten.size();
+	}
+	
+	/**
 	 * Speichert die Daten des Benutzers
 	 */
 	public void speichern() throws IOException {
@@ -247,5 +295,46 @@ public final class Benutzer implements Iterable<MailAccount> {
 		}
 		
 		serialisiereObjekt(acc, pfad);
+	}
+
+	/**
+	 * Gibt zurück, ob der Benutzer anwesend ist
+	 * @return Status der Anwesenheit
+	 */
+	public synchronized boolean isAnwesend() {
+		return anwesend;
+	}
+
+	/**
+	 * Setzt die Anwesenheit des Benutzers
+	 * @param anwesend Zu setzender Status der Anwesenheit
+	 */
+	public void setAnwesend(boolean anwesend) {
+		this.anwesend = anwesend;
+		
+		//TODO Hier muss was passieren!!!
+		if(!anwesend) {
+			for(MailAccount account : konten) {
+				MailChecker checker = new MailChecker(account);
+				Thread checkerThread = new Thread(checker);
+				checkerThread.start();
+			}
+		}
+	}
+	
+	private void sendeAbwesenheitsMail(MailAccount sender, String pfad, MailInfo info) {
+		//TODO Jetzt Abwesenheitmail senden
+
+		try {
+			sender.getWholeMessage(pfad, info);
+			
+			InternetAddress ziel = (InternetAddress) info.getSender();
+			
+			sender.sendeMail(new InternetAddress[] {ziel}, null, "Abwesenheit von " + sender.getAdresse().getPersonal(), 
+					"Ich bin nicht da", "TEXT/plain; charset=utf-8", null);
+		} catch (MessagingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 }
