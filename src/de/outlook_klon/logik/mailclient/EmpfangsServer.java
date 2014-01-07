@@ -12,7 +12,7 @@ import javax.mail.Store;
  */
 public abstract class EmpfangsServer extends MailServer {
 	private static final long serialVersionUID = -6475925504329915182L;
-
+	
 	/**
 	 * Ruft den protected-Konstruktor der Oberklasse auf
 	 * @param settings Einstellungen zur Verbindung mit dem Server
@@ -30,7 +30,8 @@ public abstract class EmpfangsServer extends MailServer {
 	 */
 	public abstract Store getMailStore(String user, String passwd) throws NoSuchProviderException;
 	
-	public boolean pruefeLogin(final String benutzername, final String passwort){
+	@Override
+	public boolean pruefeLogin(final String benutzername, final String passwort) {
 		boolean result = true;
 		
 		final String host = settings.getHost();

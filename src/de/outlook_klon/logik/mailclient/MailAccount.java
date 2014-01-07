@@ -9,8 +9,10 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.GregorianCalendar;
 
 import javax.mail.Address;
+import javax.mail.AuthenticationFailedException;
 import javax.mail.BodyPart;
 import javax.mail.Flags;
 import javax.mail.Flags.Flag;
@@ -28,6 +30,10 @@ import javax.mail.search.MessageIDTerm;
 import javax.mail.search.SearchTerm;
 
 import com.sun.mail.imap.IMAPFolder;
+
+import de.outlook_klon.logik.Benutzer;
+import de.outlook_klon.logik.kalendar.Termin;
+import de.outlook_klon.logik.kalendar.Terminkalender;
 
 /**
  * Diese Klasse stellt ein Mailkonto dar.
@@ -130,8 +136,8 @@ public class MailAccount implements Serializable {
 	 * Gibt die Pfade aller Ordner des Servers zum Mailempfang zurück
 	 * @return Pfade aller Ordner des Servers zum Mailempfang
 	 */
-	public String[] getOrdnerstruktur() {
-		String[] paths = null;
+	public OrdnerInfo[] getOrdnerstruktur() {
+		OrdnerInfo[] paths = null;
 		
 		Store store = null;
 		try {
@@ -139,9 +145,17 @@ public class MailAccount implements Serializable {
 			store.connect(inServer.settings.getHost(), inServer.settings.getPort(), benutzer, passwort);
 			final Folder[] folders = store.getDefaultFolder().list("*");
 
-			paths = new String[folders.length];
+			paths = new OrdnerInfo[folders.length];
 			for(int i = 0; i < paths.length; i++) {
-				paths[i] = folders[i].getFullName();
+				Folder folder = folders[i];
+				int msgCount;
+				try {
+					msgCount = folder.getNewMessageCount();
+				} catch (MessagingException ex) {
+					msgCount = 0;
+				}
+					
+				paths[i] = new OrdnerInfo(folder.getName(), folder.getFullName(), msgCount);
 			}
 			
 			store.close();
@@ -200,6 +214,11 @@ public class MailAccount implements Serializable {
 					ret[i].setDate(sendDate);
 					
 					speichereMailInfo(ret[i], pfad);
+					
+					//TODO Teste mich!!!
+					if(from.equals(adresse) && subject.equals("Ich bin krank")) {	
+						termineAbsagen(sendDate);
+					}
 				}
 			}
 			
@@ -588,7 +607,17 @@ public class MailAccount implements Serializable {
 		return result;
 	}
 	
-	public void anhangSpeichern(final MailInfo mail, final String pfad, final String anhangName, final String zielPfad) throws IOException, MessagingException {
+	/**
+	 * Speichert den Anhang der übergebenen Mail am übergebenen Ort
+	 * @param mail MailInfo-Objekt
+	 * @param pfad Ordnerpfad innerhalb des MailStores
+	 * @param anhangName Name des zu speichernden Anhangs
+	 * @param zielPfad Zielpfad, an dem die Datei gespeichert werden soll
+	 * @throws IOException Tritt auf, wenn die Datei nicht gespeichert werden konnte
+	 * @throws MessagingException Triff auf, wenn es einen Fehler bezüglich der Nachricht gab
+	 */
+	public void anhangSpeichern(final MailInfo mail, final String pfad, final String anhangName, final String zielPfad) 
+			throws IOException, MessagingException {
 		Store mailStore = null;
 		
 		try {
@@ -681,14 +710,18 @@ public class MailAccount implements Serializable {
 	 * @return true, wenn die Verbindungen erfolgreich waren; sonst false
 	 */
 	public boolean validieren() {
+		return validieren(benutzer, passwort);
+	}
+	
+	private boolean validieren(String user, String passwd) {
 		boolean inValid = false;
 		boolean outValid = false;
 		
 		if(inServer != null)
-			inValid = inServer.pruefeLogin(benutzer, passwort);
+			inValid = inServer.pruefeLogin(user, passwd);
 		
 		if(outServer != null)
-			outValid = outServer.pruefeLogin(benutzer, passwort);
+			outValid = outServer.pruefeLogin(user, passwd);
 		
 		return inValid && outValid;
 	}
@@ -723,5 +756,49 @@ public class MailAccount implements Serializable {
 	 */
 	public String getBenutzer() {
 		return benutzer;
+	}
+	
+	/**
+	 * Versucht, das Passwort des Accounts neu zu setzen
+	 * @param passwd Zu setzendes Passwort
+	 * @throws AuthenticationFailedException Tritt auf, wenn die Anmeldung mit dem Passort fehlgeschlagen ist
+	 */
+	public void setPasswort(String passwd) throws AuthenticationFailedException {
+		if(validieren(benutzer, passwd)) {
+			this.passwort = passwd;
+		}
+		else 
+			throw new AuthenticationFailedException("Das übergebene Passwort ist ungültig");
+	}
+
+	private void termineAbsagen(Date absageDatum) {
+		//TODO Hier werden Termine abgesagt
+		GregorianCalendar jetzt = new GregorianCalendar();
+		GregorianCalendar datum = new GregorianCalendar();
+		datum.setTime(absageDatum);
+		
+		if(jetzt.get(GregorianCalendar.YEAR) == datum.get(GregorianCalendar.YEAR) && 
+				jetzt.get(GregorianCalendar.DAY_OF_YEAR) == datum.get(GregorianCalendar.DAY_OF_YEAR)) {
+			Terminkalender kalender = Benutzer.getInstanz().getTermine();
+			
+			Termin[] termine = kalender.getTermine();
+			for(Termin termin : termine) {
+				try {
+					schreibeAbsage(termin);
+				} catch(MessagingException ex) {
+					//TODO Passende Reaktion auf CATCH
+				}
+			}
+		}
+	}
+	
+	private void schreibeAbsage(Termin termin) throws MessagingException {
+		String betreff = "Absage: " + termin.getBetreff();
+		InternetAddress[] ziele = termin.getAdressen();
+		
+		//TODO Krankheitsmeldung einfügen
+		String text = "";
+		
+		sendeMail(ziele, null, betreff, text, "utf-8", null);
 	}
 }
