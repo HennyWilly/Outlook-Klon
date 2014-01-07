@@ -20,6 +20,7 @@ public class Kontakt implements Serializable {
 	private String mTelDienst;
 	private String mTelMobil;
 	private String mTelPrivat;
+	private String mSprache;
 	
 	/**
 	 * Erstellt eine neue Instanz der Klasse mit den übergebenen Werten.
@@ -193,5 +194,22 @@ public class Kontakt implements Serializable {
 	 */
 	public String getTelMobil() {
 		return mTelMobil;
+	}
+	
+	/**
+	 *
+	 * Setter für die bevorzugte Sprache des Kontakts
+	 * @param mSprache Zu setzende Sprache
+	 */
+	public void setSprache(String mSprache) {
+		this.mSprache = mSprache;
+	}
+
+	/**
+	 * Getter für die bevorzugte Sprache des Kontakts
+	 * @return Sprache
+	 */
+	public String getSprache() {
+		return mSprache;
 	}
 }
