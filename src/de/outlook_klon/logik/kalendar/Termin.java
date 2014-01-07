@@ -3,12 +3,14 @@ package de.outlook_klon.logik.kalendar;
 import java.io.Serializable;
 import java.util.Date;
 
+import javax.mail.internet.InternetAddress;
+
 /**
  * Dies ist eine Datenklasse, die die Daten von einem Termin des Benutzers speichert.
  * 
  * @author Hendrik Karwanni
  */
-public class Termin implements Serializable{
+public class Termin implements Serializable, Comparable<Termin>{
 	private static final long serialVersionUID = 6997576125673406382L;
 	
 	private String mBetreff;
@@ -17,6 +19,23 @@ public class Termin implements Serializable{
 	private Date mEnde;
 	private String mText;
 	private String mBenutzerkonto;
+	private Status mStatus;
+	private InternetAddress[] mAdressen;
+	
+	/**
+	 * Diese Aufzählung stellt die möglichen Zustände eines Termins dar
+	 */
+	public static enum Status {
+		/**
+		 * Dem Termin wurde zugesagt
+		 */
+		zugesagt,
+		
+		/**
+		 * Der Termin wurde abgelehnt
+		 */
+		anbelehnt
+	}
 	
 	/**
 	 * Erstellt eine neue Instanz der Klasse mit den übergebenen Werten
@@ -32,6 +51,7 @@ public class Termin implements Serializable{
 		setStartUndEnde(start, ende);
 		setText(text);
 		setBenutzerkonto(benutzer);
+		setStatus(Status.zugesagt);
 	}
 
 	/**
@@ -111,18 +131,55 @@ public class Termin implements Serializable{
 	}
 	
 	/**
-	 * Setter für die Mailadresse des Kontakts
-	 * @param kontaktMail Zu setzende Mailadresse
+	 * Setter für das zugeordnete Benutzerkonto des Kontakts
+	 * @param benutzer Zu setzende Benutzerkonto
 	 */
 	public void setBenutzerkonto(String benutzer) {
 		this.mBenutzerkonto = benutzer;
 	}
 	
 	/**
-	 * Getter für die MailAdresse des Kontakts
-	 * @return MailAdresse
+	 * Getter für das zugeordnete Benutzerkonto des Kontakts
+	 * @return Benutzerkonto
 	 */
 	public String getBenutzerkonto() {
 		return mBenutzerkonto;
+	}
+
+	@Override
+	public int compareTo(Termin o) {
+		return this.mStart.compareTo(o.mStart);
+	}
+
+	/**
+	 * Gibt den Status des Termins zurück
+	 * @return Status des Termins
+	 */
+	public Status getStatus() {
+		return mStatus;
+	}
+
+	/**
+	 * Setzt den Status des Termins
+	 * @param mStatus Status des Termins
+	 */
+	public void setStatus(Status mStatus) {
+		this.mStatus = mStatus;
+	}
+
+	/**
+	 * Gibt die verknüpfen Adressen zum Termin zurück
+	 * @return Adressen zum Termin
+	 */
+	public InternetAddress[] getAdressen() {
+		return mAdressen;
+	}
+
+	/**
+	 * Setzt die verknüpfen Adressen zum Termin
+	 * @param mAdressen Adressen zum Termin
+	 */
+	public void setAdressen(InternetAddress[] mAdressen) {
+		this.mAdressen = mAdressen;
 	}
 }
