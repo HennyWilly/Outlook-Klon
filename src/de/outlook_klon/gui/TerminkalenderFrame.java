@@ -26,7 +26,6 @@ import java.util.ArrayList;
 import de.outlook_klon.logik.Benutzer;
 import de.outlook_klon.logik.kalendar.Termin;
 import de.outlook_klon.logik.kalendar.Terminkalender;
-import de.outlook_klon.logik.kontakte.Kontakt;
 import de.outlook_klon.logik.mailclient.MailAccount;
 
 import javax.swing.JPanel;
@@ -51,11 +50,7 @@ public class TerminkalenderFrame extends ExtendedFrame {
 	
 	private JPanel panel;
 	
-	
-
-
-	public TerminkalenderFrame() {
-		
+	public TerminkalenderFrame(boolean neu) {
 		terminPopup = new JPopupMenu();
 		
 		popupTerminOeffnen = new JMenuItem("Öffnen Bitch");
@@ -226,7 +221,7 @@ public class TerminkalenderFrame extends ExtendedFrame {
 		
 	
 	
-		hiddenTermine = new ArrayList<>();
+		hiddenTermine = new ArrayList<Termin>();
 	
 		mango = new ArrayList<Termin>(); //speichert alle existierenden Termine in mango ab
 		for (Termin t : Benutzer.getInstanz().getTermine()){
@@ -243,7 +238,9 @@ public class TerminkalenderFrame extends ExtendedFrame {
 		
 		aktualisiere2Tabelle();
 		ladeBenutzer();	
-		
+
+		if(neu)
+			neuerTermin();
 }
 	
 	
@@ -301,9 +298,9 @@ public class TerminkalenderFrame extends ExtendedFrame {
 			if(hiddenTermine.size()>0)
 			{
 				if(!hiddenTermine.contains(mango.get(i)))
-					{
+				{
 					einwegKalender.addTermin(mango.get(i));
-					}
+				}
 			}
 			else
 			{

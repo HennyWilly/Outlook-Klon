@@ -7,6 +7,7 @@ import java.awt.event.ActionListener;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.LayoutStyle.ComponentPlacement;
+import javax.swing.JOptionPane;
 import javax.swing.JSpinner;
 import javax.swing.JTextField;
 import javax.swing.SpinnerDateModel;
@@ -37,8 +38,8 @@ public class TerminFrame extends ExtendedDialog<Termin> {
 	private Termin mTermin;	
 	
 	private void initFrame() {
-		setSize(455, 306);
 		setTitle("Termin");
+		
 		JLabel lblNBetreff = new JLabel("Betreff:");
 		JLabel lblOrt = new JLabel("Ort:");
 		JLabel lblNewLabel = new JLabel("Startzeit:");
@@ -69,19 +70,24 @@ public class TerminFrame extends ExtendedDialog<Termin> {
 				SpinnerDateModel model1 = (SpinnerDateModel)date1.getModel();
 				SpinnerDateModel model2 = (SpinnerDateModel)date2.getModel();
 				
-				if(mTermin == null) {
-					mTermin = new Termin(textBetreff.getText(),textOrt.getText(), model1.getDate(), model2.getDate(), textBeschreibung.getText(), comboKonto.getSelectedItem().toString());
+				try {
+					if(mTermin == null) {
+						mTermin = new Termin(textBetreff.getText(),textOrt.getText(), model1.getDate(), model2.getDate(), textBeschreibung.getText(), comboKonto.getSelectedItem().toString());
+					}
+					else {
+	
+						mTermin.setBetreff(textBetreff.getText());
+						mTermin.setOrt(textOrt.getText());
+						mTermin.setText(textBeschreibung.getText());
+						mTermin.setStartUndEnde(model1.getDate(), model2.getDate());
+						mTermin.setBenutzerkonto(comboKonto.getSelectedItem().toString());
+					}
+					
+					close();
+				} catch (RuntimeException ex) {
+					JOptionPane.showMessageDialog(null, "Es ist ein Fehler aufgetreten:\n" + ex.getMessage(),
+							"Fehler", JOptionPane.ERROR_MESSAGE);
 				}
-				else {
-
-					mTermin.setBetreff(textBetreff.getText());
-					mTermin.setOrt(textOrt.getText());
-					mTermin.setText(textBeschreibung.getText());
-					mTermin.setStartUndEnde(model1.getDate(), model2.getDate());
-					mTermin.setBenutzerkonto(comboKonto.getSelectedItem().toString());
-				}
-				
-				close();
 			}
 		});
 		
@@ -193,12 +199,16 @@ public class TerminFrame extends ExtendedDialog<Termin> {
 	
 	
 	public TerminFrame(){
+		super(455, 306);
+		
 		mTermin = null;
 		initFrame();
 		this.setTitle("Neuer Termin");
 	}
 	
 	public TerminFrame(Termin t){
+		super(455, 306);
+		
 		mTermin = t;
 		initFrame();
 		this.setTitle("Termin bearbeiten");
@@ -209,7 +219,6 @@ public class TerminFrame extends ExtendedDialog<Termin> {
 		date2.setValue(t.getEnde());
 		//comboKonto.addItem(t.getBenutzerkonto());
 		comboKonto.setSelectedItem(t.getBenutzerkonto());
-		
 	}
 
 	@Override
