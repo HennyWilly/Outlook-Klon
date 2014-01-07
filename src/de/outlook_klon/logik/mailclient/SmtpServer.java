@@ -40,7 +40,7 @@ public class SmtpServer extends SendServer{
 		final int port = settings.getPort();
 		final Verbindungssicherheit sicherheit = settings.getVerbingungssicherheit();
 		
-		final Properties props = new Properties();
+		final Properties props = System.getProperties();
 		//props.put("mail.smtp.user", user);
 		//props.put("mail.smtp.host", host);
 		//props.put("mail.smtp.port", port);
@@ -66,7 +66,7 @@ public class SmtpServer extends SendServer{
 			mail.addRecipient(RecipientType.TO, adrTo);
 		}
 		
-		if(cc.length > 0)
+		if(cc != null && cc.length > 0)
 			for(final InternetAddress adrCC : cc) {
 				mail.addRecipient(RecipientType.CC, adrCC);
 			}
