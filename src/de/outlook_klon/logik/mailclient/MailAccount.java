@@ -365,7 +365,7 @@ public class MailAccount implements Serializable {
 			store.connect(inServer.settings.getHost(), inServer.settings.getPort(), benutzer, passwort);
 			
 			final Folder folder = store.getFolder(pfad);
-			folder.open(Folder.READ_ONLY);
+			folder.open(Folder.READ_WRITE);
 			
 			final Message message = infoToMessage(messageInfo, folder);
 			if(message != null) {

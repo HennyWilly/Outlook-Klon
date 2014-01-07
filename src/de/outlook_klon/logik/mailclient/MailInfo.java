@@ -187,4 +187,20 @@ public class MailInfo implements Serializable, Comparable<MailInfo> {
 	public int compareTo(MailInfo o) {
 		return date.compareTo(o.date);
 	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if(obj != null && !(obj instanceof MailInfo))
+			return false;
+		if(this == obj)
+			return true;
+		
+		MailInfo info = (MailInfo) obj;
+		return id.equals(info.id);
+	}
+
+	@Override
+	public int hashCode() {
+		return id.hashCode();
+	}
 }
