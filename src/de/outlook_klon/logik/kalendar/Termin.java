@@ -1,9 +1,13 @@
 package de.outlook_klon.logik.kalendar;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
 
 import javax.mail.internet.InternetAddress;
+
+import de.outlook_klon.logik.Benutzer;
+import de.outlook_klon.logik.kontakte.Kontakt;
 
 /**
  * Dies ist eine Datenklasse, die die Daten von einem Termin des Benutzers speichert.
@@ -19,6 +23,7 @@ public class Termin implements Serializable, Comparable<Termin>{
 	private Date mEnde;
 	private String mText;
 	private String mBenutzerkonto;
+	private String mKontakt;
 	private Status mStatus;
 	private InternetAddress[] mAdressen;
 	
@@ -34,7 +39,7 @@ public class Termin implements Serializable, Comparable<Termin>{
 		/**
 		 * Der Termin wurde abgelehnt
 		 */
-		anbelehnt
+		anbelehnt   //wohl eher abgelehnt :P
 	}
 	
 	/**
@@ -45,13 +50,31 @@ public class Termin implements Serializable, Comparable<Termin>{
 	 * @param ende Endzeitpunkt des Termins
 	 * @param text Text des Termins
 	 */
-	public Termin(String betreff, String ort, Date start, Date ende, String text, String benutzer) {	
+	public Termin(String betreff, String ort, Date start, Date ende, String text, String benutzer, String kontakt) {	
 		setBetreff(betreff);
 		setOrt(ort);
 		setStartUndEnde(start, ende);
 		setText(text);
 		setBenutzerkonto(benutzer);
+		setKontakt(kontakt);
 		setStatus(Status.zugesagt);
+		
+		ArrayList <InternetAddress> temp = new ArrayList <InternetAddress>(2);
+		for(Kontakt k: Benutzer.getInstanz().getKontakte()){
+			if(k.getAnzeigename()==kontakt)
+			{
+				if(k.getMail1()!=null)
+				{
+					temp.add(k.getMail1());
+				}
+				if(k.getMail2()!=null)
+				{
+					temp.add(k.getMail2());
+				}
+				break;
+			}
+		}
+		setAdressen(temp.toArray(new InternetAddress[2]));
 	}
 
 	/**
@@ -131,7 +154,7 @@ public class Termin implements Serializable, Comparable<Termin>{
 	}
 	
 	/**
-	 * Setter für das zugeordnete Benutzerkonto des Kontakts
+	 * Setter für das zugeordnete Benutzerkonto des Termins
 	 * @param benutzer Zu setzende Benutzerkonto
 	 */
 	public void setBenutzerkonto(String benutzer) {
@@ -139,11 +162,27 @@ public class Termin implements Serializable, Comparable<Termin>{
 	}
 	
 	/**
-	 * Getter für das zugeordnete Benutzerkonto des Kontakts
+	 * Getter für das zugeordnete Benutzerkonto des Termins
 	 * @return Benutzerkonto
 	 */
 	public String getBenutzerkonto() {
 		return mBenutzerkonto;
+	}
+	
+	/**
+	 * Getter für den zugeordneten Kontakt des Termins
+	 * @return Kontakt
+	 */
+	public String getKontakt(){
+		return mKontakt;
+	}
+	
+	/**
+	 * Setter für den zugeordneten Kontakt des Termins
+	 * @param kontakt Zu setzende Kontakt
+	 */
+	public void setKontakt(String kontakt){
+		this.mKontakt = kontakt;
 	}
 
 	@Override
@@ -172,7 +211,7 @@ public class Termin implements Serializable, Comparable<Termin>{
 	 * @return Adressen zum Termin
 	 */
 	public InternetAddress[] getAdressen() {
-		return mAdressen;
+		return mAdressen;  
 	}
 
 	/**

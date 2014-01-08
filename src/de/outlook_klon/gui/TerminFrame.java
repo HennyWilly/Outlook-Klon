@@ -19,6 +19,8 @@ import javax.swing.JButton;
 
 import de.outlook_klon.logik.Benutzer;
 import de.outlook_klon.logik.kalendar.Termin;
+import de.outlook_klon.logik.kontakte.Kontakt;
+
 import javax.swing.JComboBox;
 import javax.swing.DefaultComboBoxModel;
 import de.outlook_klon.logik.mailclient.MailAccount;
@@ -34,7 +36,7 @@ public class TerminFrame extends ExtendedDialog<Termin> {
 	private JSpinner date2;
 	
 	private JComboBox<String> comboKonto;
-		
+	private JComboBox<String> comboKontakt;
 	private Termin mTermin;	
 	
 	private void initFrame() {
@@ -46,6 +48,7 @@ public class TerminFrame extends ExtendedDialog<Termin> {
 		JLabel lblEndzeit = new JLabel("Endzeit:");
 		JLabel lblBeschreibung = new JLabel("Beschreibung:");
 		JLabel lblBenutzerkonto = new JLabel("Benutzerkonto:");
+		JLabel lblKontakt =new JLabel("Kontakt:");
 		
 		textBetreff = new JTextField();
 		textBetreff.setColumns(10);
@@ -61,6 +64,8 @@ public class TerminFrame extends ExtendedDialog<Termin> {
 		
 		date2 = new JSpinner();
 		date2.setModel(new SpinnerDateModel(new Date(), null, null, Calendar.DAY_OF_YEAR));
+		
+
 
 		
 		JButton btnOk = new JButton("OK");
@@ -72,7 +77,7 @@ public class TerminFrame extends ExtendedDialog<Termin> {
 				
 				try {
 					if(mTermin == null) {
-						mTermin = new Termin(textBetreff.getText(),textOrt.getText(), model1.getDate(), model2.getDate(), textBeschreibung.getText(), comboKonto.getSelectedItem().toString());
+						mTermin = new Termin(textBetreff.getText(),textOrt.getText(), model1.getDate(), model2.getDate(), textBeschreibung.getText(), comboKonto.getSelectedItem().toString(), comboKontakt.getSelectedItem().toString());
 					}
 					else {
 	
@@ -81,6 +86,8 @@ public class TerminFrame extends ExtendedDialog<Termin> {
 						mTermin.setText(textBeschreibung.getText());
 						mTermin.setStartUndEnde(model1.getDate(), model2.getDate());
 						mTermin.setBenutzerkonto(comboKonto.getSelectedItem().toString());
+						mTermin.setKontakt(comboKontakt.getSelectedItem().toString());
+
 					}
 					
 					close();
@@ -104,21 +111,42 @@ public class TerminFrame extends ExtendedDialog<Termin> {
 		
 		
 		
-		ArrayList<String> apfel = new ArrayList<String>();
+		ArrayList<String> benutzerKonten = new ArrayList<String>();
 		for (MailAccount ma : Benutzer.getInstanz()) {
-			apfel.add(ma.getAdresse().getAddress());
+			benutzerKonten.add(ma.getAdresse().getAddress());
 		}
 		
-		int lol = apfel.size()+1;
-		String[] birne = new String[lol];
-		birne[0]="";
-		for (int i=1; i<lol; i++)
+		int comboSize1 = benutzerKonten.size()+1;
+		String[] selectableBenutzerkonto = new String[comboSize1];
+		selectableBenutzerkonto[0]="";
+		for (int i=1; i<comboSize1; i++)
 		{
-			birne[i]=apfel.get(i-1);
+			selectableBenutzerkonto[i]=benutzerKonten.get(i-1);
 		}
+		
+		
+		ArrayList<String> allKontakte = new ArrayList<String>();
+		for (Kontakt k : Benutzer.getInstanz().getKontakte()){
+			allKontakte.add(k.getAnzeigename());
+		}
+		
+		int comboSize2 = allKontakte.size() +1;
+		String[] selectableKontakt = new String[comboSize2];
+		selectableKontakt[0]="";
+		for (int i=1; i<comboSize2; i++)
+		{
+			selectableKontakt[i]=allKontakte.get(i-1);
+		}
+		
 		
 		comboKonto = new JComboBox<String>();
-		comboKonto.setModel(new DefaultComboBoxModel<String>(birne));
+		comboKonto.setModel(new DefaultComboBoxModel<String>(selectableBenutzerkonto));
+
+		
+	
+		comboKontakt = new JComboBox<String>();
+		comboKontakt.setModel(new DefaultComboBoxModel<String>(selectableKontakt));
+
 		
 		
 		
@@ -154,11 +182,15 @@ public class TerminFrame extends ExtendedDialog<Termin> {
 									.addGap(41)
 									.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
 										.addComponent(textBeschreibung)
-										.addComponent(comboKonto, 0, 286, Short.MAX_VALUE)))))
+										.addComponent(comboKonto, 0, 286, Short.MAX_VALUE)
+										.addComponent(comboKontakt, 0, 286, Short.MAX_VALUE)))))
 						.addGroup(groupLayout.createSequentialGroup()
 							.addContainerGap()
-							.addComponent(lblBenutzerkonto)))
-					.addContainerGap(23, Short.MAX_VALUE))
+							.addComponent(lblBenutzerkonto))
+						.addGroup(groupLayout.createSequentialGroup()
+							.addContainerGap()
+							.addComponent(lblKontakt)))
+					.addContainerGap(54, Short.MAX_VALUE))
 		);
 		groupLayout.setVerticalGroup(
 			groupLayout.createParallelGroup(Alignment.TRAILING)
@@ -188,7 +220,11 @@ public class TerminFrame extends ExtendedDialog<Termin> {
 					.addGroup(groupLayout.createParallelGroup(Alignment.BASELINE)
 						.addComponent(lblBenutzerkonto)
 						.addComponent(comboKonto, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-					.addPreferredGap(ComponentPlacement.RELATED, 33, Short.MAX_VALUE)
+					.addGap(18)
+					.addGroup(groupLayout.createParallelGroup(Alignment.BASELINE)
+						.addComponent(lblKontakt)
+						.addComponent(comboKontakt, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+					.addPreferredGap(ComponentPlacement.RELATED, 37, Short.MAX_VALUE)
 					.addGroup(groupLayout.createParallelGroup(Alignment.BASELINE)
 						.addComponent(btnOk)
 						.addComponent(btnAbbrechen))
@@ -199,7 +235,7 @@ public class TerminFrame extends ExtendedDialog<Termin> {
 	
 	
 	public TerminFrame(){
-		super(455, 306);
+		super(485, 344);
 		
 		mTermin = null;
 		initFrame();
@@ -207,7 +243,7 @@ public class TerminFrame extends ExtendedDialog<Termin> {
 	}
 	
 	public TerminFrame(Termin t){
-		super(455, 306);
+		super(485, 344);
 		
 		mTermin = t;
 		initFrame();
@@ -217,8 +253,8 @@ public class TerminFrame extends ExtendedDialog<Termin> {
 		textBeschreibung.setText(t.getText());
 		date1.setValue(t.getStart());
 		date2.setValue(t.getEnde());
-		//comboKonto.addItem(t.getBenutzerkonto());
 		comboKonto.setSelectedItem(t.getBenutzerkonto());
+		comboKontakt.setSelectedItem(t.getKontakt());
 	}
 
 	@Override
