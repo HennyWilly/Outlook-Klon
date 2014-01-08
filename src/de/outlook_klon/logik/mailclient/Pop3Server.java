@@ -2,7 +2,6 @@ package de.outlook_klon.logik.mailclient;
 
 import java.util.Properties;
 
-import javax.mail.Authenticator;
 import javax.mail.NoSuchProviderException;
 import javax.mail.Session;
 import javax.mail.Store;
@@ -24,10 +23,9 @@ public class Pop3Server extends EmpfangsServer {
 	}
 
 	@Override
-	public Store getMailStore(final String user, final String passwd) throws NoSuchProviderException {
-		final Authenticator auth = new StandardAuthentificator(user, passwd);
-		
+	protected Properties getProperties() {
 		final Properties props = System.getProperties();
+		
 		props.put("mail.pop3.host", settings.getHost());
 		props.put("mail.pop3.port", settings.getPort());
 		props.put("mail.pop3.auth", true);
@@ -36,8 +34,12 @@ public class Pop3Server extends EmpfangsServer {
 			props.put("mail.pop3.ssl.enable", true);
 		}
 		
-		final Session session = Session.getInstance(props, auth);
-		session.setDebug(true);
+		return props;
+	}
+
+	@Override
+	public Store getMailStore(final String user, final String passwd) throws NoSuchProviderException {
+		final Session session = getSession(new StandardAuthenticator(user, passwd));
 		
 		Store store = null;
 		if(settings.getVerbingungssicherheit() == Verbindungssicherheit.SSL_TLS)

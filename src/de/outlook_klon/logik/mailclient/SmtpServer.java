@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Properties;
 
-import javax.mail.Authenticator;
 import javax.mail.Message.RecipientType;
 import javax.mail.MessagingException;
 import javax.mail.Session;
@@ -31,22 +30,13 @@ public class SmtpServer extends SendServer{
 	}
 
 	@Override
-	public void sendeMail(final String user, final String passwd, final InternetAddress from, final InternetAddress[] to, final InternetAddress[] cc, 
-			final String subject, final String text, final String format, final File[] attachments) 
-						throws MessagingException, IOException {     
-		final Authenticator auth = new StandardAuthentificator(user, passwd);
-		
-		final String host = settings.getHost();
+	protected Properties getProperties() {
 		final int port = settings.getPort();
 		final Verbindungssicherheit sicherheit = settings.getVerbingungssicherheit();
-		
 		final Properties props = System.getProperties();
-		//props.put("mail.smtp.user", user);
-		//props.put("mail.smtp.host", host);
-		//props.put("mail.smtp.port", port);
+		
 		props.put("mail.smtp.debug", "true");
 		props.put("mail.smtp.auth", "true");
-		
 		if(sicherheit == Verbindungssicherheit.STARTTLS) {
 			props.put("mail.smtp.starttls.enable","true");
 		}
@@ -56,8 +46,18 @@ public class SmtpServer extends SendServer{
 			props.put("mail.smtp.socketFactory.fallback", "false");
 		}
 		
-		final Session session = Session.getInstance(props, auth);
-		session.setDebug(true);
+		return props;
+	}
+
+	@Override
+	public void sendeMail(final String user, final String passwd, final InternetAddress from, final InternetAddress[] to, final InternetAddress[] cc, 
+			final String subject, final String text, final String format, final File[] attachments) 
+						throws MessagingException, IOException { 		
+		final String host = settings.getHost();
+		final int port = settings.getPort();
+		final Verbindungssicherheit sicherheit = settings.getVerbingungssicherheit();
+		
+		final Session session = getSession(new StandardAuthenticator(user, passwd));
         
 		final MimeMessage mail = new MimeMessage(session);
 		mail.setFrom(from);
@@ -106,30 +106,11 @@ public class SmtpServer extends SendServer{
 	public boolean pruefeLogin(final String benutzername, final String passwort){
 		boolean result = true;
 		
-		final Authenticator auth = new StandardAuthentificator(benutzername, passwort);
-		
 		final String host = settings.getHost();
 		final int port = settings.getPort();
 		final Verbindungssicherheit sicherheit = settings.getVerbingungssicherheit();
 		
-		final Properties props = new Properties();
-		//props.put("mail.smtp.user", user);
-		//props.put("mail.smtp.host", host);
-		//props.put("mail.smtp.port", port);
-		props.put("mail.smtp.debug", "true");
-		props.put("mail.smtp.auth", "true");
-		
-		if(sicherheit == Verbindungssicherheit.STARTTLS) {
-			props.put("mail.smtp.starttls.enable","true");
-		}
-		else if(sicherheit == Verbindungssicherheit.SSL_TLS) {
-			props.put("mail.smtp.socketFactory.port", port);
-			props.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
-			props.put("mail.smtp.socketFactory.fallback", "false");
-		}
-		
-		final Session session = Session.getInstance(props, auth);
-		session.setDebug(true);
+		final Session session = getSession(new StandardAuthenticator(benutzername, passwort));
 		
 		Transport transport = null;
 		try {

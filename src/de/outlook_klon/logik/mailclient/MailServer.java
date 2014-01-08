@@ -1,9 +1,11 @@
 package de.outlook_klon.logik.mailclient;
 
 import java.io.Serializable;
+import java.util.Properties;
 
 import javax.mail.Authenticator;
 import javax.mail.PasswordAuthentication;
+import javax.mail.Session;
 
 /**
  * Abstrakte Basisklasse für alle Mailserver.
@@ -27,16 +29,16 @@ public abstract class MailServer implements Serializable {
 	/**
 	 * Dient zur Authentifikation mit einem Benutzernamen und Passwort
 	 */
-	protected class StandardAuthentificator extends Authenticator {
+	protected class StandardAuthenticator extends Authenticator {
 		private final String benutzername;
 		private final String passwort;
 		
 		/**
-		 * Erstellt eine neue Instanz des StandardAuthentificators
+		 * Erstellt eine neue Instanz des StandardAuthenticators
 		 * @param benutzername Verwendeter Benutzername
 		 * @param passwort Verwendendetes Passwort
 		 */
-		public StandardAuthentificator(final String benutzername, final String passwort) {
+		public StandardAuthenticator(final String benutzername, final String passwort) {
 			super();
 			
 			this.benutzername = benutzername;
@@ -69,6 +71,26 @@ public abstract class MailServer implements Serializable {
 	 * @return true, wenn die Anmeldedaten korrekt waren; sonst false
 	 */
 	public abstract boolean pruefeLogin(String benutzername, String passwort);
+	
+	/**
+	 * Gibt das Properties-Objekt zurück, das für den Zugriff über ein bestimmtes Protokoll konfiguriert ist
+	 * @return Properties-Objekt
+	 */
+	protected abstract Properties getProperties();
+	
+	/**
+	 * Erstellt aus dem übergebenen Authenticator und den intern erzeugten Properties ein Session-Objekt
+	 * @param auth Zu verwendender Authenticator
+	 * @return Session-Objekt
+	 */
+	protected Session getSession(Authenticator auth) {
+		Properties props = getProperties();
+		
+		Session session = Session.getInstance(props, auth);
+		session.setDebug(true);
+		
+		return session;
+	}
 	
 	/**
 	 * Gibt den beschreibenden String zum Servertyp zurück
