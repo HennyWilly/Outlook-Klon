@@ -78,6 +78,6 @@ public class ServerSettings implements Serializable {
 	
 	@Override
 	public String toString() {
-		return host + ":" + port;
+		return String.format("%s:%d", host, port);
 	}
 }

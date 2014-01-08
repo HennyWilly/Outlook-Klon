@@ -73,4 +73,15 @@ public class OrdnerInfo {
 	public String toString() {
 		return name;
 	}
+	
+	public boolean equals(Object other) {
+		if(other == null || !(other instanceof OrdnerInfo))
+			return false;
+		if(this == other)
+			return true;
+		
+		OrdnerInfo ordner = (OrdnerInfo) other;
+		
+		return this.pfad.equals(ordner.pfad);
+	}
 }

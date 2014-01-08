@@ -23,20 +23,18 @@ public class MailInfo implements Serializable, Comparable<MailInfo> {
 	private Address[] cc;
 	private String[] attachment;
 
+	public MailInfo(String id) {
+		if(id == null || id.trim().isEmpty())
+			throw new NullPointerException("Die ID darf niemals leer sein");
+		this.id = id;
+	}
+	
 	/**
 	 * Gibt die ID der Mail zurück
 	 * @return (Eindeutige) ID
 	 */
 	public String getID() {
 		return id;
-	}
-	
-	/**
-	 * Setzt die ID der Mail
-	 * @param id (Eindeutige) ID der Mail
-	 */
-	public void setID(final String id) {
-		this.id = id;
 	}
 	
 	/**
