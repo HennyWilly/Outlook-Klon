@@ -46,14 +46,14 @@ public class TerminkalenderFrame extends ExtendedFrame {
 	private JMenuItem popupTerminVerfassen;
 	
 	private ArrayList<Termin> hiddenTermine;
-	private ArrayList<Termin> mango;
+	private ArrayList<Termin> allTermine;
 	
 	private JPanel panel;
 	
 	public TerminkalenderFrame(boolean neu) {
 		terminPopup = new JPopupMenu();
 		
-		popupTerminOeffnen = new JMenuItem("Öffnen Bitch");
+		popupTerminOeffnen = new JMenuItem("Öffnen");
 		popupTerminOeffnen.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -71,7 +71,7 @@ public class TerminkalenderFrame extends ExtendedFrame {
 		});
     	terminPopup.add(popupTerminOeffnen);
     	
-    	popupTerminVerfassen = new JMenuItem("Verfassen Lutscher");
+    	popupTerminVerfassen = new JMenuItem("Verfassen");
     	popupTerminVerfassen.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -80,7 +80,7 @@ public class TerminkalenderFrame extends ExtendedFrame {
 		});
     	terminPopup.add(popupTerminVerfassen);
     	
-    	popupTerminLoeschen = new JMenuItem("Löschen Arsch");
+    	popupTerminLoeschen = new JMenuItem("Löschen");
     	popupTerminLoeschen.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -88,7 +88,7 @@ public class TerminkalenderFrame extends ExtendedFrame {
 				
 				for(Termin t : termine) {
 					kalender.löscheTermin(t);
-					mango.remove(t);
+					allTermine.remove(t);
 				}
 				aktualisiere2Tabelle();
 			}
@@ -223,9 +223,9 @@ public class TerminkalenderFrame extends ExtendedFrame {
 	
 		hiddenTermine = new ArrayList<Termin>();
 	
-		mango = new ArrayList<Termin>(); //speichert alle existierenden Termine in mango ab
+		allTermine = new ArrayList<Termin>(); //speichert alle existierenden Termine in mango ab
 		for (Termin t : Benutzer.getInstanz().getTermine()){
-			mango.add(t);
+			allTermine.add(t);
 		}
 	
 		final JScrollPane scrollPane_1 = new JScrollPane(tblTermine);
@@ -293,18 +293,18 @@ public class TerminkalenderFrame extends ExtendedFrame {
 		
 		Terminkalender einwegKalender = new Terminkalender();		
 		
-		for(int i=0; i< mango.size(); i++)
+		for(int i=0; i< allTermine.size(); i++)
 		{
 			if(hiddenTermine.size()>0)
 			{
-				if(!hiddenTermine.contains(mango.get(i)))
+				if(!hiddenTermine.contains(allTermine.get(i)))
 				{
-					einwegKalender.addTermin(mango.get(i));
+					einwegKalender.addTermin(allTermine.get(i));
 				}
 			}
 			else
 			{
-				einwegKalender.addTermin(mango.get(i));
+				einwegKalender.addTermin(allTermine.get(i));
 			}
 		}
 		
@@ -349,7 +349,7 @@ public class TerminkalenderFrame extends ExtendedFrame {
 		if(dummy != null)
 		{
 			kalender.addTermin(dummy);
-			mango.add(dummy);
+			allTermine.add(dummy);
 			if(kalender.ueberschneidung(dummy))
 			{
 				JOptionPane.showMessageDialog(this, "ACHTUNG! Überschneidung mit bereits vorhandenem Termin. Evtl. Sollten Sie ihre Termine überprüfen.", "Warning", JOptionPane.WARNING_MESSAGE);
@@ -408,7 +408,7 @@ public class TerminkalenderFrame extends ExtendedFrame {
 					}
 					else
 					{
-						for(Termin t: mango){
+						for(Termin t: allTermine){
 							String benutzer = t.getBenutzerkonto();
 							if(text.equals(benutzer))//Name?
 							{
