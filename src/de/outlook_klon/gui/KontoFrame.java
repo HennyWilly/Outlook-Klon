@@ -248,8 +248,8 @@ public class KontoFrame extends ExtendedDialog<MailAccount> {
 		ServerSettings empfangsSettings = new ServerSettings(
 				txtInServer.getText(), 
 				Integer.parseInt((String)spInPort.getValue()), 
-				(Verbindungssicherheit)cBInVerbindungssicherheit.getItemAt(cBInVerbindungssicherheit.getSelectedIndex()), 
-				(Authentifizierungsart)cBInAuthentifizierung.getItemAt(cBInAuthentifizierung.getSelectedIndex()));
+				cBInVerbindungssicherheit.getItemAt(cBInVerbindungssicherheit.getSelectedIndex()), 
+				cBInAuthentifizierung.getItemAt(cBInAuthentifizierung.getSelectedIndex()));
 		EmpfangsServer empfang = null;
 		if(cbInProtokoll.getSelectedItem().equals("IMAP")) {
 			empfang = new ImapServer(empfangsSettings);
@@ -264,8 +264,8 @@ public class KontoFrame extends ExtendedDialog<MailAccount> {
 		ServerSettings sendeSettings = new ServerSettings(
 				txtOutServer.getText(), 
 				Integer.parseInt((String)spOutPort.getValue()), 
-				(Verbindungssicherheit)cBOutVerbindungssicherheit.getItemAt(cBOutVerbindungssicherheit.getSelectedIndex()), 
-				(Authentifizierungsart)cBOutAuthentifizierung.getItemAt(cBOutAuthentifizierung.getSelectedIndex()));
+				cBOutVerbindungssicherheit.getItemAt(cBOutVerbindungssicherheit.getSelectedIndex()), 
+				cBOutAuthentifizierung.getItemAt(cBOutAuthentifizierung.getSelectedIndex()));
 		SendServer senden = new SmtpServer(sendeSettings);
 		
 		try {
