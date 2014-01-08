@@ -44,6 +44,7 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.ParseException;
 
 import de.outlook_klon.logik.Benutzer;
+import de.outlook_klon.logik.Benutzer.MailChecker;
 import de.outlook_klon.logik.kontakte.Kontakt;
 import de.outlook_klon.logik.mailclient.MailAccount;
 import de.outlook_klon.logik.mailclient.MailInfo;
@@ -367,10 +368,8 @@ public class MailFrame extends ExtendedFrame {
 		
 		setTitle("<Kein Betreff>");
 		initGui();
-		
-		for(MailAccount acc : Benutzer.getInstanz()) {
-			addMailAccount(acc);
-		}
+
+		addMailAccounts();
 	}
 	
 	public MailFrame(Kontakt[] kontakte) {
@@ -379,10 +378,8 @@ public class MailFrame extends ExtendedFrame {
 		
 		setTitle("<Kein Betreff>");
 		initGui();
-		
-		for(MailAccount ac : Benutzer.getInstanz()) {
-			addMailAccount(ac);
-		}
+
+		addMailAccounts();
 		
 		ArrayList<InternetAddress> adressen = new ArrayList<InternetAddress>();
 		for(Kontakt k : kontakte) {
@@ -454,9 +451,7 @@ public class MailFrame extends ExtendedFrame {
 		
 		initGui();
 		
-		for(MailAccount acc : Benutzer.getInstanz()) {
-			addMailAccount(acc);
-		}
+		addMailAccounts();
 		cBSender.setSelectedItem(parent);
 		
 		info = mail;
@@ -489,6 +484,13 @@ public class MailFrame extends ExtendedFrame {
 		else {
 			tpMailtext.setText(text);
 			rdbtnmntmHtml.setSelected(true);
+		}
+	}
+	
+	private void addMailAccounts() {
+		for(MailChecker checker : Benutzer.getInstanz()) {
+			MailAccount acc = checker.getAccount();
+			addMailAccount(acc);
 		}
 	}
 	

@@ -51,6 +51,7 @@ import javax.mail.MessagingException;
 import javax.mail.internet.InternetAddress;
 
 import de.outlook_klon.logik.Benutzer;
+import de.outlook_klon.logik.Benutzer.MailChecker;
 import de.outlook_klon.logik.kontakte.Kontakt;
 import de.outlook_klon.logik.mailclient.MailAccount;
 import de.outlook_klon.logik.mailclient.MailInfo;
@@ -141,24 +142,14 @@ public class MainFrame extends ExtendedFrame {
 		JMenu mnMeldungen = new JMenu("Meldungen");
 		menuBar.add(mnMeldungen);
 		
-		JMenuItem mnMeldungenKrank = new JMenuItem("Krankheitsmeldung");
-		mnMeldungenKrank.addActionListener(new ActionListener() {
+		JMenuItem mnMeldungenVerwalten = new JMenuItem("Meldungen verwalten");
+		mnMeldungenVerwalten.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
+				oeffneMeldungen();
 			}
 		});
-		mnMeldungen.add(mnMeldungenKrank);
-		
-		JMenuItem mnMeldungenAbwesend = new JMenuItem("Abwesenheitsmeldung");
-		mnMeldungenAbwesend.addActionListener(new ActionListener() {
-			
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
-			}
-		});
-		mnMeldungen.add(mnMeldungenAbwesend);
+		mnMeldungen.add(mnMeldungenVerwalten);
 		
 		mnMeldungen.add(new JSeparator());
 		
@@ -421,7 +412,7 @@ public class MainFrame extends ExtendedFrame {
 
                 if(value instanceof DefaultMutableTreeNode) {
                 	Object userObject = ((DefaultMutableTreeNode) value).getUserObject();
-                	if(userObject instanceof MailAccount) {
+                	if(userObject instanceof MailChecker) {
 	                	setIcon(mailIcon);
                 	}
                 	else if(userObject instanceof OrdnerInfo) {
@@ -468,23 +459,24 @@ public class MainFrame extends ExtendedFrame {
 				
 				Object userObject = selectedNode.getUserObject();
 				
-				if(!(userObject instanceof MailAccount)) {
+				if(!(userObject instanceof MailChecker)) {
 					//TODO Test Mich!!!
 					
-					MailAccount account = ausgewaehlterAccount();
+					MailChecker checker = ausgewaehlterChecker();
+					MailAccount account = checker.getAccount();
 					OrdnerInfo ordner = nodeZuOrdner(selectedNode);
 					
 					String ordnerName = selectedNode.toString();
 					
 					setTitle(ordnerName + " - " + account.getAdresse().getAddress());
 					
-					ladeMails(account, ordner.getPfad());
+					ladeMails(checker, ordner.getPfad());
 				}
 				else {
 					DefaultTableModel model = (DefaultTableModel)tblMails.getModel();
 					model.setRowCount(0);
 					
-					setTitle(((MailAccount)userObject).getAdresse().getAddress());
+					setTitle(((MailChecker)userObject).getAccount().getAdresse().getAddress());
 				}
 			}
 		});
@@ -556,6 +548,8 @@ public class MainFrame extends ExtendedFrame {
 		        System.exit(0);
 		    }
 		});
+		
+		benutzer.starteChecker();
 	}
 	
 	private void antworten(MailInfo info) {
@@ -651,7 +645,8 @@ public class MainFrame extends ExtendedFrame {
 			outer:
 			for(int i = 0; i < rootNode.getChildCount(); i++) {
 				DefaultMutableTreeNode node = (DefaultMutableTreeNode) rootNode.getChildAt(i);
-				MailAccount treeAccount = (MailAccount) node.getUserObject();
+				MailChecker treeChecker = (MailChecker) node.getUserObject();
+				MailAccount treeAccount = treeChecker.getAccount();
 				
 				for(MailAccount acc : accounts) {
 					if(acc == treeAccount) 
@@ -690,8 +685,6 @@ public class MainFrame extends ExtendedFrame {
 	}
 
 	private OrdnerInfo nodeZuOrdner(DefaultMutableTreeNode knoten) {
-		//StringBuilder sb = new StringBuilder();
-		
 		//TODO Testen
 		
 		Object userObject = knoten.getUserObject();
@@ -699,44 +692,40 @@ public class MainFrame extends ExtendedFrame {
 			return null;
 		
 		return (OrdnerInfo) userObject;
-		
-		/*while(!(userObject instanceof MailAccount)) {
-			sb.insert(0, userObject.toString());
-			
-			knoten = (DefaultMutableTreeNode) knoten.getParent();
-			userObject = knoten.getUserObject();
-			
-			if(!(userObject instanceof MailAccount))
-				sb.insert(0,  "/");
-		}
-		
-		return sb.toString();*/
 	}
 	
-	private void ordnerZuNode(OrdnerInfo ordner, DefaultMutableTreeNode parent) {
+	private void ordnerZuNode(OrdnerInfo ordner, DefaultMutableTreeNode parent, int tiefe) {
 		//TODO Testen
 		
 		String pfad = ordner.getPfad();
-		if(pfad.contains("/")) {
+		String[] parts = ordner.getPfad().split("/");
+		
+		if(pfad.contains("/") && tiefe < parts.length - 1) {
 			DefaultMutableTreeNode pfadKnoten = null;
 			
 			for(int j = 0; j < parent.getChildCount(); j++) {
+				String pfadParent = parts[tiefe];
+				
 				DefaultMutableTreeNode child = (DefaultMutableTreeNode) parent.getChildAt(j);
-				if(child.getUserObject().equals(ordner)) {
-					pfadKnoten = child;
-					break;
+				Object childObject = child.getUserObject();
+				
+				if(childObject instanceof OrdnerInfo) {
+					OrdnerInfo childOrdner = (OrdnerInfo) childObject;
+					if(childOrdner.getName().equals(pfadParent)) {
+						pfadKnoten = child;
+						break;
+					}
 				}
 			}
 			
 			if(pfadKnoten == null)
 				pfadKnoten = new DefaultMutableTreeNode(ordner);
 			
-			OrdnerInfo tmp = new OrdnerInfo(ordner.getName(), pfad.substring(pfad.indexOf('/') + 1), ordner.getAnzahlUngelesen());
-			ordnerZuNode(tmp, pfadKnoten);
+			ordnerZuNode(ordner, pfadKnoten, tiefe + 1);
 		}
 		else {
 			parent.add(new DefaultMutableTreeNode(ordner));
-		}	
+		}
 	}
 	
 	private void ladeOrdner() {
@@ -747,21 +736,21 @@ public class MainFrame extends ExtendedFrame {
 		
 		int i = 0;
 		outer:
-		for(MailAccount acc : benutzer) {
+		for(MailChecker checker : benutzer) {
 			DefaultMutableTreeNode node = null;
 			Enumeration<?> e = rootNode.children();
 			while (e.hasMoreElements()) {
 				node = (DefaultMutableTreeNode) e.nextElement();
-			  	if (acc.equals(node.getUserObject())) {
+			  	if (checker.equals(node.getUserObject())) {
 				  continue outer;
 			    }
 		    }
 		    
-			DefaultMutableTreeNode accNode = new DefaultMutableTreeNode(acc);
-			OrdnerInfo[] ordner = acc.getOrdnerstruktur();
+			DefaultMutableTreeNode accNode = new DefaultMutableTreeNode(checker);
+			OrdnerInfo[] ordner = checker.getAccount().getOrdnerstruktur();
 			
 			for(int j = 0; j < ordner.length; j++) {
-				ordnerZuNode(ordner[j], accNode);
+				ordnerZuNode(ordner[j], accNode, 0);
 			}
 			
 			treeModel.insertNodeInto(accNode, rootNode, i);
@@ -775,8 +764,8 @@ public class MainFrame extends ExtendedFrame {
 		}
 	}
 	
-	private void ladeMails(MailAccount ac, String pfad) {
-		MailInfo[] messages = ac.getMessages(pfad);
+	private void ladeMails(MailChecker checker, String pfad) {
+		MailInfo[] messages = checker.getMessages(pfad);
 		
 		DefaultTableModel model = (DefaultTableModel)tblMails.getModel();
 		model.setRowCount(0);
@@ -802,6 +791,14 @@ public class MainFrame extends ExtendedFrame {
 	}
 	
 	private MailAccount ausgewaehlterAccount() {
+		MailChecker checker = ausgewaehlterChecker();
+		if(checker == null)
+			return null;
+		
+		return checker.getAccount();
+	}
+	
+	private MailChecker ausgewaehlterChecker() {
 		DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode)tree.getLastSelectedPathComponent();
 		if(selectedNode == null)
 			return null;
@@ -810,17 +807,15 @@ public class MainFrame extends ExtendedFrame {
 		
 		do {
   		  userObject = selectedNode.getUserObject();
-  		  if(userObject instanceof MailAccount)
+  		  if(userObject instanceof MailChecker)
   			  break;
   		  selectedNode = (DefaultMutableTreeNode)selectedNode.getParent();
   	  	} while(true);
 		
-		return (MailAccount)userObject;
+		return (MailChecker)userObject;
 	}
 	
 	private void oeffneMail(MailInfo info) {
-		//TODO Testen
-		
 		MailAccount acc = ausgewaehlterAccount();		
 		DefaultMutableTreeNode selected = (DefaultMutableTreeNode)tree.getLastSelectedPathComponent();		
 		OrdnerInfo pfad = nodeZuOrdner(selected);
@@ -849,7 +844,7 @@ public class MainFrame extends ExtendedFrame {
 				tablePopup.remove(popupKopieren);
 				popupKopieren = generiereOrdnerMenu(popupKopieren.getText(), "In Ordner kopieren");
 				tablePopup.add(popupKopieren);
-				
+
 				tablePopup.remove(popupVerschieben);
 				popupVerschieben = generiereOrdnerMenu(popupVerschieben.getText(), "In Ordner verschieben");
 				tablePopup.add(popupVerschieben);
@@ -881,8 +876,9 @@ public class MainFrame extends ExtendedFrame {
 		String menuTitel = null;
 		Object userObject = node.getUserObject();
 		
-		if(userObject instanceof MailAccount) {
-			MailAccount acc = (MailAccount) userObject;
+		if(userObject instanceof MailChecker) {
+			MailChecker checker = (MailChecker)userObject;
+			MailAccount acc = checker.getAccount();
 			menuTitel = acc.getAdresse().getAddress();
 		}
 		else {
@@ -929,7 +925,7 @@ public class MainFrame extends ExtendedFrame {
 		for(int i = 0; i < rootNode.getChildCount(); i++) {
 			DefaultMutableTreeNode child = (DefaultMutableTreeNode) rootNode.getChildAt(i);
 			
-			if(child.getUserObject() == ausgewaehlterAccount()) {
+			if(child.getUserObject() == ausgewaehlterChecker()) {
 				JMenu neu = new JMenu(titel);
 
 				for(int j = 0; j < child.getChildCount(); j++) {
@@ -961,13 +957,15 @@ public class MainFrame extends ExtendedFrame {
 	
 	private void verschiebeMail(String ziel) {
 		//TODO Testen
-		
-		MailAccount acc = ausgewaehlterAccount();
+
+		MailChecker checker = ausgewaehlterChecker();
+		MailAccount acc = checker.getAccount();
 		MailInfo[] infos = ausgewaehlteMailInfo();
 		OrdnerInfo quelle = nodeZuOrdner((DefaultMutableTreeNode)tree.getLastSelectedPathComponent());
 		
 		try {
 			acc.verschiebeMails(infos, quelle.getPfad(), ziel);
+			checker.removeMailInfos(infos);
 			
 			DefaultTableModel model = (DefaultTableModel) tblMails.getModel();
 			int row = tblMails.getSelectedRow();
@@ -988,10 +986,13 @@ public class MainFrame extends ExtendedFrame {
 		
 		MailInfo[] infos = ausgewaehlteMailInfo();
 		OrdnerInfo pfad = nodeZuOrdner((DefaultMutableTreeNode)tree.getLastSelectedPathComponent());
-		MailAccount acc = ausgewaehlterAccount();
+		MailChecker checker = ausgewaehlterChecker();
+		MailAccount acc = checker.getAccount();
 		
 		try {
 			if(acc.loescheMails(infos, pfad.getPfad())) {
+				checker.removeMailInfos(infos);
+				
 				DefaultTableModel model = (DefaultTableModel) tblMails.getModel();
 				int row = tblMails.getSelectedRow();
 				while(row != -1) {
@@ -1041,6 +1042,14 @@ public class MainFrame extends ExtendedFrame {
 		JOptionPane.showMessageDialog(this, "Es wurde noch kein Mail-Account hinzugefügt!\n" + 
 				"Unter dem Menü \"Extras\" -> \"Konteneinstellungen\" können Sie Konten hinzufügen", 
 				"Fehler", JOptionPane.ERROR_MESSAGE);
+	}
+	
+	private void oeffneMeldungen() {
+		MeldungsFrame mf = new MeldungsFrame();
+		
+		mf.setSize(this.getSize());
+		mf.setExtendedState(this.getExtendedState());
+		mf.setVisible(true);
 	}
 
 	public static void main(final String[] args) {

@@ -9,7 +9,7 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.GregorianCalendar;
+import java.util.HashSet;
 
 import javax.mail.Address;
 import javax.mail.AuthenticationFailedException;
@@ -30,10 +30,6 @@ import javax.mail.search.MessageIDTerm;
 import javax.mail.search.SearchTerm;
 
 import com.sun.mail.imap.IMAPFolder;
-
-import de.outlook_klon.logik.Benutzer;
-import de.outlook_klon.logik.kalendar.Termin;
-import de.outlook_klon.logik.kalendar.Terminkalender;
 
 /**
  * Diese Klasse stellt ein Mailkonto dar.
@@ -77,11 +73,13 @@ public class MailAccount implements Serializable {
 				if(message instanceof MimeMessage) {
 					final MimeMessage mime = (MimeMessage)message;
 					final String id = mime.getMessageID();
-					
-					if(id.equals(messageID))
+					if(id != null && id.equals(messageID))
 						result = true;
 				}
-			} catch (MessagingException ex) { }
+			} catch (MessagingException ex) { 
+				
+			} 
+			
 		    return result;
 		}
 		
@@ -123,8 +121,8 @@ public class MailAccount implements Serializable {
 	 * @param text Text der Mail
 	 * @throws MessagingException Tritt auf, wenn der Sendevorgang fehlgeschlagen ist
 	 */
-	public void sendeMail(final InternetAddress[] to, final InternetAddress[] cc, final String subject, final String text, final String format, final File[] attachment) 
-			throws MessagingException {
+	public void sendeMail(final InternetAddress[] to, final InternetAddress[] cc, final String subject, 
+			final String text, final String format, final File[] attachment) throws MessagingException {
 		try {
 			outServer.sendeMail(benutzer, passwort, adresse, to, cc, subject, text, format, attachment);
 		} catch (IOException ioex) {
@@ -171,13 +169,33 @@ public class MailAccount implements Serializable {
 		return paths;
 	}
 	
+	private String getID(Message message) throws MessagingException {
+		String id = null;
+		
+		if(message instanceof MimeMessage) {
+			MimeMessage mime = (MimeMessage)message;
+			
+			id = mime.getMessageID();
+			if(id == null) {
+				id = mime.getContentID();
+			}
+		}
+		else {
+			String[] tmpID = message.getHeader("Message-ID");
+			if(tmpID != null && tmpID.length > 0)
+				id = tmpID[0];
+		}	
+		
+		return id;
+	}
+	
 	/**
 	 * Gibt die MailInfos aller Messages in dem übergebenen Pfad zurück.
 	 * @param pfad Pfad, in dem die Mails gesucht werden.
 	 * @return Array von MailInfos mit der ID, Betreff, Sender und SendDatum
 	 */
 	public MailInfo[] getMessages(final String pfad) {
-		MailInfo[] ret = null;
+		HashSet<MailInfo> set = new HashSet<MailInfo>();
 
 		Store store = null;
 		try {
@@ -187,45 +205,40 @@ public class MailAccount implements Serializable {
 			folder.open(Folder.READ_ONLY);
 			
 			final Message[] messages = folder.getMessages();
-			ret = new MailInfo[messages.length];
 			
 			for(int i = 0; i < messages.length; i++) {
 				final Message message = messages[i];
-				final String id = message.getHeader("Message-ID")[0];
+				
+				String id = getID(message);
+				if(id == null)
+					continue;
 				
 				final String dateiname = id.replace(">", "").replace("<", "");
-				final File lokalerPfad = new File("Mail/" + adresse.getAddress() + "/" + pfad + "/"  + dateiname + ".mail").getAbsoluteFile();
-				final MailInfo tmp = ladeMailInfo(lokalerPfad);
+				final String strPfad = String.format("Mail/%s/%s/%s.mail", adresse.getAddress(), pfad, dateiname);
+				final File lokalerPfad = new File(strPfad).getAbsoluteFile(); //TODO TESTEN!!!
 				
-				if(tmp != null) {
-					ret[i] = tmp;
-				}
-				else {
+				MailInfo tmp = ladeMailInfo(lokalerPfad);
+				if(tmp == null) {
 					final boolean read = message.isSet(Flag.SEEN);
 					final String subject = message.getSubject();
 					final Address from = message.getFrom()[0];
 					final Date sendDate = message.getSentDate();
 					
-					ret[i] = new MailInfo();
-					ret[i].setID(id);
-					ret[i].setRead(read);
-					ret[i].setSubject(subject);
-					ret[i].setSender(from);
-					ret[i].setDate(sendDate);
+					tmp = new MailInfo(id);
+					tmp.setRead(read);
+					tmp.setSubject(subject);
+					tmp.setSender(from);
+					tmp.setDate(sendDate);
 					
-					speichereMailInfo(ret[i], pfad);
-					
-					//TODO Teste mich!!!
-					if(from.equals(adresse) && subject.equals("Ich bin krank")) {	
-						termineAbsagen(sendDate);
-					}
+					speichereMailInfo(tmp, pfad);
 				}
+				
+				set.add(tmp);
 			}
 			
 			folder.close(true);
-		} catch (Exception e) {
-			if(ret == null) 
-				ret = new MailInfo[0];
+		} catch (Exception e) { 
+			
 		} finally {
 			if(store != null && store.isConnected())
 				try {
@@ -233,7 +246,7 @@ public class MailAccount implements Serializable {
 				} catch (MessagingException e) { }
 		}
 		
-		return ret;
+		return set.toArray(new MailInfo[set.size()]);
 	}
 	
 	/**
@@ -439,7 +452,7 @@ public class MailAccount implements Serializable {
 		if(tmpMessages.length == 0)
 			tmpMessages = ordner.search(new MyMessageIDTerm(id));
 		
-		return tmpMessages[0];
+		return tmpMessages.length == 0 ? null : tmpMessages[0];
 	}
 
 	/**
@@ -465,7 +478,8 @@ public class MailAccount implements Serializable {
 	 * @param zielOrdner Zielordner
 	 * @param löschen Wert, der angibt, ob die Mails nach dem Kopieren im Quellordner gelöscht werden sollen
 	 */
-	private void kopieren(final MailInfo[] mails, final Folder quellOrdner, final Folder zielOrdner, final boolean löschen) throws MessagingException {
+	private void kopieren(final MailInfo[] mails, final Folder quellOrdner, final Folder zielOrdner, final boolean löschen) 
+			throws MessagingException {
 		final Message[] messages = infoToMessage(mails, quellOrdner);
 		final String quellPfad = quellOrdner.getFullName();
 		final String zielPfad = zielOrdner.getFullName();
@@ -570,7 +584,10 @@ public class MailAccount implements Serializable {
 				final IMAPFolder imap = (IMAPFolder)folder;
 				final String[] attr = imap.getAttributes();
 				
-				for(int i = 0; i < attr.length; i++) {
+				if(imap.getName().toLowerCase().equals("trash"))
+					binFolder = imap;
+				
+				for(int i = 0; i < attr.length; i++) {					
 					if(attr[i].equals("\\Trash")){
 						binFolder = imap;
 						break outer;
@@ -581,7 +598,7 @@ public class MailAccount implements Serializable {
 			if(binFolder != null) {
 				final String binPfad = binFolder.getFullName();
 				if(!pfad.equals(binPfad)) {
-					kopieren(mails, ordner, binFolder, false);
+					kopieren(mails, ordner, binFolder, true);
 					return true;
 				}
 			}
@@ -761,44 +778,12 @@ public class MailAccount implements Serializable {
 	/**
 	 * Versucht, das Passwort des Accounts neu zu setzen
 	 * @param passwd Zu setzendes Passwort
-	 * @throws AuthenticationFailedException Tritt auf, wenn die Anmeldung mit dem Passort fehlgeschlagen ist
+	 * @throws AuthenticationFailedException Tritt auf, wenn die Anmeldung mit dem Passwort fehlgeschlagen ist
 	 */
 	public void setPasswort(String passwd) throws AuthenticationFailedException {
-		if(validieren(benutzer, passwd)) {
-			this.passwort = passwd;
-		}
-		else 
+		if(!validieren(benutzer, passwd))
 			throw new AuthenticationFailedException("Das übergebene Passwort ist ungültig");
-	}
-
-	private void termineAbsagen(Date absageDatum) {
-		//TODO Hier werden Termine abgesagt
-		GregorianCalendar jetzt = new GregorianCalendar();
-		GregorianCalendar datum = new GregorianCalendar();
-		datum.setTime(absageDatum);
-		
-		if(jetzt.get(GregorianCalendar.YEAR) == datum.get(GregorianCalendar.YEAR) && 
-				jetzt.get(GregorianCalendar.DAY_OF_YEAR) == datum.get(GregorianCalendar.DAY_OF_YEAR)) {
-			Terminkalender kalender = Benutzer.getInstanz().getTermine();
 			
-			Termin[] termine = kalender.getTermine();
-			for(Termin termin : termine) {
-				try {
-					schreibeAbsage(termin);
-				} catch(MessagingException ex) {
-					//TODO Passende Reaktion auf CATCH
-				}
-			}
-		}
-	}
-	
-	private void schreibeAbsage(Termin termin) throws MessagingException {
-		String betreff = "Absage: " + termin.getBetreff();
-		InternetAddress[] ziele = termin.getAdressen();
-		
-		//TODO Krankheitsmeldung einfügen
-		String text = "";
-		
-		sendeMail(ziele, null, betreff, text, "utf-8", null);
+		this.passwort = passwd;
 	}
 }

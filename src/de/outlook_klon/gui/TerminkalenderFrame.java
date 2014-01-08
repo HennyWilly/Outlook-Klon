@@ -31,6 +31,7 @@ import de.outlook_klon.logik.mailclient.MailAccount;
 
 import javax.swing.JPanel;
 import javax.swing.JCheckBox;
+
 import java.awt.GridLayout;
 
 public class TerminkalenderFrame extends ExtendedFrame {
@@ -380,7 +381,6 @@ public class TerminkalenderFrame extends ExtendedFrame {
 		ArrayList<String> apfel = new ArrayList<String>();//speichert alle Konten in apfel
 		for (MailChecker checker : Benutzer.getInstanz()) {
 			MailAccount ma = checker.getAccount();
-			
 			apfel.add(ma.getBenutzer());
 		}
 		

@@ -22,6 +22,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 import de.outlook_klon.logik.Benutzer;
+import de.outlook_klon.logik.Benutzer.MailChecker;
 import de.outlook_klon.logik.mailclient.EmpfangsServer;
 import de.outlook_klon.logik.mailclient.MailAccount;
 import de.outlook_klon.logik.mailclient.SendServer;
@@ -60,7 +61,8 @@ public class KontoverwaltungFrame extends ExtendedDialog<MailAccount[]> {
 		getContentPane().setLayout(null);
 		
 		DefaultListModel<MailAccount> listModel = new DefaultListModel<MailAccount>();
-		for(MailAccount acc : Benutzer.getInstanz()) {
+		for(MailChecker checker : Benutzer.getInstanz()) {
+			MailAccount acc = checker.getAccount();
 			listModel.addElement(acc);
 		}
 		

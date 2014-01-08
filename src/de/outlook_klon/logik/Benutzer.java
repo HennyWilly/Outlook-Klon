@@ -10,10 +10,12 @@ import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Vector;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.InternetAddress;
 
+import de.outlook_klon.logik.kalendar.Termin;
 import de.outlook_klon.logik.kalendar.Terminkalender;
 import de.outlook_klon.logik.kontakte.Kontaktverwaltung;
 import de.outlook_klon.logik.mailclient.MailAccount;
@@ -26,7 +28,7 @@ import de.outlook_klon.logik.mailclient.MailInfo;
  * 
  * @author Hendrik Karwanni
  */
-public final class Benutzer implements Iterable<MailAccount> {
+public final class Benutzer implements Iterable<Benutzer.MailChecker> {
 	private static final String DATEN_ORDNER = "Mail";
 	private static final String ACCOUNT_PATTERN = DATEN_ORDNER + "/%s";
 	private static final String ACCOUNTSETTINGS_PATTERN = ACCOUNT_PATTERN + "/settings.bin";
@@ -37,39 +39,106 @@ public final class Benutzer implements Iterable<MailAccount> {
 	
 	private Kontaktverwaltung kontakte;
 	private Terminkalender termine;
-	private ArrayList<MailAccount> konten;
+	private ArrayList<MailChecker> konten;
 	private boolean anwesend;
 	
-	private class MailChecker implements Runnable {
+	public class MailChecker extends Thread {
 		private static final String FOLDER = "INBOX";
 		private MailAccount account;
 		private HashSet<MailInfo> mails;
+		private Vector<NewMailListener> listenerVector;
 		
 		public MailChecker(MailAccount account) {
 			this.account = account;
+			this.mails = new HashSet<MailInfo>();
+			this.listenerVector = new Vector<NewMailListener>();
+		}
+		
+		public void addMessageCountListener(NewMailListener mcl) {
+			synchronized (listenerVector) {
+				listenerVector.add(mcl);
+			}
+		}
+		
+		private void fireMessageCountEvent(MailInfo info) {
+			NewMailEvent ev = new NewMailEvent(account, FOLDER, info);
+			
+			for(NewMailListener listener : listenerVector) {
+				listener.newMessage(ev);
+			}
+		}
+		
+		public MailAccount getAccount() {
+			return account;
 		}
 		
 		@Override
 		public void run() {
-			MailInfo[] mailInfos = account.getMessages(FOLDER);
-			mails = new HashSet<MailInfo>();
-			for(MailInfo info : mailInfos) {
-				mails.add(info);
+			MailInfo[] mailInfos = null;
+			synchronized (mails) {
+				mailInfos = account.getMessages(FOLDER);				
+				for(MailInfo info : mailInfos) {
+					if(mails.add(info));
+				}
 			}
 			
-			while(!isAnwesend()) {
+			while(true) {
 				try {
 					Thread.sleep(60000);
 				} catch (InterruptedException e) { break; }
 				MailInfo[] mailTmp = account.getMessages(FOLDER);
+				
+				HashSet<MailInfo> tmpSet = new HashSet<MailInfo>();
 				for(MailInfo info : mailTmp) {
-					if(mails.add(info) && !isAnwesend()) {
-						sendeAbwesenheitsMail(account, FOLDER, info);
+					tmpSet.add(info);
+				}
+				
+				Iterator<MailInfo> iterator = mails.iterator();
+				while(iterator.hasNext()) {
+					MailInfo current = iterator.next();
+					
+					if(!tmpSet.contains(current)) {
+						iterator.remove();
+					}
+				}
+				
+				synchronized (mails) {
+					for(MailInfo info : mailTmp) {
+						if(mails.add(info)) {
+							fireMessageCountEvent(info);
+						}
 					}
 				}
 			}
 		}
+
+		public MailInfo[] getMessages(String pfad) {
+			MailInfo[] array = null;
+			
+			boolean threadOK = this.isAlive() && !this.isInterrupted();
+			if(threadOK && pfad.toLowerCase().equals(FOLDER.toLowerCase())) {
+				synchronized (mails) {
+					array = mails.toArray(new MailInfo[mails.size()]);
+				}
+			}
+			else {
+				array = account.getMessages(pfad);
+			}
+			
+			return array;
+		}
 		
+		public void removeMailInfos(MailInfo[] infos) {	
+			synchronized (mails) {
+				for(MailInfo info : infos) {
+					mails.remove(info);
+				}
+			}
+		}
+		
+		public String toString() {
+			return account.toString();
+		}
 	}
 	
 	/**
@@ -149,7 +218,7 @@ public final class Benutzer implements Iterable<MailAccount> {
 		if(kontakte == null)
 			kontakte = new Kontaktverwaltung();
 		
-		konten = new ArrayList<MailAccount>();
+		konten = new ArrayList<MailChecker>();
 		
 		File file = new File(DATEN_ORDNER).getAbsoluteFile();
 		if(!file.exists())
@@ -166,13 +235,43 @@ public final class Benutzer implements Iterable<MailAccount> {
 			File datei = new File(settings).getAbsoluteFile();
 			
 			MailAccount geladen = deserialisiereObjekt(datei);
-			if(geladen != null)
-				konten.add(geladen);
+			if(geladen != null) {
+				MailChecker checker = new MailChecker(geladen);
+				checker.addMessageCountListener(getListener());
+				
+				konten.add(checker);
+			}
 		}
+	}
+	
+	private NewMailListener getListener() {
+		return new NewMailListener() {
+			@Override
+			public void newMessage(NewMailEvent e) {
+				//TODO Teste mich hart
+				
+				MailAccount account = e.getAccount();
+				MailInfo info = e.getInfo();
+				String pfad = e.getFolder();
+				
+				InternetAddress from = (InternetAddress) info.getSender();
+				InternetAddress empfaenger = account.getAdresse();
+				
+				String subject = info.getSubject();
+				
+				if(from.equals(empfaenger) && subject.equals("Ich bin krank")) {
+					termineAbsagen(account);
+				}
+				
+				if(!isAnwesend()) {
+					sendeAbwesenheitsMail(account, pfad, info);
+				}
+			}
+		};
 	}
 
 	@Override
-	public Iterator<MailAccount> iterator() {
+	public Iterator<MailChecker> iterator() {
 		return konten.iterator();
 	}
 
@@ -204,7 +303,10 @@ public final class Benutzer implements Iterable<MailAccount> {
 		boolean result = true;
 		try {
 			speichereMailAccount(account);
-			konten.add(account);
+			
+			MailChecker checker = new MailChecker(account);
+			checker.addMessageCountListener(getListener());
+			konten.add(checker);
 		} catch (IOException e) {
 			result = false;
 		}
@@ -263,7 +365,8 @@ public final class Benutzer implements Iterable<MailAccount> {
 	 * Speichert die Daten des Benutzers
 	 */
 	public void speichern() throws IOException {
-		for(MailAccount acc : konten) {
+		for(MailChecker checker : konten) {
+			MailAccount acc = checker.getAccount();
 			speichereMailAccount(acc);
 		}
 		
@@ -310,15 +413,10 @@ public final class Benutzer implements Iterable<MailAccount> {
 	 * @param anwesend Zu setzender Status der Anwesenheit
 	 */
 	public void setAnwesend(boolean anwesend) {
-		this.anwesend = anwesend;
-		
-		//TODO Hier muss was passieren!!!
-		if(!anwesend) {
-			for(MailAccount account : konten) {
-				MailChecker checker = new MailChecker(account);
-				Thread checkerThread = new Thread(checker);
-				checkerThread.start();
-			}
+		synchronized (this) {
+			//TODO Hilfe, darf ich das?
+			
+			this.anwesend = anwesend;
 		}
 	}
 	
@@ -336,5 +434,55 @@ public final class Benutzer implements Iterable<MailAccount> {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+	
+	private void termineAbsagen(MailAccount sender) {
+		Termin[] heute = termine.getTermine();
+		for(Termin termin : heute) {
+			try {
+				schreibeAbsage(termin, sender);
+			} catch (MessagingException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	private void schreibeAbsage(Termin termin, MailAccount sender) throws MessagingException {
+		String betreff = "Absage: " + termin.getBetreff();
+		InternetAddress[] ziele = termin.getAdressen();
+		
+		//TODO Krankheitsmeldung einfügen
+		String text = "";
+		
+		sender.sendeMail(ziele, null, betreff, text, "TEXT/plain; charset=utf-8", null);
+	}
+	
+	public boolean starteChecker() {
+		boolean result = true;
+		
+		for(MailChecker checker : konten) {
+			try {
+				checker.start();
+			} catch(IllegalThreadStateException ex) {
+				result = false;
+			}
+		}
+		
+		return result;
+	}
+	
+	public boolean stoppeChecker() {
+		boolean result = true;
+		
+		for(MailChecker checker : konten) {
+			try {
+				checker.interrupt();
+			} catch(SecurityException ex) {
+				result = false;
+			}
+		}
+		
+		return result;
 	}
 }

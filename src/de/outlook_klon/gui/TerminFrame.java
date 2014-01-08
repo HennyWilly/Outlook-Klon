@@ -18,6 +18,7 @@ import java.util.Calendar;
 import javax.swing.JButton;
 
 import de.outlook_klon.logik.Benutzer;
+import de.outlook_klon.logik.Benutzer.MailChecker;
 import de.outlook_klon.logik.kalendar.Termin;
 import de.outlook_klon.logik.kontakte.Kontakt;
 
@@ -112,7 +113,8 @@ public class TerminFrame extends ExtendedDialog<Termin> {
 		
 		
 		ArrayList<String> benutzerKonten = new ArrayList<String>();
-		for (MailAccount ma : Benutzer.getInstanz()) {
+		for (MailChecker checker : Benutzer.getInstanz()) {
+			MailAccount ma = checker.getAccount();
 			benutzerKonten.add(ma.getAdresse().getAddress());
 		}
 		
