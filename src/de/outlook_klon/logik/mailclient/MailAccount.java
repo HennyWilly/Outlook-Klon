@@ -168,11 +168,11 @@ public class MailAccount implements Serializable {
 					final IMAPFolder imap = (IMAPFolder) folder;
 					final String[] attr = imap.getAttributes();
 
-					if (imap.getName().toLowerCase().equals("sent"))
+					if (imap.getName().equalsIgnoreCase("sent"))
 						sendFolder = imap;
 
 					for (int i = 0; i < attr.length; i++) {
-						if (attr[i].equals("\\Sent")) {
+						if (attr[i].equalsIgnoreCase("\\Sent")) {
 							sendFolder = imap;
 							break outer;
 						}
@@ -709,17 +709,20 @@ public class MailAccount implements Serializable {
 
 			final Folder[] folders = mailStore.getDefaultFolder().list("*");
 
-			outer: for (final Folder folder : folders) {
-				final IMAPFolder imap = (IMAPFolder) folder;
-				final String[] attr = imap.getAttributes();
-
-				if (imap.getName().toLowerCase().equals("trash"))
-					binFolder = imap;
-
-				for (int i = 0; i < attr.length; i++) {
-					if (attr[i].equals("\\Trash")) {
+			if(!(inServer instanceof Pop3Server)) {
+				outer: 
+				for (final Folder folder : folders) {
+					final IMAPFolder imap = (IMAPFolder) folder;
+					final String[] attr = imap.getAttributes();
+	
+					if (imap.getName().equalsIgnoreCase("trash"))
 						binFolder = imap;
-						break outer;
+	
+					for (int i = 0; i < attr.length; i++) {
+						if (attr[i].equalsIgnoreCase("\\Trash")) {
+							binFolder = imap;
+							break outer;
+						}
 					}
 				}
 			}
