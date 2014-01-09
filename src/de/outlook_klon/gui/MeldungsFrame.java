@@ -14,21 +14,22 @@ public class MeldungsFrame extends ExtendedFrame {
 	private void initMenu() {
 		JMenuBar bar = new JMenuBar();
 		setJMenuBar(bar);
-		
+
 		JMenu mnDatei = new JMenu("Datei");
 		bar.add(mnDatei);
-		
+
 		JMenu mnDateiNeu = new JMenu("Neu");
 		mnDatei.add(mnDateiNeu);
-		
+
 		JMenuItem mntDateiNeuKrankmeldung = new JMenuItem("Neue Krankmeldung");
 		mnDateiNeu.add(mntDateiNeuKrankmeldung);
-		
-		JMenuItem mntDateiNeuAbwesenheitmeldung = new JMenuItem("Neue Abwesenheitsmeldung");
+
+		JMenuItem mntDateiNeuAbwesenheitmeldung = new JMenuItem(
+				"Neue Abwesenheitsmeldung");
 		mnDateiNeu.add(mntDateiNeuAbwesenheitmeldung);
-		
+
 		mnDatei.add(new JSeparator());
-		
+
 		JMenuItem mntDateiBeenden = new JMenuItem("Beenden");
 		mntDateiBeenden.addActionListener(new ActionListener() {
 			@Override
@@ -38,7 +39,7 @@ public class MeldungsFrame extends ExtendedFrame {
 		});
 		mnDatei.add(mntDateiBeenden);
 	}
-	
+
 	public MeldungsFrame() {
 		initMenu();
 	}
