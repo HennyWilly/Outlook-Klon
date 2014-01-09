@@ -4,13 +4,14 @@ import java.io.Serializable;
 import javax.mail.internet.InternetAddress;
 
 /**
- * Dies ist eine Datenklasse, die die Daten von einem Kontakt des Benutzers speichert.
+ * Dies ist eine Datenklasse, die die Daten von einem Kontakt des Benutzers
+ * speichert.
  * 
  * @author Hendrik Karwanni
  */
 public class Kontakt implements Serializable {
 	private static final long serialVersionUID = -4417684942862339869L;
-	
+
 	private String mNachname;
 	private String mVorname;
 	private String mAnzeigename;
@@ -21,21 +22,32 @@ public class Kontakt implements Serializable {
 	private String mTelMobil;
 	private String mTelPrivat;
 	private String mSprache;
-	
+
 	/**
 	 * Erstellt eine neue Instanz der Klasse mit den übergebenen Werten.
-	 * @param nachname Nachname des Kontakts
-	 * @param vorname Vorname des Kontakts
-	 * @param anzeigename Anzeigename des Kontakts
-	 * @param spitzname Spitzname des Kontakts
-	 * @param mail1 Erste E-Mail-Adresse des Kontakts
-	 * @param mail2 Zweite E-Mail-Adresse des Kontakts
-	 * @param telPrivat Private Telefonnummer des Kontakts
-	 * @param telDienst Dienstliche Telefonnummer des Kontakts
-	 * @param telMobil Mobiltelefonnummer des Kontakts
+	 * 
+	 * @param nachname
+	 *            Nachname des Kontakts
+	 * @param vorname
+	 *            Vorname des Kontakts
+	 * @param anzeigename
+	 *            Anzeigename des Kontakts
+	 * @param spitzname
+	 *            Spitzname des Kontakts
+	 * @param mail1
+	 *            Erste E-Mail-Adresse des Kontakts
+	 * @param mail2
+	 *            Zweite E-Mail-Adresse des Kontakts
+	 * @param telPrivat
+	 *            Private Telefonnummer des Kontakts
+	 * @param telDienst
+	 *            Dienstliche Telefonnummer des Kontakts
+	 * @param telMobil
+	 *            Mobiltelefonnummer des Kontakts
 	 */
-	public Kontakt(String nachname, String vorname, String anzeigename, String spitzname, 
-			InternetAddress mail1, InternetAddress mail2, String telPrivat, String telDienst, String telMobil) {
+	public Kontakt(String nachname, String vorname, String anzeigename,
+			String spitzname, InternetAddress mail1, InternetAddress mail2,
+			String telPrivat, String telDienst, String telMobil) {
 		setNachname(nachname);
 		setVorname(vorname);
 		setAnzeigename(anzeigename);
@@ -54,14 +66,17 @@ public class Kontakt implements Serializable {
 
 	/**
 	 * Setter für den Nachnamen des Kontakts
-	 * @param nachname Zu setzender Nachname
+	 * 
+	 * @param nachname
+	 *            Zu setzender Nachname
 	 */
 	public void setNachname(String nachname) {
 		mNachname = nachname;
 	}
-	
+
 	/**
 	 * Getter für den Nachnamen des Kontakts
+	 * 
 	 * @return Nachname
 	 */
 	public String getNachname() {
@@ -70,14 +85,17 @@ public class Kontakt implements Serializable {
 
 	/**
 	 * Setter für den Vornamen des Kontakts
-	 * @param vorname Zu setzender Vorname
+	 * 
+	 * @param vorname
+	 *            Zu setzender Vorname
 	 */
 	public void setVorname(String vorname) {
 		mVorname = vorname;
 	}
-	
+
 	/**
 	 * Getter für den Vornamen des Kontakts
+	 * 
 	 * @return Vorname
 	 */
 	public String getVorname() {
@@ -86,14 +104,17 @@ public class Kontakt implements Serializable {
 
 	/**
 	 * Setter für den Anzeigenamen des Kontakts
-	 * @param anzeigename Zu setzender Anzeigename
+	 * 
+	 * @param anzeigename
+	 *            Zu setzender Anzeigename
 	 */
 	public void setAnzeigename(String anzeigename) {
 		mAnzeigename = anzeigename;
 	}
-	
+
 	/**
 	 * Getter für den Anzeigenamen des Kontakts
+	 * 
 	 * @return Anzeigename
 	 */
 	public String getAnzeigename() {
@@ -102,14 +123,17 @@ public class Kontakt implements Serializable {
 
 	/**
 	 * Setter für den Spitznamen des Kontakts
-	 * @param spitzname Zu setzender Spitzname
+	 * 
+	 * @param spitzname
+	 *            Zu setzender Spitzname
 	 */
 	public void setSpitzname(String spitzname) {
 		mSpitzname = spitzname;
 	}
-	
+
 	/**
 	 * Getter für den Spitznamen des Kontakts
+	 * 
 	 * @return Spitzname
 	 */
 	public String getSpitzname() {
@@ -118,7 +142,9 @@ public class Kontakt implements Serializable {
 
 	/**
 	 * Setter für die erste E-Mail-Adresse des Kontakts
-	 * @param mail1 Zu setzende E-Mail-Adresse
+	 * 
+	 * @param mail1
+	 *            Zu setzende E-Mail-Adresse
 	 */
 	public void setMail1(InternetAddress mail1) {
 		this.mMail1 = mail1;
@@ -126,15 +152,18 @@ public class Kontakt implements Serializable {
 
 	/**
 	 * Getter für die erste E-Mail-Adresse des Kontakts
+	 * 
 	 * @return Erste E-Mail-Adresse
 	 */
 	public InternetAddress getMail1() {
 		return mMail1;
 	}
-	
+
 	/**
 	 * Setter für die zweite E-Mail-Adresse des Kontaks
-	 * @param mail2 Zu setzende E-Mail-Adresse
+	 * 
+	 * @param mail2
+	 *            Zu setzende E-Mail-Adresse
 	 */
 	public void setMail2(InternetAddress mail2) {
 		this.mMail2 = mail2;
@@ -142,6 +171,7 @@ public class Kontakt implements Serializable {
 
 	/**
 	 * Getter für die zweite E-Mail-Adresse des Kontakts
+	 * 
 	 * @return Zweite E-Mail-Adresse
 	 */
 	public InternetAddress getMail2() {
@@ -150,7 +180,9 @@ public class Kontakt implements Serializable {
 
 	/**
 	 * Setter für die private Telefonnummer des Kontakts
-	 * @param telPrivat Zu setzende Telefonnummer
+	 * 
+	 * @param telPrivat
+	 *            Zu setzende Telefonnummer
 	 */
 	public void setTelPrivat(String telPrivat) {
 		this.mTelPrivat = telPrivat;
@@ -158,6 +190,7 @@ public class Kontakt implements Serializable {
 
 	/**
 	 * Getter für die private Telefonnummer des Kontakts
+	 * 
 	 * @return Private Telefonnummer
 	 */
 	public String getTelPrivat() {
@@ -166,7 +199,9 @@ public class Kontakt implements Serializable {
 
 	/**
 	 * Setter für die dienstliche Telefonnummer des Kontakts
-	 * @param telDienst Zu setzende Telefonnummer
+	 * 
+	 * @param telDienst
+	 *            Zu setzende Telefonnummer
 	 */
 	public void setTelDienst(String telDienst) {
 		this.mTelDienst = telDienst;
@@ -174,15 +209,18 @@ public class Kontakt implements Serializable {
 
 	/**
 	 * Getter für die dienstliche Telefonnummer des Kontakts
+	 * 
 	 * @return Dienstliche Telefonnummer
 	 */
 	public String getTelDienst() {
 		return mTelDienst;
 	}
-	
+
 	/**
 	 * Setter für die Mobiltelefonnummer des Kontakts
-	 * @param telMobil Zu setzende Telefonnummer
+	 * 
+	 * @param telMobil
+	 *            Zu setzende Telefonnummer
 	 */
 	public void setTelMobil(String telMobil) {
 		this.mTelMobil = telMobil;
@@ -190,16 +228,19 @@ public class Kontakt implements Serializable {
 
 	/**
 	 * Getter für die Mobiltelefonnummer des Kontakts
+	 * 
 	 * @return Mobiltelefonnummer
 	 */
 	public String getTelMobil() {
 		return mTelMobil;
 	}
-	
+
 	/**
-	 *
+	 * 
 	 * Setter für die bevorzugte Sprache des Kontakts
-	 * @param mSprache Zu setzende Sprache
+	 * 
+	 * @param mSprache
+	 *            Zu setzende Sprache
 	 */
 	public void setSprache(String mSprache) {
 		this.mSprache = mSprache;
@@ -207,6 +248,7 @@ public class Kontakt implements Serializable {
 
 	/**
 	 * Getter für die bevorzugte Sprache des Kontakts
+	 * 
 	 * @return Sprache
 	 */
 	public String getSprache() {
