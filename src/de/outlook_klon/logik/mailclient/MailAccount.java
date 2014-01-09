@@ -80,8 +80,6 @@ public class MailAccount implements Serializable {
 
 			try {
 				if (message instanceof MimeMessage) {
-					// TODO Testen!!!
-
 					final MimeMessage mime = (MimeMessage) message;
 					final String id = mime.getMessageID();
 					if (id != null)
@@ -157,8 +155,11 @@ public class MailAccount implements Serializable {
 		try {
 			Message gesendet = outServer.sendeMail(benutzer, passwort, adresse,
 					to, cc, subject, text, format, attachment);
-			if (gesendet != null) {
+			if (gesendet != null && !(inServer instanceof Pop3Server)) {
+				//TODO Testen!
 				Store mailStore = inServer.getMailStore(benutzer, passwort);
+				mailStore.connect(inServer.settings.getHost(),
+						inServer.settings.getPort(), benutzer, passwort);
 				Folder sendFolder = null;
 
 				final Folder[] folders = mailStore.getDefaultFolder().list("*");
@@ -167,11 +168,11 @@ public class MailAccount implements Serializable {
 					final IMAPFolder imap = (IMAPFolder) folder;
 					final String[] attr = imap.getAttributes();
 
-					if (imap.getName().toLowerCase().equals("send"))
+					if (imap.getName().toLowerCase().equals("sent"))
 						sendFolder = imap;
 
 					for (int i = 0; i < attr.length; i++) {
-						if (attr[i].equals("\\Send")) {
+						if (attr[i].equals("\\Sent")) {
 							sendFolder = imap;
 							break outer;
 						}
@@ -288,7 +289,6 @@ public class MailAccount implements Serializable {
 						adresse.getAddress(), pfad, dateiname);
 				final File lokalerPfad = new File(strPfad).getAbsoluteFile();
 
-				// TODO TESTEN!!!
 				MailInfo tmp = ladeMailInfo(lokalerPfad);
 				if (tmp == null) {
 					final boolean read = message.isSet(Flag.SEEN);
@@ -372,8 +372,6 @@ public class MailAccount implements Serializable {
 	 * @return ContentType der E-Mail
 	 */
 	private String getTyp(final Part p) throws IOException, MessagingException {
-		// TODO Testen
-
 		if (p.isMimeType("text/*"))
 			return p.getContentType();
 
