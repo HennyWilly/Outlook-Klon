@@ -15,8 +15,11 @@ public class Pop3Server extends EmpfangsServer {
 	private static final long serialVersionUID = 926746044207884587L;
 
 	/**
-	 * Erstellt eine neue Instanz eines Pop3-Servers mit den übergebenen Einstellungen
-	 * @param settings Einstellungen zur Serververbindung
+	 * Erstellt eine neue Instanz eines Pop3-Servers mit den übergebenen
+	 * Einstellungen
+	 * 
+	 * @param settings
+	 *            Einstellungen zur Serververbindung
 	 */
 	public Pop3Server(final ServerSettings settings) {
 		super(settings, "POP3");
@@ -25,28 +28,30 @@ public class Pop3Server extends EmpfangsServer {
 	@Override
 	protected Properties getProperties() {
 		final Properties props = System.getProperties();
-		
+
 		props.put("mail.pop3.host", settings.getHost());
 		props.put("mail.pop3.port", settings.getPort());
 		props.put("mail.pop3.auth", true);
 
-		if(settings.getVerbingungssicherheit() == Verbindungssicherheit.SSL_TLS) {
+		if (settings.getVerbingungssicherheit() == Verbindungssicherheit.SSL_TLS) {
 			props.put("mail.pop3.ssl.enable", true);
 		}
-		
+
 		return props;
 	}
 
 	@Override
-	public Store getMailStore(final String user, final String passwd) throws NoSuchProviderException {
-		final Session session = getSession(new StandardAuthenticator(user, passwd));
-		
+	public Store getMailStore(final String user, final String passwd)
+			throws NoSuchProviderException {
+		final Session session = getSession(new StandardAuthenticator(user,
+				passwd));
+
 		Store store = null;
-		if(settings.getVerbingungssicherheit() == Verbindungssicherheit.SSL_TLS)
+		if (settings.getVerbingungssicherheit() == Verbindungssicherheit.SSL_TLS)
 			store = session.getStore("pop3s");
 		else
 			store = session.getStore("pop3");
-		
+
 		return store;
 	}
 }

@@ -4,8 +4,10 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Properties;
 
+import javax.mail.Message;
 import javax.mail.Message.RecipientType;
 import javax.mail.MessagingException;
+import javax.mail.Part;
 import javax.mail.Session;
 import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
@@ -18,12 +20,15 @@ import javax.mail.internet.MimeMultipart;
  * 
  * @author Hendrik Karwanni
  */
-public class SmtpServer extends SendServer{
+public class SmtpServer extends SendServer {
 	private static final long serialVersionUID = -4486714062786025360L;
 
 	/**
-	 * Erstellt eine neue Instanz eines SMTP-Servers mit den übergebenen Einstellungen
-	 * @param settings Einstellungen zur Serververbindung
+	 * Erstellt eine neue Instanz eines SMTP-Servers mit den übergebenen
+	 * Einstellungen
+	 * 
+	 * @param settings
+	 *            Einstellungen zur Serververbindung
 	 */
 	public SmtpServer(final ServerSettings settings) {
 		super(settings, "SMTP");
@@ -32,103 +37,112 @@ public class SmtpServer extends SendServer{
 	@Override
 	protected Properties getProperties() {
 		final int port = settings.getPort();
-		final Verbindungssicherheit sicherheit = settings.getVerbingungssicherheit();
+		final Verbindungssicherheit sicherheit = settings
+				.getVerbingungssicherheit();
 		final Properties props = System.getProperties();
-		
+
 		props.put("mail.smtp.debug", "true");
 		props.put("mail.smtp.auth", "true");
-		if(sicherheit == Verbindungssicherheit.STARTTLS) {
-			props.put("mail.smtp.starttls.enable","true");
-		}
-		else if(sicherheit == Verbindungssicherheit.SSL_TLS) {
+		if (sicherheit == Verbindungssicherheit.STARTTLS) {
+			props.put("mail.smtp.starttls.enable", "true");
+		} else if (sicherheit == Verbindungssicherheit.SSL_TLS) {
 			props.put("mail.smtp.socketFactory.port", port);
-			props.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
+			props.put("mail.smtp.socketFactory.class",
+					"javax.net.ssl.SSLSocketFactory");
 			props.put("mail.smtp.socketFactory.fallback", "false");
 		}
-		
+
 		return props;
 	}
 
 	@Override
-	public void sendeMail(final String user, final String passwd, final InternetAddress from, final InternetAddress[] to, final InternetAddress[] cc, 
-			final String subject, final String text, final String format, final File[] attachments) 
-						throws MessagingException, IOException { 		
-		final String host = settings.getHost();
-		final int port = settings.getPort();
-		final Verbindungssicherheit sicherheit = settings.getVerbingungssicherheit();
-		
-		final Session session = getSession(new StandardAuthenticator(user, passwd));
-        
+	public Message sendeMail(final String user, final String passwd,
+			final InternetAddress from, final InternetAddress[] to,
+			final InternetAddress[] cc, final String subject,
+			final String text, final String format, final File[] attachments)
+			throws MessagingException, IOException {
+		final Verbindungssicherheit sicherheit = settings
+				.getVerbingungssicherheit();
+
+		final Session session = getSession(new StandardAuthenticator(user,
+				passwd));
+
 		final MimeMessage mail = new MimeMessage(session);
 		mail.setFrom(from);
-		
-		for(final InternetAddress adrTo : to) {
+
+		for (final InternetAddress adrTo : to) {
 			mail.addRecipient(RecipientType.TO, adrTo);
 		}
-		
-		if(cc != null && cc.length > 0)
-			for(final InternetAddress adrCC : cc) {
+
+		if (cc != null && cc.length > 0) {
+			for (final InternetAddress adrCC : cc) {
 				mail.addRecipient(RecipientType.CC, adrCC);
 			}
-		
+		}
+
 		mail.setSubject(subject);
-		
 
 		final MimeMultipart multiPart = new MimeMultipart();
 		final MimeBodyPart textPart = new MimeBodyPart();
 		textPart.setContent(text, format);
-		textPart.setDisposition(MimeBodyPart.INLINE);
+		textPart.setDisposition(Part.INLINE);
 		multiPart.addBodyPart(textPart);
-		
-		if(attachments != null) {
-			for(final File attachment : attachments) {
+
+		if (attachments != null) {
+			for (final File attachment : attachments) {
+				// Fügt jeden Anhang der Mail hinzu
+
 				final MimeBodyPart attachmentPart = new MimeBodyPart();
 				attachmentPart.attachFile(attachment);
-				attachmentPart.setDisposition(MimeBodyPart.ATTACHMENT);
+				attachmentPart.setDisposition(Part.ATTACHMENT);
 				multiPart.addBodyPart(attachmentPart);
-			}			
+			}
 		}
 		mail.setContent(multiPart);
-		
+
 		Transport transport = null;
-		if(sicherheit == Verbindungssicherheit.SSL_TLS) {
+		if (sicherheit == Verbindungssicherheit.SSL_TLS) {
 			transport = session.getTransport("smtps");
-		}
-		else {
+		} else {
 			transport = session.getTransport("smtp");
 		}
-		
-		transport.connect(host, port, user, passwd);
+
+		transport.connect(settings.getHost(), settings.getPort(), user, passwd);
 		transport.sendMessage(mail, mail.getAllRecipients());
 		transport.close();
+
+		return mail;
 	}
-	
-	public boolean pruefeLogin(final String benutzername, final String passwort){
+
+	@Override
+	public boolean pruefeLogin(final String benutzername, final String passwort) {
 		boolean result = true;
-		
+
 		final String host = settings.getHost();
 		final int port = settings.getPort();
-		final Verbindungssicherheit sicherheit = settings.getVerbingungssicherheit();
-		
-		final Session session = getSession(new StandardAuthenticator(benutzername, passwort));
-		
+		final Verbindungssicherheit sicherheit = settings
+				.getVerbingungssicherheit();
+
+		final Session session = getSession(new StandardAuthenticator(
+				benutzername, passwort));
+
 		Transport transport = null;
 		try {
-			if(sicherheit == Verbindungssicherheit.SSL_TLS) {
+			if (sicherheit == Verbindungssicherheit.SSL_TLS) {
 				transport = session.getTransport("smtps");
-			}
-			else {
+			} else {
 				transport = session.getTransport("smtp");
 			}
-			
+
 			transport.connect(host, port, benutzername, passwort);
-		} catch(MessagingException ex) {
+		} catch (MessagingException ex) {
 			result = false;
 		} finally {
-			if(transport != null && transport.isConnected()) {
+			if (transport != null && transport.isConnected()) {
 				try {
 					transport.close();
-				} catch (MessagingException e) { }
+				} catch (MessagingException e) {
+				}
 			}
 		}
 

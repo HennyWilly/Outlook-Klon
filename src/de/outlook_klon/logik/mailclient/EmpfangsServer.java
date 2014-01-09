@@ -5,35 +5,45 @@ import javax.mail.NoSuchProviderException;
 import javax.mail.Store;
 
 /**
- * Abstrakte Basisklasse für alle Mailserver, über die Mails empfangen werden können.
- * Stellt grundlegende Funtionen zum Empfangen von Mails bereit.
+ * Abstrakte Basisklasse für alle Mailserver, über die Mails empfangen werden
+ * können. Stellt grundlegende Funtionen zum Empfangen von Mails bereit.
  * 
  * @author Hendrik Karwanni
  */
 public abstract class EmpfangsServer extends MailServer {
 	private static final long serialVersionUID = -6475925504329915182L;
-	
+
 	/**
 	 * Ruft den protected-Konstruktor der Oberklasse auf
-	 * @param settings Einstellungen zur Verbindung mit dem Server
-	 * @param serverTyp Beschreibender String zum Servertyp
+	 * 
+	 * @param settings
+	 *            Einstellungen zur Verbindung mit dem Server
+	 * @param serverTyp
+	 *            Beschreibender String zum Servertyp
 	 */
-	protected EmpfangsServer(final ServerSettings settings, final String serverTyp) {
+	protected EmpfangsServer(final ServerSettings settings,
+			final String serverTyp) {
 		super(settings, serverTyp);
 	}
 
 	/**
-	 * Gibt den Store zurück, der die E-Mails des Anwenders enthällt
-	 * @param user Benutzername des Empfängers
-	 * @param passwd Passwort des Empfängers
-	 * @return Store-Objekt, über welches man auf die Mails zugreifen kann
+	 * Gibt den <code>Store</code> zurück, der die E-Mails des Anwenders
+	 * enthällt
+	 * 
+	 * @param user
+	 *            Benutzername des Empfängers
+	 * @param passwd
+	 *            Passwort des Empfängers
+	 * @return <code>Store</code>-Objekt, über welches man auf die Mails
+	 *         zugreifen kann
 	 */
-	public abstract Store getMailStore(String user, String passwd) throws NoSuchProviderException;
-	
+	public abstract Store getMailStore(String user, String passwd)
+			throws NoSuchProviderException;
+
 	@Override
 	public boolean pruefeLogin(final String benutzername, final String passwort) {
 		boolean result = true;
-		
+
 		final String host = settings.getHost();
 		final int port = settings.getPort();
 
@@ -44,13 +54,14 @@ public abstract class EmpfangsServer extends MailServer {
 		} catch (MessagingException ex) {
 			result = false;
 		} finally {
-			if(store != null && store.isConnected()) {
+			if (store != null && store.isConnected()) {
 				try {
 					store.close();
-				} catch (MessagingException e) { }
+				} catch (MessagingException e) {
+				}
 			}
 		}
-		
+
 		return result;
 	}
 }
