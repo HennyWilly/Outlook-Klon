@@ -2,6 +2,7 @@ package de.outlook_klon.logik.mailclient;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Date;
 import java.util.Properties;
 
 import javax.mail.Message;
@@ -99,6 +100,7 @@ public class SmtpServer extends SendServer {
 			}
 		}
 		mail.setContent(multiPart);
+		mail.setSentDate(new Date());
 
 		Transport transport = null;
 		if (sicherheit == Verbindungssicherheit.SSL_TLS) {
