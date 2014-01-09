@@ -321,8 +321,9 @@ public class MainFrame extends ExtendedFrame {
 				Component comp = super.getTableCellRendererComponent(table,
 						value, isSelected, hasFocus, row, column);
 
+				int modelRow = table.convertRowIndexToModel(row);
 				DefaultTableModel model = (DefaultTableModel) table.getModel();
-				Object obj = model.getValueAt(row, 0);
+				Object obj = model.getValueAt(modelRow, 0);
 				if (obj instanceof MailInfo) {
 					MailInfo info = (MailInfo) obj;
 					if (isSelected || info.isRead())
@@ -416,13 +417,14 @@ public class MainFrame extends ExtendedFrame {
 					Object value, boolean selected, boolean expanded,
 					boolean isLeaf, int row, boolean focused) {
 
-				if (value instanceof DefaultMutableTreeNode) {
+				String label = value.toString();
+				if (value instanceof DefaultMutableTreeNode) {					
 					Object userObject = ((DefaultMutableTreeNode) value)
 							.getUserObject();
 					if (userObject instanceof OrdnerInfo) {
 						OrdnerInfo ordner = (OrdnerInfo) userObject;
 						if (ordner.getAnzahlUngelesen() > 0) {
-							value = String.format(
+							label = String.format(
 									"<html><b>%s (%d)</b></html>",
 									ordner.getName(),
 									ordner.getAnzahlUngelesen());
@@ -431,7 +433,7 @@ public class MainFrame extends ExtendedFrame {
 					}
 				}
 
-				Component c = super.getTreeCellRendererComponent(tree, value,
+				Component c = super.getTreeCellRendererComponent(tree, label,
 						selected, expanded, isLeaf, row, focused);
 
 				if (value instanceof DefaultMutableTreeNode) {
@@ -445,8 +447,9 @@ public class MainFrame extends ExtendedFrame {
 						} else {
 							setIcon(closedFolderIcon);
 						}
-					}
-				}
+					} 
+				} 
+				
 				return c;
 			}
 		});
