@@ -42,6 +42,7 @@ import javax.swing.JMenu;
 import javax.swing.GroupLayout;
 import javax.swing.RowSorter;
 import javax.swing.SortOrder;
+import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.JToolBar;
@@ -52,6 +53,8 @@ import javax.mail.MessagingException;
 import javax.mail.internet.InternetAddress;
 
 import de.outlook_klon.logik.Benutzer;
+import de.outlook_klon.logik.NewMailEvent;
+import de.outlook_klon.logik.NewMailListener;
 import de.outlook_klon.logik.Benutzer.MailChecker;
 import de.outlook_klon.logik.kontakte.Kontakt;
 import de.outlook_klon.logik.mailclient.MailAccount;
@@ -94,6 +97,8 @@ public class MainFrame extends ExtendedFrame {
 	private JMenuItem mntmKonteneinstellungen;
 	private JMenuItem mntmAdressbuch;
 	private JMenuItem mntmKalendar;
+	
+	private boolean laden;
 
 	private void initMenu() {
 		JMenuBar menuBar = new JMenuBar();
@@ -363,6 +368,7 @@ public class MainFrame extends ExtendedFrame {
 								info = (MailInfo) model.getValueAt(zeile, 0);
 							}
 
+							
 							previewAnzeigen(info);
 						}
 					}
@@ -403,7 +409,13 @@ public class MainFrame extends ExtendedFrame {
 
 	private void initTree(JSplitPane splitPane) {
 		DefaultMutableTreeNode root = new DefaultMutableTreeNode("[root]");
-		tree = new JTree();
+		tree = new JTree() {
+			private static final long serialVersionUID = 1L;
+
+			public boolean isEditable() {
+				return false;
+			}
+		};
 		tree.setCellRenderer(new DefaultTreeCellRenderer() {
 			private static final long serialVersionUID = 3057355870823054419L;
 
@@ -489,27 +501,22 @@ public class MainFrame extends ExtendedFrame {
 
 				Object userObject = selectedNode.getUserObject();
 
+				MailChecker checker = null;
 				if (!(userObject instanceof MailChecker)) {
-					// TODO Test Mich!!!
-
-					MailChecker checker = ausgewaehlterChecker();
+					checker = ausgewaehlterChecker();
 					MailAccount account = checker.getAccount();
-					OrdnerInfo ordner = nodeZuOrdner(selectedNode);
 
 					String ordnerName = selectedNode.toString();
 
 					setTitle(ordnerName + " - "
 							+ account.getAdresse().getAddress());
-
-					ladeMails(checker, ordner.getPfad());
 				} else {
-					DefaultTableModel model = (DefaultTableModel) tblMails
-							.getModel();
-					model.setRowCount(0);
-
-					setTitle(((MailChecker) userObject).getAccount()
-							.getAdresse().getAddress());
+					checker = (MailChecker) userObject;
+					
+					setTitle(checker.getAccount().getAdresse().getAddress());
 				}
+
+				ladeMails(checker, selectedNode);
 			}
 		});
 
@@ -584,6 +591,7 @@ public class MainFrame extends ExtendedFrame {
 			}
 		});
 
+		laden = false;
 		benutzer.starteChecker();
 	}
 
@@ -787,6 +795,53 @@ public class MainFrame extends ExtendedFrame {
 			}
 
 			DefaultMutableTreeNode accNode = new DefaultMutableTreeNode(checker);
+			checker.addNewMessageListener(new NewMailListener() {
+				@Override
+				public void newMessage(final NewMailEvent e) {
+					//Falls der Aufruf aus einem anderen als dem Thread kommt, in dem die GUI ausgeführt wird
+					if (!SwingUtilities.isEventDispatchThread()) {
+						if(e.getSource() == ausgewaehlterChecker()) {
+							synchronized (this) {
+								if(laden) {
+									return;
+								}
+							}
+						}
+						
+						SwingUtilities.invokeLater(new Runnable() {
+							@Override
+							public void run() {
+								newMessage(e);
+							}
+						});
+						return;
+					}
+					
+					//Spätestens hier ist der ausführende Thread der GUI-Thread
+					MailChecker sender = (MailChecker) e.getSource();
+					
+					DefaultTreeModel model = (DefaultTreeModel) tree.getModel();
+					DefaultMutableTreeNode root = (DefaultMutableTreeNode) model.getRoot();
+					
+					outer:
+					for(int i = 0; i < root.getChildCount(); i++) {
+						DefaultMutableTreeNode child = (DefaultMutableTreeNode) root.getChildAt(i);
+						if(sender == child.getUserObject()) {
+							for(int j = 0; j < child.getChildCount(); j++) {
+								DefaultMutableTreeNode ordnerNode = (DefaultMutableTreeNode) child.getChildAt(j);
+								OrdnerInfo ordner = (OrdnerInfo) ordnerNode.getUserObject();
+								
+								if(ordner.getName().equalsIgnoreCase("inbox")) {
+									ordner.setAnzahlUngelesen(ordner.getAnzahlUngelesen() + 1);
+									aktualisiereNodeAnsicht(ordnerNode);
+									break outer;
+								}
+							}
+						}
+					}
+				}
+			});
+			
 			OrdnerInfo[] ordner = checker.getAccount().getOrdnerstruktur();
 
 			for (int j = 0; j < ordner.length; j++) {
@@ -804,16 +859,35 @@ public class MainFrame extends ExtendedFrame {
 		}
 	}
 
-	private void ladeMails(MailChecker checker, String pfad) {
-		MailInfo[] messages = checker.getMessages(pfad);
-
+	private void ladeMails(MailChecker checker, DefaultMutableTreeNode node) {
 		DefaultTableModel model = (DefaultTableModel) tblMails.getModel();
 		model.setRowCount(0);
-		for (MailInfo info : messages) {
-			model.addRow(new Object[] { info, info.getSubject(),
-					info.getSender(), info.getDate() });
+		
+		Object userObject = node.getUserObject();
+		if(userObject instanceof OrdnerInfo) {
+			OrdnerInfo ordner = (OrdnerInfo)userObject;
+			laden = true;
+			
+			MailInfo[] messages = checker.getMessages(ordner.getPfad());
+
+			int ungelesen = 0;
+			for (MailInfo info : messages) {
+				if(!info.isRead()) {
+					ungelesen++;
+				}
+				
+				model.addRow(new Object[] { info, info.getSubject(),
+						info.getSender(), info.getDate() });
+			}
+			
+			if(ordner.getAnzahlUngelesen() != ungelesen) {
+				ordner.setAnzahlUngelesen(ungelesen);	
+				aktualisiereNodeAnsicht(node);
+			}
+			
+			sortTable();
+			laden = false;
 		}
-		sortTable();
 	}
 
 	private MailInfo[] ausgewaehlteMailInfo() {
@@ -1081,7 +1155,16 @@ public class MainFrame extends ExtendedFrame {
 		MailAccount account = ausgewaehlterAccount();
 
 		try {
+			boolean gelesen = info.isRead();
 			account.getMessageText(pfad.getPfad(), info);
+
+			if(!gelesen) {
+				OrdnerInfo ordner = (OrdnerInfo) selectedNode.getUserObject();
+				ordner.setAnzahlUngelesen(ordner.getAnzahlUngelesen() - 1);
+				
+				aktualisiereNodeAnsicht(selectedNode);
+			}
+			
 		} catch (MessagingException ex) {
 			JOptionPane.showMessageDialog(this,
 					"Es ist ein Fehler beim Auslesen des Mail-Textes aufgetreten:\n"
@@ -1113,6 +1196,11 @@ public class MainFrame extends ExtendedFrame {
 		mf.setSize(this.getSize());
 		mf.setExtendedState(this.getExtendedState());
 		mf.setVisible(true);
+	}
+	
+	private void aktualisiereNodeAnsicht(DefaultMutableTreeNode node) {
+		DefaultTreeModel treeModel = (DefaultTreeModel) tree.getModel();
+		treeModel.nodeChanged(node);
 	}
 
 	public static void main(final String[] args) {
