@@ -7,6 +7,8 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Iterator;
 
+import de.outlook_klon.logik.kalendar.Termin.Status;
+
 /**
  * Diese Klasse stellt die Verwaltung für die Termine des Benutzers dar
  * 
@@ -121,7 +123,8 @@ public class Terminkalender implements Iterable<Termin>, Serializable {
 		ArrayList<Termin> liste = new ArrayList<Termin>();
 		for (Termin termin : mTermine) {
 			Date startZeit = termin.getStart();
-			if (start.equals(startZeit)
+			if (termin.getStatus() != Status.abgelehnt
+					&& start.equals(startZeit)
 					|| (startZeit.after(start) && startZeit.before(ende))) {
 				liste.add(termin);
 			}
@@ -161,29 +164,9 @@ public class Terminkalender implements Iterable<Termin>, Serializable {
 	 *            Date-Objekt, welches den Tag enthällt, an dem alle Termine
 	 *            entfernt werden
 	 */
-	public void absagen(Date tag) {
-		Date time1 = null;
-		Date time2 = null;
-		GregorianCalendar c = new GregorianCalendar();
-
-		c.setTime(tag);
-		c.set(Calendar.HOUR, 0); // Setzt den Eintrag der Stunden auf 0
-		c.set(Calendar.MINUTE, 0); // Setzt den Eintrag der Minuten auf 0
-		c.set(Calendar.SECOND, 0); // Setzt den Eintrag der Sekunden auf 0
-
-		time1 = c.getTime(); // Übergebener Tag mit der Uhrzeit 00:00:00
-		c.add(Calendar.DAY_OF_YEAR, 1);
-		time2 = c.getTime(); // Tag um 1 höher als time1
-
-		for (int i = 0; i < mTermine.size(); i++) {
-			Termin termin = mTermine.get(i);
-			Date start = termin.getStart();
-
-			if (start.equals(time1)
-					|| (start.after(time1) && start.before(time2))) {
-				löscheTermin(termin);
-				i--;
-			}
+	public void absagen() {
+		for(Termin t: getTermine()){
+			t.setStatus(Status.abgelehnt);
 		}
 	}
 }
