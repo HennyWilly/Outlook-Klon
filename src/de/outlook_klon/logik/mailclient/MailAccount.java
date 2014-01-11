@@ -14,6 +14,7 @@ import java.util.HashSet;
 import javax.mail.Address;
 import javax.mail.AuthenticationFailedException;
 import javax.mail.BodyPart;
+import javax.mail.FetchProfile;
 import javax.mail.Flags;
 import javax.mail.Flags.Flag;
 import javax.mail.Folder;
@@ -77,14 +78,20 @@ public class MailAccount implements Serializable {
 		@Override
 		public boolean match(final Message message) {
 			boolean result = false;
-
+			
 			try {
-				if (message instanceof MimeMessage) {
-					final MimeMessage mime = (MimeMessage) message;
-					final String id = mime.getMessageID();
-					if (id != null)
-						result = super.match(id);
+				String[] tmpId = message.getHeader("Message-Id");
+				String id = null;
+				
+				if(tmpId != null && tmpId.length == 1) {
+					id = tmpId[0];
 				}
+				else if (message instanceof MimeMessage) {
+					id = ((MimeMessage) message).getMessageID();
+				}
+				
+				if (id != null)
+					result = super.match(id);
 			} catch (MessagingException ex) {
 
 			}
@@ -206,15 +213,15 @@ public class MailAccount implements Serializable {
 			paths = new OrdnerInfo[folders.length];
 			for (int i = 0; i < paths.length; i++) {
 				Folder folder = folders[i];
-				int msgCount;
+				/*int msgCount;
 				try {
-					msgCount = folder.getNewMessageCount();
+					msgCount = folder.getUnreadMessageCount(); 
 				} catch (MessagingException ex) {
 					msgCount = 0;
-				}
+				}*/
 
 				paths[i] = new OrdnerInfo(folder.getName(),
-						folder.getFullName(), msgCount);
+						folder.getFullName(), 0);
 			}
 
 			store.close();
@@ -239,8 +246,11 @@ public class MailAccount implements Serializable {
 	 * @return ID der Mail, oder <code>null</code>, wenn nicht gefunden
 	 */
 	private String getID(Message message) throws MessagingException {
-		String id = null;
+		String[] tmpID = message.getHeader("Message-ID");
+		if (tmpID != null && tmpID.length > 0)
+			return tmpID[0];
 
+		String id = null;
 		if (message instanceof MimeMessage) {
 			MimeMessage mime = (MimeMessage) message;
 
@@ -248,10 +258,6 @@ public class MailAccount implements Serializable {
 			if (id == null) {
 				id = mime.getContentID();
 			}
-		} else {
-			String[] tmpID = message.getHeader("Message-ID");
-			if (tmpID != null && tmpID.length > 0)
-				id = tmpID[0];
 		}
 
 		return id;
@@ -276,7 +282,10 @@ public class MailAccount implements Serializable {
 			folder.open(Folder.READ_ONLY);
 
 			final Message[] messages = folder.getMessages();
-
+			FetchProfile fp = new FetchProfile();
+			fp.add("Message-Id");
+			folder.fetch(messages, fp);
+			
 			for (int i = 0; i < messages.length; i++) {
 				final Message message = messages[i];
 
@@ -543,13 +552,9 @@ public class MailAccount implements Serializable {
 	 */
 	private Message infoToMessage(final MailInfo mail, final Folder ordner)
 			throws MessagingException {
-		final String id = mail.getID();
 
-		Message[] tmpMessages = ordner.search(new MessageIDTerm(id));
-		if (tmpMessages.length == 0)
-			tmpMessages = ordner.search(new MyMessageIDTerm(id));
-
-		return tmpMessages.length == 0 ? null : tmpMessages[0];
+		Message[] result = infoToMessage(new MailInfo[] { mail }, ordner);
+		return result == null || result.length == 0 ? null : result[0];
 	}
 
 	/**
@@ -566,9 +571,20 @@ public class MailAccount implements Serializable {
 	private Message[] infoToMessage(final MailInfo[] mails, final Folder ordner)
 			throws MessagingException {
 		Message[] messages = new Message[mails.length];
+		Message[] folderMails = ordner.getMessages();
+		
+		FetchProfile fp = new FetchProfile();
+		fp.add("Message-Id");
+		ordner.fetch(folderMails, fp);
 
 		for (int i = 0; i < mails.length; i++) {
-			messages[i] = infoToMessage(mails[i], ordner);
+			String id = mails[i].getID();
+			
+			Message[] tmpMessages = ordner.search(new MessageIDTerm(id));
+			if (tmpMessages.length == 0)
+				tmpMessages = ordner.search(new MyMessageIDTerm(id));
+			
+			messages[i] = tmpMessages.length == 0 ? null : tmpMessages[0];
 		}
 
 		return messages;
