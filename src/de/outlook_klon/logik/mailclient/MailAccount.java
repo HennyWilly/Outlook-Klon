@@ -33,6 +33,8 @@ import javax.mail.search.StringTerm;
 
 import com.sun.mail.imap.IMAPFolder;
 
+import de.outlook_klon.logik.Benutzer.MailChecker;
+
 /**
  * Diese Klasse stellt ein Mailkonto dar. Hierüber können Mails gesendet und
  * empfangen werden.
@@ -1010,16 +1012,25 @@ public class MailAccount implements Serializable {
 		// Es dürfen keine MailAccounts hinzugefügt werden, deren MailAdresse
 		// bereit enthalten ist
 
-		if (obj == null || !(obj instanceof MailAccount))
+		if (obj == null)
 			return false;
 		if (this == obj)
 			return true;
 
-		MailAccount acc = (MailAccount) obj;
-		String thisAddress = this.adresse.getAddress();
-		String accAddress = acc.adresse.getAddress();
-
-		return thisAddress.equalsIgnoreCase(accAddress);
+		if(obj instanceof MailAccount) {
+			MailAccount acc = (MailAccount) obj;
+			String thisAddress = this.adresse.getAddress();
+			String accAddress = acc.adresse.getAddress();
+			
+			return thisAddress.equalsIgnoreCase(accAddress);
+		}
+		
+		if(obj instanceof MailChecker) {
+			MailChecker checker = (MailChecker)obj;
+			return this.equals(checker.getAccount());
+		}
+		
+		return false;
 	}
 
 	@Override

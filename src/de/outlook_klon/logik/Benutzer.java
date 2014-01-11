@@ -211,6 +211,25 @@ public final class Benutzer implements Iterable<Benutzer.MailChecker> {
 		public String toString() {
 			return account.toString();
 		}
+		
+		@Override
+		public boolean equals(Object other) {
+			if(this == other)
+				return true;
+			if(other == null)
+				return false;
+			
+			if(other instanceof MailChecker) {
+				MailChecker checker = ((MailChecker)other);
+				return this.getAccount().equals(checker.getAccount());
+			}
+			if(other instanceof MailAccount) {
+				MailAccount account = (MailAccount) other;
+				return this.getAccount().equals(account);
+			}
+			
+			return false;
+		}
 	}
 
 	/**
