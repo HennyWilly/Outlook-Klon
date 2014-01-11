@@ -251,6 +251,16 @@ public class TerminFrame extends ExtendedDialog<Termin> {
 		comboKonto.setSelectedItem(t.getBenutzerkonto());
 		comboKontakt.setSelectedItem(t.getKontakt());
 	}
+	
+	public TerminFrame(Date date) {
+		this();
+		
+		SpinnerDateModel m1 = (SpinnerDateModel)date1.getModel();
+		m1.setValue(date);
+		
+		SpinnerDateModel m2 = (SpinnerDateModel)date2.getModel();
+		m2.setValue(date);
+	}
 
 	@Override
 	protected Termin getDialogResult() {

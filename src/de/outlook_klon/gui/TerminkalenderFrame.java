@@ -22,6 +22,7 @@ import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+import java.util.Date;
 
 import de.outlook_klon.logik.Benutzer;
 import de.outlook_klon.logik.Benutzer.MailChecker;
@@ -51,8 +52,8 @@ public class TerminkalenderFrame extends ExtendedFrame {
 	private ArrayList<Termin> allTermine;
 
 	private JPanel panel;
-
-	public TerminkalenderFrame(boolean neu) {
+	
+	private void initGui() {
 		terminPopup = new JPopupMenu();
 
 		popupTerminOeffnen = new JMenuItem("Öffnen");
@@ -233,11 +234,20 @@ public class TerminkalenderFrame extends ExtendedFrame {
 
 		aktualisiere2Tabelle();
 		ladeBenutzer();
+	}
+
+	public TerminkalenderFrame(boolean neu) {
+		initGui();
 
 		if (neu)
 			neuerTermin();
 	}
 
+	public TerminkalenderFrame(Date start) {
+		this(false);
+		neuerTermin(start);
+	}
+	
 	/*private void aktualisiereTabelle() {
 		DefaultTableModel model = (DefaultTableModel)tblTermine.getModel();
 		model.setRowCount(0);
@@ -340,7 +350,24 @@ public class TerminkalenderFrame extends ExtendedFrame {
 			}
 			aktualisiere2Tabelle();
 		}
+	}
+	
+	private void neuerTermin(Date date) {
+		TerminFrame tf = new TerminFrame(date);
+		Termin dummy = tf.showDialog();
 
+		if (dummy != null) {
+			kalender.addTermin(dummy);
+			allTermine.add(dummy);
+			if (kalender.ueberschneidung(dummy)) {
+				JOptionPane
+						.showMessageDialog(
+								this,
+								"ACHTUNG! Überschneidung mit bereits vorhandenem Termin. Evtl. Sollten Sie ihre Termine überprüfen.",
+								"Warning", JOptionPane.WARNING_MESSAGE);
+			}
+			aktualisiere2Tabelle();
+		}
 	}
 
 	private void bearbeiteTermin(Termin t) {
