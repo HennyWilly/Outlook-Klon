@@ -4,6 +4,7 @@ import java.awt.Desktop;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
+import java.text.DateFormat;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -36,10 +37,10 @@ public class HtmlEditorPane extends JEditorPane {
 	 */
 	public static boolean istHtml(String text) {
 		Pattern pattern = Pattern
-				.compile(".*?<(\"[^\"]*\"|'[^']*'|[^'\">])*>.*?");
+				.compile("<(\"[^\"]*\"|'[^']*'|[^'\">])*>");
 		Matcher matcher = pattern.matcher(text);
 		
-		return matcher.matches();
+		return matcher.find();
 	}
 
 	/**
@@ -53,6 +54,8 @@ public class HtmlEditorPane extends JEditorPane {
 			public void hyperlinkUpdate(HyperlinkEvent arg0) {
 				if (arg0.getEventType() == EventType.ACTIVATED) {
 					String url = arg0.getDescription();
+					if(url.startsWith("date://"))
+						return;
 
 					if (Desktop.isDesktopSupported()) {
 						Desktop meinDesktop = Desktop.getDesktop();
@@ -141,20 +144,57 @@ public class HtmlEditorPane extends JEditorPane {
 	 *            um welchen ContentType es sich handelt
 	 */
 	public void setText(String text, String contentType, boolean autoChange) {
-		String tmpText = text.replace("\r\n", "<br/>");
-
 		if (autoChange && !contentType.startsWith(HTML)) {
-			if (istHtml(tmpText))
-				contentType = contentType.replace(PLAIN, HTML);
+			if (istHtml(text))
+				contentType = contentType.replaceAll("(?i)" + PLAIN, HTML);
 		}
 
 		setContentType(contentType);
 		if (contentType.startsWith(HTML)) {
-			text = tmpText;
+			text = text.replace("\r\n", "<br/>");
 
 			if (getEditorKit() != htmlEditor)
 				setEditorKit(htmlEditor);
 		}
 		setText(text);
+	}
+	
+	@Override
+	public void setText(String text) {
+		String contentType = this.getContentType();
+		if(contentType.startsWith("text/html")) {
+			Pattern timePattern = Pattern.compile("\\d{1,2}.\\d{1,2}.\\d{4}( \\d{1,2}:\\d{1,2})");
+			String hyperlinkPattern = "<a href=\"date://%s\">%s</a>";
+			Matcher matcher = timePattern.matcher(text);
+			
+			boolean skip = false;
+			while(matcher.find()) {
+				if(skip) {
+					skip = false;
+					continue;
+				}
+				
+				int start = matcher.start();
+				if(start - 7 >= 0) {
+					String sub = text.substring(start - 7, start);
+					if(sub.equalsIgnoreCase("date://")) {
+						skip = true;
+						continue;
+					}
+				}
+				
+				String match = matcher.group();
+				DateFormat formater = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT);
+				
+				try {
+					formater.parse(match);
+					String replacement = String.format(hyperlinkPattern, match, match);
+					text = text.replace(match, replacement);
+				} catch(Exception e) {
+				}
+			}
+		}
+		
+		super.setText(text);
 	}
 }
