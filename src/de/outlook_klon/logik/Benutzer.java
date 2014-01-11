@@ -36,6 +36,8 @@ public final class Benutzer implements Iterable<Benutzer.MailChecker> {
 			+ "/settings.bin";
 	private static final String KONTAKT_PFAD = DATEN_ORDNER + "/Kontakte.bin";
 	private static final String TERMIN_PFAD = DATEN_ORDNER + "/Termine.bin";
+	private String Abwesenheitsmeldung;
+	private String Krankmeldung;
 
 	private static Benutzer singleton;
 
@@ -602,6 +604,7 @@ public final class Benutzer implements Iterable<Benutzer.MailChecker> {
 				e.printStackTrace();
 			}
 		}
+		termine.absagen();
 	}
 
 	private void schreibeAbsage(Termin termin, MailAccount sender)
@@ -642,5 +645,21 @@ public final class Benutzer implements Iterable<Benutzer.MailChecker> {
 		}
 
 		return result;
+	}
+
+	public String getAbwesenheitsmeldung() {
+		return Abwesenheitsmeldung;
+	}
+
+	public void setAbwesenheitsmeldung(String abwesenheitsmeldung) {
+		Abwesenheitsmeldung = abwesenheitsmeldung;
+	}
+
+	public String getKrankmeldung() {
+		return Krankmeldung;
+	}
+
+	public void setKrankmeldung(String krankmeldung) {
+		Krankmeldung = krankmeldung;
 	}
 }
