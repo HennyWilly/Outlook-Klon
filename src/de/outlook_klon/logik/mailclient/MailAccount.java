@@ -178,7 +178,7 @@ public class MailAccount implements Serializable {
 					final IMAPFolder imap = (IMAPFolder) folder;
 					final String[] attr = imap.getAttributes();
 
-					if (imap.getName().equalsIgnoreCase("sent"))
+					if (imap.getName().equalsIgnoreCase("sent") || imap.getName().equalsIgnoreCase("gesendet"))
 						sendFolder = imap;
 
 					for (int i = 0; i < attr.length; i++) {
