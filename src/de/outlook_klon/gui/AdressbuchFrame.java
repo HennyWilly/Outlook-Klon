@@ -33,6 +33,13 @@ import de.outlook_klon.logik.Benutzer;
 import de.outlook_klon.logik.kontakte.Kontakt;
 import de.outlook_klon.logik.kontakte.Kontaktverwaltung;
 
+/**
+ * In diesem Frame werden alle Kontaktlisten der Verwaltung und deren Kontakte
+ * angezeigt. Bietet zudem Funktionalitäten zum Erstellen, Bearbeiten und
+ * Löschen von Listen und Kontakten an
+ * 
+ * @author Hendrik Karwanni
+ */
 public class AdressbuchFrame extends ExtendedFrame {
 	private static final long serialVersionUID = 2142631007771154882L;
 
@@ -58,12 +65,18 @@ public class AdressbuchFrame extends ExtendedFrame {
 	private MainFrame parent;
 	private Kontaktverwaltung verwaltung;
 
+	/**
+	 * Dialogfenster zum Erstellen und Bearbeiten von Kontaktlisten
+	 */
 	private final class ListenDialog extends ExtendedDialog<String> {
 		private static final long serialVersionUID = 1L;
 
 		private String mListe;
 		private JTextField txtListe;
 
+		/**
+		 * Initalisiert die Komponenten des Dialogs
+		 */
 		private void initGUI() {
 			txtListe = new JTextField();
 			txtListe.setColumns(10);
@@ -116,6 +129,9 @@ public class AdressbuchFrame extends ExtendedFrame {
 			getContentPane().setLayout(groupLayout);
 		}
 
+		/**
+		 * Erzeugt eine neue Instanz des Dialogs zum Erstellen einer Liste
+		 */
 		public ListenDialog() {
 			super(355, 130);
 
@@ -124,6 +140,10 @@ public class AdressbuchFrame extends ExtendedFrame {
 			setTitle("Neue Liste erstellen");
 		}
 
+		/**
+		 * Erzeugt eine neue Instanz des Dialogs zum Bearbeiten einer Liste
+		 * @param liste
+		 */
 		public ListenDialog(String liste) {
 			super(355, 130);
 
@@ -139,6 +159,12 @@ public class AdressbuchFrame extends ExtendedFrame {
 		}
 	}
 
+	/**
+	 * Initialisiert die JTable des Frames
+	 * 
+	 * @param verticalSplit
+	 *            JSplitPane in die die JTable eingefügt werden soll
+	 */
 	private void initTabelle(JSplitPane verticalSplit) {
 		tablePopup = new JPopupMenu();
 
@@ -272,6 +298,12 @@ public class AdressbuchFrame extends ExtendedFrame {
 		verticalSplit.setLeftComponent(kontakteScroller);
 	}
 
+	/**
+	 * Initialisiert die JList des Frames
+	 * 
+	 * @param horizontalSplit
+	 *            JSplitPane in die die JList eingefügt werden soll
+	 */
 	private void initListen(JSplitPane horizontalSplit) {
 		listenPopup = new JPopupMenu();
 
@@ -344,6 +376,9 @@ public class AdressbuchFrame extends ExtendedFrame {
 		horizontalSplit.setLeftComponent(listerScroller);
 	}
 
+	/**
+	 * Initalisiert die Komponenten des Frames
+	 */
 	private void initGUI() {
 		JSplitPane horizontalSplit = new JSplitPane();
 		getContentPane().add(horizontalSplit, BorderLayout.CENTER);
@@ -403,6 +438,16 @@ public class AdressbuchFrame extends ExtendedFrame {
 		mnDatei.add(mntDateiBeenden);
 	}
 
+	/**
+	 * Erstellt eine neue AdressbuchFrame-Instanz
+	 * 
+	 * @param parent
+	 *            Referenz auf das Vater-Fenster, um darauf ggf. die
+	 *            neueMail-Methode aufzurufen
+	 * @param neu
+	 *            Wenn true, wird sofort ein neues KontaktFrame geöffnet; sonst
+	 *            nicht
+	 */
 	public AdressbuchFrame(MainFrame parent, boolean neu) {
 		setTitle("Adressbuch");
 		this.parent = parent;
@@ -417,6 +462,9 @@ public class AdressbuchFrame extends ExtendedFrame {
 			neuerKontakt();
 	}
 
+	/**
+	 * Aktualisiert die JList mit den aktuellen Kontaktlisten.
+	 */
 	private void aktualisiereKontaktlisten() {
 		String selected = lstListen.getSelectedValue();
 
@@ -437,6 +485,13 @@ public class AdressbuchFrame extends ExtendedFrame {
 			tablePopup.add(popupTabelleListeHinzufügen);
 	}
 
+	/**
+	 * Aktualisiert die JTable mit den Kontakten der übergebenen Kontaktliste.
+	 * 
+	 * @param liste
+	 *            Gibt an, aus welcher Liste der Kontaktverwaltung die Kontakte
+	 *            geladen werden sollen.
+	 */
 	private void aktualisiereTabelle(String liste) {
 		if (liste == null)
 			return;
@@ -456,10 +511,22 @@ public class AdressbuchFrame extends ExtendedFrame {
 		aktualisiereDetails(null);
 	}
 
+	/**
+	 * Gibt den aktuell ausgewählten Listennamen der JList zurück
+	 * 
+	 * @return ausgewählter Listenname
+	 */
 	private String aktuelleListe() {
 		return (String) lstListen.getSelectedValue();
 	}
 
+	/**
+	 * Aktualisiert den Inhalt der JTextPane mit den Daten des übergebenen
+	 * Kontakts
+	 * 
+	 * @param k
+	 *            Kontakt, dessen Daten zum Füllen der Details verwendet werden
+	 */
 	private void aktualisiereDetails(Kontakt k) {
 		StringBuilder sb = new StringBuilder();
 
@@ -495,6 +562,9 @@ public class AdressbuchFrame extends ExtendedFrame {
 		txtDetails.setEditable(false);
 	}
 
+	/**
+	 * Öffnet ein neues KontaktFrame zum Erstellen eines neuen Kontaks
+	 */
 	private void neuerKontakt() {
 		KontaktFrame kf = new KontaktFrame();
 		Kontakt k = kf.showDialog();
@@ -505,6 +575,12 @@ public class AdressbuchFrame extends ExtendedFrame {
 		}
 	}
 
+	/**
+	 * Öffnet ein neues KontaktFrame zum bearbeiten des übergebenen Kontaks
+	 * 
+	 * @param k
+	 *            Kontakt-Objekt, das im KontaktFrame bearbeitet werden soll.
+	 */
 	private void bearbeiteKontakt(Kontakt k) {
 		KontaktFrame kf = new KontaktFrame(k);
 		kf.showDialog();
@@ -518,6 +594,12 @@ public class AdressbuchFrame extends ExtendedFrame {
 		}
 	}
 
+	/**
+	 * Öffnet einen neuen Listendialog zum Umbennen der übergebenen Liste
+	 * 
+	 * @param liste
+	 *            Listenname, der umbenannt werden soll
+	 */
 	private void listeUmbenennen(String liste) {
 		ListenDialog ld = new ListenDialog(liste);
 		String neuerName = ld.showDialog();
@@ -534,6 +616,11 @@ public class AdressbuchFrame extends ExtendedFrame {
 		}
 	}
 
+	/**
+	 * Gibt ein Array der im JTable ausgewählten Kontakte zurück
+	 * 
+	 * @return Array der ausgewählten Kontakte
+	 */
 	private Kontakt[] ausgewaehlteKontakte() {
 		Kontakt[] kontakte = new Kontakt[tblKontakte.getSelectedRowCount()];
 		int[] indizes = tblKontakte.getSelectedRows();
@@ -546,23 +633,44 @@ public class AdressbuchFrame extends ExtendedFrame {
 		return kontakte;
 	}
 
+	/**
+	 * Öffnet ein neues MailFrame über die Instanz des Vaterfensters
+	 * 
+	 * @param kontakte
+	 *            Kontakte deren 1. Mailadresse automatisch als Empfänger
+	 *            eingetragen werden
+	 */
 	private void verfassen(Kontakt[] kontakte) {
 		parent.neueMail(kontakte);
 	}
 
+	/**
+	 * Öffnet das Popup-Menü der JTable
+	 * 
+	 * @param e
+	 *            Enthält Daten bezüglich des Klicks
+	 */
 	private void oeffnePopupTabelle(MouseEvent e) {
 		if (e.isPopupTrigger()) {
 			int zeile = tblKontakte.rowAtPoint(e.getPoint());
 			int spalte = tblKontakte.columnAtPoint(e.getPoint());
 
 			if (zeile >= 0 && spalte >= 0) {
+				//TODO Kontektmenü bei Mehrfachauswahl
+				
 				tblKontakte.setRowSelectionInterval(zeile, zeile);
 
 				tablePopup.show(tblKontakte, e.getX(), e.getY());
 			}
 		}
 	}
-
+	
+	/**
+	 * Öffnet das Popup-Menü der JList
+	 * 
+	 * @param e
+	 *            Enthält Daten bezüglich des Klicks
+	 */
 	private void oeffnePopupListen(MouseEvent e) {
 		if (e.isPopupTrigger()) {
 			int zeile = lstListen.locationToIndex(e.getPoint());
@@ -581,6 +689,12 @@ public class AdressbuchFrame extends ExtendedFrame {
 		}
 	}
 
+	/**
+	 * Erstellt ein neues JMenu, das als Elemente die Namen aller Einträge der
+	 * JList ausgenommen des Standardadressbuchs enthält
+	 * 
+	 * @return Neues JMenu mit den Kontaktlisten
+	 */
 	private JMenu generiereListenmenü() {
 		JMenu menu = new JMenu("Zu Liste zuordnen");
 		DefaultListModel<String> model = (DefaultListModel<String>) lstListen
@@ -604,6 +718,15 @@ public class AdressbuchFrame extends ExtendedFrame {
 		return menu;
 	}
 
+	/**
+	 * Fügt die übergebenen Kontakte in die übergebene Liste der
+	 * Kontaktverwaltung ein
+	 * 
+	 * @param kontakte
+	 *            Einzufügende Kontakte
+	 * @param liste
+	 *            Liste, in die die Kontakte eingefügt werden sollen
+	 */
 	private void listeHinzufuegen(Kontakt[] kontakte, String liste) {
 		for (Kontakt k : kontakte) {
 			try {
