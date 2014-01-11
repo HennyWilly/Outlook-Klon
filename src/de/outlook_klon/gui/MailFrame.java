@@ -24,6 +24,9 @@ import javax.swing.GroupLayout.Alignment;
 import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.event.HyperlinkEvent;
+import javax.swing.event.HyperlinkListener;
+import javax.swing.event.HyperlinkEvent.EventType;
 import javax.swing.JMenuBar;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
@@ -34,7 +37,9 @@ import javax.swing.JList;
 
 import java.io.File;
 import java.io.UnsupportedEncodingException;
+import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -297,6 +302,32 @@ public class MailFrame extends ExtendedFrame {
 		panel.setLayout(gl_panel);
 
 		tpMailtext = new HtmlEditorPane();
+		tpMailtext.addHyperlinkListener(new HyperlinkListener() {
+			@Override
+			public void hyperlinkUpdate(HyperlinkEvent arg0) {
+				if (arg0.getEventType() == EventType.ACTIVATED) {
+					String befehl = arg0.getDescription();
+					String prefix = "date://";
+					if(befehl.startsWith(prefix)) {
+						String strDatum = befehl.substring(prefix.length());
+						
+						DateFormat format = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT);
+						
+						try {
+							Date datum = format.parse(strDatum);
+							TerminkalenderFrame tkf = new TerminkalenderFrame(datum);
+							
+							tkf.setVisible(true);
+							tkf.setExtendedState(getExtendedState());
+							tkf.setSize(getSize());
+						} catch (java.text.ParseException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
+				}
+			}
+		});
 
 		JScrollPane textScroller = new JScrollPane(tpMailtext);
 		splitPane.setRightComponent(textScroller);
@@ -420,13 +451,11 @@ public class MailFrame extends ExtendedFrame {
 
 		String text = info.getText();
 		String contentType = info.getContentType();
-		String tmpText = text.replace("\r\n", "<br/>");
 
-		if (!contentType.startsWith("TEXT/html")
-				&& HtmlEditorPane.istHtml(tmpText))
+		if(HtmlEditorPane.istHtml(text))
 			contentType = contentType.replace("plain", "html");
 
-		if (contentType.startsWith("TEXT/plain")) {
+		if (contentType.toLowerCase().startsWith("text/plain")) {
 			rdbtnmntmReintext.setSelected(true);
 			tpMailtext.setText(text);
 		} else {
