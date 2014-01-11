@@ -2,6 +2,7 @@ package de.outlook_klon.logik.kontakte;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -36,6 +37,10 @@ public class Kontaktverwaltung implements Iterable<Kontakt>, Serializable {
 	 *            Der hinzuzufügende Kontakt
 	 */
 	public void addKontakt(final Kontakt kontakt) {
+		if(kontakt == null)
+			throw new NullPointerException(
+					"Instanz des Kontakts wurde nicht initialisiert");
+		
 		final HashSet<Kontakt> kontaktliste = mKontakte.get(DEFAULT);
 
 		kontaktliste.add(kontakt);
@@ -59,10 +64,10 @@ public class Kontaktverwaltung implements Iterable<Kontakt>, Serializable {
 
 		final HashSet<Kontakt> kontaktliste = mKontakte.get(liste);
 		if (kontaktliste == null)
-			throw new NullPointerException("Der Listenname existiert nicht");
+			throw new IllegalArgumentException("Der Listenname existiert nicht");
 		if (!kontaktliste.add(kontakt))
 			throw new IllegalArgumentException(
-					"Die Liste enthällt den Kontakt bereits");
+					"Die Liste enthält den Kontakt bereits");
 
 		addKontakt(kontakt);
 	}
@@ -124,7 +129,7 @@ public class Kontaktverwaltung implements Iterable<Kontakt>, Serializable {
 			final HashSet<Kontakt> zielListe = mKontakte.get(liste);
 
 			if (zielListe == null)
-				throw new NullPointerException("Der Listenname existiert nicht");
+				throw new IllegalArgumentException("Der Listenname existiert nicht");
 
 			zielListe.remove(kontakt);
 		}
@@ -170,7 +175,7 @@ public class Kontaktverwaltung implements Iterable<Kontakt>, Serializable {
 
 		final HashSet<Kontakt> liste = mKontakte.remove(alt);
 		if (liste == null)
-			throw new NullPointerException(
+			throw new IllegalArgumentException(
 					"Der alte Listenname existiert nicht");
 		if (mKontakte.get(neu) != null)
 			throw new IllegalArgumentException(
@@ -186,7 +191,11 @@ public class Kontaktverwaltung implements Iterable<Kontakt>, Serializable {
 	 */
 	public String[] getListen() {
 		final Set<String> listen = mKontakte.keySet();
-		return listen.toArray(new String[mKontakte.size()]);
+		
+		String[] arryListen = listen.toArray(new String[mKontakte.size()]);
+		Arrays.sort(arryListen);
+		
+		return arryListen;
 	}
 
 	/**
@@ -211,7 +220,10 @@ public class Kontaktverwaltung implements Iterable<Kontakt>, Serializable {
 				listen.add(name);
 		}
 
-		return listen.toArray(new String[listen.size()]);
+		String[] arryListen = listen.toArray(new String[mKontakte.size()]);
+		Arrays.sort(arryListen);
+		
+		return arryListen;
 	}
 
 	/**
@@ -229,7 +241,7 @@ public class Kontaktverwaltung implements Iterable<Kontakt>, Serializable {
 
 		final HashSet<Kontakt> set = mKontakte.get(liste);
 		if (set == null)
-			throw new NullPointerException("Der Listenname existiert nicht");
+			throw new IllegalArgumentException("Der Listenname existiert nicht");
 
 		return set.toArray(new Kontakt[set.size()]);
 	}
