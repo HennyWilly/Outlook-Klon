@@ -834,6 +834,15 @@ public class MainFrame extends ExtendedFrame {
 								if(ordner.getName().equalsIgnoreCase("inbox")) {
 									ordner.setAnzahlUngelesen(ordner.getAnzahlUngelesen() + 1);
 									aktualisiereNodeAnsicht(ordnerNode);
+									
+									DefaultMutableTreeNode selected = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
+									if(selected == ordnerNode) {
+										MailInfo info = e.getInfo();
+										DefaultTableModel tableModel = (DefaultTableModel) tblMails.getModel();
+										tableModel.addRow(new Object[] { info, info.getSubject(),
+												info.getSender(), info.getDate() });
+									}
+									
 									break outer;
 								}
 							}
