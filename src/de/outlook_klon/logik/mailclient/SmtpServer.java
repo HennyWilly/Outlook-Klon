@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.Properties;
 
+import javax.mail.Flags;
 import javax.mail.Message;
 import javax.mail.Message.RecipientType;
 import javax.mail.MessagingException;
@@ -112,6 +113,8 @@ public class SmtpServer extends SendServer {
 		transport.connect(settings.getHost(), settings.getPort(), user, passwd);
 		transport.sendMessage(mail, mail.getAllRecipients());
 		transport.close();
+		
+		mail.setFlag(Flags.Flag.SEEN, true);
 
 		return mail;
 	}
