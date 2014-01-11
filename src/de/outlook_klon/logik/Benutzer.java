@@ -12,6 +12,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Vector;
 
+import javax.mail.FolderNotFoundException;
 import javax.mail.MessagingException;
 import javax.mail.internet.InternetAddress;
 
@@ -111,7 +112,13 @@ public final class Benutzer implements Iterable<Benutzer.MailChecker> {
 			synchronized (mails) {
 				// Erstmaliges Abfragen des Posteingangs
 
-				MailInfo[] mailInfos = account.getMessages(FOLDER);
+				MailInfo[] mailInfos = null;
+				try {
+					mailInfos = account.getMessages(FOLDER);
+				} catch (FolderNotFoundException e) {
+					//Ignorieren, da INBOX immer vorhanden sein sollte!
+				}
+				
 				for (MailInfo info : mailInfos) {
 					mails.add(info);
 					if(!info.isRead()) {
@@ -154,6 +161,8 @@ public final class Benutzer implements Iterable<Benutzer.MailChecker> {
 				} catch (InterruptedException e) {
 					// Bricht die Ausführung ab
 					break;
+				} catch (FolderNotFoundException e) {
+					//Ignorieren, da INBOX immer vorhanden sein sollte!
 				}
 			}
 		}
@@ -166,8 +175,10 @@ public final class Benutzer implements Iterable<Benutzer.MailChecker> {
 		 * @param pfad
 		 *            Zu durchsuchender Ordnerpfad
 		 * @return MailInfos des gesuchten Ordners
+		 * @throws FolderNotFoundException
+		 *             Tritt auf, wenn ein Ordner nicht gefunden werden konnte
 		 */
-		public MailInfo[] getMessages(String pfad) {
+		public MailInfo[] getMessages(String pfad) throws FolderNotFoundException {
 			MailInfo[] array = null;
 
 			boolean threadOK = this.isAlive() && !this.isInterrupted();

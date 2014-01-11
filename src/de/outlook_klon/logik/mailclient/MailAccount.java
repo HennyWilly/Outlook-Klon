@@ -18,6 +18,7 @@ import javax.mail.FetchProfile;
 import javax.mail.Flags;
 import javax.mail.Flags.Flag;
 import javax.mail.Folder;
+import javax.mail.FolderNotFoundException;
 import javax.mail.Message;
 import javax.mail.Message.RecipientType;
 import javax.mail.MessagingException;
@@ -269,8 +270,10 @@ public class MailAccount implements Serializable {
 	 * @param pfad
 	 *            Pfad, in dem die Mails gesucht werden.
 	 * @return Array von MailInfos mit der ID, Betreff, Sender und SendDatum
+	 * @throws FolderNotFoundException
+	 *             Tritt auf, wenn ein Ordner nicht gefunden werden konnte
 	 */
-	public MailInfo[] getMessages(final String pfad) {
+	public MailInfo[] getMessages(final String pfad) throws FolderNotFoundException {
 		HashSet<MailInfo> set = new HashSet<MailInfo>();
 
 		Store store = null;
@@ -318,6 +321,8 @@ public class MailAccount implements Serializable {
 			}
 
 			folder.close(true);
+		} catch (FolderNotFoundException e) {
+			throw e;
 		} catch (Exception e) {
 
 		} finally {

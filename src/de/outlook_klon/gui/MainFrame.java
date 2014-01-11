@@ -49,6 +49,7 @@ import javax.swing.JToolBar;
 import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.JButton;
 import javax.swing.JPopupMenu;
+import javax.mail.FolderNotFoundException;
 import javax.mail.MessagingException;
 import javax.mail.internet.InternetAddress;
 
@@ -495,8 +496,7 @@ public class MainFrame extends ExtendedFrame {
 				DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) tree
 						.getLastSelectedPathComponent();
 				if (selectedNode == null) {
-					throw new NullPointerException(
-							"Hier tritt manchmal eine Exception auf :(");
+					return;
 				}
 
 				Object userObject = selectedNode.getUserObject();
@@ -552,7 +552,20 @@ public class MainFrame extends ExtendedFrame {
 		btnAbrufen.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
+				DefaultTableModel tableModel = (DefaultTableModel) tblMails.getModel();
+				tableModel.setRowCount(0);
+				
+				DefaultTreeModel treeModel = (DefaultTreeModel) tree.getModel();
+				DefaultMutableTreeNode root = (DefaultMutableTreeNode) treeModel.getRoot();
+				for(int i = 0; i < root.getChildCount(); i++) {
+					DefaultMutableTreeNode childNode = (DefaultMutableTreeNode) root.getChildAt(i);
+					
+					treeModel.removeNodeFromParent(childNode);
+				}
+				
+				tpPreview.setText(null);
+				
+				ladeOrdner();
 			}
 		});
 		toolBar.add(btnAbrufen);
@@ -706,8 +719,10 @@ public class MainFrame extends ExtendedFrame {
 					treeModel.reload();
 					refresh = true;
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					JOptionPane.showMessageDialog(
+						this,
+						"Es ist ein Fehler beim Löschen der vorhandenen Einstellungen aufgetreten!",
+						"Fehler", JOptionPane.ERROR_MESSAGE);
 				}
 			}
 
@@ -732,19 +747,17 @@ public class MainFrame extends ExtendedFrame {
 	}
 
 	private OrdnerInfo nodeZuOrdner(DefaultMutableTreeNode knoten) {
-		// TODO Testen
-
+		OrdnerInfo ret = null;
+		
 		Object userObject = knoten.getUserObject();
-		if (!(userObject instanceof OrdnerInfo))
-			return null;
-
-		return (OrdnerInfo) userObject;
+		if (userObject instanceof OrdnerInfo)
+			ret = (OrdnerInfo) userObject;
+		
+		return ret;
 	}
 
 	private void ordnerZuNode(OrdnerInfo ordner, DefaultMutableTreeNode parent,
 			int tiefe) {
-		// TODO Testen
-
 		String pfad = ordner.getPfad();
 		String[] parts = ordner.getPfad().split("/");
 
@@ -777,8 +790,6 @@ public class MainFrame extends ExtendedFrame {
 	}
 
 	private void ladeOrdner() {
-		// TODO Testen
-
 		DefaultTreeModel treeModel = (DefaultTreeModel) tree.getModel();
 		DefaultMutableTreeNode rootNode = (DefaultMutableTreeNode) treeModel
 				.getRoot();
@@ -877,24 +888,29 @@ public class MainFrame extends ExtendedFrame {
 			OrdnerInfo ordner = (OrdnerInfo)userObject;
 			laden = true;
 			
-			MailInfo[] messages = checker.getMessages(ordner.getPfad());
-
-			int ungelesen = 0;
-			for (MailInfo info : messages) {
-				if(!info.isRead()) {
-					ungelesen++;
+			try {
+				MailInfo[] messages = checker.getMessages(ordner.getPfad());
+				int ungelesen = 0;
+				for (MailInfo info : messages) {
+					if(!info.isRead()) {
+						ungelesen++;
+					}
+					
+					model.addRow(new Object[] { info, info.getSubject(),
+							info.getSender(), info.getDate() });
 				}
 				
-				model.addRow(new Object[] { info, info.getSubject(),
-						info.getSender(), info.getDate() });
+				if(ordner.getAnzahlUngelesen() != ungelesen) {
+					ordner.setAnzahlUngelesen(ungelesen);	
+					aktualisiereNodeAnsicht(node);
+				}
+				
+				sortTable();
+			} catch (FolderNotFoundException e) {
+				DefaultTreeModel treeModel = (DefaultTreeModel) tree.getModel();
+				treeModel.removeNodeFromParent(node);
 			}
-			
-			if(ordner.getAnzahlUngelesen() != ungelesen) {
-				ordner.setAnzahlUngelesen(ungelesen);	
-				aktualisiereNodeAnsicht(node);
-			}
-			
-			sortTable();
+
 			laden = false;
 		}
 	}
@@ -1075,8 +1091,6 @@ public class MainFrame extends ExtendedFrame {
 	}
 
 	private void kopiereMail(String ziel) {
-		// TODO Testen
-
 		MailAccount acc = ausgewaehlterAccount();
 		MailInfo[] infos = ausgewaehlteMailInfo();
 		OrdnerInfo quelle = nodeZuOrdner((DefaultMutableTreeNode) tree
@@ -1092,8 +1106,6 @@ public class MainFrame extends ExtendedFrame {
 	}
 
 	private void verschiebeMail(String ziel) {
-		// TODO Testen
-
 		MailChecker checker = ausgewaehlterChecker();
 		MailAccount acc = checker.getAccount();
 		MailInfo[] infos = ausgewaehlteMailInfo();
@@ -1120,8 +1132,6 @@ public class MainFrame extends ExtendedFrame {
 	}
 
 	private void loescheMail() {
-		// TODO Testen
-
 		MailInfo[] infos = ausgewaehlteMailInfo();
 		OrdnerInfo pfad = nodeZuOrdner((DefaultMutableTreeNode) tree
 				.getLastSelectedPathComponent());
