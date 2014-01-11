@@ -114,6 +114,9 @@ public final class Benutzer implements Iterable<Benutzer.MailChecker> {
 				MailInfo[] mailInfos = account.getMessages(FOLDER);
 				for (MailInfo info : mailInfos) {
 					mails.add(info);
+					if(!info.isRead()) {
+						fireNewMessageEvent(info);
+					}
 				}
 			}
 
