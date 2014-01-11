@@ -247,42 +247,6 @@ public class TerminkalenderFrame extends ExtendedFrame {
 		this(false);
 		neuerTermin(start);
 	}
-	
-	/*private void aktualisiereTabelle() {
-		DefaultTableModel model = (DefaultTableModel)tblTermine.getModel();
-		model.setRowCount(0);
-		
-		for(Termin t : kalender) {
-			model.addRow(new Object[] {t.getBetreff(), t.getText(), t.getStart().toString()});
-		}
-	}*/
-
-	/*	private void aktualisiere2Tabelle() {//Backup
-		DefaultTableModel model = (DefaultTableModel)tblTermine.getModel();
-		model.setRowCount(0);
-		
-		
-		ArrayList<Termin> dummdumm = new ArrayList<Termin>();
-		for(Termin a:kalender)
-		{
-			dummdumm.add(a);
-		}
-		
-		Terminkalender EinwegKalender = new Terminkalender();		
-		
-		for(int i=0; i< dummdumm.size(); i++)
-		{
-			EinwegKalender.addTermin(dummdumm.get(i));
-		}
-		
-		int anzahl = EinwegKalender.getSize();
-		
-		for(int i=0; i<anzahl;i++) {
-			Termin a = EinwegKalender.getOldest();
-			model.addRow(new Object[] {a, a.getBetreff(), a.getText(), a.getStart().toString()});
-			EinwegKalender.löscheTermin(a);
-		}
-	}*/
 
 	private void aktualisiere2Tabelle() {
 		DefaultTableModel model = (DefaultTableModel) tblTermine.getModel();

@@ -98,6 +98,7 @@ public class MainFrame extends ExtendedFrame {
 	private JMenuItem mntmKonteneinstellungen;
 	private JMenuItem mntmAdressbuch;
 	private JMenuItem mntmKalendar;
+;
 	
 	private boolean laden;
 
@@ -150,14 +151,27 @@ public class MainFrame extends ExtendedFrame {
 		JMenu mnMeldungen = new JMenu("Meldungen");
 		menuBar.add(mnMeldungen);
 
-		JMenuItem mnMeldungenVerwalten = new JMenuItem("Meldungen verwalten");
-		mnMeldungenVerwalten.addActionListener(new ActionListener() {
+		JMenuItem mntDateiNeuKrankmeldung = new JMenuItem("Neue Krankmeldung");
+		mntDateiNeuKrankmeldung.addActionListener(new ActionListener() {
+			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				oeffneMeldungen();
+				neueKrankheitsmeldung();
 			}
 		});
-		mnMeldungen.add(mnMeldungenVerwalten);
+		mnMeldungen.add(mntDateiNeuKrankmeldung);
+
+
+		JMenuItem mntDateiNeuAbwesenheitmeldung = new JMenuItem("Neue Abwesenheitsmeldung");
+		mntDateiNeuAbwesenheitmeldung.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				neueAbwesenheitsmeldung();
+			}
+		});
+		mnMeldungen.add(mntDateiNeuAbwesenheitmeldung);
+
 
 		mnMeldungen.add(new JSeparator());
 
@@ -1209,17 +1223,32 @@ public class MainFrame extends ExtendedFrame {
 						"Fehler", JOptionPane.ERROR_MESSAGE);
 	}
 
-	private void oeffneMeldungen() {
-		MeldungsFrame mf = new MeldungsFrame();
-
-		mf.setSize(this.getSize());
-		mf.setExtendedState(this.getExtendedState());
-		mf.setVisible(true);
-	}
 	
 	private void aktualisiereNodeAnsicht(DefaultMutableTreeNode node) {
 		DefaultTreeModel treeModel = (DefaultTreeModel) tree.getModel();
 		treeModel.nodeChanged(node);
+	}
+	
+
+	/** meineAusrede wird zum neuen geschriebenen Text
+	 * @param dummy Der Text in der Abwesenheitsframe wird zurückgegeben
+	 */
+	private void neueAbwesenheitsmeldung(){
+		KrankAbwesFrame kaf = new KrankAbwesFrame(Benutzer.getInstanz().getAbwesenheitsmeldung(), "Neue Abwesenheitsmeldung");
+		String dummy = kaf.showDialog();
+		
+		if(dummy != null){
+		Benutzer.getInstanz().setAbwesenheitsmeldung(dummy);
+		}
+	}
+	
+	private void neueKrankheitsmeldung() {
+		KrankAbwesFrame kaf = new KrankAbwesFrame(Benutzer.getInstanz().getKrankmeldung(), "Neue Krankheitsmeldung");
+		String dummy = kaf.showDialog();
+		
+		if(dummy != null){
+			Benutzer.getInstanz().setKrankmeldung(dummy);
+		}
 	}
 
 	public static void main(final String[] args) {
@@ -1229,4 +1258,6 @@ public class MainFrame extends ExtendedFrame {
 		mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		mainFrame.setVisible(true);
 	}
+	
+	
 }
