@@ -98,7 +98,6 @@ public class MainFrame extends ExtendedFrame {
 	private JMenuItem mntmKonteneinstellungen;
 	private JMenuItem mntmAdressbuch;
 	private JMenuItem mntmKalendar;
-;
 	
 	private boolean laden;
 
@@ -1222,19 +1221,17 @@ public class MainFrame extends ExtendedFrame {
 								+ "Unter dem Menü \"Extras\" -> \"Konteneinstellungen\" können Sie Konten hinzufügen",
 						"Fehler", JOptionPane.ERROR_MESSAGE);
 	}
-
 	
 	private void aktualisiereNodeAnsicht(DefaultMutableTreeNode node) {
 		DefaultTreeModel treeModel = (DefaultTreeModel) tree.getModel();
 		treeModel.nodeChanged(node);
 	}
 	
-
 	/** meineAusrede wird zum neuen geschriebenen Text
 	 * @param dummy Der Text in der Abwesenheitsframe wird zurückgegeben
 	 */
 	private void neueAbwesenheitsmeldung(){
-		KrankAbwesFrame kaf = new KrankAbwesFrame(Benutzer.getInstanz().getAbwesenheitsmeldung(), "Neue Abwesenheitsmeldung");
+		MeldungsFrame kaf = new MeldungsFrame(Benutzer.getInstanz().getAbwesenheitsmeldung(), "Neue Abwesenheitsmeldung");
 		String dummy = kaf.showDialog();
 		
 		if(dummy != null){
@@ -1243,7 +1240,7 @@ public class MainFrame extends ExtendedFrame {
 	}
 	
 	private void neueKrankheitsmeldung() {
-		KrankAbwesFrame kaf = new KrankAbwesFrame(Benutzer.getInstanz().getKrankmeldung(), "Neue Krankheitsmeldung");
+		MeldungsFrame kaf = new MeldungsFrame(Benutzer.getInstanz().getKrankmeldung(), "Neue Krankheitsmeldung");
 		String dummy = kaf.showDialog();
 		
 		if(dummy != null){
@@ -1258,6 +1255,4 @@ public class MainFrame extends ExtendedFrame {
 		mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		mainFrame.setVisible(true);
 	}
-	
-	
 }

@@ -216,12 +216,6 @@ public class MailAccount implements Serializable {
 			paths = new OrdnerInfo[folders.length];
 			for (int i = 0; i < paths.length; i++) {
 				Folder folder = folders[i];
-				/*int msgCount;
-				try {
-					msgCount = folder.getUnreadMessageCount(); 
-				} catch (MessagingException ex) {
-					msgCount = 0;
-				}*/
 
 				paths[i] = new OrdnerInfo(folder.getName(),
 						folder.getFullName(), 0);
@@ -328,11 +322,12 @@ public class MailAccount implements Serializable {
 		} catch (Exception e) {
 
 		} finally {
-			if (store != null && store.isConnected())
+			if (store != null && store.isConnected()) {
 				try {
 					store.close();
 				} catch (MessagingException e) {
 				}
+			}
 		}
 
 		return set.toArray(new MailInfo[set.size()]);
