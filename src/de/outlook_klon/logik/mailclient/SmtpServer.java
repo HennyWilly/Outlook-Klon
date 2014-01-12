@@ -73,12 +73,14 @@ public class SmtpServer extends SendServer {
 		mail.setFrom(from);
 
 		for (final InternetAddress adrTo : to) {
-			mail.addRecipient(RecipientType.TO, adrTo);
+			if(adrTo != null)
+				mail.addRecipient(RecipientType.TO, adrTo);
 		}
 
 		if (cc != null && cc.length > 0) {
 			for (final InternetAddress adrCC : cc) {
-				mail.addRecipient(RecipientType.CC, adrCC);
+				if(adrCC != null)
+					mail.addRecipient(RecipientType.CC, adrCC);
 			}
 		}
 

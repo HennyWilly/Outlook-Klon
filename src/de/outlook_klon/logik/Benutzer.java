@@ -36,6 +36,9 @@ public final class Benutzer implements Iterable<Benutzer.MailChecker> {
 			+ "/settings.bin";
 	private static final String KONTAKT_PFAD = DATEN_ORDNER + "/Kontakte.bin";
 	private static final String TERMIN_PFAD = DATEN_ORDNER + "/Termine.bin";
+	private static final String KRANK_PFAD = DATEN_ORDNER + "/Krank.bin";
+	private static final String ABWESEND_PFAD = DATEN_ORDNER + "/Abwesend.bin";
+	
 	private String Abwesenheitsmeldung;
 	private String Krankmeldung;
 
@@ -315,6 +318,14 @@ public final class Benutzer implements Iterable<Benutzer.MailChecker> {
 	 */
 	private Benutzer() {
 		setAnwesend(true);
+		
+		Krankmeldung = deserialisiereObjekt(new File(KRANK_PFAD));
+		if(Krankmeldung == null)
+			Krankmeldung = "Ich bin krank";
+		
+		Abwesenheitsmeldung = deserialisiereObjekt(new File(ABWESEND_PFAD));
+		if(Abwesenheitsmeldung == null)
+			Abwesenheitsmeldung = "Ich bin nicht da";
 
 		termine = deserialisiereObjekt(new File(TERMIN_PFAD));
 		if (termine == null)
@@ -516,6 +527,9 @@ public final class Benutzer implements Iterable<Benutzer.MailChecker> {
 
 		serialisiereObjekt(kontakte, kontaktPfad);
 		serialisiereObjekt(termine, terminPfad);
+		
+		serialisiereObjekt(Abwesenheitsmeldung, new File(ABWESEND_PFAD));
+		serialisiereObjekt(Krankmeldung, new File(KRANK_PFAD));
 	}
 
 	/**
@@ -612,11 +626,12 @@ public final class Benutzer implements Iterable<Benutzer.MailChecker> {
 		String betreff = "Absage: " + termin.getBetreff();
 		InternetAddress[] ziele = termin.getAdressen();
 
-		// TODO Krankheitsmeldung einfügen
-		String text = "";
+		if(ziele != null) {
+			String text = getKrankmeldung();
 
-		sender.sendeMail(ziele, null, betreff, text,
-				"TEXT/plain; charset=utf-8", null);
+			sender.sendeMail(ziele, null, betreff, text,
+					"TEXT/plain; charset=utf-8", null);
+		}
 	}
 
 	public boolean starteChecker() {
