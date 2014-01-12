@@ -5,14 +5,22 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
 import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.swing.JEditorPane;
+import javax.swing.JOptionPane;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkEvent.EventType;
 import javax.swing.event.HyperlinkListener;
 import javax.swing.text.html.HTMLEditorKit;
+
+import de.outlook_klon.logik.Benutzer;
+import de.outlook_klon.logik.kalendar.Termin;
+import de.outlook_klon.logik.kalendar.Terminkalender;
 
 /**
  * Diese JEditorPane unterstützt das vollständige Umschalten des Textinhalts von
@@ -25,9 +33,27 @@ public class HtmlEditorPane extends JEditorPane {
 	
 	private static final String HTML = "TEXT/html";
 	private static final String PLAIN = "TEXT/plain";
+	
+	private static final String PREFIX = "date://";
+	private static final String REPLACE_PATTERN = "<a href=\"date://%s\">%s</a>";
+
+	private static DateFormat formater1;
+	private static DateFormat formater2;
+	private static Pattern timePattern;
 
 	private HTMLEditorKit htmlEditor;
-
+	
+	//Statischer Konstruktor
+	static {
+		formater1 = new SimpleDateFormat("dd.MM.yyyy HH:mm");
+		formater1.setLenient(false);
+		
+		formater2 = new SimpleDateFormat("dd.MM.yyyy");
+		formater2.setLenient(false);
+		
+		timePattern = Pattern.compile("\\d{1,2}\\.\\d{1,2}\\.\\d{4}( \\d{1,2}:\\d{1,2})?");
+	}
+	
 	/**
 	 * Bestimmt, ob es sich beim übergebenen String um einen Html-Code handelt
 	 * 
@@ -54,8 +80,32 @@ public class HtmlEditorPane extends JEditorPane {
 			public void hyperlinkUpdate(HyperlinkEvent arg0) {
 				if (arg0.getEventType() == EventType.ACTIVATED) {
 					String url = arg0.getDescription();
-					if(url.startsWith("date://"))
+					if(url.startsWith(PREFIX)) {
+						String strDatum = url.substring(PREFIX.length());
+						
+						try {
+							Date datum = null; 
+							
+							try {
+								datum = formater1.parse(strDatum);
+							} catch (ParseException ex) {
+								datum = formater2.parse(strDatum);
+							}
+							
+							TerminFrame tf = new TerminFrame(datum);
+			            	Termin t = tf.showDialog();
+			            	
+			            	if(t != null) {
+			            		Terminkalender kalender = Benutzer.getInstanz().getTermine();
+			            		kalender.addTermin(t);
+			            	}
+							
+						} catch(ParseException e) {
+							JOptionPane.showMessageDialog(null, "Kein gültiges Datum", "Fehler", JOptionPane.ERROR_MESSAGE);
+						}
+						
 						return;
+					}
 
 					if (Desktop.isDesktopSupported()) {
 						Desktop meinDesktop = Desktop.getDesktop();
@@ -161,38 +211,59 @@ public class HtmlEditorPane extends JEditorPane {
 	
 	@Override
 	public void setText(String text) {
-		String contentType = this.getContentType();
-		if(contentType.startsWith("text/html")) {
-			Pattern timePattern = Pattern.compile("\\d{1,2}.\\d{1,2}.\\d{4}( \\d{1,2}:\\d{1,2})");
-			String hyperlinkPattern = "<a href=\"date://%s\">%s</a>";
-			Matcher matcher = timePattern.matcher(text);
-			
+		if(getContentType().equalsIgnoreCase("text/html")) {		
+			StringBuilder sb = new StringBuilder(text);
+			Matcher matcher = timePattern.matcher(sb);
+
 			boolean skip = false;
+			boolean rematch = false;
 			while(matcher.find()) {
+				if(rematch) {
+					rematch = false;
+					matcher = timePattern.matcher(sb);
+					continue;
+				}
+				
 				if(skip) {
 					skip = false;
 					continue;
 				}
-				
 				int start = matcher.start();
-				if(start - 7 >= 0) {
-					String sub = text.substring(start - 7, start);
-					if(sub.equalsIgnoreCase("date://")) {
+				int ende = matcher.end();
+				
+				String match = matcher.group();
+				if(sb.length() - start < 0) {
+					continue;
+				}
+				
+				int index = start - PREFIX.length();
+				if(index >= 0) {
+					String preText = sb.substring(index, start);
+					if(preText.equalsIgnoreCase(PREFIX)) {
 						skip = true;
 						continue;
 					}
 				}
 				
-				String match = matcher.group();
-				DateFormat formater = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT);
-				
 				try {
-					formater.parse(match);
-					String replacement = String.format(hyperlinkPattern, match, match);
-					text = text.replace(match, replacement);
+					try {
+						formater1.parse(match);
+					} catch (ParseException ex) {
+						formater2.parse(match);
+						
+						match = match.replaceAll(" \\d{1,2}:\\d{1,2}", "");
+						ende = start + match.length();
+					}
+					
+					String replacement = String.format(REPLACE_PATTERN, match, match);
+					sb.replace(start, ende, replacement);
+					rematch = true;
 				} catch(Exception e) {
+					e.printStackTrace();
 				}
 			}
+			
+			text = sb.toString();
 		}
 		
 		super.setText(text);
