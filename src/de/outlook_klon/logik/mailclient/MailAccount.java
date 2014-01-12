@@ -733,7 +733,11 @@ public class MailAccount implements Serializable {
 					final IMAPFolder imap = (IMAPFolder) folder;
 					final String[] attr = imap.getAttributes();
 	
-					if (imap.getName().equalsIgnoreCase("trash"))
+					String ordnerName = imap.getName();
+					if (ordnerName.equalsIgnoreCase("trash")
+							|| ordnerName.equalsIgnoreCase("deleted")
+							|| ordnerName.equalsIgnoreCase("papierkorb")
+							|| ordnerName.equalsIgnoreCase("gelöscht"))
 						binFolder = imap;
 	
 					for (int i = 0; i < attr.length; i++) {
@@ -759,8 +763,6 @@ public class MailAccount implements Serializable {
 			}
 
 			ordner.expunge();
-
-			// TODO TESTEN!!!
 
 			result = true;
 		} finally {
