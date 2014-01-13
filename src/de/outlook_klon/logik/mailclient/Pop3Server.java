@@ -27,7 +27,7 @@ public class Pop3Server extends EmpfangsServer {
 
 	@Override
 	protected Properties getProperties() {
-		final Properties props = System.getProperties();
+		final Properties props = new Properties();
 
 		props.put("mail.pop3.host", settings.getHost());
 		props.put("mail.pop3.port", settings.getPort());

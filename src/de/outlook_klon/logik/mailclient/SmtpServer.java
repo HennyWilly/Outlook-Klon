@@ -41,7 +41,7 @@ public class SmtpServer extends SendServer {
 		final int port = settings.getPort();
 		final Verbindungssicherheit sicherheit = settings
 				.getVerbingungssicherheit();
-		final Properties props = System.getProperties();
+		final Properties props = new Properties();
 
 		props.put("mail.smtp.debug", "true");
 		props.put("mail.smtp.auth", "true");

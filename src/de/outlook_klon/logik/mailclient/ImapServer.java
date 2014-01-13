@@ -27,7 +27,7 @@ public class ImapServer extends EmpfangsServer {
 
 	@Override
 	protected Properties getProperties() {
-		final Properties props = System.getProperties();
+		final Properties props = new Properties();
 
 		props.put("mail.imap.host", settings.getHost());
 		props.put("mail.imap.port", settings.getPort());
