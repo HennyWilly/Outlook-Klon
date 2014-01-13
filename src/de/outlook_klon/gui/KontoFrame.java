@@ -254,8 +254,8 @@ public class KontoFrame extends ExtendedDialog<MailAccount> {
 
 	private void kontoObjektErzeugen() {
 		ServerSettings empfangsSettings = new ServerSettings(
-				txtInServer.getText(), Integer.parseInt((String) spInPort
-						.getValue()),
+				txtInServer.getText(), 
+				(Integer) spInPort.getValue(),
 				cBInVerbindungssicherheit.getItemAt(cBInVerbindungssicherheit
 						.getSelectedIndex()),
 				cBInAuthentifizierung.getItemAt(cBInAuthentifizierung
@@ -271,8 +271,8 @@ public class KontoFrame extends ExtendedDialog<MailAccount> {
 		}
 
 		ServerSettings sendeSettings = new ServerSettings(
-				txtOutServer.getText(), Integer.parseInt((String) spOutPort
-						.getValue()),
+				txtOutServer.getText(), 
+				(Integer) spOutPort.getValue(),
 				cBOutVerbindungssicherheit.getItemAt(cBOutVerbindungssicherheit
 						.getSelectedIndex()),
 				cBOutAuthentifizierung.getItemAt(cBOutAuthentifizierung
