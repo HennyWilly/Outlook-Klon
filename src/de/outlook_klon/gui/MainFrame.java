@@ -578,7 +578,9 @@ public class MainFrame extends ExtendedFrame {
 				
 				tpPreview.setText(null);
 				
+				benutzer.stoppeChecker();
 				ladeOrdner();
+				benutzer.starteChecker();
 			}
 		});
 		toolBar.add(btnAbrufen);

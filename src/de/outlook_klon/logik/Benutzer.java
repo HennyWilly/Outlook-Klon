@@ -438,6 +438,7 @@ public final class Benutzer implements Iterable<Benutzer.MailChecker> {
 
 			MailChecker checker = new MailChecker(account);
 			checker.addNewMessageListener(getListener());
+			checker.start();
 			konten.add(checker);
 		} catch (IOException e) {
 			result = false;
@@ -481,17 +482,23 @@ public final class Benutzer implements Iterable<Benutzer.MailChecker> {
 	 *             gelöscht werden konnte
 	 */
 	public boolean entferneMailAccount(MailAccount account) throws IOException {
-		if (konten.remove(account)) {
-			String pfad = String.format(ACCOUNT_PATTERN, account.getAdresse()
-					.getAddress());
-			File ordner = new File(pfad);
-			if (ordner.exists()) {
-				try {
-					deleteRecursive(ordner);
-					return true;
-				} catch (IOException e) {
-					addMailAccount(account);
-					throw e;
+		int index = konten.indexOf(account);
+		if(index != -1) {
+			MailChecker checker = konten.get(index);
+			checker.interrupt();
+			
+			if (konten.remove(account)) {
+				String pfad = String.format(ACCOUNT_PATTERN, account.getAdresse()
+						.getAddress());
+				File ordner = new File(pfad);
+				if (ordner.exists()) {
+					try {
+						deleteRecursive(ordner);
+						return true;
+					} catch (IOException e) {
+						addMailAccount(account);
+						throw e;
+					}
 				}
 			}
 		}
@@ -651,12 +658,25 @@ public final class Benutzer implements Iterable<Benutzer.MailChecker> {
 	public boolean stoppeChecker() {
 		boolean result = true;
 
-		for (MailChecker checker : konten) {
+		ArrayList<MailAccount> aloneAccounts = new ArrayList<MailAccount>();
+		
+		Iterator<MailChecker> iterator = konten.iterator();
+		while(iterator.hasNext()) {
+			MailChecker checker = iterator.next();
+			
 			try {
 				checker.interrupt();
 			} catch (SecurityException ex) {
 				result = false;
 			}
+			
+			aloneAccounts.add(checker.getAccount());
+			iterator.remove();
+		}
+		
+		for (MailAccount account : aloneAccounts) {
+			MailChecker neu = new MailChecker(account);
+			konten.add(neu);
 		}
 
 		return result;
