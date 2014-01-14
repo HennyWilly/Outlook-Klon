@@ -98,8 +98,10 @@ public final class Benutzer implements Iterable<Benutzer.MailChecker> {
 		private void fireNewMessageEvent(MailInfo info) {
 			NewMailEvent ev = new NewMailEvent(this, FOLDER, info);
 
-			for (NewMailListener listener : listenerVector) {
-				listener.newMessage(ev);
+			synchronized (listenerVector) {
+				for (NewMailListener listener : listenerVector) {
+					listener.newMessage(ev);
+				}
 			}
 		}
 
@@ -354,6 +356,7 @@ public final class Benutzer implements Iterable<Benutzer.MailChecker> {
 					directory);
 			File datei = new File(settings).getAbsoluteFile();
 
+			//Lade MailAccount
 			MailAccount geladen = deserialisiereObjekt(datei);
 			if (geladen != null) {
 				MailChecker checker = new MailChecker(geladen);
@@ -438,7 +441,6 @@ public final class Benutzer implements Iterable<Benutzer.MailChecker> {
 
 			MailChecker checker = new MailChecker(account);
 			checker.addNewMessageListener(getListener());
-			checker.start();
 			konten.add(checker);
 		} catch (IOException e) {
 			result = false;
@@ -476,28 +478,36 @@ public final class Benutzer implements Iterable<Benutzer.MailChecker> {
 	 * 
 	 * @param account
 	 *            Zu löschender Account
+	 * @param loeschen
+	 *            Gibt an, ob die gespeicherten Mails des MailAccounts auch
+	 *            entfernt werden sollen
 	 * @return true, wenn das löschen erfolgreich war; sonst false
 	 * @throws IOException
 	 *             Tritt auf, wenn einer der gespeicherten Dateien nicht
 	 *             gelöscht werden konnte
 	 */
-	public boolean entferneMailAccount(MailAccount account) throws IOException {
+	public boolean entferneMailAccount(MailAccount account, boolean loeschen) throws IOException {
 		int index = konten.indexOf(account);
 		if(index != -1) {
 			MailChecker checker = konten.get(index);
 			checker.interrupt();
 			
 			if (konten.remove(account)) {
-				String pfad = String.format(ACCOUNT_PATTERN, account.getAdresse()
-						.getAddress());
-				File ordner = new File(pfad);
-				if (ordner.exists()) {
-					try {
-						deleteRecursive(ordner);
-						return true;
-					} catch (IOException e) {
-						addMailAccount(account);
-						throw e;
+				String adresse = account.getAdresse().getAddress();
+				String settings = String.format(ACCOUNTSETTINGS_PATTERN, adresse);
+				deleteRecursive(new File(settings));
+				
+				if(loeschen) {
+					String pfad = String.format(ACCOUNT_PATTERN, adresse);
+					File ordner = new File(pfad);
+					if (ordner.exists()) {
+						try {
+							deleteRecursive(ordner);
+							return true;
+						} catch (IOException e) {
+							addMailAccount(account);
+							throw e;
+						}
 					}
 				}
 			}
@@ -549,8 +559,8 @@ public final class Benutzer implements Iterable<Benutzer.MailChecker> {
 	 *             konnte
 	 */
 	private void speichereMailAccount(MailAccount acc) throws IOException {
-		String strPfad = String.format(ACCOUNTSETTINGS_PATTERN, acc
-				.getAdresse().getAddress());
+		String strAdresse = acc.getAdresse().getAddress();
+		String strPfad = String.format(ACCOUNTSETTINGS_PATTERN, strAdresse);
 
 		File pfad = new File(strPfad).getAbsoluteFile();
 		File ordner = pfad.getParentFile();
@@ -658,6 +668,7 @@ public final class Benutzer implements Iterable<Benutzer.MailChecker> {
 	public boolean stoppeChecker() {
 		boolean result = true;
 
+		//Liste von MailAccounts, die keinen Checker haben
 		ArrayList<MailAccount> aloneAccounts = new ArrayList<MailAccount>();
 		
 		Iterator<MailChecker> iterator = konten.iterator();
@@ -675,6 +686,7 @@ public final class Benutzer implements Iterable<Benutzer.MailChecker> {
 		}
 		
 		for (MailAccount account : aloneAccounts) {
+			//Erstellt einen neuen Checker für die MailAccounts
 			MailChecker neu = new MailChecker(account);
 			konten.add(neu);
 		}
