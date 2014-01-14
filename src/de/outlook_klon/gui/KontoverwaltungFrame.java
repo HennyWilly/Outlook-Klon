@@ -10,23 +10,30 @@ import java.awt.event.MouseEvent;
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.DefaultListModel;
+import javax.swing.JButton;
+import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
-import javax.swing.JScrollPane;
-import javax.swing.ListSelectionModel;
-import javax.swing.JButton;
-import javax.swing.event.ListSelectionListener;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTextField;
+import javax.swing.ListSelectionModel;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 
 import de.outlook_klon.logik.Benutzer;
 import de.outlook_klon.logik.Benutzer.MailChecker;
 import de.outlook_klon.logik.mailclient.EmpfangsServer;
 import de.outlook_klon.logik.mailclient.MailAccount;
 import de.outlook_klon.logik.mailclient.SendServer;
+import de.outlook_klon.logik.mailclient.ServerSettings;
 
+/**
+ * In diesem Frame werden alle registrierten MailAccount-Instanzen verwaltet. Es
+ * können neue Instanzen erstellt, bearbeitet und entfernt werden.
+ * 
+ * @author Hendrik Karwanni
+ */
 public class KontoverwaltungFrame extends ExtendedDialog<MailAccount[]> {
 	private static final long serialVersionUID = -5036893845172118794L;
 
@@ -52,6 +59,10 @@ public class KontoverwaltungFrame extends ExtendedDialog<MailAccount[]> {
 	private JTextField txtAusgangSicherheit;
 	private JTextField txtAusgangAuthentifizierung;
 
+	/**
+	 * Erstellt eine neue Instanz der Klasse zum Verwalten aller bestehenden
+	 * MailAccounts
+	 */
 	public KontoverwaltungFrame() {
 		super(711, 695);
 
@@ -331,6 +342,13 @@ public class KontoverwaltungFrame extends ExtendedDialog<MailAccount[]> {
 		getContentPane().add(txtName);
 	}
 
+	/**
+	 * Trägt die Daten der übergebenen MailAccount-Instanz in die dafür
+	 * vorgesehenen Felder ein
+	 * 
+	 * @param acc
+	 *            MailAccount-Instanz aus der die Daten ausgelesen werden sollen
+	 */
 	private void aktualisiereDetails(MailAccount acc) {
 		if (acc == null) {
 			txtUser.setText(null);
@@ -347,41 +365,57 @@ public class KontoverwaltungFrame extends ExtendedDialog<MailAccount[]> {
 			txtAusgangSicherheit.setText(null);
 			txtAusgangAuthentifizierung.setText(null);
 		} else {
-			EmpfangsServer empfServer = acc.getEmpfangsServer();
-			SendServer sendServer = acc.getSendServer();
-
 			txtUser.setText(acc.getBenutzer());
 			txtMail.setText(acc.getAdresse().getAddress());
 			txtName.setText(acc.getAdresse().getPersonal());
+			
+			EmpfangsServer empfServer = acc.getEmpfangsServer();
+			ServerSettings empfSettings = empfServer.getSettings();
+
 			txtEingangTyp.setText(empfServer.getServerTyp());
-			txtEingangServer.setText(empfServer.getSettings().getHost());
-			txtEingangPort.setText(Integer.toString(empfServer.getSettings()
-					.getPort()));
-			txtEingangSicherheit.setText(empfServer.getSettings()
+			txtEingangServer.setText(empfSettings.getHost());
+			txtEingangPort.setText(Integer.toString(empfSettings.getPort()));
+			txtEingangSicherheit.setText(empfSettings
 					.getVerbingungssicherheit().toString());
-			txtEingangAuthentifizierung.setText(empfServer.getSettings()
+			txtEingangAuthentifizierung.setText(empfSettings
 					.getAuthentifizierungsart().toString());
+			
+			SendServer sendServer = acc.getSendServer();
+			ServerSettings sendSettings = sendServer.getSettings();
+			
 			txtAusgangTyp.setText(sendServer.getServerTyp());
-			txtAusgangServer.setText(sendServer.getSettings().getHost());
-			txtAusgangPort.setText(Integer.toString(sendServer.getSettings()
-					.getPort()));
-			txtAusgangSicherheit.setText(sendServer.getSettings()
+			txtAusgangServer.setText(sendSettings.getHost());
+			txtAusgangPort.setText(Integer.toString(sendSettings.getPort()));
+			txtAusgangSicherheit.setText(sendSettings
 					.getVerbingungssicherheit().toString());
-			txtAusgangAuthentifizierung.setText(sendServer.getSettings()
+			txtAusgangAuthentifizierung.setText(sendSettings
 					.getAuthentifizierungsart().toString());
 		}
 	}
 
+	/**
+	 * Öffnet ein neues Konto-Frame zum Erstellen einer neuen
+	 * MailAccount-Instanz
+	 */
 	private void erstelleKonto() {
 		KontoFrame kf = new KontoFrame();
 		MailAccount acc = kf.showDialog();
 		if (acc != null) {
 			DefaultListModel<MailAccount> model = (DefaultListModel<MailAccount>) lstKonten
 					.getModel();
+			//Füge die neue Instanz der JList hinzu
 			model.addElement(acc);
 		}
 	}
 
+	/**
+	 * Öffnet ein neues Konto-Frame zum Bearbeiten einer bestehenden
+	 * MailAccount-Instanz
+	 * 
+	 * @param acc
+	 *            Zu bearbeitender MailAccount
+	 * @return Instanz des veränderten MailAccounts
+	 */
 	private MailAccount editiereKonto(MailAccount acc) {
 		KontoFrame kf = new KontoFrame(acc);
 
@@ -391,7 +425,9 @@ public class KontoverwaltungFrame extends ExtendedDialog<MailAccount[]> {
 					.getModel();
 			int index = model.indexOf(acc);
 
+			//Entfernt die alte Instanz aus der JList
 			model.remove(index);
+			//Füge die neue Instanz der JList hinzu
 			model.add(index, result);
 
 			acc = result;
@@ -400,6 +436,10 @@ public class KontoverwaltungFrame extends ExtendedDialog<MailAccount[]> {
 		return acc;
 	}
 
+	/**
+	 * Löscht die übergebene MailAccount-Instanz aus der Liste
+	 * @param acc Zu löschender MailAccount
+	 */
 	private void loeschekonto(MailAccount acc) {
 		if (acc != null) {
 			int result = JOptionPane.showConfirmDialog(this,
@@ -412,6 +452,7 @@ public class KontoverwaltungFrame extends ExtendedDialog<MailAccount[]> {
 				DefaultListModel<MailAccount> model = (DefaultListModel<MailAccount>) lstKonten
 						.getModel();
 
+				//Entfernt die Instanz aus der JList
 				model.removeElement(acc);
 			}
 		}

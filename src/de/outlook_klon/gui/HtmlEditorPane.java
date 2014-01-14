@@ -37,6 +37,7 @@ public class HtmlEditorPane extends JEditorPane {
 	private static final String PREFIX = "date://";
 	private static final String REPLACE_PATTERN = "<a href=\"date://%s\">%s</a>";
 
+	private static Pattern htmlPattern;
 	private static DateFormat formater1;
 	private static DateFormat formater2;
 	private static Pattern timePattern;
@@ -45,13 +46,15 @@ public class HtmlEditorPane extends JEditorPane {
 	
 	//Statischer Konstruktor
 	static {
+		htmlPattern = Pattern.compile("<(\"[^\"]*\"|'[^']*'|[^'\">])*>");
+		
 		formater1 = new SimpleDateFormat("dd.MM.yyyy HH:mm");
 		formater1.setLenient(false);
 		
 		formater2 = new SimpleDateFormat("dd.MM.yyyy");
 		formater2.setLenient(false);
 		
-		timePattern = Pattern.compile("\\d{1,2}\\.\\d{1,2}\\.\\d{4}( \\d{1,2}:\\d{1,2})?");
+		timePattern = Pattern.compile("\\d{1,2}\\.\\d{1,2}\\.\\d{2,4}( \\d{1,2}:\\d{1,2})?");
 	}
 	
 	/**
@@ -62,9 +65,7 @@ public class HtmlEditorPane extends JEditorPane {
 	 * @return true, wenn der Text ein Html-Code ist; sonst false
 	 */
 	public static boolean istHtml(String text) {
-		Pattern pattern = Pattern
-				.compile("<(\"[^\"]*\"|'[^']*'|[^'\">])*>");
-		Matcher matcher = pattern.matcher(text);
+		Matcher matcher = htmlPattern.matcher(text);
 		
 		return matcher.find();
 	}
@@ -211,6 +212,7 @@ public class HtmlEditorPane extends JEditorPane {
 	
 	@Override
 	public void setText(String text) {
+		//In Plaintexte können keine Hyperlinks eingefügt werden
 		if(getContentType().equalsIgnoreCase("text/html")) {		
 			StringBuilder sb = new StringBuilder(text);
 			Matcher matcher = timePattern.matcher(sb);
@@ -239,7 +241,9 @@ public class HtmlEditorPane extends JEditorPane {
 				int index = start - PREFIX.length();
 				if(index >= 0) {
 					String preText = sb.substring(index, start);
+					//Falls das Datum schon in einem Date-Hyperlink steht
 					if(preText.equalsIgnoreCase(PREFIX)) {
+						//Überspringe den nächsten Fund
 						skip = true;
 						continue;
 					}
@@ -247,19 +251,23 @@ public class HtmlEditorPane extends JEditorPane {
 				
 				try {
 					try {
+						//Versuche mit Zeitangabe zu parsen
 						formater1.parse(match);
 					} catch (ParseException ex) {
+						//Versuche ohne Zeitangabe zu parsen
 						formater2.parse(match);
 						
+						//Entferne eine eventuelle falsche Uhrzeit
 						match = match.replaceAll(" \\d{1,2}:\\d{1,2}", "");
 						ende = start + match.length();
 					}
 					
+					//Bilde Hyperlink und ersetze im Sting mit ebenjenem
 					String replacement = String.format(REPLACE_PATTERN, match, match);
 					sb.replace(start, ende, replacement);
 					rematch = true;
-				} catch(Exception e) {
-					e.printStackTrace();
+				} catch(ParseException e) {
+					//Überspringe, wenn kein Dateparser den String parsen kann
 				}
 			}
 			

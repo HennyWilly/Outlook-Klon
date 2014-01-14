@@ -6,14 +6,14 @@ import java.io.UnsupportedEncodingException;
 
 import javax.mail.internet.InternetAddress;
 import javax.swing.DefaultComboBoxModel;
-import javax.swing.JOptionPane;
-import javax.swing.JTextField;
-import javax.swing.JLabel;
-import javax.swing.JPasswordField;
-import javax.swing.JPanel;
-import javax.swing.JComboBox;
-import javax.swing.JSpinner;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JPasswordField;
+import javax.swing.JSpinner;
+import javax.swing.JTextField;
 
 import de.outlook_klon.logik.mailclient.Authentifizierungsart;
 import de.outlook_klon.logik.mailclient.EmpfangsServer;
@@ -25,6 +25,12 @@ import de.outlook_klon.logik.mailclient.ServerSettings;
 import de.outlook_klon.logik.mailclient.SmtpServer;
 import de.outlook_klon.logik.mailclient.Verbindungssicherheit;
 
+/**
+ * In diesem Frame können Daten für bestehende Mailkonten eingegeben, bzw.
+ * verändert werden.
+ * 
+ * @author Hendrik Karwanni
+ */
 public class KontoFrame extends ExtendedDialog<MailAccount> {
 	private static final long serialVersionUID = -8114432074006047938L;
 
@@ -51,6 +57,9 @@ public class KontoFrame extends ExtendedDialog<MailAccount> {
 	private JButton btnAbbrechen;
 	private JButton btnFertig;
 
+	/**
+	 * Initialisiert die GUI-Elemente des Frames
+	 */
 	private void initFrame() {
 		txtMail = new JTextField();
 		txtMail.setBounds(140, 58, 315, 20);
@@ -207,6 +216,9 @@ public class KontoFrame extends ExtendedDialog<MailAccount> {
 		getContentPane().add(txtAnzeigename);
 	}
 
+	/**
+	 * Erstellt eine neue Instanz der Klasse zum Erstellen eines neuen MailAccount-Objekts
+	 */
 	public KontoFrame() {
 		super(750, 350);
 
@@ -215,6 +227,9 @@ public class KontoFrame extends ExtendedDialog<MailAccount> {
 		initFrame();
 	}
 
+	/**
+	 * Erstellt eine neue Instanz der Klasse zum Bearbeiten eines neuen MailAccount-Objekts
+	 */
 	public KontoFrame(MailAccount acc) {
 		super(750, 350);
 
@@ -252,7 +267,11 @@ public class KontoFrame extends ExtendedDialog<MailAccount> {
 		}
 	}
 
+	/**
+	 * Versucht aus den getätigten Eingaben ein neues MailAccount-Objekt zu erstellen
+	 */
 	private void kontoObjektErzeugen() {
+		//Settings-Instanz für den Mailempfang erstellen
 		ServerSettings empfangsSettings = new ServerSettings(
 				txtInServer.getText(), 
 				(Integer) spInPort.getValue(),
@@ -260,6 +279,8 @@ public class KontoFrame extends ExtendedDialog<MailAccount> {
 						.getSelectedIndex()),
 				cBInAuthentifizierung.getItemAt(cBInAuthentifizierung
 						.getSelectedIndex()));
+		
+		//Instanz für den Mailempfang erstellen
 		EmpfangsServer empfang = null;
 		if (cbInProtokoll.getSelectedItem().equals("IMAP")) {
 			empfang = new ImapServer(empfangsSettings);
@@ -270,6 +291,7 @@ public class KontoFrame extends ExtendedDialog<MailAccount> {
 					"Unbekanntes Protokoll ausgewählt");
 		}
 
+		//Settings-Instanz für den Mailversandt erstellen
 		ServerSettings sendeSettings = new ServerSettings(
 				txtOutServer.getText(), 
 				(Integer) spOutPort.getValue(),
@@ -277,21 +299,26 @@ public class KontoFrame extends ExtendedDialog<MailAccount> {
 						.getSelectedIndex()),
 				cBOutAuthentifizierung.getItemAt(cBOutAuthentifizierung
 						.getSelectedIndex()));
+		
+		//Instanz für den Mailversandt erstellen
 		SendServer senden = new SmtpServer(sendeSettings);
 
 		try {
+			//MailAccount-Instanz mit Versandt- und Empfangsinstanz erstellen
 			tmpAccount = new MailAccount(empfang, senden, new InternetAddress(
 					txtMail.getText(), txtAnzeigename.getText()),
 					txtBenutzername.getText(), new String(
 							passwordField.getPassword()));
 
+			//Prüfe, ob sich mit den beiden Servern verbunden werden kann
 			boolean gueltig = tmpAccount.validieren();
 
 			btnFertig.setEnabled(gueltig);
-			if (!gueltig)
+			if (!gueltig) {
 				JOptionPane.showMessageDialog(this,
 						"Die übergebenen Daten sind ungültig", "Fehler",
 						JOptionPane.OK_OPTION);
+			}
 		} catch (UnsupportedEncodingException e) {
 			JOptionPane.showMessageDialog(this, e.getLocalizedMessage(),
 					"Fehler", JOptionPane.OK_OPTION);

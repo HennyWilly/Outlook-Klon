@@ -9,18 +9,24 @@ import java.util.Vector;
 
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
-import javax.swing.JLabel;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
+import javax.swing.JButton;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JTextField;
 import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-import javax.swing.JTextField;
-import javax.swing.JButton;
 
 import de.outlook_klon.logik.kontakte.Kontakt;
 
+/**
+ * In diesem Frame werden neue Kontakte erstellt, bzw. bestehende Kontakte
+ * bearbeitet.
+ * 
+ * @author Hendrik Karwanni
+ */
 public class KontaktFrame extends ExtendedDialog<Kontakt> {
 	private static final long serialVersionUID = 1466530984514818388L;
 
@@ -44,6 +50,11 @@ public class KontaktFrame extends ExtendedDialog<Kontakt> {
 	private JButton btnOK;
 	private JButton btnAbbrechen;
 
+	/**
+	 * Erweitert die FocusTraversalPolicy-Klasse zum einfachen Wandern per
+	 * Tab-Taste über alle Steuerelemente in der Reihenfolge, die im Vector
+	 * beschrieben ist.
+	 */
 	public static class VectorFocusTraversalPolicy extends FocusTraversalPolicy {
 		private Vector<Component> order;
 
@@ -55,18 +66,21 @@ public class KontaktFrame extends ExtendedDialog<Kontakt> {
 		@Override
 		public Component getComponentAfter(Container focusCycleRoot,
 				Component aComponent) {
-			int idx = (order.indexOf(aComponent) + 1) % order.size();
-			return order.get(idx);
+			int vectorIndex = order.indexOf(aComponent) + 1;
+			if(vectorIndex >= order.size()) {
+				vectorIndex = 0;
+			}
+			return order.get(vectorIndex);
 		}
 
 		@Override
 		public Component getComponentBefore(Container focusCycleRoot,
 				Component aComponent) {
-			int idx = order.indexOf(aComponent) - 1;
-			if (idx < 0) {
-				idx = order.size() - 1;
+			int vectorIndex = order.indexOf(aComponent) - 1;
+			if (vectorIndex < 0) {
+				vectorIndex = order.size() - 1;
 			}
-			return order.get(idx);
+			return order.get(vectorIndex);
 		}
 
 		@Override
@@ -81,10 +95,13 @@ public class KontaktFrame extends ExtendedDialog<Kontakt> {
 
 		@Override
 		public Component getFirstComponent(Container focusCycleRoot) {
-			return order.get(0);
+			return order.firstElement();
 		}
 	}
 
+	/**
+	 * Initialisiert die Komponenten der GUI
+	 */
 	private void initFrame() {
 		final JLabel lblVorname = new JLabel("Vorname: ");
 		final JLabel lblName = new JLabel("Name: ");
@@ -101,16 +118,19 @@ public class KontaktFrame extends ExtendedDialog<Kontakt> {
 		tVorname.getDocument().addDocumentListener(new DocumentListener() {
 			@Override
 			public void removeUpdate(DocumentEvent arg0) {
+				//Aktualisiere den Anzeigenamen beim Entfernen eines Zeichens
 				aktualisiereAnzeigename();
 			}
 
 			@Override
 			public void insertUpdate(DocumentEvent arg0) {
+				//Aktualisiere den Anzeigenamen beim Einfügen eines Zeichens
 				aktualisiereAnzeigename();
 			}
 
 			@Override
 			public void changedUpdate(DocumentEvent arg0) {
+				//Aktualisiere den Anzeigenamen beim Verändern eines Zeichens
 				aktualisiereAnzeigename();
 			}
 		});
@@ -120,16 +140,19 @@ public class KontaktFrame extends ExtendedDialog<Kontakt> {
 		tName.getDocument().addDocumentListener(new DocumentListener() {
 			@Override
 			public void removeUpdate(DocumentEvent arg0) {
+				//Aktualisiere den Anzeigenamen beim Entfernen eines Zeichens
 				aktualisiereAnzeigename();
 			}
 
 			@Override
 			public void insertUpdate(DocumentEvent arg0) {
+				//Aktualisiere den Anzeigenamen beim Einfügen eines Zeichens
 				aktualisiereAnzeigename();
 			}
 
 			@Override
 			public void changedUpdate(DocumentEvent arg0) {
+				//Aktualisiere den Anzeigenamen beim Verändern eines Zeichens
 				aktualisiereAnzeigename();
 			}
 		});
@@ -139,16 +162,19 @@ public class KontaktFrame extends ExtendedDialog<Kontakt> {
 		tAnzeigename.getDocument().addDocumentListener(new DocumentListener() {
 			@Override
 			public void removeUpdate(DocumentEvent arg0) {
+				//Aktualisiere den FrameTitel beim Entfernen eines Zeichens
 				aktualisiereTitel();
 			}
 
 			@Override
 			public void insertUpdate(DocumentEvent arg0) {
+				//Aktualisiere den FrameTitel beim Einfügen eines Zeichens
 				aktualisiereTitel();
 			}
 
 			@Override
 			public void changedUpdate(DocumentEvent arg0) {
+				//Aktualisiere den FrameTitel beim Verändern eines Zeichens
 				aktualisiereTitel();
 			}
 		});
@@ -175,48 +201,7 @@ public class KontaktFrame extends ExtendedDialog<Kontakt> {
 		btnOK.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				try {
-					InternetAddress mail1 = tEmailadresse_1.getText().trim()
-							.isEmpty() ? null : new InternetAddress(
-							tEmailadresse_1.getText(), true);
-					InternetAddress mail2 = tEmailadresse_2.getText().trim()
-							.isEmpty() ? null : new InternetAddress(
-							tEmailadresse_2.getText(), true);
-
-					if (mail1 == null && mail2 != null) {
-						mail1 = mail2;
-						mail2 = null;
-					}
-
-					if (mail1 == null && tVorname.getText().trim().isEmpty()
-							&& tName.getText().trim().isEmpty()
-							&& tAnzeigename.getText().trim().isEmpty()) {
-						zuWenigInfos();
-						return;
-					}
-
-					if (mKontakt == null) {
-						mKontakt = new Kontakt(tName.getText(), tVorname
-								.getText(), tAnzeigename.getText(), tSpitzname
-								.getText(), mail1, mail2, tPrivat.getText(),
-								tDienstlich.getText(), tMobil.getText());
-					} else {
-						mKontakt.setVorname(tVorname.getText());
-						mKontakt.setNachname(tName.getText());
-						mKontakt.setAnzeigename(tAnzeigename.getText());
-						mKontakt.setSpitzname(tSpitzname.getText());
-						mKontakt.setMail1(mail1);
-						mKontakt.setMail2(mail2);
-						mKontakt.setTelDienst(tDienstlich.getText());
-						mKontakt.setTelPrivat(tPrivat.getText());
-						mKontakt.setTelMobil(tMobil.getText());
-					}
-
-					close();
-				} catch (AddressException ex) {
-					parseFehler(ex);
-				}
-
+				finalisiereFrame();
 			}
 		});
 
@@ -309,6 +294,8 @@ public class KontaktFrame extends ExtendedDialog<Kontakt> {
 			);
 		getContentPane().setLayout(groupLayout);
 
+		// Vector, der die Reihenfolge speichert, in der bei einem Druck der
+		// Tab-Taste durch die Komponenten gewandert werden soll
 		Vector<Component> tabOrder = new Vector<Component>();
 		tabOrder.add(tVorname);
 		tabOrder.add(tName);
@@ -325,6 +312,9 @@ public class KontaktFrame extends ExtendedDialog<Kontakt> {
 		setFocusTraversalPolicy(new VectorFocusTraversalPolicy(tabOrder));
 	}
 
+	/**
+	 * Erstellt eine neue Instanz der Klasse zum Erstellen eines Kontakts
+	 */
 	public KontaktFrame() {
 		super(685, 285);
 
@@ -334,6 +324,13 @@ public class KontaktFrame extends ExtendedDialog<Kontakt> {
 		initFrame();
 	}
 
+	/**
+	 * Erstellt eine neue Instanz der Klasse zum Bearbeiten des übergebenen
+	 * Kontakts
+	 * 
+	 * @param k
+	 *            Kontakt-Instanz, die in dem Frame bearbeitet werden soll
+	 */
 	public KontaktFrame(Kontakt k) {
 		super(685, 285);
 
@@ -358,10 +355,16 @@ public class KontaktFrame extends ExtendedDialog<Kontakt> {
 		tMobil.setText(mKontakt.getTelMobil());
 	}
 
+	/**
+	 * Aktualisiert den Anzeigenamen des Kontakts
+	 */
 	private void aktualisiereAnzeigename() {
 		tAnzeigename.setText(tVorname.getText() + " " + tName.getText());
 	}
 
+	/**
+	 * Aktualisiert den Titel des Frames
+	 */
 	private void aktualisiereTitel() {
 		String name = tAnzeigename.getText();
 		String titel = null;
@@ -383,17 +386,62 @@ public class KontaktFrame extends ExtendedDialog<Kontakt> {
 		setTitle(titel);
 	}
 
-	private void parseFehler(AddressException ex) {
-		JOptionPane.showMessageDialog(this,
-				"Es ist ein Fehler beim Parsen einer Mailadresse aufgetreten:\n"
-						+ ex.getMessage(), "Fehler", JOptionPane.ERROR_MESSAGE);
-	}
+	/**
+	 * Wird beim Klick auf den OK-Buttom aufgerufen, um den Dialog auf die
+	 * Rückgabe des finalen Kontakt-Objekts vorzubereiten.
+	 */
+	private void finalisiereFrame() {
+		try {
+			String strMail1 = tEmailadresse_1.getText().trim();
+			String strMail2 = tEmailadresse_2.getText().trim();
 
-	private void zuWenigInfos() {
-		JOptionPane.showMessageDialog(this,
-				"Sie müssen mindestens eine der folgenden Angaben machen:\n"
-						+ "E-Mail-Adresse, Vorname, Name, Anzeigename",
-				"Informationen fehlen", JOptionPane.WARNING_MESSAGE);
+			InternetAddress mail1 = strMail1.isEmpty() ? null
+					: new InternetAddress(tEmailadresse_1.getText(),
+							true);
+			InternetAddress mail2 = strMail2.isEmpty() ? null
+					: new InternetAddress(tEmailadresse_2.getText(),
+							true);
+
+			if (mail1 == null && mail2 != null) {
+				mail1 = mail2;
+				mail2 = null;
+			}
+
+			if (mail1 == null && tVorname.getText().trim().isEmpty()
+					&& tName.getText().trim().isEmpty()
+					&& tAnzeigename.getText().trim().isEmpty()) {
+				JOptionPane.showMessageDialog(this,
+						"Sie müssen mindestens eine der folgenden Angaben machen:\n"
+								+ "E-Mail-Adresse, Vorname, Name, Anzeigename",
+						"Informationen fehlen", JOptionPane.WARNING_MESSAGE);
+				return;
+			}
+
+			if (mKontakt == null) {
+				//Erstelle neuen Kontakt
+				mKontakt = new Kontakt(tName.getText(), 
+						tVorname.getText(), tAnzeigename.getText(), 
+						tSpitzname.getText(), mail1, mail2, tPrivat.getText(),
+						tDienstlich.getText(), tMobil.getText());
+			} else {
+				//Bearbeite existierenden Kontakt
+				mKontakt.setVorname(tVorname.getText());
+				mKontakt.setNachname(tName.getText());
+				mKontakt.setAnzeigename(tAnzeigename.getText());
+				mKontakt.setSpitzname(tSpitzname.getText());
+				mKontakt.setMail1(mail1);
+				mKontakt.setMail2(mail2);
+				mKontakt.setTelDienst(tDienstlich.getText());
+				mKontakt.setTelPrivat(tPrivat.getText());
+				mKontakt.setTelMobil(tMobil.getText());
+			}
+
+			close();
+		} catch (AddressException ex) {
+			JOptionPane.showMessageDialog(this,
+					"Es ist ein Fehler beim Parsen einer Mailadresse aufgetreten:\n"
+							+ ex.getMessage(), "Fehler", JOptionPane.ERROR_MESSAGE);
+		}
 	}
 
 	@Override

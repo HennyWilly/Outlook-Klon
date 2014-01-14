@@ -1,29 +1,27 @@
 package de.outlook_klon.gui;
 
-import javax.swing.JLabel;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
-import javax.swing.LayoutStyle.ComponentPlacement;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JSpinner;
 import javax.swing.JTextField;
+import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.SpinnerDateModel;
-
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Calendar;
-import javax.swing.JButton;
 
 import de.outlook_klon.logik.Benutzer;
 import de.outlook_klon.logik.Benutzer.MailChecker;
 import de.outlook_klon.logik.kalendar.Termin;
 import de.outlook_klon.logik.kontakte.Kontakt;
-
-import javax.swing.JComboBox;
-import javax.swing.DefaultComboBoxModel;
 import de.outlook_klon.logik.mailclient.MailAccount;
 
 public class TerminFrame extends ExtendedDialog<Termin> {

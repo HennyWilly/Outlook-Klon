@@ -1,5 +1,6 @@
 package de.outlook_klon.gui;
 
+import java.awt.Dialog;
 import java.awt.event.WindowEvent;
 
 import javax.swing.JDialog;
@@ -26,8 +27,9 @@ public abstract class ExtendedDialog<TDialogTyp> extends JDialog {
 	 */
 	protected ExtendedDialog(int breite, int hoehe) {
 		this.setSize(breite, hoehe);
+		//Fenster in der Mitte des Bildschirms
 		this.setLocationRelativeTo(null);
-		this.setModal(true);
+		this.setModalityType(Dialog.DEFAULT_MODALITY_TYPE);
 		this.setResizable(false);
 	}
 
@@ -46,6 +48,8 @@ public abstract class ExtendedDialog<TDialogTyp> extends JDialog {
 	 * @return Ergbnis des Dialogs
 	 */
 	public TDialogTyp showDialog() {
+		// Durch "ModalityType=DEFAULT_MODALITY_TYPE" wird bei setVisible(true)
+		// blockiert
 		setVisible(true);
 
 		return getDialogResult();
