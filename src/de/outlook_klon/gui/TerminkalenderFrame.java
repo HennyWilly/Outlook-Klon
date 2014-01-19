@@ -52,6 +52,7 @@ public class TerminkalenderFrame extends ExtendedFrame {
 	private JPanel panel;
 	
 	private void initGui() {
+		setTitle("Termine");
 		terminPopup = new JPopupMenu();
 
 		popupTerminOeffnen = new JMenuItem("Öffnen");

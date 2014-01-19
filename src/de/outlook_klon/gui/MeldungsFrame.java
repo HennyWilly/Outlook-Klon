@@ -13,32 +13,13 @@ public class MeldungsFrame extends ExtendedDialog<String> {
 	private JButton btnAbbrechen;
 	private String info;
 		
-	public MeldungsFrame() {
-		super(400, 400);
-		setTitle("Abwesenheitsmeldung festlegen");
+	private void initGui(String text, String titel) {
+		setTitle(titel);
 		getContentPane().setLayout(null);
 
 		textAbwes = new JTextPane();
 		textAbwes.setBounds(0, 0, 394, 292);
-		getContentPane().add(textAbwes);
-
-		btnOk = new JButton("OK");
-		btnOk.setBounds(40, 323, 89, 23);
-		getContentPane().add(btnOk);
-
-		btnAbbrechen = new JButton("Abbrechen");
-		btnAbbrechen.setBounds(242, 323, 89, 23);
-		getContentPane().add(btnAbbrechen);
-	}
-
-	public MeldungsFrame(String s, String status) {
-		super(400, 400);
-		setTitle(status);
-		getContentPane().setLayout(null);
-
-		textAbwes = new JTextPane();
-		textAbwes.setBounds(0, 0, 394, 292);
-		textAbwes.setText(s);
+		textAbwes.setText(text);
 		getContentPane().add(textAbwes);
 
 		btnOk = new JButton("OK");
@@ -50,7 +31,7 @@ public class MeldungsFrame extends ExtendedDialog<String> {
 				close();
 			}
 		});
-		btnOk.setBounds(40, 323, 89, 23);
+		btnOk.setBounds(10, 303, 100, 23);
 		getContentPane().add(btnOk);
 
 		btnAbbrechen = new JButton("Abbrechen");
@@ -61,8 +42,14 @@ public class MeldungsFrame extends ExtendedDialog<String> {
 				close();
 			}
 		});
-		btnAbbrechen.setBounds(242, 323, 89, 23);
+		btnAbbrechen.setBounds(120, 303, 100, 23);
 		getContentPane().add(btnAbbrechen);
+	}
+
+	public MeldungsFrame(String text, String titel) {
+		super(400, 365);
+		
+		initGui(text, titel);
 	}
 
 	protected String getDialogResult() {

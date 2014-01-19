@@ -31,8 +31,8 @@ public class TerminFrame extends ExtendedDialog<Termin> {
 	private JTextField textBeschreibung;
 	private JTextField textOrt;
 
-	private JSpinner date1;
-	private JSpinner date2;
+	private JSpinner dateStart;
+	private JSpinner dateEnde;
 
 	private JComboBox<String> comboKonto;
 	private JComboBox<String> comboKontakt;
@@ -58,20 +58,20 @@ public class TerminFrame extends ExtendedDialog<Termin> {
 		textOrt = new JTextField();
 		textOrt.setColumns(10);
 
-		date1 = new JSpinner();
-		date1.setModel(new SpinnerDateModel(new Date(), null, null,
+		dateStart = new JSpinner();
+		dateStart.setModel(new SpinnerDateModel(new Date(), null, null,
 				Calendar.DAY_OF_YEAR));
 
-		date2 = new JSpinner();
-		date2.setModel(new SpinnerDateModel(new Date(), null, null,
+		dateEnde = new JSpinner();
+		dateEnde.setModel(new SpinnerDateModel(new Date(), null, null,
 				Calendar.DAY_OF_YEAR));
 
 		JButton btnOk = new JButton("OK");
 		btnOk.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				SpinnerDateModel model1 = (SpinnerDateModel) date1.getModel();
-				SpinnerDateModel model2 = (SpinnerDateModel) date2.getModel();
+				SpinnerDateModel model1 = (SpinnerDateModel) dateStart.getModel();
+				SpinnerDateModel model2 = (SpinnerDateModel) dateEnde.getModel();
 
 				try {
 					if (mTermin == null) {
@@ -167,8 +167,8 @@ public class TerminFrame extends ExtendedDialog<Termin> {
 											.addComponent(lblNBetreff, GroupLayout.PREFERRED_SIZE, 53, GroupLayout.PREFERRED_SIZE))
 										.addGap(77)
 										.addGroup(groupLayout.createParallelGroup(Alignment.LEADING, false)
-											.addComponent(date1, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-											.addComponent(date2, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+											.addComponent(dateStart, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+											.addComponent(dateEnde, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
 											.addComponent(textBetreff, GroupLayout.DEFAULT_SIZE, 286, Short.MAX_VALUE)
 											.addComponent(textOrt, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)))
 									.addGroup(groupLayout.createSequentialGroup()
@@ -204,8 +204,8 @@ public class TerminFrame extends ExtendedDialog<Termin> {
 								.addGap(18)
 								.addGroup(groupLayout.createParallelGroup(Alignment.BASELINE)
 									.addComponent(lblEndzeit)
-									.addComponent(date2, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)))
-							.addComponent(date1, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+									.addComponent(dateEnde, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)))
+							.addComponent(dateStart, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
 						.addPreferredGap(ComponentPlacement.UNRELATED)
 						.addGroup(groupLayout.createParallelGroup(Alignment.BASELINE)
 							.addComponent(lblBeschreibung)
@@ -244,8 +244,8 @@ public class TerminFrame extends ExtendedDialog<Termin> {
 		textBetreff.setText(t.getBetreff());
 		textOrt.setText(t.getOrt());
 		textBeschreibung.setText(t.getText());
-		date1.setValue(t.getStart());
-		date2.setValue(t.getEnde());
+		dateStart.setValue(t.getStart());
+		dateEnde.setValue(t.getEnde());
 		comboKonto.setSelectedItem(t.getBenutzerkonto());
 		comboKontakt.setSelectedItem(t.getKontakt());
 	}
@@ -253,10 +253,10 @@ public class TerminFrame extends ExtendedDialog<Termin> {
 	public TerminFrame(Date date) {
 		this();
 		
-		SpinnerDateModel m1 = (SpinnerDateModel)date1.getModel();
+		SpinnerDateModel m1 = (SpinnerDateModel)dateStart.getModel();
 		m1.setValue(date);
 		
-		SpinnerDateModel m2 = (SpinnerDateModel)date2.getModel();
+		SpinnerDateModel m2 = (SpinnerDateModel)dateEnde.getModel();
 		m2.setValue(date);
 	}
 
