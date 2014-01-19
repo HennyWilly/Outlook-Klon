@@ -80,9 +80,9 @@ public class Terminkalender implements Iterable<Termin>, Serializable {
 	}
 
 	/**
-	 * Gibt den Termin zurück, der am spätesten beginnt
+	 * Gibt den Termin zurück, der am ehesten beginnt
 	 * 
-	 * @return Termin-Objekt, das zeitlich am spätesten beginnt
+	 * @return Termin-Objekt, das zeitlich am ehesten beginnt
 	 */
 	public Termin getOldest() {
 		if (mTermine.size() == 0)
@@ -157,12 +157,8 @@ public class Terminkalender implements Iterable<Termin>, Serializable {
 	}
 
 	/**
-	 * Entfernt alle Termine aus der Verwaltung, die am übergebenen Tag
+	 * Entfernt alle Termine aus der Verwaltung, die am aktuellen Tag
 	 * stattfinden
-	 * 
-	 * @param tag
-	 *            Date-Objekt, welches den Tag enthällt, an dem alle Termine
-	 *            entfernt werden
 	 */
 	public void absagen() {
 		for(Termin t: getTermine()){
