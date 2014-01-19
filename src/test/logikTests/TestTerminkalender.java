@@ -1,7 +1,5 @@
 package test.logikTests;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 
 import org.junit.Assert;
@@ -10,7 +8,6 @@ import org.junit.Test;
 
 import de.outlook_klon.logik.kalendar.Terminkalender;
 import de.outlook_klon.logik.kalendar.Termin;
-import de.outlook_klon.logik.kalendar.Termin.Status;
 public class TestTerminkalender {
 	private Terminkalender kalender;
 	
