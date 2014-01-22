@@ -124,8 +124,8 @@ public class Terminkalender implements Iterable<Termin>, Serializable {
 		for (Termin termin : mTermine) {
 			Date startZeit = termin.getStart();
 			if (termin.getStatus() != Status.abgelehnt
-					&& start.equals(startZeit)
-					|| (startZeit.after(start) && startZeit.before(ende))) {
+					&& (start.equals(startZeit)
+					|| (startZeit.after(start) && startZeit.before(ende)))) {
 				liste.add(termin);
 			}
 		}

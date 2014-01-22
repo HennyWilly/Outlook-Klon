@@ -212,6 +212,9 @@ public class HtmlEditorPane extends JEditorPane {
 	
 	@Override
 	public void setText(String text) {
+		if(text == null)
+			text = "";
+		
 		//In Plaintexte können keine Hyperlinks eingefügt werden
 		if(getContentType().equalsIgnoreCase("text/html")) {		
 			StringBuilder sb = new StringBuilder(text);

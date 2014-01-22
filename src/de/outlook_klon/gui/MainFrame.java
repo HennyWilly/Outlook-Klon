@@ -594,8 +594,10 @@ public class MainFrame extends ExtendedFrame {
 				
 				DefaultTreeModel treeModel = (DefaultTreeModel) tree.getModel();
 				DefaultMutableTreeNode root = (DefaultMutableTreeNode) treeModel.getRoot();
-				for(int i = 0; i < root.getChildCount(); i++) {
-					DefaultMutableTreeNode childNode = (DefaultMutableTreeNode) root.getChildAt(i);
+				
+				int childs = root.getChildCount();
+				for(int i = 0; i < childs; i++) {
+					DefaultMutableTreeNode childNode = (DefaultMutableTreeNode) root.getChildAt(0);
 					
 					treeModel.removeNodeFromParent(childNode);
 				}

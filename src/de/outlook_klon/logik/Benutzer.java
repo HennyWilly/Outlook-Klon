@@ -616,9 +616,10 @@ public final class Benutzer implements Iterable<Benutzer.MailChecker> {
 
 			InternetAddress ziel = (InternetAddress) info.getSender();
 
+			String text = getAbwesenheitsmeldung();
 			sender.sendeMail(new InternetAddress[] { ziel }, null,
 					"Abwesenheit von " + sender.getAdresse().getPersonal(),
-					"Ich bin nicht da", "TEXT/plain; charset=utf-8", null);
+					text, "TEXT/plain; charset=utf-8", null);
 		} catch (MessagingException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -688,6 +689,7 @@ public final class Benutzer implements Iterable<Benutzer.MailChecker> {
 		for (MailAccount account : aloneAccounts) {
 			//Erstellt einen neuen Checker für die MailAccounts
 			MailChecker neu = new MailChecker(account);
+			neu.addNewMessageListener(getListener());
 			konten.add(neu);
 		}
 
