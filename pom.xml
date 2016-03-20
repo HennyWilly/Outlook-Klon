@@ -11,14 +11,21 @@
   
   <properties>
     <jdk.version>1.7</jdk.version>
-    <junit.version>4.11</junit.version>
+    <junit.version>4.12</junit.version>
+    <javamail.version>1.4.7</javamail.version>
+    <joda-time.version>2.9.2</joda-time.version>
+    <slf4j.version>1.7.19</slf4j.version>
+	
+    <eclipse-plugin.version>2.10</eclipse-plugin.version>
+    <compiler-plugin.version>3.5.1</compiler-plugin.version>
+    <jar-plugin.version>2.6</jar-plugin.version>
   </properties>
   
   <dependencies>
     <dependency>
       <groupId>javax.mail</groupId>
       <artifactId>mail</artifactId>
-      <version>1.4</version>
+      <version>${javamail.version}</version>
     </dependency>
     <dependency>
       <groupId>junit</groupId>
@@ -29,30 +36,30 @@
       <dependency>
       <groupId>joda-time</groupId>
       <artifactId>joda-time</artifactId>
-      <version>2.9.2</version>
+      <version>${joda-time.version}</version>
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
-      <version>1.7.19</version>
+      <version>${slf4j.version}</version>
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-log4j12</artifactId>
-      <version>1.7.19</version>
+      <version>${slf4j.version}</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
   <build>
     <plugins>
-	  <!-- download source code in Eclipse, best practice -->
+	  <!-- download source code and Javadocs in Eclipse, best practice -->
 	  <plugin>
 		<groupId>org.apache.maven.plugins</groupId>
 		<artifactId>maven-eclipse-plugin</artifactId>
-		<version>2.9</version>
+		<version>${eclipse-plugin.version}</version>
 		<configuration>
 		  <downloadSources>true</downloadSources>
-	      <downloadJavadocs>false</downloadJavadocs>
+	      <downloadJavadocs>true</downloadJavadocs>
 		</configuration>
 	  </plugin>
 
@@ -60,7 +67,7 @@
 	  <plugin>
 		<groupId>org.apache.maven.plugins</groupId>
 		<artifactId>maven-compiler-plugin</artifactId>
-		<version>3.5.1</version>
+		<version>${compiler-plugin.version}</version>
 		<configuration>
 		  <source>${jdk.version}</source>
 		  <target>${jdk.version}</target>
@@ -71,7 +78,7 @@
 	  <plugin>
 		<groupId>org.apache.maven.plugins</groupId>
 		<artifactId>maven-jar-plugin</artifactId>
-		<version>2.6</version>
+		<version>${jar-plugin.version}</version>
 				
 		<configuration>
 		  <!-- DO NOT include log4j.properties file in your Jar -->
