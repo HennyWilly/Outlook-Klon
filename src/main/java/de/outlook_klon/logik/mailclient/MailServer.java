@@ -42,8 +42,7 @@ public abstract class MailServer implements Serializable {
 		 * @param passwort
 		 *            Verwendendetes Passwort
 		 */
-		public StandardAuthenticator(final String benutzername,
-				final String passwort) {
+		public StandardAuthenticator(final String benutzername, final String passwort) {
 			super();
 
 			this.benutzername = benutzername;
@@ -67,8 +66,7 @@ public abstract class MailServer implements Serializable {
 	 */
 	protected MailServer(final ServerSettings settings, final String serverTyp) {
 		if (settings == null)
-			throw new NullPointerException(
-					"Servereinstellungen wurden nicht instanziiert");
+			throw new NullPointerException("Servereinstellungen wurden nicht instanziiert");
 
 		this.settings = settings;
 		this.serverTyp = serverTyp;
@@ -106,7 +104,7 @@ public abstract class MailServer implements Serializable {
 		Properties props = getProperties();
 
 		Session session = Session.getInstance(props, auth);
-		session.setDebug(true);
+		//session.setDebug(true);
 
 		return session;
 	}

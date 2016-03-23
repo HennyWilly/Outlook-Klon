@@ -38,6 +38,9 @@ import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import de.outlook_klon.logik.Benutzer;
 import de.outlook_klon.logik.Benutzer.MailChecker;
 import de.outlook_klon.logik.kontakte.Kontakt;
@@ -46,6 +49,8 @@ import de.outlook_klon.logik.mailclient.MailInfo;
 
 public class MailFrame extends ExtendedFrame {
 	private static final long serialVersionUID = 5976953616015664148L;
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(MailFrame.class);
 
 	/**
 	 * Interne Aufzählung, welche die verschiedenen Arten definiert, in welchem
@@ -139,8 +144,7 @@ public class MailFrame extends ExtendedFrame {
 		ItemListener radioMenu = new ItemListener() {
 			@Override
 			public void itemStateChanged(ItemEvent arg0) {
-				JRadioButtonMenuItem sender = (JRadioButtonMenuItem) arg0
-						.getSource();
+				JRadioButtonMenuItem sender = (JRadioButtonMenuItem) arg0.getSource();
 				if (arg0.getStateChange() == ItemEvent.SELECTED) {
 					boolean editable = tpMailtext.isEditable();
 
@@ -215,11 +219,9 @@ public class MailFrame extends ExtendedFrame {
 		JSplitPane splitHead = new JSplitPane();
 
 		final GroupLayout gl_panel = new GroupLayout(panel);
-		gl_panel.setHorizontalGroup(gl_panel.createParallelGroup(
-				Alignment.LEADING).addComponent(splitHead, Alignment.TRAILING,
-				GroupLayout.DEFAULT_SIZE, 508, Short.MAX_VALUE));
-		gl_panel.setVerticalGroup(gl_panel.createParallelGroup(
-				Alignment.LEADING).addComponent(splitHead,
+		gl_panel.setHorizontalGroup(gl_panel.createParallelGroup(Alignment.LEADING).addComponent(splitHead,
+				Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 508, Short.MAX_VALUE));
+		gl_panel.setVerticalGroup(gl_panel.createParallelGroup(Alignment.LEADING).addComponent(splitHead,
 				GroupLayout.DEFAULT_SIZE, 119, Short.MAX_VALUE));
 
 		final JPanel panel_1 = new JPanel();
@@ -259,44 +261,42 @@ public class MailFrame extends ExtendedFrame {
 		tSender = new JTextField();
 
 		final GroupLayout gl_panel_1 = new GroupLayout(panel_1);
-		gl_panel_1.setHorizontalGroup(
-				gl_panel_1.createParallelGroup(Alignment.LEADING)
-					.addGroup(gl_panel_1.createSequentialGroup()
-						.addContainerGap()
-						.addGroup(gl_panel_1.createParallelGroup(Alignment.LEADING)
-							.addComponent(lSender, GroupLayout.PREFERRED_SIZE, 46, GroupLayout.PREFERRED_SIZE)
-							.addComponent(lTo, GroupLayout.PREFERRED_SIZE, 46, GroupLayout.PREFERRED_SIZE)
-							.addComponent(lCC, GroupLayout.PREFERRED_SIZE, 46, GroupLayout.PREFERRED_SIZE)
-							.addComponent(lSubject, GroupLayout.PREFERRED_SIZE, 46, GroupLayout.PREFERRED_SIZE))
-						.addPreferredGap(ComponentPlacement.RELATED)
-						.addGroup(gl_panel_1.createParallelGroup(Alignment.LEADING)
-							.addComponent(modus != MailModus.OEFFNEN ? cBSender : tSender, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-							.addComponent(tTo, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 6, Short.MAX_VALUE)
-							.addComponent(tCC, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 6, Short.MAX_VALUE)
-							.addComponent(tSubject, GroupLayout.DEFAULT_SIZE, 6, Short.MAX_VALUE))
-						.addContainerGap())
-			);
-			gl_panel_1.setVerticalGroup(
-				gl_panel_1.createParallelGroup(Alignment.LEADING)
-					.addGroup(gl_panel_1.createSequentialGroup()
-						.addContainerGap()
-						.addGroup(gl_panel_1.createParallelGroup(Alignment.BASELINE)
-							.addComponent(lSender)
-							.addComponent(modus != MailModus.OEFFNEN ? cBSender : tSender, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-						.addPreferredGap(ComponentPlacement.RELATED)
-						.addGroup(gl_panel_1.createParallelGroup(Alignment.BASELINE)
-							.addComponent(lTo)
-							.addComponent(tTo, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-						.addGap(5)
-						.addGroup(gl_panel_1.createParallelGroup(Alignment.BASELINE)
-							.addComponent(lCC)
-							.addComponent(tCC, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-						.addGap(3)
-						.addGroup(gl_panel_1.createParallelGroup(Alignment.BASELINE)
-							.addComponent(lSubject)
-							.addComponent(tSubject, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-						.addContainerGap())
-			);
+		gl_panel_1
+				.setHorizontalGroup(
+						gl_panel_1.createParallelGroup(Alignment.LEADING).addGroup(gl_panel_1.createSequentialGroup()
+								.addContainerGap()
+								.addGroup(gl_panel_1.createParallelGroup(Alignment.LEADING)
+										.addComponent(lSender, GroupLayout.PREFERRED_SIZE, 46,
+												GroupLayout.PREFERRED_SIZE)
+										.addComponent(lTo, GroupLayout.PREFERRED_SIZE, 46, GroupLayout.PREFERRED_SIZE)
+										.addComponent(lCC, GroupLayout.PREFERRED_SIZE, 46, GroupLayout.PREFERRED_SIZE)
+										.addComponent(lSubject, GroupLayout.PREFERRED_SIZE, 46,
+												GroupLayout.PREFERRED_SIZE))
+								.addPreferredGap(ComponentPlacement.RELATED)
+								.addGroup(gl_panel_1.createParallelGroup(Alignment.LEADING)
+										.addComponent(modus != MailModus.OEFFNEN ? cBSender : tSender,
+												GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+										.addComponent(tTo, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 6,
+												Short.MAX_VALUE)
+										.addComponent(tCC, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 6,
+												Short.MAX_VALUE)
+										.addComponent(tSubject, GroupLayout.DEFAULT_SIZE, 6, Short.MAX_VALUE))
+								.addContainerGap()));
+		gl_panel_1.setVerticalGroup(gl_panel_1.createParallelGroup(Alignment.LEADING).addGroup(gl_panel_1
+				.createSequentialGroup().addContainerGap()
+				.addGroup(gl_panel_1.createParallelGroup(Alignment.BASELINE).addComponent(lSender).addComponent(
+						modus != MailModus.OEFFNEN ? cBSender : tSender, GroupLayout.PREFERRED_SIZE,
+						GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+				.addPreferredGap(ComponentPlacement.RELATED)
+				.addGroup(gl_panel_1.createParallelGroup(Alignment.BASELINE).addComponent(lTo).addComponent(tTo,
+						GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+				.addGap(5)
+				.addGroup(gl_panel_1.createParallelGroup(Alignment.BASELINE).addComponent(lCC).addComponent(tCC,
+						GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+				.addGap(3)
+				.addGroup(gl_panel_1.createParallelGroup(Alignment.BASELINE).addComponent(lSubject).addComponent(
+						tSubject, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+				.addContainerGap()));
 		panel_1.setLayout(gl_panel_1);
 
 		initListe(splitHead);
@@ -309,22 +309,21 @@ public class MailFrame extends ExtendedFrame {
 		splitPane.setRightComponent(textScroller);
 
 		GroupLayout groupLayout = new GroupLayout(getContentPane());
-		groupLayout.setHorizontalGroup(
-				groupLayout.createParallelGroup(Alignment.LEADING)
-					.addGroup(Alignment.TRAILING, groupLayout.createSequentialGroup()
+		groupLayout.setHorizontalGroup(groupLayout.createParallelGroup(Alignment.LEADING).addGroup(Alignment.TRAILING,
+				groupLayout.createSequentialGroup()
 						.addGroup(groupLayout.createParallelGroup(Alignment.TRAILING)
-							.addComponent(toolBar, GroupLayout.DEFAULT_SIZE, 510, Short.MAX_VALUE)
-							.addComponent(splitPane, GroupLayout.DEFAULT_SIZE, 510, Short.MAX_VALUE))
-						.addGap(0))
-			);
-			groupLayout.setVerticalGroup(
-				groupLayout.createParallelGroup(Alignment.TRAILING)
-					.addGroup(Alignment.LEADING, groupLayout.createSequentialGroup()
-						.addComponent(toolBar, GroupLayout.PREFERRED_SIZE, 35, GroupLayout.PREFERRED_SIZE)
-						.addPreferredGap(ComponentPlacement.RELATED)
-						.addComponent(splitPane, GroupLayout.DEFAULT_SIZE, 332, Short.MAX_VALUE))
-			);
-			
+								.addComponent(toolBar, GroupLayout.DEFAULT_SIZE, 510, Short.MAX_VALUE)
+								.addComponent(splitPane, GroupLayout.DEFAULT_SIZE, 510, Short.MAX_VALUE))
+						.addGap(0)));
+		groupLayout
+				.setVerticalGroup(
+						groupLayout.createParallelGroup(Alignment.TRAILING).addGroup(Alignment.LEADING,
+								groupLayout.createSequentialGroup()
+										.addComponent(toolBar, GroupLayout.PREFERRED_SIZE, 35,
+												GroupLayout.PREFERRED_SIZE)
+										.addPreferredGap(ComponentPlacement.RELATED)
+										.addComponent(splitPane, GroupLayout.DEFAULT_SIZE, 332, Short.MAX_VALUE)));
+
 		btnSenden = new JButton("Senden");
 		toolBar.add(btnSenden);
 		btnSenden.addActionListener(new ActionListener() {
@@ -412,8 +411,7 @@ public class MailFrame extends ExtendedFrame {
 			adressen.add(k.getMail1());
 		}
 
-		String adressString = appendAddresses(adressen
-				.toArray(new InternetAddress[adressen.size()]));
+		String adressString = appendAddresses(adressen.toArray(new InternetAddress[adressen.size()]));
 		tTo.setText(adressString);
 	}
 
@@ -431,8 +429,7 @@ public class MailFrame extends ExtendedFrame {
 	 *             Tritt auf, wenn die Daten der Mail nicht abgefragt werden
 	 *             konnten.
 	 */
-	public MailFrame(MailInfo mail, String pfad, MailAccount parent)
-			throws MessagingException {
+	public MailFrame(MailInfo mail, String pfad, MailAccount parent) throws MessagingException {
 		modus = MailModus.OEFFNEN;
 
 		initGui();
@@ -461,8 +458,8 @@ public class MailFrame extends ExtendedFrame {
 		String text = info.getText();
 		String contentType = info.getContentType();
 
-		//Automatisches Umstellen des Anzeigetyps
-		if(HtmlEditorPane.istHtml(text))
+		// Automatisches Umstellen des Anzeigetyps
+		if (HtmlEditorPane.istHtml(text))
 			contentType = contentType.replace("plain", "html");
 
 		if (contentType.toLowerCase().startsWith("text/plain")) {
@@ -475,10 +472,9 @@ public class MailFrame extends ExtendedFrame {
 
 		tpMailtext.setEditable(false);
 
-		DefaultListModel<File> model = (DefaultListModel<File>) lstAnhang
-				.getModel();
-		
-		//Füge Anhänge in die JList ein
+		DefaultListModel<File> model = (DefaultListModel<File>) lstAnhang.getModel();
+
+		// Füge Anhänge in die JList ein
 		String[] attachments = mail.getAttachment();
 		for (int i = 0; i < attachments.length; i++) {
 			model.addElement(new File(attachments[i]));
@@ -503,8 +499,7 @@ public class MailFrame extends ExtendedFrame {
 	 *             Tritt auf, wenn die Daten der Mail nicht abgefragt werden
 	 *             konnten.
 	 */
-	public MailFrame(MailInfo mail, String pfad, MailAccount parent,
-			boolean weiterleiten) throws MessagingException {
+	public MailFrame(MailInfo mail, String pfad, MailAccount parent, boolean weiterleiten) throws MessagingException {
 		modus = weiterleiten ? MailModus.WEITERLEITEN : MailModus.ANTWORT;
 
 		initGui();
@@ -529,8 +524,9 @@ public class MailFrame extends ExtendedFrame {
 		String text = info.getText();
 		String contentType = info.getContentType();
 
-		if (HtmlEditorPane.istHtml(text));
-			contentType = contentType.replace("plain", "html");
+		if (HtmlEditorPane.istHtml(text))
+			;
+		contentType = contentType.replace("plain", "html");
 
 		if (contentType.startsWith("TEXT/plain")) {
 			rdbtnmntmReintext.setSelected(true);
@@ -558,8 +554,7 @@ public class MailFrame extends ExtendedFrame {
 	 *            Hinzuzufügender MailAccount
 	 */
 	private void addMailAccount(MailAccount ac) {
-		DefaultComboBoxModel<MailAccount> model = (DefaultComboBoxModel<MailAccount>) cBSender
-				.getModel();
+		DefaultComboBoxModel<MailAccount> model = (DefaultComboBoxModel<MailAccount>) cBSender.getModel();
 
 		if (model.getIndexOf(ac) == -1) {
 			cBSender.addItem(ac);
@@ -579,17 +574,16 @@ public class MailFrame extends ExtendedFrame {
 	 * @throws ParseException
 	 *             Tritt auf, wenn die Adressen nicht geparst werden konnten.
 	 */
-	private static InternetAddress[] unicodifyAddresses(String adressen)
-			throws ParseException {
+	private static InternetAddress[] unicodifyAddresses(String adressen) throws ParseException {
 		adressen = adressen.replace(';', ',');
 
 		InternetAddress[] recips = InternetAddress.parse(adressen, true);
 
 		for (int i = 0; i < recips.length; i++) {
 			try {
-				recips[i] = new InternetAddress(recips[i].getAddress(),
-						recips[i].getPersonal(), "utf-8");
+				recips[i] = new InternetAddress(recips[i].getAddress(), recips[i].getPersonal(), "utf-8");
 			} catch (UnsupportedEncodingException uee) {
+				LOGGER.error("Could not parse internet address", uee);
 			}
 		}
 
@@ -603,44 +597,39 @@ public class MailFrame extends ExtendedFrame {
 		String subject = tSubject.getText();
 		String text = tpMailtext.getText();
 		MailAccount acc = (MailAccount) cBSender.getSelectedItem();
-		
+
 		InternetAddress[] to = null;
 		InternetAddress[] cc = null;
-		
+
 		if (acc == null) {
 			JOptionPane.showMessageDialog(this,
-					"Es wurde keine Mailadresse angegeben, über die die Mail gesendet werden soll",
-					"Fehler", JOptionPane.OK_OPTION);
+					"Es wurde keine Mailadresse angegeben, über die die Mail gesendet werden soll", "Fehler",
+					JOptionPane.OK_OPTION);
 			return;
 		}
 
 		try {
-			//Erstelle aus den entsprechenden String InternetAddress-Instanzen
+			// Erstelle aus den entsprechenden String InternetAddress-Instanzen
 			to = unicodifyAddresses(tTo.getText());
 			cc = unicodifyAddresses(tCC.getText());
 		} catch (ParseException e) {
-			JOptionPane.showMessageDialog(this, e.getMessage(), "Fehler",
-					JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(this, e.getMessage(), "Fehler", JOptionPane.ERROR_MESSAGE);
 			return;
 		}
 
-		
-		DefaultListModel<File> model = (DefaultListModel<File>) lstAnhang
-				.getModel();
+		DefaultListModel<File> model = (DefaultListModel<File>) lstAnhang.getModel();
 		File[] anhänge = new File[model.getSize()];
 		for (int i = 0; i < anhänge.length; i++) {
 			anhänge[i] = model.get(i);
 		}
 
 		try {
-			//Eingentliches Sender der Mail
-			acc.sendeMail(to, cc, subject, text,
-					tpMailtext.getContentType(), anhänge);
+			// Eingentliches Sender der Mail
+			acc.sendeMail(to, cc, subject, text, tpMailtext.getContentType(), anhänge);
 			close();
 		} catch (MessagingException ex) {
 			JOptionPane.showMessageDialog(this,
-					"Es ist ein Fehler beim Senden der Mail aufgetreten:\n"
-							+ ex.getMessage(), "Fehler",
+					"Es ist ein Fehler beim Senden der Mail aufgetreten:\n" + ex.getMessage(), "Fehler",
 					JOptionPane.OK_OPTION);
 		}
 	}
@@ -653,8 +642,7 @@ public class MailFrame extends ExtendedFrame {
 		fc.setMultiSelectionEnabled(true);
 		if (fc.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
 			File[] files = fc.getSelectedFiles();
-			DefaultListModel<File> model = (DefaultListModel<File>) lstAnhang
-					.getModel();
+			DefaultListModel<File> model = (DefaultListModel<File>) lstAnhang.getModel();
 
 			for (File file : files) {
 				if (file.exists())
@@ -672,7 +660,7 @@ public class MailFrame extends ExtendedFrame {
 	 */
 	private void anhangSpeichern(String name) {
 		JFileChooser fc = new JFileChooser();
-		//Setzt den standardmäßig ausgewählten Dateinamen
+		// Setzt den standardmäßig ausgewählten Dateinamen
 		fc.setSelectedFile(new File(name));
 
 		if (fc.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
@@ -680,12 +668,11 @@ public class MailFrame extends ExtendedFrame {
 			MailAccount acc = (MailAccount) cBSender.getSelectedItem();
 
 			try {
-				//Führt das eigentliche Abspeichern aus
+				// Führt das eigentliche Abspeichern aus
 				acc.anhangSpeichern(info, relPfad, name, pfad);
 			} catch (Exception ex) {
 				JOptionPane.showMessageDialog(this,
-						"Es ist ein Fehler beim Speichern des Anhangs aufgetreten: \n"
-								+ ex.getMessage(), "Fehler",
+						"Es ist ein Fehler beim Speichern des Anhangs aufgetreten: \n" + ex.getMessage(), "Fehler",
 						JOptionPane.OK_OPTION);
 			}
 		}

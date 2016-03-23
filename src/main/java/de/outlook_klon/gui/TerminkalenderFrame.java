@@ -50,7 +50,7 @@ public class TerminkalenderFrame extends ExtendedFrame {
 	private ArrayList<Termin> allTermine;
 
 	private JPanel panel;
-	
+
 	private void initGui() {
 		setTitle("Termine");
 		terminPopup = new JPopupMenu();
@@ -59,8 +59,7 @@ public class TerminkalenderFrame extends ExtendedFrame {
 		popupTerminOeffnen.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				DefaultTableModel model = (DefaultTableModel) tblTermine
-						.getModel();
+				DefaultTableModel model = (DefaultTableModel) tblTermine.getModel();
 
 				int viewZeile = tblTermine.getSelectedRow();
 				if (viewZeile < 0)
@@ -146,52 +145,44 @@ public class TerminkalenderFrame extends ExtendedFrame {
 			};
 		};
 
-		tblTermine
-				.setModel(new DefaultTableModel(new Object[][] {},
-						new String[] { "Referenz", "Betreff", "Beschreibung",
-								"Datum" }));
+		tblTermine.setModel(new DefaultTableModel(new Object[][] {},
+				new String[] { "Referenz", "Betreff", "Beschreibung", "Datum" }));
 
 		tblTermine.removeColumn(tblTermine.getColumn("Referenz"));
-		tblTermine.getSelectionModel().addListSelectionListener(
-				new ListSelectionListener() {
+		tblTermine.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 
-					@Override
-					public void valueChanged(ListSelectionEvent e) {
-						if (!e.getValueIsAdjusting()) {
-							DefaultListSelectionModel sender = (DefaultListSelectionModel) e
-									.getSource();
-							int row = sender.getMinSelectionIndex();
-							if (row == -1)
-								return;
+			@Override
+			public void valueChanged(ListSelectionEvent e) {
+				if (!e.getValueIsAdjusting()) {
+					DefaultListSelectionModel sender = (DefaultListSelectionModel) e.getSource();
+					int row = sender.getMinSelectionIndex();
+					if (row == -1)
+						return;
 
-							DefaultTableModel model = (DefaultTableModel) tblTermine
-									.getModel();
-							int length = model.getDataVector().size();
+					DefaultTableModel model = (DefaultTableModel) tblTermine.getModel();
+					int length = model.getDataVector().size();
 
-							if (length > 0) {
-								int zeileModel = tblTermine
-										.convertRowIndexToModel(row);
+					if (length > 0) {
+						int zeileModel = tblTermine.convertRowIndexToModel(row);
 
-								Termin referenz = (Termin) model.getValueAt(
-										zeileModel, 0);
-								aktualisiereDetails(referenz);
-							} else {
-								textDetails.setEditable(true);
-								textDetails.setText(null);
-								textDetails.setEditable(false);
-							}
-						}
-
+						Termin referenz = (Termin) model.getValueAt(zeileModel, 0);
+						aktualisiereDetails(referenz);
+					} else {
+						textDetails.setEditable(true);
+						textDetails.setText(null);
+						textDetails.setEditable(false);
 					}
+				}
 
-				});
+			}
+
+		});
 
 		tblTermine.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				if (e.getClickCount() == 2) {
-					DefaultTableModel model = (DefaultTableModel) tblTermine
-							.getModel();
+					DefaultTableModel model = (DefaultTableModel) tblTermine.getModel();
 
 					int viewZeile = tblTermine.getSelectedRow();
 					if (viewZeile < 0)
@@ -267,8 +258,7 @@ public class TerminkalenderFrame extends ExtendedFrame {
 
 		for (int i = 0; i < anzahl; i++) {
 			Termin a = einwegKalender.getOldest();
-			model.addRow(new Object[] { a, a.getBetreff(), a.getText(),
-					a.getStart().toString() });
+			model.addRow(new Object[] { a, a.getBetreff(), a.getText(), a.getStart().toString() });
 			einwegKalender.löscheTermin(a);
 		}
 	}
@@ -283,11 +273,9 @@ public class TerminkalenderFrame extends ExtendedFrame {
 			if (!t.getOrt().trim().isEmpty())
 				sbshop.append("Ort: ").append(t.getOrt()).append('\n');
 			if (!t.getStart().toString().trim().isEmpty())
-				sbshop.append("Startzeit: ").append(t.getStart().toString())
-						.append('\n');
+				sbshop.append("Startzeit: ").append(t.getStart().toString()).append('\n');
 			if (!t.getEnde().toString().trim().isEmpty())
-				sbshop.append("Ende: ").append(t.getEnde().toString())
-						.append('\n');
+				sbshop.append("Ende: ").append(t.getEnde().toString()).append('\n');
 			if (!t.getText().trim().isEmpty())
 				sbshop.append("Info: ").append(t.getText()).append('\n');
 		}
@@ -305,16 +293,14 @@ public class TerminkalenderFrame extends ExtendedFrame {
 			kalender.addTermin(dummy);
 			allTermine.add(dummy);
 			if (kalender.ueberschneidung(dummy)) {
-				JOptionPane
-						.showMessageDialog(
-								this,
-								"ACHTUNG! Überschneidung mit bereits vorhandenem Termin. Evtl. Sollten Sie ihre Termine überprüfen.",
-								"Warning", JOptionPane.WARNING_MESSAGE);
+				JOptionPane.showMessageDialog(this,
+						"ACHTUNG! Überschneidung mit bereits vorhandenem Termin. Evtl. Sollten Sie ihre Termine überprüfen.",
+						"Warning", JOptionPane.WARNING_MESSAGE);
 			}
 			aktualisiere2Tabelle();
 		}
 	}
-	
+
 	private void neuerTermin(Date date) {
 		TerminFrame tf = new TerminFrame(date);
 		Termin dummy = tf.showDialog();
@@ -323,11 +309,9 @@ public class TerminkalenderFrame extends ExtendedFrame {
 			kalender.addTermin(dummy);
 			allTermine.add(dummy);
 			if (kalender.ueberschneidung(dummy)) {
-				JOptionPane
-						.showMessageDialog(
-								this,
-								"ACHTUNG! Überschneidung mit bereits vorhandenem Termin. Evtl. Sollten Sie ihre Termine überprüfen.",
-								"Warning", JOptionPane.WARNING_MESSAGE);
+				JOptionPane.showMessageDialog(this,
+						"ACHTUNG! Überschneidung mit bereits vorhandenem Termin. Evtl. Sollten Sie ihre Termine überprüfen.",
+						"Warning", JOptionPane.WARNING_MESSAGE);
 			}
 			aktualisiere2Tabelle();
 		}
@@ -337,8 +321,7 @@ public class TerminkalenderFrame extends ExtendedFrame {
 		TerminFrame tf = new TerminFrame(t);
 		t = tf.showDialog();
 
-		int zeile = tblTermine.convertRowIndexToModel(tblTermine
-				.getSelectedRow());
+		int zeile = tblTermine.convertRowIndexToModel(tblTermine.getSelectedRow());
 		aktualisiere2Tabelle();
 		int zeileView = tblTermine.convertRowIndexToView(zeile);
 		tblTermine.setRowSelectionInterval(zeileView, zeileView);

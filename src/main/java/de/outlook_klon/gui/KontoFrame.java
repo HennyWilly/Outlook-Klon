@@ -82,8 +82,7 @@ public class KontoFrame extends ExtendedDialog<MailAccount> {
 
 		cbInProtokoll = new JComboBox<String>();
 		cbInProtokoll.setBounds(158, 34, 57, 20);
-		cbInProtokoll.setModel(new DefaultComboBoxModel<String>(new String[] {
-				"POP3", "IMAP" }));
+		cbInProtokoll.setModel(new DefaultComboBoxModel<String>(new String[] { "POP3", "IMAP" }));
 
 		txtInServer = new JTextField();
 		txtInServer.setBounds(226, 34, 162, 20);
@@ -95,14 +94,11 @@ public class KontoFrame extends ExtendedDialog<MailAccount> {
 		cBInVerbindungssicherheit = new JComboBox<Verbindungssicherheit>();
 		cBInVerbindungssicherheit.setBounds(454, 34, 127, 20);
 		cBInVerbindungssicherheit
-				.setModel(new DefaultComboBoxModel<Verbindungssicherheit>(
-						Verbindungssicherheit.values()));
+				.setModel(new DefaultComboBoxModel<Verbindungssicherheit>(Verbindungssicherheit.values()));
 
 		cBInAuthentifizierung = new JComboBox<Authentifizierungsart>();
 		cBInAuthentifizierung.setBounds(587, 34, 127, 20);
-		cBInAuthentifizierung
-				.setModel(new DefaultComboBoxModel<Authentifizierungsart>(
-						Authentifizierungsart.values()));
+		cBInAuthentifizierung.setModel(new DefaultComboBoxModel<Authentifizierungsart>(Authentifizierungsart.values()));
 
 		JLabel lblPostausgangsserver = new JLabel("Postausgang-Server:");
 		lblPostausgangsserver.setBounds(10, 65, 138, 14);
@@ -117,14 +113,12 @@ public class KontoFrame extends ExtendedDialog<MailAccount> {
 		cBOutVerbindungssicherheit = new JComboBox<Verbindungssicherheit>();
 		cBOutVerbindungssicherheit.setBounds(454, 65, 127, 20);
 		cBOutVerbindungssicherheit
-				.setModel(new DefaultComboBoxModel<Verbindungssicherheit>(
-						Verbindungssicherheit.values()));
+				.setModel(new DefaultComboBoxModel<Verbindungssicherheit>(Verbindungssicherheit.values()));
 
 		cBOutAuthentifizierung = new JComboBox<Authentifizierungsart>();
 		cBOutAuthentifizierung.setBounds(587, 64, 127, 20);
 		cBOutAuthentifizierung
-				.setModel(new DefaultComboBoxModel<Authentifizierungsart>(
-						Authentifizierungsart.values()));
+				.setModel(new DefaultComboBoxModel<Authentifizierungsart>(Authentifizierungsart.values()));
 
 		JLabel lblSmtp = new JLabel("SMTP");
 		lblSmtp.setBounds(160, 65, 55, 14);
@@ -217,7 +211,8 @@ public class KontoFrame extends ExtendedDialog<MailAccount> {
 	}
 
 	/**
-	 * Erstellt eine neue Instanz der Klasse zum Erstellen eines neuen MailAccount-Objekts
+	 * Erstellt eine neue Instanz der Klasse zum Erstellen eines neuen
+	 * MailAccount-Objekts
 	 */
 	public KontoFrame() {
 		super(750, 350);
@@ -228,7 +223,8 @@ public class KontoFrame extends ExtendedDialog<MailAccount> {
 	}
 
 	/**
-	 * Erstellt eine neue Instanz der Klasse zum Bearbeiten eines neuen MailAccount-Objekts
+	 * Erstellt eine neue Instanz der Klasse zum Bearbeiten eines neuen
+	 * MailAccount-Objekts
 	 */
 	public KontoFrame(MailAccount acc) {
 		super(750, 350);
@@ -237,7 +233,7 @@ public class KontoFrame extends ExtendedDialog<MailAccount> {
 
 		initFrame();
 
-		EmpfangsServer inServer = acc.getEmpfangsServer();
+		EmpfangsServer<?> inServer = acc.getEmpfangsServer();
 		SendServer outServer = acc.getSendServer();
 
 		txtAnzeigename.setText(acc.getAdresse().getPersonal());
@@ -250,78 +246,63 @@ public class KontoFrame extends ExtendedDialog<MailAccount> {
 			cbInProtokoll.setSelectedItem(inServer.getServerTyp());
 			txtInServer.setText(settings.getHost());
 			spInPort.setValue(settings.getPort());
-			cBInVerbindungssicherheit.setSelectedItem(settings
-					.getVerbingungssicherheit());
-			cBInAuthentifizierung.setSelectedItem(settings
-					.getAuthentifizierungsart());
+			cBInVerbindungssicherheit.setSelectedItem(settings.getVerbingungssicherheit());
+			cBInAuthentifizierung.setSelectedItem(settings.getAuthentifizierungsart());
 		}
 		if (outServer != null) {
 			ServerSettings settings = outServer.getSettings();
 
 			txtOutServer.setText(settings.getHost());
 			spOutPort.setValue(settings.getPort());
-			cBOutVerbindungssicherheit.setSelectedItem(settings
-					.getVerbingungssicherheit());
-			cBOutAuthentifizierung.setSelectedItem(settings
-					.getAuthentifizierungsart());
+			cBOutVerbindungssicherheit.setSelectedItem(settings.getVerbingungssicherheit());
+			cBOutAuthentifizierung.setSelectedItem(settings.getAuthentifizierungsart());
 		}
 	}
 
 	/**
-	 * Versucht aus den getätigten Eingaben ein neues MailAccount-Objekt zu erstellen
+	 * Versucht aus den getätigten Eingaben ein neues MailAccount-Objekt zu
+	 * erstellen
 	 */
 	private void kontoObjektErzeugen() {
-		//Settings-Instanz für den Mailempfang erstellen
-		ServerSettings empfangsSettings = new ServerSettings(
-				txtInServer.getText(), 
-				(Integer) spInPort.getValue(),
-				cBInVerbindungssicherheit.getItemAt(cBInVerbindungssicherheit
-						.getSelectedIndex()),
-				cBInAuthentifizierung.getItemAt(cBInAuthentifizierung
-						.getSelectedIndex()));
-		
-		//Instanz für den Mailempfang erstellen
-		EmpfangsServer empfang = null;
+		// Settings-Instanz für den Mailempfang erstellen
+		ServerSettings empfangsSettings = new ServerSettings(txtInServer.getText(), (Integer) spInPort.getValue(),
+				cBInVerbindungssicherheit.getItemAt(cBInVerbindungssicherheit.getSelectedIndex()),
+				cBInAuthentifizierung.getItemAt(cBInAuthentifizierung.getSelectedIndex()));
+
+		// Instanz für den Mailempfang erstellen
+		EmpfangsServer<?> empfang = null;
 		if (cbInProtokoll.getSelectedItem().equals("IMAP")) {
 			empfang = new ImapServer(empfangsSettings);
 		} else if (cbInProtokoll.getSelectedItem().equals("POP3")) {
 			empfang = new Pop3Server(empfangsSettings);
 		} else {
-			throw new UnsupportedOperationException(
-					"Unbekanntes Protokoll ausgewählt");
+			throw new UnsupportedOperationException("Unbekanntes Protokoll ausgewählt");
 		}
 
-		//Settings-Instanz für den Mailversandt erstellen
-		ServerSettings sendeSettings = new ServerSettings(
-				txtOutServer.getText(), 
-				(Integer) spOutPort.getValue(),
-				cBOutVerbindungssicherheit.getItemAt(cBOutVerbindungssicherheit
-						.getSelectedIndex()),
-				cBOutAuthentifizierung.getItemAt(cBOutAuthentifizierung
-						.getSelectedIndex()));
-		
-		//Instanz für den Mailversandt erstellen
+		// Settings-Instanz für den Mailversandt erstellen
+		ServerSettings sendeSettings = new ServerSettings(txtOutServer.getText(), (Integer) spOutPort.getValue(),
+				cBOutVerbindungssicherheit.getItemAt(cBOutVerbindungssicherheit.getSelectedIndex()),
+				cBOutAuthentifizierung.getItemAt(cBOutAuthentifizierung.getSelectedIndex()));
+
+		// Instanz für den Mailversandt erstellen
 		SendServer senden = new SmtpServer(sendeSettings);
 
 		try {
-			//MailAccount-Instanz mit Versandt- und Empfangsinstanz erstellen
-			tmpAccount = new MailAccount(empfang, senden, new InternetAddress(
-					txtMail.getText(), txtAnzeigename.getText()),
-					txtBenutzername.getText(), new String(
-							passwordField.getPassword()));
+			// MailAccount-Instanz mit Versandt- und Empfangsinstanz erstellen
+			tmpAccount = new MailAccount(empfang, senden,
+					new InternetAddress(txtMail.getText(), txtAnzeigename.getText()), txtBenutzername.getText(),
+					new String(passwordField.getPassword()));
 
-			//Prüfe, ob sich mit den beiden Servern verbunden werden kann
+			// Prüfe, ob sich mit den beiden Servern verbunden werden kann
 			boolean gueltig = tmpAccount.validieren();
 
 			btnFertig.setEnabled(gueltig);
 			if (!gueltig) {
-				JOptionPane.showMessageDialog(this,
-						"Die übergebenen Daten sind ungültig", "Fehler",
+				JOptionPane.showMessageDialog(this, "Die übergebenen Daten sind ungültig", "Fehler",
 						JOptionPane.OK_OPTION);
 			}
 		} catch (UnsupportedEncodingException e) {
-			JOptionPane.showMessageDialog(this, e.getLocalizedMessage(),
-					"Fehler", JOptionPane.OK_OPTION);
+			JOptionPane.showMessageDialog(this, e.getLocalizedMessage(), "Fehler", JOptionPane.OK_OPTION);
 		}
 	}
 

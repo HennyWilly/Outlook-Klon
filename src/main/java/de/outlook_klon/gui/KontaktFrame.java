@@ -64,18 +64,16 @@ public class KontaktFrame extends ExtendedDialog<Kontakt> {
 		}
 
 		@Override
-		public Component getComponentAfter(Container focusCycleRoot,
-				Component aComponent) {
+		public Component getComponentAfter(Container focusCycleRoot, Component aComponent) {
 			int vectorIndex = order.indexOf(aComponent) + 1;
-			if(vectorIndex >= order.size()) {
+			if (vectorIndex >= order.size()) {
 				vectorIndex = 0;
 			}
 			return order.get(vectorIndex);
 		}
 
 		@Override
-		public Component getComponentBefore(Container focusCycleRoot,
-				Component aComponent) {
+		public Component getComponentBefore(Container focusCycleRoot, Component aComponent) {
 			int vectorIndex = order.indexOf(aComponent) - 1;
 			if (vectorIndex < 0) {
 				vectorIndex = order.size() - 1;
@@ -118,19 +116,19 @@ public class KontaktFrame extends ExtendedDialog<Kontakt> {
 		tVorname.getDocument().addDocumentListener(new DocumentListener() {
 			@Override
 			public void removeUpdate(DocumentEvent arg0) {
-				//Aktualisiere den Anzeigenamen beim Entfernen eines Zeichens
+				// Aktualisiere den Anzeigenamen beim Entfernen eines Zeichens
 				aktualisiereAnzeigename();
 			}
 
 			@Override
 			public void insertUpdate(DocumentEvent arg0) {
-				//Aktualisiere den Anzeigenamen beim Einfügen eines Zeichens
+				// Aktualisiere den Anzeigenamen beim Einfügen eines Zeichens
 				aktualisiereAnzeigename();
 			}
 
 			@Override
 			public void changedUpdate(DocumentEvent arg0) {
-				//Aktualisiere den Anzeigenamen beim Verändern eines Zeichens
+				// Aktualisiere den Anzeigenamen beim Verändern eines Zeichens
 				aktualisiereAnzeigename();
 			}
 		});
@@ -140,19 +138,19 @@ public class KontaktFrame extends ExtendedDialog<Kontakt> {
 		tName.getDocument().addDocumentListener(new DocumentListener() {
 			@Override
 			public void removeUpdate(DocumentEvent arg0) {
-				//Aktualisiere den Anzeigenamen beim Entfernen eines Zeichens
+				// Aktualisiere den Anzeigenamen beim Entfernen eines Zeichens
 				aktualisiereAnzeigename();
 			}
 
 			@Override
 			public void insertUpdate(DocumentEvent arg0) {
-				//Aktualisiere den Anzeigenamen beim Einfügen eines Zeichens
+				// Aktualisiere den Anzeigenamen beim Einfügen eines Zeichens
 				aktualisiereAnzeigename();
 			}
 
 			@Override
 			public void changedUpdate(DocumentEvent arg0) {
-				//Aktualisiere den Anzeigenamen beim Verändern eines Zeichens
+				// Aktualisiere den Anzeigenamen beim Verändern eines Zeichens
 				aktualisiereAnzeigename();
 			}
 		});
@@ -162,19 +160,19 @@ public class KontaktFrame extends ExtendedDialog<Kontakt> {
 		tAnzeigename.getDocument().addDocumentListener(new DocumentListener() {
 			@Override
 			public void removeUpdate(DocumentEvent arg0) {
-				//Aktualisiere den FrameTitel beim Entfernen eines Zeichens
+				// Aktualisiere den FrameTitel beim Entfernen eines Zeichens
 				aktualisiereTitel();
 			}
 
 			@Override
 			public void insertUpdate(DocumentEvent arg0) {
-				//Aktualisiere den FrameTitel beim Einfügen eines Zeichens
+				// Aktualisiere den FrameTitel beim Einfügen eines Zeichens
 				aktualisiereTitel();
 			}
 
 			@Override
 			public void changedUpdate(DocumentEvent arg0) {
-				//Aktualisiere den FrameTitel beim Verändern eines Zeichens
+				// Aktualisiere den FrameTitel beim Verändern eines Zeichens
 				aktualisiereTitel();
 			}
 		});
@@ -214,84 +212,78 @@ public class KontaktFrame extends ExtendedDialog<Kontakt> {
 		});
 
 		GroupLayout groupLayout = new GroupLayout(getContentPane());
-		groupLayout.setHorizontalGroup(
-				groupLayout.createParallelGroup(Alignment.LEADING)
-					.addGroup(groupLayout.createSequentialGroup()
-						.addContainerGap()
+		groupLayout.setHorizontalGroup(groupLayout.createParallelGroup(Alignment.LEADING)
+				.addGroup(groupLayout.createSequentialGroup().addContainerGap()
 						.addGroup(groupLayout.createParallelGroup(Alignment.LEADING, false)
-							.addComponent(btnOK, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-							.addComponent(lblSpitzname, Alignment.TRAILING)
-							.addComponent(lblEmailadresse_1, Alignment.TRAILING)
-							.addComponent(lblEmailadresse_2, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-							.addGroup(groupLayout.createSequentialGroup()
-								.addGap(20)
-								.addGroup(groupLayout.createParallelGroup(Alignment.TRAILING)
-									.addComponent(lblName)
-									.addComponent(lblAnzeigename)))
-							.addComponent(lblVorname, Alignment.TRAILING))
+								.addComponent(btnOK, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE,
+										Short.MAX_VALUE)
+								.addComponent(lblSpitzname, Alignment.TRAILING)
+								.addComponent(lblEmailadresse_1, Alignment.TRAILING)
+								.addComponent(lblEmailadresse_2, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE,
+										Short.MAX_VALUE)
+								.addGroup(groupLayout.createSequentialGroup().addGap(20)
+										.addGroup(groupLayout.createParallelGroup(Alignment.TRAILING)
+												.addComponent(lblName).addComponent(lblAnzeigename)))
+								.addComponent(lblVorname, Alignment.TRAILING))
 						.addGap(18)
-						.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
-							.addGroup(groupLayout.createSequentialGroup()
-								.addGroup(groupLayout.createParallelGroup(Alignment.LEADING, false)
-									.addComponent(tVorname, GroupLayout.DEFAULT_SIZE, 244, Short.MAX_VALUE)
-									.addComponent(tName)
-									.addComponent(tAnzeigename)
-									.addComponent(tSpitzname)
-									.addComponent(tEmailadresse_1)
-									.addComponent(tEmailadresse_2))
-								.addPreferredGap(ComponentPlacement.RELATED)
-								.addGroup(groupLayout.createParallelGroup(Alignment.TRAILING)
-									.addComponent(lblDienstlich)
-									.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
-										.addComponent(lblMobil)
-										.addComponent(lblPrivat)))
-								.addPreferredGap(ComponentPlacement.RELATED, 19, Short.MAX_VALUE)
-								.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
-									.addComponent(tPrivat, GroupLayout.DEFAULT_SIZE, 208, Short.MAX_VALUE)
-									.addComponent(tDienstlich, GroupLayout.DEFAULT_SIZE, 208, Short.MAX_VALUE)
-									.addComponent(tMobil, GroupLayout.DEFAULT_SIZE, 208, Short.MAX_VALUE)))
-							.addComponent(btnAbbrechen, GroupLayout.PREFERRED_SIZE, 97, GroupLayout.PREFERRED_SIZE))
-						.addContainerGap())
-			);
-			groupLayout.setVerticalGroup(
-				groupLayout.createParallelGroup(Alignment.LEADING)
-					.addGroup(groupLayout.createSequentialGroup()
-						.addContainerGap()
-						.addGroup(groupLayout.createParallelGroup(Alignment.BASELINE)
-							.addComponent(lblVorname)
-							.addComponent(tVorname, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-							.addComponent(lblDienstlich)
-							.addComponent(tDienstlich, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+						.addGroup(
+								groupLayout.createParallelGroup(Alignment.LEADING).addGroup(groupLayout
+										.createSequentialGroup()
+										.addGroup(
+												groupLayout.createParallelGroup(Alignment.LEADING, false)
+														.addComponent(tVorname, GroupLayout.DEFAULT_SIZE, 244,
+																Short.MAX_VALUE)
+														.addComponent(tName).addComponent(tAnzeigename)
+														.addComponent(tSpitzname).addComponent(tEmailadresse_1)
+														.addComponent(tEmailadresse_2))
+										.addPreferredGap(ComponentPlacement.RELATED)
+										.addGroup(groupLayout.createParallelGroup(Alignment.TRAILING)
+												.addComponent(lblDienstlich)
+												.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
+														.addComponent(lblMobil).addComponent(lblPrivat)))
+										.addPreferredGap(ComponentPlacement.RELATED, 19, Short.MAX_VALUE)
+										.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
+												.addComponent(tPrivat, GroupLayout.DEFAULT_SIZE, 208, Short.MAX_VALUE)
+												.addComponent(tDienstlich, GroupLayout.DEFAULT_SIZE, 208,
+														Short.MAX_VALUE)
+												.addComponent(tMobil, GroupLayout.DEFAULT_SIZE, 208, Short.MAX_VALUE)))
+										.addComponent(btnAbbrechen, GroupLayout.PREFERRED_SIZE, 97,
+												GroupLayout.PREFERRED_SIZE))
+						.addContainerGap()));
+		groupLayout.setVerticalGroup(groupLayout.createParallelGroup(Alignment.LEADING)
+				.addGroup(groupLayout.createSequentialGroup().addContainerGap()
+						.addGroup(groupLayout.createParallelGroup(Alignment.BASELINE).addComponent(lblVorname)
+								.addComponent(tVorname, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE,
+										GroupLayout.PREFERRED_SIZE)
+								.addComponent(lblDienstlich).addComponent(tDienstlich, GroupLayout.PREFERRED_SIZE,
+										GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
 						.addPreferredGap(ComponentPlacement.UNRELATED)
-						.addGroup(groupLayout.createParallelGroup(Alignment.BASELINE)
-							.addComponent(lblName)
-							.addComponent(tName, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-							.addComponent(lblPrivat)
-							.addComponent(tPrivat, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+						.addGroup(groupLayout.createParallelGroup(Alignment.BASELINE).addComponent(lblName)
+								.addComponent(tName, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE,
+										GroupLayout.PREFERRED_SIZE)
+								.addComponent(lblPrivat).addComponent(tPrivat, GroupLayout.PREFERRED_SIZE,
+										GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
 						.addPreferredGap(ComponentPlacement.UNRELATED)
-						.addGroup(groupLayout.createParallelGroup(Alignment.BASELINE)
-							.addComponent(lblAnzeigename)
-							.addComponent(tAnzeigename, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-							.addComponent(lblMobil)
-							.addComponent(tMobil, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+						.addGroup(groupLayout.createParallelGroup(Alignment.BASELINE).addComponent(lblAnzeigename)
+								.addComponent(tAnzeigename, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE,
+										GroupLayout.PREFERRED_SIZE)
+								.addComponent(lblMobil).addComponent(tMobil, GroupLayout.PREFERRED_SIZE,
+										GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
 						.addPreferredGap(ComponentPlacement.UNRELATED)
-						.addGroup(groupLayout.createParallelGroup(Alignment.BASELINE)
-							.addComponent(lblSpitzname)
-							.addComponent(tSpitzname, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+						.addGroup(groupLayout.createParallelGroup(Alignment.BASELINE).addComponent(lblSpitzname)
+								.addComponent(tSpitzname, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE,
+										GroupLayout.PREFERRED_SIZE))
 						.addGap(18)
-						.addGroup(groupLayout.createParallelGroup(Alignment.BASELINE)
-							.addComponent(lblEmailadresse_1)
-							.addComponent(tEmailadresse_1, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+						.addGroup(groupLayout.createParallelGroup(Alignment.BASELINE).addComponent(lblEmailadresse_1)
+								.addComponent(tEmailadresse_1, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE,
+										GroupLayout.PREFERRED_SIZE))
 						.addGap(18)
-						.addGroup(groupLayout.createParallelGroup(Alignment.BASELINE)
-							.addComponent(lblEmailadresse_2)
-							.addComponent(tEmailadresse_2, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-						.addGap(18)
-						.addGroup(groupLayout.createParallelGroup(Alignment.BASELINE)
-							.addComponent(btnOK)
-							.addComponent(btnAbbrechen))
-						.addGap(23))
-			);
+						.addGroup(groupLayout.createParallelGroup(Alignment.BASELINE).addComponent(lblEmailadresse_2)
+								.addComponent(tEmailadresse_2, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE,
+										GroupLayout.PREFERRED_SIZE))
+						.addGap(18).addGroup(groupLayout.createParallelGroup(Alignment.BASELINE).addComponent(btnOK)
+								.addComponent(btnAbbrechen))
+						.addGap(23)));
 		getContentPane().setLayout(groupLayout);
 
 		// Vector, der die Reihenfolge speichert, in der bei einem Druck der
@@ -339,10 +331,8 @@ public class KontaktFrame extends ExtendedDialog<Kontakt> {
 
 		initFrame();
 
-		String mail1 = mKontakt.getMail1() == null ? "" : mKontakt.getMail1()
-				.toUnicodeString();
-		String mail2 = mKontakt.getMail2() == null ? "" : mKontakt.getMail2()
-				.toUnicodeString();
+		String mail1 = mKontakt.getMail1() == null ? "" : mKontakt.getMail1().toUnicodeString();
+		String mail2 = mKontakt.getMail2() == null ? "" : mKontakt.getMail2().toUnicodeString();
 
 		tVorname.setText(mKontakt.getVorname());
 		tName.setText(mKontakt.getNachname());
@@ -395,20 +385,15 @@ public class KontaktFrame extends ExtendedDialog<Kontakt> {
 			String strMail1 = tEmailadresse_1.getText().trim();
 			String strMail2 = tEmailadresse_2.getText().trim();
 
-			InternetAddress mail1 = strMail1.isEmpty() ? null
-					: new InternetAddress(tEmailadresse_1.getText(),
-							true);
-			InternetAddress mail2 = strMail2.isEmpty() ? null
-					: new InternetAddress(tEmailadresse_2.getText(),
-							true);
+			InternetAddress mail1 = strMail1.isEmpty() ? null : new InternetAddress(tEmailadresse_1.getText(), true);
+			InternetAddress mail2 = strMail2.isEmpty() ? null : new InternetAddress(tEmailadresse_2.getText(), true);
 
 			if (mail1 == null && mail2 != null) {
 				mail1 = mail2;
 				mail2 = null;
 			}
 
-			if (mail1 == null && tVorname.getText().trim().isEmpty()
-					&& tName.getText().trim().isEmpty()
+			if (mail1 == null && tVorname.getText().trim().isEmpty() && tName.getText().trim().isEmpty()
 					&& tAnzeigename.getText().trim().isEmpty()) {
 				JOptionPane.showMessageDialog(this,
 						"Sie müssen mindestens eine der folgenden Angaben machen:\n"
@@ -418,13 +403,11 @@ public class KontaktFrame extends ExtendedDialog<Kontakt> {
 			}
 
 			if (mKontakt == null) {
-				//Erstelle neuen Kontakt
-				mKontakt = new Kontakt(tName.getText(), 
-						tVorname.getText(), tAnzeigename.getText(), 
-						tSpitzname.getText(), mail1, mail2, tPrivat.getText(),
-						tDienstlich.getText(), tMobil.getText());
+				// Erstelle neuen Kontakt
+				mKontakt = new Kontakt(tName.getText(), tVorname.getText(), tAnzeigename.getText(),
+						tSpitzname.getText(), mail1, mail2, tPrivat.getText(), tDienstlich.getText(), tMobil.getText());
 			} else {
-				//Bearbeite existierenden Kontakt
+				// Bearbeite existierenden Kontakt
 				mKontakt.setVorname(tVorname.getText());
 				mKontakt.setNachname(tName.getText());
 				mKontakt.setAnzeigename(tAnzeigename.getText());
@@ -439,8 +422,8 @@ public class KontaktFrame extends ExtendedDialog<Kontakt> {
 			close();
 		} catch (AddressException ex) {
 			JOptionPane.showMessageDialog(this,
-					"Es ist ein Fehler beim Parsen einer Mailadresse aufgetreten:\n"
-							+ ex.getMessage(), "Fehler", JOptionPane.ERROR_MESSAGE);
+					"Es ist ein Fehler beim Parsen einer Mailadresse aufgetreten:\n" + ex.getMessage(), "Fehler",
+					JOptionPane.ERROR_MESSAGE);
 		}
 	}
 

@@ -1,10 +1,14 @@
 package de.outlook_klon.logik.kalendar;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import javax.mail.internet.InternetAddress;
+
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import de.outlook_klon.logik.Benutzer;
 import de.outlook_klon.logik.kontakte.Kontakt;
@@ -15,17 +19,33 @@ import de.outlook_klon.logik.kontakte.Kontakt;
  * 
  * @author Hendrik Karwanni
  */
-public class Termin implements Serializable, Comparable<Termin> {
-	private static final long serialVersionUID = 6997576125673406382L;
+public class Termin implements Comparable<Termin> {
 
+	@JsonProperty("subject")
 	private String mBetreff;
+
+	@JsonProperty("location")
 	private String mOrt;
+
+	@JsonProperty("start")
 	private Date mStart;
+
+	@JsonProperty("end")
 	private Date mEnde;
+
+	@JsonProperty("text")
 	private String mText;
+
+	@JsonProperty("user")
 	private String mBenutzerkonto;
+
+	@JsonProperty("contact")
 	private String mKontakt;
+
+	@JsonProperty("state")
 	private Status mStatus;
+
+	@JsonProperty("addresses")
 	private InternetAddress[] mAdressen;
 
 	/**
@@ -57,8 +77,7 @@ public class Termin implements Serializable, Comparable<Termin> {
 	 * @param text
 	 *            Text des Termins
 	 */
-	public Termin(String betreff, String ort, Date start, Date ende,
-			String text, String benutzer, String kontakt) {
+	public Termin(String betreff, String ort, Date start, Date ende, String text, String benutzer, String kontakt) {
 		setBetreff(betreff);
 		setOrt(ort);
 		setStartUndEnde(start, ende);
@@ -67,7 +86,7 @@ public class Termin implements Serializable, Comparable<Termin> {
 		setKontakt(kontakt);
 		setStatus(Status.zugesagt);
 
-		ArrayList<InternetAddress> temp = new ArrayList<InternetAddress>(2);
+		List<InternetAddress> temp = new ArrayList<InternetAddress>(2);
 		for (Kontakt k : Benutzer.getInstanz().getKontakte()) {
 			if (k.getAnzeigename() == kontakt) {
 				if (k.getMail1() != null) {
@@ -80,6 +99,27 @@ public class Termin implements Serializable, Comparable<Termin> {
 			}
 		}
 		setAdressen(temp.toArray(new InternetAddress[2]));
+	}
+	
+	@JsonCreator
+	public Termin(
+			@JsonProperty("subject") String betreff, 
+			@JsonProperty("location") String ort, 
+			@JsonProperty("start") Date start, 
+			@JsonProperty("end") Date ende, 
+			@JsonProperty("text") String text, 
+			@JsonProperty("user") String benutzer, 
+			@JsonProperty("contact") String kontakt,
+			@JsonProperty("state") Status status,
+			@JsonProperty("addresses") InternetAddress[] adressen) {
+		setBetreff(betreff);
+		setOrt(ort);
+		setStartUndEnde(start, ende);
+		setText(text);
+		setBenutzerkonto(benutzer);
+		setKontakt(kontakt);
+		setStatus(status);
+		setAdressen(adressen);
 	}
 
 	/**
@@ -97,6 +137,7 @@ public class Termin implements Serializable, Comparable<Termin> {
 	 * 
 	 * @return Betreff
 	 */
+	@JsonIgnore
 	public String getBetreff() {
 		return mBetreff;
 	}
@@ -116,6 +157,7 @@ public class Termin implements Serializable, Comparable<Termin> {
 	 * 
 	 * @return Ort
 	 */
+	@JsonIgnore
 	public String getOrt() {
 		return mOrt;
 	}
@@ -130,8 +172,7 @@ public class Termin implements Serializable, Comparable<Termin> {
 	 */
 	public void setStartUndEnde(Date start, Date ende) {
 		if (start.after(ende))
-			throw new RuntimeException(
-					"Der Startzeitpunkt darf nicht hinter dem Endzeitpunkt liegen");
+			throw new RuntimeException("Der Startzeitpunkt darf nicht hinter dem Endzeitpunkt liegen");
 		mStart = new Date(start.getTime());
 		mEnde = new Date(ende.getTime());
 	}
@@ -141,6 +182,7 @@ public class Termin implements Serializable, Comparable<Termin> {
 	 * 
 	 * @return Startzeitpunkt
 	 */
+	@JsonIgnore
 	public Date getStart() {
 		return mStart;
 	}
@@ -150,6 +192,7 @@ public class Termin implements Serializable, Comparable<Termin> {
 	 * 
 	 * @return Endzeitpunkt
 	 */
+	@JsonIgnore
 	public Date getEnde() {
 		return mEnde;
 	}
@@ -169,6 +212,7 @@ public class Termin implements Serializable, Comparable<Termin> {
 	 * 
 	 * @return Beschreibung
 	 */
+	@JsonIgnore
 	public String getText() {
 		return mText;
 	}
@@ -188,6 +232,7 @@ public class Termin implements Serializable, Comparable<Termin> {
 	 * 
 	 * @return Benutzerkonto
 	 */
+	@JsonIgnore
 	public String getBenutzerkonto() {
 		return mBenutzerkonto;
 	}
@@ -197,6 +242,7 @@ public class Termin implements Serializable, Comparable<Termin> {
 	 * 
 	 * @return Kontakt
 	 */
+	@JsonIgnore
 	public String getKontakt() {
 		return mKontakt;
 	}
@@ -221,6 +267,7 @@ public class Termin implements Serializable, Comparable<Termin> {
 	 * 
 	 * @return Status des Termins
 	 */
+	@JsonIgnore
 	public Status getStatus() {
 		return mStatus;
 	}
@@ -240,6 +287,7 @@ public class Termin implements Serializable, Comparable<Termin> {
 	 * 
 	 * @return Adressen zum Termin
 	 */
+	@JsonIgnore
 	public InternetAddress[] getAdressen() {
 		return mAdressen;
 	}

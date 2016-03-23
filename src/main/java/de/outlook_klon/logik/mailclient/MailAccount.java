@@ -6,7 +6,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
@@ -18,7 +17,6 @@ import javax.mail.FetchProfile;
 import javax.mail.Flags;
 import javax.mail.Flags.Flag;
 import javax.mail.Folder;
-import javax.mail.FolderNotFoundException;
 import javax.mail.Message;
 import javax.mail.Message.RecipientType;
 import javax.mail.MessagingException;
@@ -31,6 +29,11 @@ import javax.mail.internet.MimeMessage;
 import javax.mail.search.MessageIDTerm;
 import javax.mail.search.StringTerm;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.sun.mail.imap.IMAPFolder;
 
 import de.outlook_klon.logik.Benutzer.MailChecker;
@@ -41,16 +44,24 @@ import de.outlook_klon.logik.Benutzer.MailChecker;
  * 
  * @author Hendrik Karwanni
  */
-public class MailAccount implements Serializable {
-	private static final long serialVersionUID = -6324237474768366352L;
+public class MailAccount {
+	private static final Logger LOGGER = LoggerFactory.getLogger(MailAccount.class);
 
 	private static final String MAIL_PATTERN = "Mail/%s/%s/%s.mail";
 
-	private EmpfangsServer inServer;
-	private SendServer outServer;
+	@JsonProperty("inServer")
+	private EmpfangsServer<?> inServer;
 
-	private InternetAddress adresse;
+	@JsonProperty("outServer")
+	private SendServer outServer;
+	
+	@JsonProperty("address")
+	private InternetAddress address;
+	
+	@JsonProperty("user")
 	private String benutzer;
+	
+	@JsonProperty("password")
 	private String passwort;
 
 	/**
@@ -81,22 +92,21 @@ public class MailAccount implements Serializable {
 		@Override
 		public boolean match(final Message message) {
 			boolean result = false;
-			
+
 			try {
 				String[] tmpId = message.getHeader("Message-Id");
 				String id = null;
-				
-				if(tmpId != null && tmpId.length == 1) {
+
+				if (tmpId != null && tmpId.length == 1) {
 					id = tmpId[0];
-				}
-				else if (message instanceof MimeMessage) {
+				} else if (message instanceof MimeMessage) {
 					id = ((MimeMessage) message).getMessageID();
 				}
-				
+
 				if (id != null)
 					result = super.match(id);
 			} catch (MessagingException ex) {
-
+				LOGGER.warn("Error while getting message properies", ex);
 			}
 
 			return result;
@@ -123,25 +133,30 @@ public class MailAccount implements Serializable {
 	 * @throws IllegalArgumentException
 	 *             Tritt auf, wenn die übergebene Mailadresse ungültig ist
 	 */
-	public MailAccount(final EmpfangsServer inServer,
-			final SendServer outServer, final InternetAddress adresse,
-			final String benutzer, final String passwort)
-			throws NullPointerException, IllegalArgumentException {
+	@JsonCreator
+	public MailAccount(
+			@JsonProperty("inServer") EmpfangsServer<?> inServer, 
+			@JsonProperty("outServer") SendServer outServer, 
+			@JsonProperty("address") InternetAddress adresse,
+			@JsonProperty("user") String benutzer, 
+			@JsonProperty("password") String passwort) 
+					throws NullPointerException, IllegalArgumentException {
 		if (inServer == null || outServer == null)
-			throw new NullPointerException(
-					"Die übergebenen Server dürfen nicht <null> sein");
+			throw new NullPointerException("Die übergebenen Server dürfen nicht <null> sein");
 
 		this.inServer = inServer;
 		this.outServer = outServer;
 
-		this.adresse = adresse;
+		this.address = adresse;
 		this.benutzer = benutzer;
 		this.passwort = passwort;
 	}
 
 	@Override
 	public String toString() {
-		return adresse.toUnicodeString();
+		if (address == null)
+			return "[No mail address set]";
+		return address.toUnicodeString();
 	}
 
 	/**
@@ -158,22 +173,23 @@ public class MailAccount implements Serializable {
 	 * @throws MessagingException
 	 *             Tritt auf, wenn der Sendevorgang fehlgeschlagen ist
 	 */
-	public void sendeMail(final InternetAddress[] to,
-			final InternetAddress[] cc, final String subject,
-			final String text, final String format, final File[] attachment)
-			throws MessagingException {
-		try {
-			Message gesendet = outServer.sendeMail(benutzer, passwort, adresse,
-					to, cc, subject, text, format, attachment);
-			if (gesendet != null && !(inServer instanceof Pop3Server)) {
-				//TODO Testen!
-				Store mailStore = inServer.getMailStore(benutzer, passwort);
-				mailStore.connect(inServer.settings.getHost(),
-						inServer.settings.getPort(), benutzer, passwort);
-				Folder sendFolder = null;
+	public void sendeMail(final InternetAddress[] to, final InternetAddress[] cc, final String subject,
+			final String text, final String format, final File[] attachment) throws MessagingException {
 
+		Message gesendet;
+		try {
+			gesendet = outServer.sendeMail(benutzer, passwort, address, to, cc, subject, text, format, attachment);
+		} catch (MessagingException ex) {
+			throw new MessagingException("Could not send mail", ex);
+		}
+
+		if (gesendet != null && !(inServer instanceof Pop3Server)) {
+			try {
+				// TODO Testen!
+				Store mailStore = connectToMailStore();
 				final Folder[] folders = mailStore.getDefaultFolder().list("*");
 
+				Folder sendFolder = null;
 				outer: for (final Folder folder : folders) {
 					final IMAPFolder imap = (IMAPFolder) folder;
 					final String[] attr = imap.getAttributes();
@@ -192,47 +208,56 @@ public class MailAccount implements Serializable {
 				if (sendFolder != null) {
 					sendFolder.appendMessages(new Message[] { gesendet });
 				}
+			} catch (MessagingException ex) {
+				throw new MessagingException("Could not store sent email", ex);
 			}
-		} catch (IOException ioex) {
-			ioex.printStackTrace();
 		}
+	}
+
+	private Store connectToMailStore() throws MessagingException {
+		Store mailStore = inServer.getMailStore(benutzer, passwort);
+		mailStore.connect(inServer.settings.getHost(), inServer.settings.getPort(), benutzer, passwort);
+
+		return mailStore;
 	}
 
 	/**
 	 * Gibt die Pfade aller Ordner des Servers zum Mailempfang zurück
 	 * 
 	 * @return Pfade aller Ordner des Servers zum Mailempfang
+	 * @throws MessagingException
 	 */
-	public OrdnerInfo[] getOrdnerstruktur() {
+	public OrdnerInfo[] getOrdnerstruktur() throws MessagingException {
 		OrdnerInfo[] paths = null;
 
 		Store store = null;
 		try {
 			store = inServer.getMailStore(benutzer, passwort);
-			store.connect(inServer.settings.getHost(),
-					inServer.settings.getPort(), benutzer, passwort);
+			store.connect(inServer.settings.getHost(), inServer.settings.getPort(), benutzer, passwort);
 			final Folder[] folders = store.getDefaultFolder().list("*");
 
 			paths = new OrdnerInfo[folders.length];
 			for (int i = 0; i < paths.length; i++) {
 				Folder folder = folders[i];
 
-				paths[i] = new OrdnerInfo(folder.getName(),
-						folder.getFullName(), 0);
+				paths[i] = new OrdnerInfo(folder.getName(), folder.getFullName(), 0);
 			}
 
-			store.close();
-		} catch (Exception e) {
-			e.printStackTrace();
 		} finally {
-			if (store != null && store.isConnected())
-				try {
-					store.close();
-				} catch (MessagingException e) {
-				}
+			closeMailStore(store);
 		}
 
 		return paths;
+	}
+
+	private void closeMailStore(Store mailStore) {
+		if (mailStore != null && mailStore.isConnected()) {
+			try {
+				mailStore.close();
+			} catch (MessagingException ex) {
+				LOGGER.warn("Could not close MailStore", ex);
+			}
+		}
 	}
 
 	/**
@@ -266,25 +291,23 @@ public class MailAccount implements Serializable {
 	 * @param pfad
 	 *            Pfad, in dem die Mails gesucht werden.
 	 * @return Array von MailInfos mit der ID, Betreff, Sender und SendDatum
-	 * @throws FolderNotFoundException
-	 *             Tritt auf, wenn ein Ordner nicht gefunden werden konnte
 	 */
-	public MailInfo[] getMessages(final String pfad) throws FolderNotFoundException {
+	public MailInfo[] getMessages(final String pfad) throws MessagingException {
 		HashSet<MailInfo> set = new HashSet<MailInfo>();
 
 		Store store = null;
+		Folder folder = null;
 		try {
-			store = inServer.getMailStore(benutzer, passwort);
-			store.connect(inServer.settings.getHost(),
-					inServer.settings.getPort(), benutzer, passwort);
-			final Folder folder = store.getFolder(pfad);
+			store = connectToMailStore();
+
+			folder = store.getFolder(pfad);
 			folder.open(Folder.READ_ONLY);
 
 			final Message[] messages = folder.getMessages();
 			FetchProfile fp = new FetchProfile();
 			fp.add("Message-Id");
 			folder.fetch(messages, fp);
-			
+
 			for (int i = 0; i < messages.length; i++) {
 				final Message message = messages[i];
 
@@ -293,8 +316,7 @@ public class MailAccount implements Serializable {
 					continue;
 
 				final String dateiname = id.replace(">", "").replace("<", "");
-				final String strPfad = String.format(MAIL_PATTERN,
-						adresse.getAddress(), pfad, dateiname);
+				final String strPfad = String.format(MAIL_PATTERN, address.getAddress(), pfad, dateiname);
 				final File lokalerPfad = new File(strPfad).getAbsoluteFile();
 
 				MailInfo tmp = ladeMailInfo(lokalerPfad);
@@ -316,21 +338,24 @@ public class MailAccount implements Serializable {
 				set.add(tmp);
 			}
 
-			folder.close(true);
-		} catch (FolderNotFoundException e) {
-			throw e;
-		} catch (Exception e) {
-
+		} catch (MessagingException | IOException ex) {
+			throw new MessagingException("Could not get messages", ex);
 		} finally {
-			if (store != null && store.isConnected()) {
-				try {
-					store.close();
-				} catch (MessagingException e) {
-				}
-			}
+			closeMailFolder(folder, true);
+			closeMailStore(store);
 		}
 
 		return set.toArray(new MailInfo[set.size()]);
+	}
+
+	private void closeMailFolder(Folder mailFolder, boolean expurge) {
+		if (mailFolder != null) {
+			try {
+				mailFolder.close(expurge);
+			} catch (MessagingException ex) {
+				LOGGER.error("Could not close folder", ex);
+			}
+		}
 	}
 
 	/**
@@ -409,23 +434,19 @@ public class MailAccount implements Serializable {
 	 * @param messageInfo
 	 *            Zu füllende <code>MailInfo</code>
 	 */
-	public void getMessageText(final String pfad, final MailInfo messageInfo)
-			throws MessagingException {
+	public void getMessageText(final String pfad, final MailInfo messageInfo) throws MessagingException {
 		if (messageInfo == null || messageInfo.getID() == null)
 			throw new NullPointerException("Übergebene MailInfo ist NULL");
 
-		if (messageInfo.getText() != null
-				&& messageInfo.getContentType() != null)
+		if (messageInfo.getText() != null && messageInfo.getContentType() != null)
 			return;
 
 		Store store = null;
-
+		Folder folder = null;
 		try {
-			store = inServer.getMailStore(benutzer, passwort);
-			store.connect(inServer.settings.getHost(),
-					inServer.settings.getPort(), benutzer, passwort);
+			store = connectToMailStore();
 
-			final Folder folder = store.getFolder(pfad);
+			folder = store.getFolder(pfad);
 			folder.open(Folder.READ_WRITE);
 
 			final Message message = infoToMessage(messageInfo, folder);
@@ -442,13 +463,11 @@ public class MailAccount implements Serializable {
 
 				speichereMailInfo(messageInfo, pfad);
 			}
-
-			folder.close(true);
-		} catch (IOException ex) {
-			// Not auto-generated catch-block
+		} catch (IOException | MessagingException ex) {
+			throw new MessagingException("Could not get message text", ex);
 		} finally {
-			if (store != null && store.isConnected())
-				store.close();
+			closeMailFolder(folder, true);
+			closeMailStore(store);
 		}
 	}
 
@@ -461,25 +480,18 @@ public class MailAccount implements Serializable {
 	 * @param messageInfo
 	 *            Zu füllende <code>MailInfo</code>
 	 */
-	public void getWholeMessage(final String pfad, final MailInfo messageInfo)
-			throws MessagingException {
-		if (messageInfo.getText() != null
-				&& messageInfo.getContentType() != null
-				&& messageInfo.getSubject() != null
-				&& messageInfo.getSender() != null
-				&& messageInfo.getDate() != null && messageInfo.getTo() != null
-				&& messageInfo.getCc() != null
-				&& messageInfo.getAttachment() != null)
+	public void getWholeMessage(final String pfad, final MailInfo messageInfo) throws MessagingException {
+		if (messageInfo.getText() != null && messageInfo.getContentType() != null && messageInfo.getSubject() != null
+				&& messageInfo.getSender() != null && messageInfo.getDate() != null && messageInfo.getTo() != null
+				&& messageInfo.getCc() != null && messageInfo.getAttachment() != null)
 			return;
 
 		Store store = null;
-
+		Folder folder = null;
 		try {
-			store = inServer.getMailStore(benutzer, passwort);
-			store.connect(inServer.settings.getHost(),
-					inServer.settings.getPort(), benutzer, passwort);
+			store = connectToMailStore();
 
-			final Folder folder = store.getFolder(pfad);
+			folder = store.getFolder(pfad);
 			folder.open(Folder.READ_WRITE);
 
 			final Message message = infoToMessage(messageInfo, folder);
@@ -524,20 +536,16 @@ public class MailAccount implements Serializable {
 						}
 					}
 
-					messageInfo.setAttachment(attachment
-							.toArray(new String[attachment.size()]));
+					messageInfo.setAttachment(attachment.toArray(new String[attachment.size()]));
 				}
 
 				speichereMailInfo(messageInfo, pfad);
 			}
-
-			folder.close(true);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		} catch (IOException | MessagingException ex) {
+			throw new MessagingException("Could not get whole message", ex);
 		} finally {
-			if (store != null && store.isConnected())
-				store.close();
+			closeMailFolder(folder, true);
+			closeMailStore(store);
 		}
 	}
 
@@ -552,8 +560,7 @@ public class MailAccount implements Serializable {
 	 *            Ordner, in dem gesucht werden soll
 	 * @return <code>Message</code>-Objekt zur übergebenen ID
 	 */
-	private Message infoToMessage(final MailInfo mail, final Folder ordner)
-			throws MessagingException {
+	private Message infoToMessage(final MailInfo mail, final Folder ordner) throws MessagingException {
 
 		Message[] result = infoToMessage(new MailInfo[] { mail }, ordner);
 		return result == null || result.length == 0 ? null : result[0];
@@ -570,22 +577,21 @@ public class MailAccount implements Serializable {
 	 *            Ordner, in dem gesucht werden soll
 	 * @return <code>Message</code>-Objekte zu den übergebenen IDs
 	 */
-	private Message[] infoToMessage(final MailInfo[] mails, final Folder ordner)
-			throws MessagingException {
+	private Message[] infoToMessage(final MailInfo[] mails, final Folder ordner) throws MessagingException {
 		Message[] messages = new Message[mails.length];
 		Message[] folderMails = ordner.getMessages();
-		
+
 		FetchProfile fp = new FetchProfile();
 		fp.add("Message-Id");
 		ordner.fetch(folderMails, fp);
 
 		for (int i = 0; i < mails.length; i++) {
 			String id = mails[i].getID();
-			
+
 			Message[] tmpMessages = ordner.search(new MessageIDTerm(id));
 			if (tmpMessages.length == 0)
 				tmpMessages = ordner.search(new MyMessageIDTerm(id));
-			
+
 			messages[i] = tmpMessages.length == 0 ? null : tmpMessages[0];
 		}
 
@@ -605,9 +611,8 @@ public class MailAccount implements Serializable {
 	 *            Wert, der angibt, ob die Mails nach dem Kopieren im
 	 *            Quellordner gelöscht werden sollen
 	 */
-	private void kopieren(final MailInfo[] mails, final Folder quellOrdner,
-			final Folder zielOrdner, final boolean löschen)
-			throws MessagingException {
+	private void kopieren(final MailInfo[] mails, final Folder quellOrdner, final Folder zielOrdner,
+			final boolean löschen) throws MessagingException {
 		final Message[] messages = infoToMessage(mails, quellOrdner);
 		final String quellPfad = quellOrdner.getFullName();
 		final String zielPfad = zielOrdner.getFullName();
@@ -640,14 +645,12 @@ public class MailAccount implements Serializable {
 	 * @param zielPfad
 	 *            Pfad zum Zielordner
 	 */
-	public void verschiebeMails(final MailInfo[] mails, final String quellPfad,
-			final String zielPfad) throws MessagingException {
+	public void verschiebeMails(final MailInfo[] mails, final String quellPfad, final String zielPfad)
+			throws MessagingException {
 		Store mailStore = null;
 
 		try {
-			mailStore = inServer.getMailStore(benutzer, passwort);
-			mailStore.connect(inServer.settings.getHost(),
-					inServer.settings.getPort(), benutzer, passwort);
+			mailStore = connectToMailStore();
 
 			final Folder quellOrdner = mailStore.getFolder(quellPfad);
 			quellOrdner.open(Folder.READ_WRITE);
@@ -656,12 +659,7 @@ public class MailAccount implements Serializable {
 
 			kopieren(mails, quellOrdner, zielOrdner, true);
 		} finally {
-			if (mailStore != null && mailStore.isConnected()) {
-				try {
-					mailStore.close();
-				} catch (MessagingException e) {
-				}
-			}
+			closeMailStore(mailStore);
 		}
 	}
 
@@ -675,14 +673,12 @@ public class MailAccount implements Serializable {
 	 * @param zielPfad
 	 *            Pfad zum Zielordner
 	 */
-	public void kopiereMails(final MailInfo[] mails, final String quellPfad,
-			final String zielPfad) throws MessagingException {
+	public void kopiereMails(final MailInfo[] mails, final String quellPfad, final String zielPfad)
+			throws MessagingException {
 		Store mailStore = null;
 
 		try {
-			mailStore = inServer.getMailStore(benutzer, passwort);
-			mailStore.connect(inServer.settings.getHost(),
-					inServer.settings.getPort(), benutzer, passwort);
+			mailStore = connectToMailStore();
 
 			final Folder quellOrdner = mailStore.getFolder(quellPfad);
 			quellOrdner.open(Folder.READ_ONLY);
@@ -691,12 +687,7 @@ public class MailAccount implements Serializable {
 
 			kopieren(mails, quellOrdner, zielOrdner, false);
 		} finally {
-			if (mailStore != null && mailStore.isConnected()) {
-				try {
-					mailStore.close();
-				} catch (MessagingException e) {
-				}
-			}
+			closeMailStore(mailStore);
 		}
 	}
 
@@ -709,37 +700,31 @@ public class MailAccount implements Serializable {
 	 *            Pfad zum Ordner
 	 * @return true, wenn das löschen erfolgreich war; sonst false
 	 */
-	public boolean loescheMails(final MailInfo[] mails, final String pfad)
-			throws MessagingException {
+	public boolean loescheMails(final MailInfo[] mails, final String pfad) throws MessagingException {
 		boolean result = false;
 
 		Store mailStore = null;
-
+		Folder folder = null;
 		try {
-			mailStore = inServer.getMailStore(benutzer, passwort);
-			mailStore.connect(inServer.settings.getHost(),
-					inServer.settings.getPort(), benutzer, passwort);
+			mailStore = connectToMailStore();
 
-			final Folder ordner = mailStore.getFolder(pfad);
-			ordner.open(Folder.READ_WRITE);
+			folder = mailStore.getFolder(pfad);
+			folder.open(Folder.READ_WRITE);
 
 			Folder binFolder = null;
 
 			final Folder[] folders = mailStore.getDefaultFolder().list("*");
 
-			if(!(inServer instanceof Pop3Server)) {
-				outer: 
-				for (final Folder folder : folders) {
-					final IMAPFolder imap = (IMAPFolder) folder;
+			if (!(inServer instanceof Pop3Server)) {
+				outer: for (final Folder mailFolder : folders) {
+					final IMAPFolder imap = (IMAPFolder) mailFolder;
 					final String[] attr = imap.getAttributes();
-	
+
 					String ordnerName = imap.getName();
-					if (ordnerName.equalsIgnoreCase("trash")
-							|| ordnerName.equalsIgnoreCase("deleted")
-							|| ordnerName.equalsIgnoreCase("papierkorb")
-							|| ordnerName.equalsIgnoreCase("gelöscht"))
+					if (ordnerName.equalsIgnoreCase("trash") || ordnerName.equalsIgnoreCase("deleted")
+							|| ordnerName.equalsIgnoreCase("papierkorb") || ordnerName.equalsIgnoreCase("gelöscht"))
 						binFolder = imap;
-	
+
 					for (int i = 0; i < attr.length; i++) {
 						if (attr[i].equalsIgnoreCase("\\Trash")) {
 							binFolder = imap;
@@ -752,26 +737,22 @@ public class MailAccount implements Serializable {
 			if (binFolder != null) {
 				final String binPfad = binFolder.getFullName();
 				if (!pfad.equals(binPfad)) {
-					kopieren(mails, ordner, binFolder, true);
+					kopieren(mails, folder, binFolder, true);
 					return true;
 				}
 			}
-			final Message[] messages = infoToMessage(mails, ordner);
+			final Message[] messages = infoToMessage(mails, folder);
 			for (final Message m : messages) {
 				if (!m.isExpunged())
 					m.setFlag(Flags.Flag.DELETED, true);
 			}
 
-			ordner.expunge();
+			folder.expunge();
 
 			result = true;
 		} finally {
-			if (mailStore != null && mailStore.isConnected()) {
-				try {
-					mailStore.close();
-				} catch (MessagingException e) {
-				}
-			}
+			closeMailFolder(folder, true);
+			closeMailStore(mailStore);
 		}
 
 		return result;
@@ -793,26 +774,22 @@ public class MailAccount implements Serializable {
 	 * @throws MessagingException
 	 *             Triff auf, wenn es einen Fehler bezüglich der Nachricht gab
 	 */
-	public void anhangSpeichern(final MailInfo mail, final String pfad,
-			final String anhangName, final String zielPfad) throws IOException,
-			MessagingException {
+	public void anhangSpeichern(final MailInfo mail, final String pfad, final String anhangName, final String zielPfad)
+			throws IOException, MessagingException {
 		Store mailStore = null;
-
+		Folder folder = null;
 		try {
-			mailStore = inServer.getMailStore(benutzer, passwort);
-			mailStore.connect(inServer.settings.getHost(),
-					inServer.settings.getPort(), benutzer, passwort);
+			mailStore = connectToMailStore();
 
-			final Folder ordner = mailStore.getFolder(pfad);
-			ordner.open(Folder.READ_WRITE);
+			folder = mailStore.getFolder(pfad);
+			folder.open(Folder.READ_WRITE);
 
-			final Message message = infoToMessage(mail, ordner);
+			final Message message = infoToMessage(mail, folder);
 			final String contentType = message.getContentType();
 			if (contentType.contains("multipart")) {
 				final Multipart multipart = (Multipart) message.getContent();
 				for (int i = 0; i < multipart.getCount(); i++) {
-					final MimeBodyPart part = (MimeBodyPart) multipart
-							.getBodyPart(i);
+					final MimeBodyPart part = (MimeBodyPart) multipart.getBodyPart(i);
 					final String disposition = part.getDisposition();
 					final String fileName = part.getFileName();
 
@@ -824,11 +801,8 @@ public class MailAccount implements Serializable {
 				}
 			}
 		} finally {
-			if (mailStore != null && mailStore.isConnected())
-				try {
-					mailStore.close();
-				} catch (MessagingException e) {
-				}
+			closeMailFolder(folder, true);
+			closeMailStore(mailStore);
 		}
 	}
 
@@ -842,30 +816,22 @@ public class MailAccount implements Serializable {
 	 * @throws IOException
 	 *             Tritt auf, wenn das Objekt nicht gespeichert werden konnte
 	 */
-	private void speichereMailInfo(final MailInfo info, final String pfad)
-			throws IOException {
+	private void speichereMailInfo(final MailInfo info, final String pfad) throws IOException {
 		final String id = info.getID();
 		final String dateiname = id.replace(">", "").replace("<", "");
-		final String strPfad = String.format(MAIL_PATTERN,
-				adresse.getAddress(), pfad, dateiname);
+		final String strPfad = String.format(MAIL_PATTERN, address.getAddress(), pfad, dateiname);
 		final File zielDatei = new File(strPfad).getAbsoluteFile();
 
 		final File ordner = zielDatei.getParentFile();
 
-		FileOutputStream fos = null;
-		ObjectOutputStream oos = null;
-		try {
-			if (!ordner.exists()) {
-				ordner.mkdirs();
-			}
+		if (!ordner.exists()) {
+			ordner.mkdirs();
+		}
 
-			fos = new FileOutputStream(zielDatei);
-			oos = new ObjectOutputStream(fos);
-
+		try (FileOutputStream fos = new FileOutputStream(zielDatei);
+				ObjectOutputStream oos = new ObjectOutputStream(fos)) {
 			oos.writeObject(info);
-		} finally {
-			if (oos != null)
-				oos.close();
+			oos.flush();
 		}
 	}
 
@@ -875,26 +841,20 @@ public class MailAccount implements Serializable {
 	 * @param datei
 	 *            Enthällt den Pfad, in dem das Objekt liegt
 	 * @return Deserialisiertes <code>MailInfo</code>-Objekt
-	 * @throws ClassNotFoundException
-	 *             Die Datei enthällt unbekannte Klassendaten
 	 * @throws IOException
 	 *             Die Datei konnte nicht gelesen werden
 	 */
-	private MailInfo ladeMailInfo(final File datei)
-			throws ClassNotFoundException, IOException {
+	private MailInfo ladeMailInfo(final File datei) throws IOException {
 		MailInfo geladen = null;
 
 		final File absDatei = datei.getAbsoluteFile();
 		if (absDatei.exists()) {
-			FileInputStream fis = null;
-			ObjectInputStream ois = null;
-			try {
-				fis = new FileInputStream(absDatei);
-				ois = new ObjectInputStream(fis);
+			try (FileInputStream fis = new FileInputStream(absDatei);
+					ObjectInputStream ois = new ObjectInputStream(fis)) {
 
 				geladen = (MailInfo) ois.readObject();
-			} finally {
-				ois.close();
+			} catch (ClassNotFoundException ex) {
+				LOGGER.error("Could not load MailInfo", ex);
 			}
 		}
 
@@ -912,8 +872,7 @@ public class MailAccount implements Serializable {
 	private void löscheMailInfo(final MailInfo info, final String pfad) {
 		final String id = info.getID();
 		final String dateiname = id.replace(">", "").replace("<", "");
-		final String strPfad = String.format(MAIL_PATTERN,
-				adresse.getAddress(), pfad, dateiname);
+		final String strPfad = String.format(MAIL_PATTERN, address.getAddress(), pfad, dateiname);
 		final File zielDatei = new File(strPfad).getAbsoluteFile();
 
 		zielDatei.delete();
@@ -956,7 +915,7 @@ public class MailAccount implements Serializable {
 	 * 
 	 * @return <code>MailServer</code> zum Empfangen von Mails
 	 */
-	public EmpfangsServer getEmpfangsServer() {
+	public EmpfangsServer<?> getEmpfangsServer() {
 		return inServer;
 	}
 
@@ -975,7 +934,7 @@ public class MailAccount implements Serializable {
 	 * @return Mailadresse des MailAccounts
 	 */
 	public InternetAddress getAdresse() {
-		return adresse;
+		return address;
 	}
 
 	/**
@@ -998,8 +957,7 @@ public class MailAccount implements Serializable {
 	 */
 	public void setPasswort(String passwd) throws AuthenticationFailedException {
 		if (!validieren(benutzer, passwd))
-			throw new AuthenticationFailedException(
-					"Das übergebene Passwort ist ungültig");
+			throw new AuthenticationFailedException("Das übergebene Passwort ist ungültig");
 
 		this.passwort = passwd;
 	}
@@ -1014,24 +972,24 @@ public class MailAccount implements Serializable {
 		if (this == obj)
 			return true;
 
-		if(obj instanceof MailAccount) {
+		if (obj instanceof MailAccount) {
 			MailAccount acc = (MailAccount) obj;
-			String thisAddress = this.adresse.getAddress();
-			String accAddress = acc.adresse.getAddress();
-			
+			String thisAddress = this.address.getAddress();
+			String accAddress = acc.address.getAddress();
+
 			return thisAddress.equalsIgnoreCase(accAddress);
 		}
-		
-		if(obj instanceof MailChecker) {
-			MailChecker checker = (MailChecker)obj;
+
+		if (obj instanceof MailChecker) {
+			MailChecker checker = (MailChecker) obj;
 			return this.equals(checker.getAccount());
 		}
-		
+
 		return false;
 	}
 
 	@Override
 	public int hashCode() {
-		return this.adresse.getAddress().hashCode();
+		return this.address.getAddress().hashCode();
 	}
 }

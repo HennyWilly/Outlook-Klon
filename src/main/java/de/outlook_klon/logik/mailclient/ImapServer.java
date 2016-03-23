@@ -6,12 +6,14 @@ import javax.mail.NoSuchProviderException;
 import javax.mail.Session;
 import javax.mail.Store;
 
+import com.sun.mail.imap.IMAPFolder;
+
 /**
  * Diese Klasse stellt einen IMAP-Server dar.
  * 
  * @author Hendrik Karwanni
  */
-public class ImapServer extends EmpfangsServer {
+public class ImapServer extends EmpfangsServer<IMAPFolder> {
 	private static final long serialVersionUID = 3401491699856582843L;
 
 	/**
@@ -41,10 +43,8 @@ public class ImapServer extends EmpfangsServer {
 	}
 
 	@Override
-	public Store getMailStore(final String user, final String passwd)
-			throws NoSuchProviderException {
-		final Session session = getSession(new StandardAuthenticator(user,
-				passwd));
+	public Store getMailStore(final String user, final String passwd) throws NoSuchProviderException {
+		final Session session = getSession(new StandardAuthenticator(user, passwd));
 
 		Store store = null;
 		if (settings.getVerbingungssicherheit() == Verbindungssicherheit.SSL_TLS)

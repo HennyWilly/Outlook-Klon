@@ -82,13 +82,11 @@ public class KontoverwaltungFrame extends ExtendedDialog<MailAccount[]> {
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			public Component getListCellRendererComponent(JList<?> list,
-					Object value, int index, boolean isSelected,
+			public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected,
 					boolean cellHasFocus) {
 				MailAccount acc = (MailAccount) value;
 
-				return super.getListCellRendererComponent(list, acc
-						.getAdresse().getAddress(), index, isSelected,
+				return super.getListCellRendererComponent(list, acc.getAdresse().getAddress(), index, isSelected,
 						cellHasFocus);
 			}
 		});
@@ -149,8 +147,7 @@ public class KontoverwaltungFrame extends ExtendedDialog<MailAccount[]> {
 		btnOK.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				DefaultListModel<MailAccount> model = (DefaultListModel<MailAccount>) lstKonten
-						.getModel();
+				DefaultListModel<MailAccount> model = (DefaultListModel<MailAccount>) lstKonten.getModel();
 				meineAccounts = new MailAccount[model.getSize()];
 				for (int i = 0; i < meineAccounts.length; i++) {
 					meineAccounts[i] = model.get(i);
@@ -165,8 +162,7 @@ public class KontoverwaltungFrame extends ExtendedDialog<MailAccount[]> {
 		btnKontoEntfernen.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				DefaultListModel<MailAccount> model = (DefaultListModel<MailAccount>) lstKonten
-						.getModel();
+				DefaultListModel<MailAccount> model = (DefaultListModel<MailAccount>) lstKonten.getModel();
 				MailAccount acc = lstKonten.getSelectedValue();
 
 				loeschekonto(acc);
@@ -194,8 +190,7 @@ public class KontoverwaltungFrame extends ExtendedDialog<MailAccount[]> {
 
 		JPanel panelEingang = new JPanel();
 		panelEingang.setBounds(259, 88, 436, 126);
-		panelEingang.setBorder(BorderFactory
-				.createTitledBorder("Eingangs-Server"));
+		panelEingang.setBorder(BorderFactory.createTitledBorder("Eingangs-Server"));
 		getContentPane().add(panelEingang);
 		panelEingang.setLayout(null);
 
@@ -207,13 +202,11 @@ public class KontoverwaltungFrame extends ExtendedDialog<MailAccount[]> {
 		lblEingangPort.setBounds(285, 52, 46, 14);
 		panelEingang.add(lblEingangPort);
 
-		JLabel lblEingangVerbindungssicherheit = new JLabel(
-				"Verbindungssicherheit: ");
+		JLabel lblEingangVerbindungssicherheit = new JLabel("Verbindungssicherheit: ");
 		lblEingangVerbindungssicherheit.setBounds(10, 77, 143, 14);
 		panelEingang.add(lblEingangVerbindungssicherheit);
 
-		JLabel lblEingangAuthentifizierungsart = new JLabel(
-				"Authentifizierungsart: ");
+		JLabel lblEingangAuthentifizierungsart = new JLabel("Authentifizierungsart: ");
 		lblEingangAuthentifizierungsart.setBounds(10, 102, 143, 14);
 		panelEingang.add(lblEingangAuthentifizierungsart);
 
@@ -258,8 +251,7 @@ public class KontoverwaltungFrame extends ExtendedDialog<MailAccount[]> {
 
 		JPanel panelAusgang = new JPanel();
 		panelAusgang.setLayout(null);
-		panelAusgang.setBorder(BorderFactory
-				.createTitledBorder("Ausgangs-Server"));
+		panelAusgang.setBorder(BorderFactory.createTitledBorder("Ausgangs-Server"));
 		panelAusgang.setBounds(259, 225, 436, 126);
 		getContentPane().add(panelAusgang);
 
@@ -271,13 +263,11 @@ public class KontoverwaltungFrame extends ExtendedDialog<MailAccount[]> {
 		lblAusgangPort.setBounds(285, 48, 46, 14);
 		panelAusgang.add(lblAusgangPort);
 
-		JLabel lblAusgangVerbindungssicherheit = new JLabel(
-				"Verbindungssicherheit: ");
+		JLabel lblAusgangVerbindungssicherheit = new JLabel("Verbindungssicherheit: ");
 		lblAusgangVerbindungssicherheit.setBounds(10, 73, 143, 14);
 		panelAusgang.add(lblAusgangVerbindungssicherheit);
 
-		JLabel lblAusgangAuthentifizierungsart = new JLabel(
-				"Authentifizierungsart: ");
+		JLabel lblAusgangAuthentifizierungsart = new JLabel("Authentifizierungsart: ");
 		lblAusgangAuthentifizierungsart.setBounds(10, 98, 143, 14);
 		panelAusgang.add(lblAusgangAuthentifizierungsart);
 
@@ -368,28 +358,24 @@ public class KontoverwaltungFrame extends ExtendedDialog<MailAccount[]> {
 			txtUser.setText(acc.getBenutzer());
 			txtMail.setText(acc.getAdresse().getAddress());
 			txtName.setText(acc.getAdresse().getPersonal());
-			
-			EmpfangsServer empfServer = acc.getEmpfangsServer();
+
+			EmpfangsServer<?> empfServer = acc.getEmpfangsServer();
 			ServerSettings empfSettings = empfServer.getSettings();
 
 			txtEingangTyp.setText(empfServer.getServerTyp());
 			txtEingangServer.setText(empfSettings.getHost());
 			txtEingangPort.setText(Integer.toString(empfSettings.getPort()));
-			txtEingangSicherheit.setText(empfSettings
-					.getVerbingungssicherheit().toString());
-			txtEingangAuthentifizierung.setText(empfSettings
-					.getAuthentifizierungsart().toString());
-			
+			txtEingangSicherheit.setText(empfSettings.getVerbingungssicherheit().toString());
+			txtEingangAuthentifizierung.setText(empfSettings.getAuthentifizierungsart().toString());
+
 			SendServer sendServer = acc.getSendServer();
 			ServerSettings sendSettings = sendServer.getSettings();
-			
+
 			txtAusgangTyp.setText(sendServer.getServerTyp());
 			txtAusgangServer.setText(sendSettings.getHost());
 			txtAusgangPort.setText(Integer.toString(sendSettings.getPort()));
-			txtAusgangSicherheit.setText(sendSettings
-					.getVerbingungssicherheit().toString());
-			txtAusgangAuthentifizierung.setText(sendSettings
-					.getAuthentifizierungsart().toString());
+			txtAusgangSicherheit.setText(sendSettings.getVerbingungssicherheit().toString());
+			txtAusgangAuthentifizierung.setText(sendSettings.getAuthentifizierungsart().toString());
 		}
 	}
 
@@ -401,9 +387,8 @@ public class KontoverwaltungFrame extends ExtendedDialog<MailAccount[]> {
 		KontoFrame kf = new KontoFrame();
 		MailAccount acc = kf.showDialog();
 		if (acc != null) {
-			DefaultListModel<MailAccount> model = (DefaultListModel<MailAccount>) lstKonten
-					.getModel();
-			//Füge die neue Instanz der JList hinzu
+			DefaultListModel<MailAccount> model = (DefaultListModel<MailAccount>) lstKonten.getModel();
+			// Füge die neue Instanz der JList hinzu
 			model.addElement(acc);
 		}
 	}
@@ -421,13 +406,12 @@ public class KontoverwaltungFrame extends ExtendedDialog<MailAccount[]> {
 
 		MailAccount result = kf.showDialog();
 		if (result != null) {
-			DefaultListModel<MailAccount> model = (DefaultListModel<MailAccount>) lstKonten
-					.getModel();
+			DefaultListModel<MailAccount> model = (DefaultListModel<MailAccount>) lstKonten.getModel();
 			int index = model.indexOf(acc);
 
-			//Entfernt die alte Instanz aus der JList
+			// Entfernt die alte Instanz aus der JList
 			model.remove(index);
-			//Füge die neue Instanz der JList hinzu
+			// Füge die neue Instanz der JList hinzu
 			model.add(index, result);
 
 			acc = result;
@@ -438,21 +422,20 @@ public class KontoverwaltungFrame extends ExtendedDialog<MailAccount[]> {
 
 	/**
 	 * Löscht die übergebene MailAccount-Instanz aus der Liste
-	 * @param acc Zu löschender MailAccount
+	 * 
+	 * @param acc
+	 *            Zu löschender MailAccount
 	 */
 	private void loeschekonto(MailAccount acc) {
 		if (acc != null) {
-			int result = JOptionPane.showConfirmDialog(this,
-					"Wollen Sie das Konto mit der Mailadresse \'"
-							+ acc.getAdresse().getAddress()
-							+ "\' wirklich löschen?", "Löschen bestätigen",
+			int result = JOptionPane.showConfirmDialog(this, "Wollen Sie das Konto mit der Mailadresse \'"
+					+ acc.getAdresse().getAddress() + "\' wirklich löschen?", "Löschen bestätigen",
 					JOptionPane.YES_NO_OPTION);
 
 			if (result == JOptionPane.YES_OPTION) {
-				DefaultListModel<MailAccount> model = (DefaultListModel<MailAccount>) lstKonten
-						.getModel();
+				DefaultListModel<MailAccount> model = (DefaultListModel<MailAccount>) lstKonten.getModel();
 
-				//Entfernt die Instanz aus der JList
+				// Entfernt die Instanz aus der JList
 				model.removeElement(acc);
 			}
 		}

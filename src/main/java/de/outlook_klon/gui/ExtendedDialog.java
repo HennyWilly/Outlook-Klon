@@ -27,7 +27,7 @@ public abstract class ExtendedDialog<TDialogTyp> extends JDialog {
 	 */
 	protected ExtendedDialog(int breite, int hoehe) {
 		this.setSize(breite, hoehe);
-		//Fenster in der Mitte des Bildschirms
+		// Fenster in der Mitte des Bildschirms
 		this.setLocationRelativeTo(null);
 		this.setModalityType(Dialog.DEFAULT_MODALITY_TYPE);
 		this.setResizable(false);

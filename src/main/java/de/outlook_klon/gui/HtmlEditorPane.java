@@ -18,6 +18,9 @@ import javax.swing.event.HyperlinkEvent.EventType;
 import javax.swing.event.HyperlinkListener;
 import javax.swing.text.html.HTMLEditorKit;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import de.outlook_klon.logik.Benutzer;
 import de.outlook_klon.logik.kalendar.Termin;
 import de.outlook_klon.logik.kalendar.Terminkalender;
@@ -30,10 +33,12 @@ import de.outlook_klon.logik.kalendar.Terminkalender;
  */
 public class HtmlEditorPane extends JEditorPane {
 	private static final long serialVersionUID = -4765175082709293453L;
-	
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(HtmlEditorPane.class);
+
 	private static final String HTML = "TEXT/html";
 	private static final String PLAIN = "TEXT/plain";
-	
+
 	private static final String PREFIX = "date://";
 	private static final String REPLACE_PATTERN = "<a href=\"date://%s\">%s</a>";
 
@@ -43,20 +48,20 @@ public class HtmlEditorPane extends JEditorPane {
 	private static Pattern timePattern;
 
 	private HTMLEditorKit htmlEditor;
-	
-	//Statischer Konstruktor
+
+	// Statischer Konstruktor
 	static {
 		htmlPattern = Pattern.compile("<(\"[^\"]*\"|'[^']*'|[^'\">])*>");
-		
+
 		formater1 = new SimpleDateFormat("dd.MM.yyyy HH:mm");
 		formater1.setLenient(false);
-		
+
 		formater2 = new SimpleDateFormat("dd.MM.yyyy");
 		formater2.setLenient(false);
-		
+
 		timePattern = Pattern.compile("\\d{1,2}\\.\\d{1,2}\\.\\d{2,4}( \\d{1,2}:\\d{1,2})?");
 	}
-	
+
 	/**
 	 * Bestimmt, ob es sich beim übergebenen String um einen Html-Code handelt
 	 * 
@@ -66,7 +71,7 @@ public class HtmlEditorPane extends JEditorPane {
 	 */
 	public static boolean istHtml(String text) {
 		Matcher matcher = htmlPattern.matcher(text);
-		
+
 		return matcher.find();
 	}
 
@@ -81,30 +86,31 @@ public class HtmlEditorPane extends JEditorPane {
 			public void hyperlinkUpdate(HyperlinkEvent arg0) {
 				if (arg0.getEventType() == EventType.ACTIVATED) {
 					String url = arg0.getDescription();
-					if(url.startsWith(PREFIX)) {
+					if (url.startsWith(PREFIX)) {
 						String strDatum = url.substring(PREFIX.length());
-						
+
 						try {
-							Date datum = null; 
-							
+							Date datum = null;
+
 							try {
 								datum = formater1.parse(strDatum);
 							} catch (ParseException ex) {
 								datum = formater2.parse(strDatum);
 							}
-							
+
 							TerminFrame tf = new TerminFrame(datum);
-			            	Termin t = tf.showDialog();
-			            	
-			            	if(t != null) {
-			            		Terminkalender kalender = Benutzer.getInstanz().getTermine();
-			            		kalender.addTermin(t);
-			            	}
-							
-						} catch(ParseException e) {
-							JOptionPane.showMessageDialog(null, "Kein gültiges Datum", "Fehler", JOptionPane.ERROR_MESSAGE);
+							Termin t = tf.showDialog();
+
+							if (t != null) {
+								Terminkalender kalender = Benutzer.getInstanz().getTermine();
+								kalender.addTermin(t);
+							}
+
+						} catch (ParseException e) {
+							JOptionPane.showMessageDialog(null, "Kein gültiges Datum", "Fehler",
+									JOptionPane.ERROR_MESSAGE);
 						}
-						
+
 						return;
 					}
 
@@ -113,18 +119,16 @@ public class HtmlEditorPane extends JEditorPane {
 
 						try {
 							meinDesktop.browse(new URI(url));
-						} catch (Exception e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
+						} catch (Exception ex) {
+							LOGGER.error("Could not launch url", ex);
 						}
 					} else {
 						Runtime meineLaufzeit = Runtime.getRuntime();
 						try {
 							// Sollte bei OS mit X-Server funktionieren
-							meineLaufzeit.exec("xdg-open " + url); 
-						} catch (IOException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
+							meineLaufzeit.exec("xdg-open " + url);
+						} catch (IOException ex) {
+							LOGGER.error("Could not launch url", ex);
 						}
 					}
 				}
@@ -209,74 +213,74 @@ public class HtmlEditorPane extends JEditorPane {
 		}
 		setText(text);
 	}
-	
+
 	@Override
 	public void setText(String text) {
-		if(text == null)
+		if (text == null)
 			text = "";
-		
-		//In Plaintexte können keine Hyperlinks eingefügt werden
-		if(getContentType().equalsIgnoreCase("text/html")) {		
+
+		// In Plaintexte können keine Hyperlinks eingefügt werden
+		if (getContentType().equalsIgnoreCase("text/html")) {
 			StringBuilder sb = new StringBuilder(text);
 			Matcher matcher = timePattern.matcher(sb);
 
 			boolean skip = false;
 			boolean rematch = false;
-			while(matcher.find()) {
-				if(rematch) {
+			while (matcher.find()) {
+				if (rematch) {
 					rematch = false;
 					matcher = timePattern.matcher(sb);
 					continue;
 				}
-				
-				if(skip) {
+
+				if (skip) {
 					skip = false;
 					continue;
 				}
 				int start = matcher.start();
 				int ende = matcher.end();
-				
+
 				String match = matcher.group();
-				if(sb.length() - start < 0) {
+				if (sb.length() - start < 0) {
 					continue;
 				}
-				
+
 				int index = start - PREFIX.length();
-				if(index >= 0) {
+				if (index >= 0) {
 					String preText = sb.substring(index, start);
-					//Falls das Datum schon in einem Date-Hyperlink steht
-					if(preText.equalsIgnoreCase(PREFIX)) {
-						//Überspringe den nächsten Fund
+					// Falls das Datum schon in einem Date-Hyperlink steht
+					if (preText.equalsIgnoreCase(PREFIX)) {
+						// Überspringe den nächsten Fund
 						skip = true;
 						continue;
 					}
 				}
-				
+
 				try {
 					try {
-						//Versuche mit Zeitangabe zu parsen
+						// Versuche mit Zeitangabe zu parsen
 						formater1.parse(match);
 					} catch (ParseException ex) {
-						//Versuche ohne Zeitangabe zu parsen
+						// Versuche ohne Zeitangabe zu parsen
 						formater2.parse(match);
-						
-						//Entferne eine eventuelle falsche Uhrzeit
+
+						// Entferne eine eventuelle falsche Uhrzeit
 						match = match.replaceAll(" \\d{1,2}:\\d{1,2}", "");
 						ende = start + match.length();
 					}
-					
-					//Bilde Hyperlink und ersetze im Sting mit ebenjenem
+
+					// Bilde Hyperlink und ersetze im Sting mit ebenjenem
 					String replacement = String.format(REPLACE_PATTERN, match, match);
 					sb.replace(start, ende, replacement);
 					rematch = true;
-				} catch(ParseException e) {
-					//Überspringe, wenn kein Dateparser den String parsen kann
+				} catch (ParseException e) {
+					// Überspringe, wenn kein Dateparser den String parsen kann
 				}
 			}
-			
+
 			text = sb.toString();
 		}
-		
+
 		super.setText(text);
 	}
 }

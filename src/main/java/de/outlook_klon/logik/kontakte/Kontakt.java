@@ -1,7 +1,9 @@
 package de.outlook_klon.logik.kontakte;
 
-import java.io.Serializable;
 import javax.mail.internet.InternetAddress;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * Dies ist eine Datenklasse, die die Daten von einem Kontakt des Benutzers
@@ -9,19 +11,34 @@ import javax.mail.internet.InternetAddress;
  * 
  * @author Hendrik Karwanni
  */
-public class Kontakt implements Serializable {
-	private static final long serialVersionUID = -4417684942862339869L;
+public class Kontakt {
 
+	@JsonProperty("surname")
 	private String mNachname;
+
+	@JsonProperty("forename")
 	private String mVorname;
+
+	@JsonProperty("displayname")
 	private String mAnzeigename;
+
+	@JsonProperty("nickname")
 	private String mSpitzname;
+
+	@JsonProperty("address1")
 	private InternetAddress mMail1;
+
+	@JsonProperty("address2")
 	private InternetAddress mMail2;
+
+	@JsonProperty("dutyphone")
 	private String mTelDienst;
+
+	@JsonProperty("mobilephone")
 	private String mTelMobil;
+
+	@JsonProperty("privatephone")
 	private String mTelPrivat;
-	private String mSprache;
 
 	/**
 	 * Erstellt eine neue Instanz der Klasse mit den übergebenen Werten.
@@ -45,9 +62,16 @@ public class Kontakt implements Serializable {
 	 * @param telMobil
 	 *            Mobiltelefonnummer des Kontakts
 	 */
-	public Kontakt(String nachname, String vorname, String anzeigename,
-			String spitzname, InternetAddress mail1, InternetAddress mail2,
-			String telPrivat, String telDienst, String telMobil) {
+	public Kontakt(
+			@JsonProperty("surname") String nachname, 
+			@JsonProperty("forename") String vorname, 
+			@JsonProperty("displayname") String anzeigename, 
+			@JsonProperty("nickname") String spitzname, 
+			@JsonProperty("address1") InternetAddress mail1,
+			@JsonProperty("address2") InternetAddress mail2, 
+			@JsonProperty("privatephone") String telPrivat, 
+			@JsonProperty("dutyphone") String telDienst, 
+			@JsonProperty("mobilephone") String telMobil) {
 		setNachname(nachname);
 		setVorname(vorname);
 		setAnzeigename(anzeigename);
@@ -79,6 +103,7 @@ public class Kontakt implements Serializable {
 	 * 
 	 * @return Nachname
 	 */
+	@JsonIgnore
 	public String getNachname() {
 		return mNachname;
 	}
@@ -98,6 +123,7 @@ public class Kontakt implements Serializable {
 	 * 
 	 * @return Vorname
 	 */
+	@JsonIgnore
 	public String getVorname() {
 		return mVorname;
 	}
@@ -117,6 +143,7 @@ public class Kontakt implements Serializable {
 	 * 
 	 * @return Anzeigename
 	 */
+	@JsonIgnore
 	public String getAnzeigename() {
 		return mAnzeigename;
 	}
@@ -136,6 +163,7 @@ public class Kontakt implements Serializable {
 	 * 
 	 * @return Spitzname
 	 */
+	@JsonIgnore
 	public String getSpitzname() {
 		return mSpitzname;
 	}
@@ -155,6 +183,7 @@ public class Kontakt implements Serializable {
 	 * 
 	 * @return Erste E-Mail-Adresse
 	 */
+	@JsonIgnore
 	public InternetAddress getMail1() {
 		return mMail1;
 	}
@@ -174,6 +203,7 @@ public class Kontakt implements Serializable {
 	 * 
 	 * @return Zweite E-Mail-Adresse
 	 */
+	@JsonIgnore
 	public InternetAddress getMail2() {
 		return mMail2;
 	}
@@ -193,6 +223,7 @@ public class Kontakt implements Serializable {
 	 * 
 	 * @return Private Telefonnummer
 	 */
+	@JsonIgnore
 	public String getTelPrivat() {
 		return mTelPrivat;
 	}
@@ -212,6 +243,7 @@ public class Kontakt implements Serializable {
 	 * 
 	 * @return Dienstliche Telefonnummer
 	 */
+	@JsonIgnore
 	public String getTelDienst() {
 		return mTelDienst;
 	}
@@ -231,27 +263,8 @@ public class Kontakt implements Serializable {
 	 * 
 	 * @return Mobiltelefonnummer
 	 */
+	@JsonIgnore
 	public String getTelMobil() {
 		return mTelMobil;
-	}
-
-	/**
-	 * 
-	 * Setter für die bevorzugte Sprache des Kontakts
-	 * 
-	 * @param mSprache
-	 *            Zu setzende Sprache
-	 */
-	public void setSprache(String mSprache) {
-		this.mSprache = mSprache;
-	}
-
-	/**
-	 * Getter für die bevorzugte Sprache des Kontakts
-	 * 
-	 * @return Sprache
-	 */
-	public String getSprache() {
-		return mSprache;
 	}
 }

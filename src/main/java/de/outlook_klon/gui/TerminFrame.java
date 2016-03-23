@@ -59,12 +59,10 @@ public class TerminFrame extends ExtendedDialog<Termin> {
 		textOrt.setColumns(10);
 
 		dateStart = new JSpinner();
-		dateStart.setModel(new SpinnerDateModel(new Date(), null, null,
-				Calendar.DAY_OF_YEAR));
+		dateStart.setModel(new SpinnerDateModel(new Date(), null, null, Calendar.DAY_OF_YEAR));
 
 		dateEnde = new JSpinner();
-		dateEnde.setModel(new SpinnerDateModel(new Date(), null, null,
-				Calendar.DAY_OF_YEAR));
+		dateEnde.setModel(new SpinnerDateModel(new Date(), null, null, Calendar.DAY_OF_YEAR));
 
 		JButton btnOk = new JButton("OK");
 		btnOk.addActionListener(new ActionListener() {
@@ -75,31 +73,23 @@ public class TerminFrame extends ExtendedDialog<Termin> {
 
 				try {
 					if (mTermin == null) {
-						mTermin = new Termin(textBetreff.getText(), textOrt
-								.getText(), model1.getDate(), model2.getDate(),
-								textBeschreibung.getText(), comboKonto
-										.getSelectedItem().toString(),
+						mTermin = new Termin(textBetreff.getText(), textOrt.getText(), model1.getDate(),
+								model2.getDate(), textBeschreibung.getText(), comboKonto.getSelectedItem().toString(),
 								comboKontakt.getSelectedItem().toString());
 					} else {
 
 						mTermin.setBetreff(textBetreff.getText());
 						mTermin.setOrt(textOrt.getText());
 						mTermin.setText(textBeschreibung.getText());
-						mTermin.setStartUndEnde(model1.getDate(),
-								model2.getDate());
-						mTermin.setBenutzerkonto(comboKonto.getSelectedItem()
-								.toString());
-						mTermin.setKontakt(comboKontakt.getSelectedItem()
-								.toString());
+						mTermin.setStartUndEnde(model1.getDate(), model2.getDate());
+						mTermin.setBenutzerkonto(comboKonto.getSelectedItem().toString());
+						mTermin.setKontakt(comboKontakt.getSelectedItem().toString());
 
 					}
 
 					close();
 				} catch (RuntimeException ex) {
-					JOptionPane.showMessageDialog(
-							null,
-							"Es ist ein Fehler aufgetreten:\n"
-									+ ex.getMessage(), "Fehler",
+					JOptionPane.showMessageDialog(null, "Es ist ein Fehler aufgetreten:\n" + ex.getMessage(), "Fehler",
 							JOptionPane.ERROR_MESSAGE);
 				}
 			}
@@ -139,91 +129,112 @@ public class TerminFrame extends ExtendedDialog<Termin> {
 		}
 
 		comboKonto = new JComboBox<String>();
-		comboKonto.setModel(new DefaultComboBoxModel<String>(
-				selectableBenutzerkonto));
+		comboKonto.setModel(new DefaultComboBoxModel<String>(selectableBenutzerkonto));
 
 		comboKontakt = new JComboBox<String>();
-		comboKontakt.setModel(new DefaultComboBoxModel<String>(
-				selectableKontakt));
+		comboKontakt.setModel(new DefaultComboBoxModel<String>(selectableKontakt));
 
 		GroupLayout groupLayout = new GroupLayout(getContentPane());
-		groupLayout.setHorizontalGroup(
-				groupLayout.createParallelGroup(Alignment.LEADING)
-					.addGroup(groupLayout.createSequentialGroup()
-						.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
-							.addGroup(groupLayout.createSequentialGroup()
-								.addGap(23)
-								.addComponent(btnOk)
-								.addGap(102)
-								.addComponent(btnAbbrechen))
-							.addGroup(groupLayout.createSequentialGroup()
-								.addContainerGap()
-								.addGroup(groupLayout.createParallelGroup(Alignment.LEADING, false)
-									.addGroup(groupLayout.createSequentialGroup()
-										.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
-											.addComponent(lblNewLabel)
-											.addComponent(lblEndzeit, GroupLayout.PREFERRED_SIZE, 45, GroupLayout.PREFERRED_SIZE)
-											.addComponent(lblOrt, GroupLayout.PREFERRED_SIZE, 53, GroupLayout.PREFERRED_SIZE)
-											.addComponent(lblNBetreff, GroupLayout.PREFERRED_SIZE, 53, GroupLayout.PREFERRED_SIZE))
-										.addGap(77)
-										.addGroup(groupLayout.createParallelGroup(Alignment.LEADING, false)
-											.addComponent(dateStart, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-											.addComponent(dateEnde, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-											.addComponent(textBetreff, GroupLayout.DEFAULT_SIZE, 286, Short.MAX_VALUE)
-											.addComponent(textOrt, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)))
-									.addGroup(groupLayout.createSequentialGroup()
-										.addComponent(lblBeschreibung, GroupLayout.PREFERRED_SIZE, 89, GroupLayout.PREFERRED_SIZE)
-										.addGap(41)
-										.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
-											.addComponent(textBeschreibung)
-											.addComponent(comboKonto, 0, 286, Short.MAX_VALUE)
-											.addComponent(comboKontakt, 0, 286, Short.MAX_VALUE)))))
-							.addGroup(groupLayout.createSequentialGroup()
-								.addContainerGap()
-								.addComponent(lblBenutzerkonto))
-							.addGroup(groupLayout.createSequentialGroup()
-								.addContainerGap()
-								.addComponent(lblKontakt)))
-						.addContainerGap(54, Short.MAX_VALUE))
-			);
-			groupLayout.setVerticalGroup(
-				groupLayout.createParallelGroup(Alignment.TRAILING)
-					.addGroup(groupLayout.createSequentialGroup()
-						.addGap(27)
-						.addGroup(groupLayout.createParallelGroup(Alignment.BASELINE)
-							.addComponent(lblNBetreff)
-							.addComponent(textBetreff, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-						.addPreferredGap(ComponentPlacement.UNRELATED)
-						.addGroup(groupLayout.createParallelGroup(Alignment.BASELINE)
-							.addComponent(lblOrt, GroupLayout.PREFERRED_SIZE, 16, GroupLayout.PREFERRED_SIZE)
-							.addComponent(textOrt, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-						.addPreferredGap(ComponentPlacement.UNRELATED)
-						.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
-							.addGroup(groupLayout.createSequentialGroup()
-								.addComponent(lblNewLabel)
-								.addGap(18)
-								.addGroup(groupLayout.createParallelGroup(Alignment.BASELINE)
-									.addComponent(lblEndzeit)
-									.addComponent(dateEnde, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)))
-							.addComponent(dateStart, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-						.addPreferredGap(ComponentPlacement.UNRELATED)
-						.addGroup(groupLayout.createParallelGroup(Alignment.BASELINE)
-							.addComponent(lblBeschreibung)
-							.addComponent(textBeschreibung, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-						.addGap(18)
-						.addGroup(groupLayout.createParallelGroup(Alignment.BASELINE)
-							.addComponent(lblBenutzerkonto)
-							.addComponent(comboKonto, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-						.addGap(18)
-						.addGroup(groupLayout.createParallelGroup(Alignment.BASELINE)
-							.addComponent(lblKontakt)
-							.addComponent(comboKontakt, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-						.addPreferredGap(ComponentPlacement.RELATED, 37, Short.MAX_VALUE)
-						.addGroup(groupLayout.createParallelGroup(Alignment.BASELINE)
-							.addComponent(btnOk)
-							.addComponent(btnAbbrechen))
-						.addContainerGap())
-			);
+		groupLayout
+				.setHorizontalGroup(
+						groupLayout.createParallelGroup(Alignment.LEADING)
+								.addGroup(groupLayout.createSequentialGroup()
+										.addGroup(
+												groupLayout.createParallelGroup(Alignment.LEADING)
+														.addGroup(
+																groupLayout.createSequentialGroup().addGap(23)
+																		.addComponent(
+																				btnOk)
+																		.addGap(102).addComponent(btnAbbrechen))
+														.addGroup(groupLayout.createSequentialGroup().addContainerGap()
+																.addGroup(groupLayout
+																		.createParallelGroup(Alignment.LEADING, false)
+																		.addGroup(groupLayout.createSequentialGroup()
+																				.addGroup(groupLayout
+																						.createParallelGroup(
+																								Alignment.LEADING)
+																						.addComponent(lblNewLabel)
+																						.addComponent(lblEndzeit,
+																								GroupLayout.PREFERRED_SIZE,
+																								45,
+																								GroupLayout.PREFERRED_SIZE)
+																						.addComponent(lblOrt,
+																								GroupLayout.PREFERRED_SIZE,
+																								53,
+																								GroupLayout.PREFERRED_SIZE)
+																						.addComponent(lblNBetreff,
+																								GroupLayout.PREFERRED_SIZE,
+																								53,
+																								GroupLayout.PREFERRED_SIZE))
+																				.addGap(77)
+																				.addGroup(groupLayout
+																						.createParallelGroup(
+																								Alignment.LEADING,
+																								false)
+																						.addComponent(dateStart,
+																								GroupLayout.PREFERRED_SIZE,
+																								GroupLayout.DEFAULT_SIZE,
+																								GroupLayout.PREFERRED_SIZE)
+																						.addComponent(dateEnde,
+																								GroupLayout.PREFERRED_SIZE,
+																								GroupLayout.DEFAULT_SIZE,
+																								GroupLayout.PREFERRED_SIZE)
+																						.addComponent(textBetreff,
+																								GroupLayout.DEFAULT_SIZE,
+																								286, Short.MAX_VALUE)
+																						.addComponent(textOrt,
+																								GroupLayout.PREFERRED_SIZE,
+																								GroupLayout.DEFAULT_SIZE,
+																								GroupLayout.PREFERRED_SIZE)))
+																		.addGroup(groupLayout.createSequentialGroup()
+																				.addComponent(lblBeschreibung,
+																						GroupLayout.PREFERRED_SIZE, 89,
+																						GroupLayout.PREFERRED_SIZE)
+																				.addGap(41)
+																				.addGroup(groupLayout
+																						.createParallelGroup(
+																								Alignment.LEADING)
+																						.addComponent(textBeschreibung)
+																						.addComponent(comboKonto, 0,
+																								286, Short.MAX_VALUE)
+																						.addComponent(comboKontakt, 0,
+																								286, Short.MAX_VALUE)))))
+														.addGroup(groupLayout.createSequentialGroup().addContainerGap()
+																.addComponent(lblBenutzerkonto))
+														.addGroup(groupLayout.createSequentialGroup().addContainerGap()
+																.addComponent(lblKontakt)))
+										.addContainerGap(54, Short.MAX_VALUE)));
+		groupLayout.setVerticalGroup(groupLayout.createParallelGroup(Alignment.TRAILING).addGroup(groupLayout
+				.createSequentialGroup().addGap(27)
+				.addGroup(groupLayout.createParallelGroup(Alignment.BASELINE).addComponent(lblNBetreff).addComponent(
+						textBetreff, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+				.addPreferredGap(ComponentPlacement.UNRELATED)
+				.addGroup(groupLayout.createParallelGroup(Alignment.BASELINE)
+						.addComponent(lblOrt, GroupLayout.PREFERRED_SIZE, 16, GroupLayout.PREFERRED_SIZE)
+						.addComponent(textOrt, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE,
+								GroupLayout.PREFERRED_SIZE))
+				.addPreferredGap(ComponentPlacement.UNRELATED)
+				.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
+						.addGroup(groupLayout.createSequentialGroup().addComponent(lblNewLabel).addGap(18)
+								.addGroup(groupLayout.createParallelGroup(Alignment.BASELINE).addComponent(lblEndzeit)
+										.addComponent(dateEnde, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE,
+												GroupLayout.PREFERRED_SIZE)))
+						.addComponent(dateStart, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE,
+								GroupLayout.PREFERRED_SIZE))
+				.addPreferredGap(ComponentPlacement.UNRELATED)
+				.addGroup(groupLayout.createParallelGroup(Alignment.BASELINE).addComponent(lblBeschreibung)
+						.addComponent(textBeschreibung, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE,
+								GroupLayout.PREFERRED_SIZE))
+				.addGap(18)
+				.addGroup(groupLayout.createParallelGroup(Alignment.BASELINE).addComponent(lblBenutzerkonto)
+						.addComponent(comboKonto, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE,
+								GroupLayout.PREFERRED_SIZE))
+				.addGap(18)
+				.addGroup(groupLayout.createParallelGroup(Alignment.BASELINE).addComponent(lblKontakt).addComponent(
+						comboKontakt, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+				.addPreferredGap(ComponentPlacement.RELATED, 37, Short.MAX_VALUE).addGroup(groupLayout
+						.createParallelGroup(Alignment.BASELINE).addComponent(btnOk).addComponent(btnAbbrechen))
+				.addContainerGap()));
 		getContentPane().setLayout(groupLayout);
 	}
 
@@ -249,14 +260,14 @@ public class TerminFrame extends ExtendedDialog<Termin> {
 		comboKonto.setSelectedItem(t.getBenutzerkonto());
 		comboKontakt.setSelectedItem(t.getKontakt());
 	}
-	
+
 	public TerminFrame(Date date) {
 		this();
-		
-		SpinnerDateModel m1 = (SpinnerDateModel)dateStart.getModel();
+
+		SpinnerDateModel m1 = (SpinnerDateModel) dateStart.getModel();
 		m1.setValue(date);
-		
-		SpinnerDateModel m2 = (SpinnerDateModel)dateEnde.getModel();
+
+		SpinnerDateModel m2 = (SpinnerDateModel) dateEnde.getModel();
 		m2.setValue(date);
 	}
 

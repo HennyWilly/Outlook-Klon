@@ -6,12 +6,14 @@ import javax.mail.NoSuchProviderException;
 import javax.mail.Session;
 import javax.mail.Store;
 
+import com.sun.mail.pop3.POP3Folder;
+
 /**
  * Diese Klasse stellt einen POP3-Server dar
  * 
  * @author Hendrik Karwanni
  */
-public class Pop3Server extends EmpfangsServer {
+public class Pop3Server extends EmpfangsServer<POP3Folder> {
 	private static final long serialVersionUID = 926746044207884587L;
 
 	/**
@@ -41,10 +43,8 @@ public class Pop3Server extends EmpfangsServer {
 	}
 
 	@Override
-	public Store getMailStore(final String user, final String passwd)
-			throws NoSuchProviderException {
-		final Session session = getSession(new StandardAuthenticator(user,
-				passwd));
+	public Store getMailStore(final String user, final String passwd) throws NoSuchProviderException {
+		final Session session = getSession(new StandardAuthenticator(user, passwd));
 
 		Store store = null;
 		if (settings.getVerbingungssicherheit() == Verbindungssicherheit.SSL_TLS)

@@ -1,26 +1,29 @@
 package de.outlook_klon.logik.kontakte;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * Diese Klasse stellt die Verwaltung für die Kontakte des Benutzers dar
  * 
  * @author Hendrik Karwanni
  */
-public class Kontaktverwaltung implements Iterable<Kontakt>, Serializable {
-	private static final long serialVersionUID = -5634887633796780397L;
-
+public class Kontaktverwaltung implements Iterable<Kontakt> {
 	public static final String DEFAULT = "Adressbuch";
 
-	private final HashMap<String, HashSet<Kontakt>> mKontakte;
+	@JsonProperty("contacts")
+	private final Map<String, HashSet<Kontakt>> mKontakte;
 
 	/**
 	 * Erstellt eine neue Instanz der Kontaktverwaltung
@@ -30,6 +33,11 @@ public class Kontaktverwaltung implements Iterable<Kontakt>, Serializable {
 		mKontakte.put(DEFAULT, new HashSet<Kontakt>());
 	}
 
+	@JsonCreator
+	private Kontaktverwaltung(@JsonProperty("contacts") Map<String, HashSet<Kontakt>> contacts) {
+		this.mKontakte = contacts;
+	}
+	
 	/**
 	 * Fügt den übergebenen Kontakt der Verwaltung hinzu
 	 * 
@@ -173,6 +181,7 @@ public class Kontaktverwaltung implements Iterable<Kontakt>, Serializable {
 	 * 
 	 * @return Namen aller Kontaktlisten
 	 */
+	@JsonIgnore
 	public String[] getListen() {
 		final Set<String> listen = mKontakte.keySet();
 

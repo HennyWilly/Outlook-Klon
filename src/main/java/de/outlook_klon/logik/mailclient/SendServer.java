@@ -54,8 +54,7 @@ public abstract class SendServer extends MailServer {
 	 *             Tritt auf, wenn einer der zu sendenden Anhänge nicht gefunden
 	 *             wurde
 	 */
-	public abstract Message sendeMail(String user, String passwd,
-			InternetAddress from, InternetAddress[] to, InternetAddress[] cc,
-			String subject, String text, String format, File[] attachment)
-			throws MessagingException, IOException;
+	public abstract Message sendeMail(String user, String passwd, InternetAddress from, InternetAddress[] to,
+			InternetAddress[] cc, String subject, String text, String format, File[] attachment)
+			throws MessagingException;
 }

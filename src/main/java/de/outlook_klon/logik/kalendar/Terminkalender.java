@@ -1,11 +1,15 @@
 package de.outlook_klon.logik.kalendar;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Iterator;
+import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import de.outlook_klon.logik.kalendar.Termin.Status;
 
@@ -14,10 +18,10 @@ import de.outlook_klon.logik.kalendar.Termin.Status;
  * 
  * @author Hendrik Karwanni
  */
-public class Terminkalender implements Iterable<Termin>, Serializable {
-	private static final long serialVersionUID = 3595324672069971302L;
-
-	private ArrayList<Termin> mTermine;
+public class Terminkalender implements Iterable<Termin> {
+	
+	@JsonProperty("appointments")
+	private final List<Termin> mTermine;
 
 	/**
 	 * Erstellt eine neue Instanz der Terminverwaltung
@@ -26,6 +30,11 @@ public class Terminkalender implements Iterable<Termin>, Serializable {
 		mTermine = new ArrayList<Termin>();
 	}
 
+	@JsonCreator
+	private Terminkalender(@JsonProperty("appointments") List<Termin> appointments) {
+		this.mTermine = appointments;
+	}
+	
 	@Override
 	public Iterator<Termin> iterator() {
 		return mTermine.iterator();
@@ -67,10 +76,8 @@ public class Terminkalender implements Iterable<Termin>, Serializable {
 			Date startB = b.getStart();
 			Date endeB = b.getEnde();
 			// IF-Abfrage des Todes
-			if ((startA.before(startB) && endeA.after(startB))
-					|| (startA.before(endeB) && endeA.after(endeB))
-					|| (startB.before(startA) && endeB.after(startA))
-					|| (startB.before(endeA) && endeB.after(endeA)))
+			if ((startA.before(startB) && endeA.after(startB)) || (startA.before(endeB) && endeA.after(endeB))
+					|| (startB.before(startA) && endeB.after(startA)) || (startB.before(endeA) && endeB.after(endeA)))
 
 			{
 				return true;
@@ -84,6 +91,7 @@ public class Terminkalender implements Iterable<Termin>, Serializable {
 	 * 
 	 * @return Termin-Objekt, das zeitlich am ehesten beginnt
 	 */
+	@JsonIgnore
 	public Termin getOldest() {
 		if (mTermine.size() == 0)
 			return null;
@@ -102,6 +110,7 @@ public class Terminkalender implements Iterable<Termin>, Serializable {
 	 * 
 	 * @return Anzahl der Termine
 	 */
+	@JsonIgnore
 	public int getSize() {
 		return mTermine.size();
 	}
@@ -117,15 +126,13 @@ public class Terminkalender implements Iterable<Termin>, Serializable {
 	 */
 	public Termin[] getTermine(Date start, Date ende) {
 		if (ende.before(start))
-			throw new IllegalArgumentException(
-					"Der Startzeitpunkt darf nicht hinter dem Endzeitpunkt liegen");
+			throw new IllegalArgumentException("Der Startzeitpunkt darf nicht hinter dem Endzeitpunkt liegen");
 
 		ArrayList<Termin> liste = new ArrayList<Termin>();
 		for (Termin termin : mTermine) {
 			Date startZeit = termin.getStart();
 			if (termin.getStatus() != Status.abgelehnt
-					&& (start.equals(startZeit)
-					|| (startZeit.after(start) && startZeit.before(ende)))) {
+					&& (start.equals(startZeit) || (startZeit.after(start) && startZeit.before(ende)))) {
 				liste.add(termin);
 			}
 		}
@@ -137,6 +144,7 @@ public class Terminkalender implements Iterable<Termin>, Serializable {
 	 * 
 	 * @return Termine des aktuellen Tages
 	 */
+	@JsonIgnore
 	public Termin[] getTermine() {
 		Date jetzt = new Date();
 
@@ -161,7 +169,7 @@ public class Terminkalender implements Iterable<Termin>, Serializable {
 	 * stattfinden
 	 */
 	public void absagen() {
-		for(Termin t: getTermine()){
+		for (Termin t : getTermine()) {
 			t.setStatus(Status.abgelehnt);
 		}
 	}

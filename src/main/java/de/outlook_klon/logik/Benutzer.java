@@ -1,12 +1,8 @@
 package de.outlook_klon.logik;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -15,6 +11,16 @@ import java.util.Vector;
 import javax.mail.FolderNotFoundException;
 import javax.mail.MessagingException;
 import javax.mail.internet.InternetAddress;
+
+import org.apache.commons.io.FileUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 
 import de.outlook_klon.logik.kalendar.Termin;
 import de.outlook_klon.logik.kalendar.Terminkalender;
@@ -32,15 +38,16 @@ import de.outlook_klon.logik.mailclient.MailInfo;
 public final class Benutzer implements Iterable<Benutzer.MailChecker> {
 	private static final String DATEN_ORDNER = "Mail";
 	private static final String ACCOUNT_PATTERN = DATEN_ORDNER + "/%s";
-	private static final String ACCOUNTSETTINGS_PATTERN = ACCOUNT_PATTERN
-			+ "/settings.bin";
-	private static final String KONTAKT_PFAD = DATEN_ORDNER + "/Kontakte.bin";
-	private static final String TERMIN_PFAD = DATEN_ORDNER + "/Termine.bin";
-	private static final String KRANK_PFAD = DATEN_ORDNER + "/Krank.bin";
-	private static final String ABWESEND_PFAD = DATEN_ORDNER + "/Abwesend.bin";
-	
-	private String Abwesenheitsmeldung;
-	private String Krankmeldung;
+	private static final String ACCOUNTSETTINGS_PATTERN = ACCOUNT_PATTERN + "/settings.json";
+	private static final String KONTAKT_PFAD = DATEN_ORDNER + "/Kontakte.json";
+	private static final String TERMIN_PFAD = DATEN_ORDNER + "/Termine.json";
+	private static final String KRANK_PFAD = DATEN_ORDNER + "/Krank.txt";
+	private static final String ABWESEND_PFAD = DATEN_ORDNER + "/Abwesend.txt";
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(Benutzer.class);
+
+	private String abwesenheitsmeldung;
+	private String krankmeldung;
 
 	private static Benutzer singleton;
 
@@ -80,8 +87,7 @@ public final class Benutzer implements Iterable<Benutzer.MailChecker> {
 		 */
 		public void addNewMessageListener(NewMailListener mcl) {
 			if (mcl == null)
-				throw new NullPointerException(
-						"Der hinzuzufügende Listener muss initialisiert sein.");
+				throw new NullPointerException("Der hinzuzufügende Listener muss initialisiert sein.");
 
 			synchronized (listenerVector) {
 				listenerVector.add(mcl);
@@ -123,12 +129,14 @@ public final class Benutzer implements Iterable<Benutzer.MailChecker> {
 				try {
 					mailInfos = account.getMessages(FOLDER);
 				} catch (FolderNotFoundException e) {
-					//Ignorieren, da INBOX immer vorhanden sein sollte!
+					// Ignorieren, da INBOX immer vorhanden sein sollte!
+				} catch (MessagingException ex) {
+					LOGGER.error("While getting messages", ex);
 				}
-				
+
 				for (MailInfo info : mailInfos) {
 					mails.add(info);
-					if(!info.isRead()) {
+					if (!info.isRead()) {
 						fireNewMessageEvent(info);
 					}
 				}
@@ -138,9 +146,9 @@ public final class Benutzer implements Iterable<Benutzer.MailChecker> {
 				try {
 					Thread.sleep(60000); // Pausiere für eine Minute
 					MailInfo[] mailTmp = account.getMessages(FOLDER);
-					
+
 					// HashSet, da oft darin gesucht wird (s.u.)
-					HashSet<MailInfo> tmpSet = new HashSet<MailInfo>(); 
+					HashSet<MailInfo> tmpSet = new HashSet<MailInfo>();
 					for (MailInfo info : mailTmp) {
 						tmpSet.add(info); // Fülle mit abgefragten MailInfos
 					}
@@ -169,7 +177,9 @@ public final class Benutzer implements Iterable<Benutzer.MailChecker> {
 					// Bricht die Ausführung ab
 					break;
 				} catch (FolderNotFoundException e) {
-					//Ignorieren, da INBOX immer vorhanden sein sollte!
+					// Ignorieren, da INBOX immer vorhanden sein sollte!
+				} catch (MessagingException ex) {
+					LOGGER.error("While getting messages", ex);
 				}
 			}
 		}
@@ -182,10 +192,8 @@ public final class Benutzer implements Iterable<Benutzer.MailChecker> {
 		 * @param pfad
 		 *            Zu durchsuchender Ordnerpfad
 		 * @return MailInfos des gesuchten Ordners
-		 * @throws FolderNotFoundException
-		 *             Tritt auf, wenn ein Ordner nicht gefunden werden konnte
 		 */
-		public MailInfo[] getMessages(String pfad) throws FolderNotFoundException {
+		public MailInfo[] getMessages(String pfad) throws MessagingException {
 			MailInfo[] array = null;
 
 			boolean threadOK = this.isAlive() && !this.isInterrupted();
@@ -218,23 +226,23 @@ public final class Benutzer implements Iterable<Benutzer.MailChecker> {
 		public String toString() {
 			return account.toString();
 		}
-		
+
 		@Override
 		public boolean equals(Object other) {
-			if(this == other)
+			if (this == other)
 				return true;
-			if(other == null)
+			if (other == null)
 				return false;
-			
-			if(other instanceof MailChecker) {
-				MailChecker checker = ((MailChecker)other);
+
+			if (other instanceof MailChecker) {
+				MailChecker checker = ((MailChecker) other);
 				return this.getAccount().equals(checker.getAccount());
 			}
-			if(other instanceof MailAccount) {
+			if (other instanceof MailAccount) {
 				MailAccount account = (MailAccount) other;
 				return this.getAccount().equals(account);
 			}
-			
+
 			return false;
 		}
 	}
@@ -246,96 +254,35 @@ public final class Benutzer implements Iterable<Benutzer.MailChecker> {
 	 * @return Einzige Instanz der Klasse
 	 */
 	public static Benutzer getInstanz() {
-		if (singleton == null)
-			singleton = new Benutzer();
-		return singleton;
-	}
-
-	/**
-	 * Deserialisiert das Objekt, welches in der übergebenen Datei gespeichert
-	 * wurde
-	 * 
-	 * @param datei
-	 *            Verweis auf die Datei, in der das zu deserialisierende Objekt
-	 *            gespeichert wurde
-	 * @return Das deserialisierte Objekt, oder <code>null</code>, falls das
-	 *         Objekt nicht deserialisiert werden konnte
-	 */
-	@SuppressWarnings("unchecked")
-	private static <T> T deserialisiereObjekt(final File datei) {
-		if (!datei.exists())
-			return null;
-
-		T object = null;
-		FileInputStream fis = null;
-		ObjectInputStream ois = null;
-		try {
-			fis = new FileInputStream(datei.getAbsolutePath());
-			ois = new ObjectInputStream(fis);
-
-			object = (T) ois.readObject();
-		} catch (Exception e) {
-
-		} finally {
-			if (ois != null) {
-				try {
-					ois.close();
-				} catch (IOException e) {
-				}
+		if (singleton == null) {
+			try {
+				singleton = new Benutzer();
+			} catch (IOException ex) {
+				LOGGER.error("Could not create user instance", ex);
 			}
 		}
-
-		return object;
-	}
-
-	/**
-	 * Serialisiert das übergebene Objekt in die übergebene Datei
-	 * 
-	 * @param objekt
-	 *            Objekt, das serialisiert werden soll
-	 * @param datei
-	 *            Verweis auf die Datei, in der das zu serialisierende Objekt
-	 *            gespeichert werden soll
-	 * @throws IOException
-	 *             Tritt auf, wenn das Objekt nicht serialisiert werden konnte
-	 */
-	private static <T> void serialisiereObjekt(T objekt, File datei)
-			throws IOException {
-		FileOutputStream fos = null;
-		ObjectOutputStream oos = null;
-		try {
-			fos = new FileOutputStream(datei.getAbsolutePath());
-			oos = new ObjectOutputStream(fos);
-
-			oos.writeObject(objekt);
-		} finally {
-			if (oos != null)
-				oos.close();
-		}
+		return singleton;
 	}
 
 	/**
 	 * Erstellt eine neue Instanz der Klasse Benutzer. Liest, wenn vorhanden,
 	 * die gespeicherten Daten aus.
+	 * 
+	 * @throws IOException
+	 * @throws JsonMappingException
+	 * @throws JsonParseException
 	 */
-	private Benutzer() {
+	private Benutzer() throws IOException {
 		setAnwesend(true);
-		
-		Krankmeldung = deserialisiereObjekt(new File(KRANK_PFAD));
-		if(Krankmeldung == null)
-			Krankmeldung = "Ich bin krank";
-		
-		Abwesenheitsmeldung = deserialisiereObjekt(new File(ABWESEND_PFAD));
-		if(Abwesenheitsmeldung == null)
-			Abwesenheitsmeldung = "Ich bin nicht da";
 
-		termine = deserialisiereObjekt(new File(TERMIN_PFAD));
-		if (termine == null)
-			termine = new Terminkalender();
+		File doctorsNote = new File(KRANK_PFAD);
+		krankmeldung = doctorsNote.exists() ? FileUtils.readFileToString(doctorsNote) : "Ich bin krank";
 
-		kontakte = deserialisiereObjekt(new File(KONTAKT_PFAD));
-		if (kontakte == null)
-			kontakte = new Kontaktverwaltung();
+		File absenceMessage = new File(ABWESEND_PFAD);
+		abwesenheitsmeldung = absenceMessage.exists() ? FileUtils.readFileToString(absenceMessage) : "Ich bin nicht da";
+
+		kontakte = loadOrCreateContactManager();
+		termine = loadOrCreateAppointmentsManager();
 
 		konten = new ArrayList<MailChecker>();
 
@@ -350,13 +297,13 @@ public final class Benutzer implements Iterable<Benutzer.MailChecker> {
 			}
 		});
 
+		ObjectMapper mapper = new ObjectMapper();
 		for (String directory : directories) {
-			final String settings = String.format(ACCOUNTSETTINGS_PATTERN,
-					directory);
+			final String settings = String.format(ACCOUNTSETTINGS_PATTERN, directory);
 			File datei = new File(settings).getAbsoluteFile();
 
-			//Lade MailAccount
-			MailAccount geladen = deserialisiereObjekt(datei);
+			// Lade MailAccount
+			MailAccount geladen = mapper.readValue(datei, MailAccount.class);
 			if (geladen != null) {
 				MailChecker checker = new MailChecker(geladen);
 				checker.addNewMessageListener(getListener());
@@ -364,6 +311,28 @@ public final class Benutzer implements Iterable<Benutzer.MailChecker> {
 				konten.add(checker);
 			}
 		}
+	}
+	
+	private Terminkalender loadOrCreateAppointmentsManager() {
+		ObjectMapper mapper = new ObjectMapper();
+		mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+		try {
+			return mapper.readValue(new File(TERMIN_PFAD), Terminkalender.class);
+		} catch (IOException ex) {
+			LOGGER.warn("Could not create appointments manager", ex);
+		}
+		return new Terminkalender();
+	}
+	
+	private Kontaktverwaltung loadOrCreateContactManager() {
+		ObjectMapper mapper = new ObjectMapper();
+		mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+		try {
+			return mapper.readValue(new File(KONTAKT_PFAD), Kontaktverwaltung.class);
+		} catch (IOException ex) {
+			LOGGER.warn("Could not create contact manager", ex);
+		}
+		return new Kontaktverwaltung();
 	}
 
 	/**
@@ -376,7 +345,7 @@ public final class Benutzer implements Iterable<Benutzer.MailChecker> {
 			public void newMessage(NewMailEvent e) {
 				// TODO Teste mich hart
 
-				MailAccount account = ((MailChecker)e.getSource()).getAccount();
+				MailAccount account = ((MailChecker) e.getSource()).getAccount();
 				MailInfo info = e.getInfo();
 				String pfad = e.getFolder();
 
@@ -387,7 +356,11 @@ public final class Benutzer implements Iterable<Benutzer.MailChecker> {
 
 				// Abfrage auf erhaltene Krankheits-Mail
 				if (from.equals(empfaenger) && subject.equals("Ich bin krank")) {
-					termineAbsagen(account);
+					try {
+						termineAbsagen(account);
+					} catch (MessagingException ex) {
+						LOGGER.error("Error while canceling appointments", ex);
+					}
 				}
 
 				// Abfrage auf Abwesenheit des Benutzers
@@ -440,7 +413,8 @@ public final class Benutzer implements Iterable<Benutzer.MailChecker> {
 			MailChecker checker = new MailChecker(account);
 			checker.addNewMessageListener(getListener());
 			konten.add(checker);
-		} catch (IOException e) {
+		} catch (IOException ex) {
+			LOGGER.error("Error while adding account", ex);
 			result = false;
 		}
 		return result;
@@ -466,8 +440,7 @@ public final class Benutzer implements Iterable<Benutzer.MailChecker> {
 
 		if (!file.delete()) { // Eigentliches Löschen
 			// Löschen fehlgeschlagen
-			throw new IOException("Datei \'" + file.getPath()
-					+ "\' konnte nicht gelöscht werden");
+			throw new IOException("Datei \'" + file.getPath() + "\' konnte nicht gelöscht werden");
 		}
 	}
 
@@ -486,16 +459,16 @@ public final class Benutzer implements Iterable<Benutzer.MailChecker> {
 	 */
 	public boolean entferneMailAccount(MailAccount account, boolean loeschen) throws IOException {
 		int index = konten.indexOf(account);
-		if(index != -1) {
+		if (index != -1) {
 			MailChecker checker = konten.get(index);
 			checker.interrupt();
-			
+
 			if (konten.remove(account)) {
 				String adresse = account.getAdresse().getAddress();
 				String settings = String.format(ACCOUNTSETTINGS_PATTERN, adresse);
 				deleteRecursive(new File(settings));
-				
-				if(loeschen) {
+
+				if (loeschen) {
 					String pfad = String.format(ACCOUNT_PATTERN, adresse);
 					File ordner = new File(pfad);
 					if (ordner.exists()) {
@@ -540,11 +513,13 @@ public final class Benutzer implements Iterable<Benutzer.MailChecker> {
 			ordner.mkdirs();
 		}
 
-		serialisiereObjekt(kontakte, kontaktPfad);
-		serialisiereObjekt(termine, terminPfad);
-		
-		serialisiereObjekt(Abwesenheitsmeldung, new File(ABWESEND_PFAD));
-		serialisiereObjekt(Krankmeldung, new File(KRANK_PFAD));
+		FileUtils.writeStringToFile(new File(ABWESEND_PFAD), abwesenheitsmeldung);
+		FileUtils.writeStringToFile(new File(KRANK_PFAD), krankmeldung);
+
+		ObjectMapper mapper = new ObjectMapper();
+		mapper.enable(SerializationFeature.INDENT_OUTPUT);
+		mapper.writeValue(kontaktPfad, kontakte);
+		mapper.writeValue(terminPfad, termine);
 	}
 
 	/**
@@ -569,7 +544,8 @@ public final class Benutzer implements Iterable<Benutzer.MailChecker> {
 			ordner.mkdirs();
 		}
 
-		serialisiereObjekt(acc, pfad);
+		ObjectMapper mapper = new ObjectMapper();
+		mapper.writeValue(pfad, acc);
 	}
 
 	/**
@@ -605,8 +581,7 @@ public final class Benutzer implements Iterable<Benutzer.MailChecker> {
 	 * @param info
 	 *            MailInfo der zu beantwortenden Mail
 	 */
-	private void sendeAbwesenheitsMail(MailAccount sender, String pfad,
-			MailInfo info) {
+	private void sendeAbwesenheitsMail(MailAccount sender, String pfad, MailInfo info) {
 		// TODO Jetzt Abwesenheitmail senden
 
 		try {
@@ -616,37 +591,29 @@ public final class Benutzer implements Iterable<Benutzer.MailChecker> {
 
 			String text = getAbwesenheitsmeldung();
 			sender.sendeMail(new InternetAddress[] { ziel }, null,
-					"Abwesenheit von " + sender.getAdresse().getPersonal(),
-					text, "TEXT/plain; charset=utf-8", null);
+					"Abwesenheit von " + sender.getAdresse().getPersonal(), text, "TEXT/plain; charset=utf-8", null);
 		} catch (MessagingException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
 
-	private void termineAbsagen(MailAccount sender) {
+	private void termineAbsagen(MailAccount sender) throws MessagingException {
 		Termin[] heute = termine.getTermine();
 		for (Termin termin : heute) {
-			try {
-				schreibeAbsage(termin, sender);
-			} catch (MessagingException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			schreibeAbsage(termin, sender);
 		}
 		termine.absagen();
 	}
 
-	private void schreibeAbsage(Termin termin, MailAccount sender)
-			throws MessagingException {
+	private void schreibeAbsage(Termin termin, MailAccount sender) throws MessagingException {
 		String betreff = "Absage: " + termin.getBetreff();
 		InternetAddress[] ziele = termin.getAdressen();
 
-		if(ziele != null) {
+		if (ziele != null) {
 			String text = getKrankmeldung();
 
-			sender.sendeMail(ziele, null, betreff, text,
-					"TEXT/plain; charset=utf-8", null);
+			sender.sendeMail(ziele, null, betreff, text, "TEXT/plain; charset=utf-8", null);
 		}
 	}
 
@@ -667,25 +634,25 @@ public final class Benutzer implements Iterable<Benutzer.MailChecker> {
 	public boolean stoppeChecker() {
 		boolean result = true;
 
-		//Liste von MailAccounts, die keinen Checker haben
+		// Liste von MailAccounts, die keinen Checker haben
 		ArrayList<MailAccount> aloneAccounts = new ArrayList<MailAccount>();
-		
+
 		Iterator<MailChecker> iterator = konten.iterator();
-		while(iterator.hasNext()) {
+		while (iterator.hasNext()) {
 			MailChecker checker = iterator.next();
-			
+
 			try {
 				checker.interrupt();
 			} catch (SecurityException ex) {
 				result = false;
 			}
-			
+
 			aloneAccounts.add(checker.getAccount());
 			iterator.remove();
 		}
-		
+
 		for (MailAccount account : aloneAccounts) {
-			//Erstellt einen neuen Checker für die MailAccounts
+			// Erstellt einen neuen Checker für die MailAccounts
 			MailChecker neu = new MailChecker(account);
 			neu.addNewMessageListener(getListener());
 			konten.add(neu);
@@ -695,18 +662,18 @@ public final class Benutzer implements Iterable<Benutzer.MailChecker> {
 	}
 
 	public String getAbwesenheitsmeldung() {
-		return Abwesenheitsmeldung;
+		return abwesenheitsmeldung;
 	}
 
 	public void setAbwesenheitsmeldung(String abwesenheitsmeldung) {
-		Abwesenheitsmeldung = abwesenheitsmeldung;
+		this.abwesenheitsmeldung = abwesenheitsmeldung;
 	}
 
 	public String getKrankmeldung() {
-		return Krankmeldung;
+		return krankmeldung;
 	}
 
 	public void setKrankmeldung(String krankmeldung) {
-		Krankmeldung = krankmeldung;
+		this.krankmeldung = krankmeldung;
 	}
 }

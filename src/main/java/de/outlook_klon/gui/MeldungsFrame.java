@@ -1,4 +1,5 @@
 package de.outlook_klon.gui;
+
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -7,12 +8,12 @@ import javax.swing.JTextPane;
 
 public class MeldungsFrame extends ExtendedDialog<String> {
 	private static final long serialVersionUID = -426579552451278615L;
-	
+
 	private JTextPane textAbwes;
-	private JButton btnOk;	
+	private JButton btnOk;
 	private JButton btnAbbrechen;
 	private String info;
-		
+
 	private void initGui(String text, String titel) {
 		setTitle(titel);
 		getContentPane().setLayout(null);
@@ -48,7 +49,7 @@ public class MeldungsFrame extends ExtendedDialog<String> {
 
 	public MeldungsFrame(String text, String titel) {
 		super(400, 365);
-		
+
 		initGui(text, titel);
 	}
 
@@ -62,7 +63,5 @@ public class MeldungsFrame extends ExtendedDialog<String> {
 
 	public String getText() {
 		return getText();
-	}		
+	}
 }
-
-
