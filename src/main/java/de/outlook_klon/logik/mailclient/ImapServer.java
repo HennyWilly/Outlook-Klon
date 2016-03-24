@@ -6,14 +6,15 @@ import javax.mail.NoSuchProviderException;
 import javax.mail.Session;
 import javax.mail.Store;
 
-import com.sun.mail.imap.IMAPFolder;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * Diese Klasse stellt einen IMAP-Server dar.
  * 
  * @author Hendrik Karwanni
  */
-public class ImapServer extends EmpfangsServer<IMAPFolder> {
+public class ImapServer extends EmpfangsServer {
 	private static final long serialVersionUID = 3401491699856582843L;
 
 	/**
@@ -23,7 +24,8 @@ public class ImapServer extends EmpfangsServer<IMAPFolder> {
 	 * @param settings
 	 *            Einstellungen zur Serververbindung
 	 */
-	public ImapServer(final ServerSettings settings) {
+	@JsonCreator
+	public ImapServer(@JsonProperty("settings") ServerSettings settings) {
 		super(settings, "IMAP");
 	}
 
@@ -35,7 +37,7 @@ public class ImapServer extends EmpfangsServer<IMAPFolder> {
 		props.put("mail.imap.port", settings.getPort());
 		props.put("mail.imap.auth", true);
 
-		if (settings.getVerbingungssicherheit() == Verbindungssicherheit.SSL_TLS) {
+		if (settings.getConnectionSecurity() == Verbindungssicherheit.SSL_TLS) {
 			props.put("mail.imap.ssl.enable", true);
 		}
 
@@ -47,7 +49,7 @@ public class ImapServer extends EmpfangsServer<IMAPFolder> {
 		final Session session = getSession(new StandardAuthenticator(user, passwd));
 
 		Store store = null;
-		if (settings.getVerbingungssicherheit() == Verbindungssicherheit.SSL_TLS)
+		if (settings.getConnectionSecurity() == Verbindungssicherheit.SSL_TLS)
 			store = session.getStore("imaps");
 		else
 			store = session.getStore("imap");

@@ -7,6 +7,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Vector;
 
+import javax.mail.Address;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.swing.GroupLayout;
@@ -331,18 +332,18 @@ public class KontaktFrame extends ExtendedDialog<Kontakt> {
 
 		initFrame();
 
-		String mail1 = mKontakt.getMail1() == null ? "" : mKontakt.getMail1().toUnicodeString();
-		String mail2 = mKontakt.getMail2() == null ? "" : mKontakt.getMail2().toUnicodeString();
+		String mail1 = mKontakt.getAddress1AsString();
+		String mail2 = mKontakt.getAddress2AsString();
 
-		tVorname.setText(mKontakt.getVorname());
-		tName.setText(mKontakt.getNachname());
-		tAnzeigename.setText(mKontakt.getAnzeigename());
-		tSpitzname.setText(mKontakt.getSpitzname());
+		tVorname.setText(mKontakt.getForename());
+		tName.setText(mKontakt.getSurname());
+		tAnzeigename.setText(mKontakt.getDisplayname());
+		tSpitzname.setText(mKontakt.getNickname());
 		tEmailadresse_1.setText(mail1);
 		tEmailadresse_2.setText(mail2);
-		tDienstlich.setText(mKontakt.getTelDienst());
-		tPrivat.setText(mKontakt.getTelPrivat());
-		tMobil.setText(mKontakt.getTelMobil());
+		tDienstlich.setText(mKontakt.getDutyphone());
+		tPrivat.setText(mKontakt.getPrivatephone());
+		tMobil.setText(mKontakt.getMobilephone());
 	}
 
 	/**
@@ -385,8 +386,8 @@ public class KontaktFrame extends ExtendedDialog<Kontakt> {
 			String strMail1 = tEmailadresse_1.getText().trim();
 			String strMail2 = tEmailadresse_2.getText().trim();
 
-			InternetAddress mail1 = strMail1.isEmpty() ? null : new InternetAddress(tEmailadresse_1.getText(), true);
-			InternetAddress mail2 = strMail2.isEmpty() ? null : new InternetAddress(tEmailadresse_2.getText(), true);
+			Address mail1 = strMail1.isEmpty() ? null : new InternetAddress(tEmailadresse_1.getText(), true);
+			Address mail2 = strMail2.isEmpty() ? null : new InternetAddress(tEmailadresse_2.getText(), true);
 
 			if (mail1 == null && mail2 != null) {
 				mail1 = mail2;
@@ -408,15 +409,15 @@ public class KontaktFrame extends ExtendedDialog<Kontakt> {
 						tSpitzname.getText(), mail1, mail2, tPrivat.getText(), tDienstlich.getText(), tMobil.getText());
 			} else {
 				// Bearbeite existierenden Kontakt
-				mKontakt.setVorname(tVorname.getText());
-				mKontakt.setNachname(tName.getText());
-				mKontakt.setAnzeigename(tAnzeigename.getText());
-				mKontakt.setSpitzname(tSpitzname.getText());
-				mKontakt.setMail1(mail1);
-				mKontakt.setMail2(mail2);
-				mKontakt.setTelDienst(tDienstlich.getText());
-				mKontakt.setTelPrivat(tPrivat.getText());
-				mKontakt.setTelMobil(tMobil.getText());
+				mKontakt.setForename(tVorname.getText());
+				mKontakt.setSurname(tName.getText());
+				mKontakt.setDisplayname(tAnzeigename.getText());
+				mKontakt.setNickname(tSpitzname.getText());
+				mKontakt.setAddress1(mail1);
+				mKontakt.setAddress2(mail2);
+				mKontakt.setDutyphone(tDienstlich.getText());
+				mKontakt.setPrivatephone(tPrivat.getText());
+				mKontakt.setMobilephone(tMobil.getText());
 			}
 
 			close();

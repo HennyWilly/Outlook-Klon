@@ -1,7 +1,9 @@
 package de.outlook_klon.logik.kontakte;
 
+import javax.mail.Address;
 import javax.mail.internet.InternetAddress;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -14,88 +16,89 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class Kontakt {
 
 	@JsonProperty("surname")
-	private String mNachname;
+	private String surname;
 
 	@JsonProperty("forename")
-	private String mVorname;
+	private String forename;
 
 	@JsonProperty("displayname")
-	private String mAnzeigename;
+	private String displayname;
 
 	@JsonProperty("nickname")
-	private String mSpitzname;
+	private String nickname;
 
 	@JsonProperty("address1")
-	private InternetAddress mMail1;
+	private Address address1;
 
 	@JsonProperty("address2")
-	private InternetAddress mMail2;
+	private Address address2;
 
 	@JsonProperty("dutyphone")
-	private String mTelDienst;
+	private String dutyphone;
 
 	@JsonProperty("mobilephone")
-	private String mTelMobil;
+	private String mobilephone;
 
 	@JsonProperty("privatephone")
-	private String mTelPrivat;
+	private String privatephone;
 
 	/**
 	 * Erstellt eine neue Instanz der Klasse mit den übergebenen Werten.
 	 * 
-	 * @param nachname
+	 * @param surname
 	 *            Nachname des Kontakts
-	 * @param vorname
+	 * @param forename
 	 *            Vorname des Kontakts
-	 * @param anzeigename
+	 * @param displayname
 	 *            Anzeigename des Kontakts
-	 * @param spitzname
+	 * @param nickname
 	 *            Spitzname des Kontakts
-	 * @param mail1
+	 * @param address1
 	 *            Erste E-Mail-Adresse des Kontakts
-	 * @param mail2
+	 * @param address2
 	 *            Zweite E-Mail-Adresse des Kontakts
-	 * @param telPrivat
+	 * @param privatephone
 	 *            Private Telefonnummer des Kontakts
-	 * @param telDienst
+	 * @param dutyphone
 	 *            Dienstliche Telefonnummer des Kontakts
-	 * @param telMobil
+	 * @param mobilephone
 	 *            Mobiltelefonnummer des Kontakts
 	 */
+	@JsonCreator
 	public Kontakt(
-			@JsonProperty("surname") String nachname, 
-			@JsonProperty("forename") String vorname, 
-			@JsonProperty("displayname") String anzeigename, 
-			@JsonProperty("nickname") String spitzname, 
-			@JsonProperty("address1") InternetAddress mail1,
-			@JsonProperty("address2") InternetAddress mail2, 
-			@JsonProperty("privatephone") String telPrivat, 
-			@JsonProperty("dutyphone") String telDienst, 
-			@JsonProperty("mobilephone") String telMobil) {
-		setNachname(nachname);
-		setVorname(vorname);
-		setAnzeigename(anzeigename);
-		setSpitzname(spitzname);
-		setMail1(mail1);
-		setMail2(mail2);
-		setTelDienst(telDienst);
-		setTelMobil(telMobil);
-		setTelPrivat(telPrivat);
+			@JsonProperty("surname") String surname, 
+			@JsonProperty("forename") String forename, 
+			@JsonProperty("displayname") String displayname, 
+			@JsonProperty("nickname") String nickname, 
+			@JsonProperty("address1") Address address1,
+			@JsonProperty("address2") Address address2, 
+			@JsonProperty("privatephone") String privatephone, 
+			@JsonProperty("dutyphone") String dutyphone, 
+			@JsonProperty("mobilephone") String mobilephone) {
+		setSurname(surname);
+		setForename(forename);
+		setDisplayname(displayname);
+		setNickname(nickname);
+		setAddress1(address1);
+		setAddress2(address2);
+		setDutyphone(dutyphone);
+		setMobilephone(mobilephone);
+		setPrivatephone(privatephone);
 	}
 
 	@Override
 	public String toString() {
-		return mAnzeigename;
+		return displayname;
 	}
 
 	/**
 	 * Setter für den Nachnamen des Kontakts
 	 * 
-	 * @param nachname
+	 * @param surname
 	 *            Zu setzender Nachname
 	 */
-	public void setNachname(String nachname) {
-		mNachname = nachname;
+	public void setSurname(String surname) {
+		this.surname = surname;
 	}
 
 	/**
@@ -103,19 +106,18 @@ public class Kontakt {
 	 * 
 	 * @return Nachname
 	 */
-	@JsonIgnore
-	public String getNachname() {
-		return mNachname;
+	public String getSurname() {
+		return surname;
 	}
 
 	/**
 	 * Setter für den Vornamen des Kontakts
 	 * 
-	 * @param vorname
+	 * @param forename
 	 *            Zu setzender Vorname
 	 */
-	public void setVorname(String vorname) {
-		mVorname = vorname;
+	public void setForename(String forename) {
+		this.forename = forename;
 	}
 
 	/**
@@ -123,19 +125,18 @@ public class Kontakt {
 	 * 
 	 * @return Vorname
 	 */
-	@JsonIgnore
-	public String getVorname() {
-		return mVorname;
+	public String getForename() {
+		return forename;
 	}
 
 	/**
 	 * Setter für den Anzeigenamen des Kontakts
 	 * 
-	 * @param anzeigename
+	 * @param displayname
 	 *            Zu setzender Anzeigename
 	 */
-	public void setAnzeigename(String anzeigename) {
-		mAnzeigename = anzeigename;
+	public void setDisplayname(String displayname) {
+		this.displayname = displayname;
 	}
 
 	/**
@@ -143,19 +144,18 @@ public class Kontakt {
 	 * 
 	 * @return Anzeigename
 	 */
-	@JsonIgnore
-	public String getAnzeigename() {
-		return mAnzeigename;
+	public String getDisplayname() {
+		return displayname;
 	}
 
 	/**
 	 * Setter für den Spitznamen des Kontakts
 	 * 
-	 * @param spitzname
+	 * @param nickname
 	 *            Zu setzender Spitzname
 	 */
-	public void setSpitzname(String spitzname) {
-		mSpitzname = spitzname;
+	public void setNickname(String nickname) {
+		this.nickname = nickname;
 	}
 
 	/**
@@ -163,19 +163,18 @@ public class Kontakt {
 	 * 
 	 * @return Spitzname
 	 */
-	@JsonIgnore
-	public String getSpitzname() {
-		return mSpitzname;
+	public String getNickname() {
+		return nickname;
 	}
 
 	/**
 	 * Setter für die erste E-Mail-Adresse des Kontakts
 	 * 
-	 * @param mail1
+	 * @param address1
 	 *            Zu setzende E-Mail-Adresse
 	 */
-	public void setMail1(InternetAddress mail1) {
-		this.mMail1 = mail1;
+	public void setAddress1(Address address1) {
+		this.address1 = address1;
 	}
 
 	/**
@@ -183,19 +182,18 @@ public class Kontakt {
 	 * 
 	 * @return Erste E-Mail-Adresse
 	 */
-	@JsonIgnore
-	public InternetAddress getMail1() {
-		return mMail1;
+	public Address getAddress1() {
+		return address1;
 	}
 
 	/**
 	 * Setter für die zweite E-Mail-Adresse des Kontaks
 	 * 
-	 * @param mail2
+	 * @param address2
 	 *            Zu setzende E-Mail-Adresse
 	 */
-	public void setMail2(InternetAddress mail2) {
-		this.mMail2 = mail2;
+	public void setAddress2(Address address2) {
+		this.address2 = address2;
 	}
 
 	/**
@@ -203,19 +201,18 @@ public class Kontakt {
 	 * 
 	 * @return Zweite E-Mail-Adresse
 	 */
-	@JsonIgnore
-	public InternetAddress getMail2() {
-		return mMail2;
+	public Address getAddress2() {
+		return address2;
 	}
 
 	/**
 	 * Setter für die private Telefonnummer des Kontakts
 	 * 
-	 * @param telPrivat
+	 * @param privatephone
 	 *            Zu setzende Telefonnummer
 	 */
-	public void setTelPrivat(String telPrivat) {
-		this.mTelPrivat = telPrivat;
+	public void setPrivatephone(String privatephone) {
+		this.privatephone = privatephone;
 	}
 
 	/**
@@ -223,19 +220,18 @@ public class Kontakt {
 	 * 
 	 * @return Private Telefonnummer
 	 */
-	@JsonIgnore
-	public String getTelPrivat() {
-		return mTelPrivat;
+	public String getPrivatephone() {
+		return privatephone;
 	}
 
 	/**
 	 * Setter für die dienstliche Telefonnummer des Kontakts
 	 * 
-	 * @param telDienst
+	 * @param dutyphone
 	 *            Zu setzende Telefonnummer
 	 */
-	public void setTelDienst(String telDienst) {
-		this.mTelDienst = telDienst;
+	public void setDutyphone(String dutyphone) {
+		this.dutyphone = dutyphone;
 	}
 
 	/**
@@ -243,19 +239,18 @@ public class Kontakt {
 	 * 
 	 * @return Dienstliche Telefonnummer
 	 */
-	@JsonIgnore
-	public String getTelDienst() {
-		return mTelDienst;
+	public String getDutyphone() {
+		return dutyphone;
 	}
 
 	/**
 	 * Setter für die Mobiltelefonnummer des Kontakts
 	 * 
-	 * @param telMobil
+	 * @param mobilephone
 	 *            Zu setzende Telefonnummer
 	 */
-	public void setTelMobil(String telMobil) {
-		this.mTelMobil = telMobil;
+	public void setMobilephone(String mobilephone) {
+		this.mobilephone = mobilephone;
 	}
 
 	/**
@@ -263,8 +258,31 @@ public class Kontakt {
 	 * 
 	 * @return Mobiltelefonnummer
 	 */
+	public String getMobilephone() {
+		return mobilephone;
+	}
+	
 	@JsonIgnore
-	public String getTelMobil() {
-		return mTelMobil;
+	public String getAddress1AsString() {
+		if(address1 == null)
+			return "";
+		
+		if(InternetAddress.class.isInstance(address1)) {
+			return ((InternetAddress)address1).toUnicodeString();
+		}
+		
+		return address1.toString();
+	}
+	
+	@JsonIgnore
+	public String getAddress2AsString() {
+		if(address2 == null)
+			return "";
+		
+		if(InternetAddress.class.isInstance(address2)) {
+			return ((InternetAddress)address2).toUnicodeString();
+		}
+		
+		return address2.toString();
 	}
 }

@@ -11,7 +11,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import de.outlook_klon.logik.kalendar.Termin.Status;
+import de.outlook_klon.logik.kalendar.AppointmentState;
 
 /**
  * Diese Klasse stellt die Verwaltung für die Termine des Benutzers dar
@@ -70,11 +70,11 @@ public class Terminkalender implements Iterable<Termin> {
 	 */
 	public boolean ueberschneidung(Termin a) {
 		Date startA = a.getStart();
-		Date endeA = a.getEnde();
+		Date endeA = a.getEnd();
 
 		for (Termin b : mTermine) {
 			Date startB = b.getStart();
-			Date endeB = b.getEnde();
+			Date endeB = b.getEnd();
 			// IF-Abfrage des Todes
 			if ((startA.before(startB) && endeA.after(startB)) || (startA.before(endeB) && endeA.after(endeB))
 					|| (startB.before(startA) && endeB.after(startA)) || (startB.before(endeA) && endeB.after(endeA)))
@@ -131,7 +131,7 @@ public class Terminkalender implements Iterable<Termin> {
 		ArrayList<Termin> liste = new ArrayList<Termin>();
 		for (Termin termin : mTermine) {
 			Date startZeit = termin.getStart();
-			if (termin.getStatus() != Status.abgelehnt
+			if (termin.getState() != AppointmentState.REJECTED
 					&& (start.equals(startZeit) || (startZeit.after(start) && startZeit.before(ende)))) {
 				liste.add(termin);
 			}
@@ -170,7 +170,7 @@ public class Terminkalender implements Iterable<Termin> {
 	 */
 	public void absagen() {
 		for (Termin t : getTermine()) {
-			t.setStatus(Status.abgelehnt);
+			t.setState(AppointmentState.REJECTED);
 		}
 	}
 }

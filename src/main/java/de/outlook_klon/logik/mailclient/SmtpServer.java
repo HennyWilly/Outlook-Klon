@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.Properties;
 
+import javax.mail.Address;
 import javax.mail.Flags;
 import javax.mail.Message;
 import javax.mail.Message.RecipientType;
@@ -12,13 +13,15 @@ import javax.mail.MessagingException;
 import javax.mail.Part;
 import javax.mail.Session;
 import javax.mail.Transport;
-import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * Diese Klasse stellt einen Simple-Mail-Transport-Server(SMTP) dar.
@@ -37,14 +40,15 @@ public class SmtpServer extends SendServer {
 	 * @param settings
 	 *            Einstellungen zur Serververbindung
 	 */
-	public SmtpServer(final ServerSettings settings) {
+	@JsonCreator
+	public SmtpServer(@JsonProperty("settings") ServerSettings settings) {
 		super(settings, "SMTP");
 	}
 
 	@Override
 	protected Properties getProperties() {
 		final int port = settings.getPort();
-		final Verbindungssicherheit sicherheit = settings.getVerbingungssicherheit();
+		final Verbindungssicherheit sicherheit = settings.getConnectionSecurity();
 		final Properties props = new Properties();
 
 		props.put("mail.smtp.debug", "true");
@@ -61,23 +65,23 @@ public class SmtpServer extends SendServer {
 	}
 
 	@Override
-	public Message sendeMail(final String user, final String passwd, final InternetAddress from,
-			final InternetAddress[] to, final InternetAddress[] cc, final String subject, final String text,
+	public Message sendeMail(final String user, final String passwd, final Address from,
+			final Address[] to, final Address[] cc, final String subject, final String text,
 			final String format, final File[] attachments) throws MessagingException {
-		final Verbindungssicherheit sicherheit = settings.getVerbingungssicherheit();
+		final Verbindungssicherheit sicherheit = settings.getConnectionSecurity();
 
 		final Session session = getSession(new StandardAuthenticator(user, passwd));
 
 		final MimeMessage mail = new MimeMessage(session);
 		mail.setFrom(from);
 
-		for (final InternetAddress adrTo : to) {
+		for (final Address adrTo : to) {
 			if (adrTo != null)
 				mail.addRecipient(RecipientType.TO, adrTo);
 		}
 
 		if (cc != null && cc.length > 0) {
-			for (final InternetAddress adrCC : cc) {
+			for (final Address adrCC : cc) {
 				if (adrCC != null)
 					mail.addRecipient(RecipientType.CC, adrCC);
 			}
@@ -131,7 +135,7 @@ public class SmtpServer extends SendServer {
 
 		final String host = settings.getHost();
 		final int port = settings.getPort();
-		final Verbindungssicherheit sicherheit = settings.getVerbingungssicherheit();
+		final Verbindungssicherheit sicherheit = settings.getConnectionSecurity();
 
 		final Session session = getSession(new StandardAuthenticator(benutzername, passwort));
 

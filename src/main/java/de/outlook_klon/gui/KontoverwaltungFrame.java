@@ -86,7 +86,7 @@ public class KontoverwaltungFrame extends ExtendedDialog<MailAccount[]> {
 					boolean cellHasFocus) {
 				MailAccount acc = (MailAccount) value;
 
-				return super.getListCellRendererComponent(list, acc.getAdresse().getAddress(), index, isSelected,
+				return super.getListCellRendererComponent(list, acc.getAddress().getAddress(), index, isSelected,
 						cellHasFocus);
 			}
 		});
@@ -355,27 +355,27 @@ public class KontoverwaltungFrame extends ExtendedDialog<MailAccount[]> {
 			txtAusgangSicherheit.setText(null);
 			txtAusgangAuthentifizierung.setText(null);
 		} else {
-			txtUser.setText(acc.getBenutzer());
-			txtMail.setText(acc.getAdresse().getAddress());
-			txtName.setText(acc.getAdresse().getPersonal());
+			txtUser.setText(acc.getUser());
+			txtMail.setText(acc.getAddress().getAddress());
+			txtName.setText(acc.getAddress().getPersonal());
 
-			EmpfangsServer<?> empfServer = acc.getEmpfangsServer();
+			EmpfangsServer empfServer = acc.getIncomingMailServer();
 			ServerSettings empfSettings = empfServer.getSettings();
 
-			txtEingangTyp.setText(empfServer.getServerTyp());
+			txtEingangTyp.setText(empfServer.getServerType());
 			txtEingangServer.setText(empfSettings.getHost());
 			txtEingangPort.setText(Integer.toString(empfSettings.getPort()));
-			txtEingangSicherheit.setText(empfSettings.getVerbingungssicherheit().toString());
-			txtEingangAuthentifizierung.setText(empfSettings.getAuthentifizierungsart().toString());
+			txtEingangSicherheit.setText(empfSettings.getConnectionSecurity().toString());
+			txtEingangAuthentifizierung.setText(empfSettings.getAuthentificationType().toString());
 
-			SendServer sendServer = acc.getSendServer();
+			SendServer sendServer = acc.getOutgoingMailServer();
 			ServerSettings sendSettings = sendServer.getSettings();
 
-			txtAusgangTyp.setText(sendServer.getServerTyp());
+			txtAusgangTyp.setText(sendServer.getServerType());
 			txtAusgangServer.setText(sendSettings.getHost());
 			txtAusgangPort.setText(Integer.toString(sendSettings.getPort()));
-			txtAusgangSicherheit.setText(sendSettings.getVerbingungssicherheit().toString());
-			txtAusgangAuthentifizierung.setText(sendSettings.getAuthentifizierungsart().toString());
+			txtAusgangSicherheit.setText(sendSettings.getConnectionSecurity().toString());
+			txtAusgangAuthentifizierung.setText(sendSettings.getAuthentificationType().toString());
 		}
 	}
 
@@ -429,7 +429,7 @@ public class KontoverwaltungFrame extends ExtendedDialog<MailAccount[]> {
 	private void loeschekonto(MailAccount acc) {
 		if (acc != null) {
 			int result = JOptionPane.showConfirmDialog(this, "Wollen Sie das Konto mit der Mailadresse \'"
-					+ acc.getAdresse().getAddress() + "\' wirklich löschen?", "Löschen bestätigen",
+					+ acc.getAddress().getAddress() + "\' wirklich löschen?", "Löschen bestätigen",
 					JOptionPane.YES_NO_OPTION);
 
 			if (result == JOptionPane.YES_OPTION) {

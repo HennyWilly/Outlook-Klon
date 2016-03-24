@@ -7,12 +7,15 @@ import javax.mail.Authenticator;
 import javax.mail.PasswordAuthentication;
 import javax.mail.Session;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
 /**
  * Abstrakte Basisklasse für alle Mailserver. Stellt grundlegende Funktionen für
  * alle Servertypen bereit.
  * 
  * @author Hendrik Karwanni
  */
+@JsonTypeInfo(use=JsonTypeInfo.Id.CLASS, include=JsonTypeInfo.As.PROPERTY, property="@class")
 public abstract class MailServer implements Serializable {
 	private static final long serialVersionUID = -6369803776352038195L;
 
@@ -25,7 +28,7 @@ public abstract class MailServer implements Serializable {
 	/**
 	 * Attribut, das die Stringdarstellung des Servertyps enthällt
 	 */
-	protected String serverTyp;
+	protected String serverType;
 
 	/**
 	 * Dient zur Authentifikation mit einem Benutzernamen und Passwort
@@ -69,7 +72,7 @@ public abstract class MailServer implements Serializable {
 			throw new NullPointerException("Servereinstellungen wurden nicht instanziiert");
 
 		this.settings = settings;
-		this.serverTyp = serverTyp;
+		this.serverType = serverTyp;
 	}
 
 	/**
@@ -114,8 +117,8 @@ public abstract class MailServer implements Serializable {
 	 * 
 	 * @return Beschreibender String zum Servertyp
 	 */
-	public String getServerTyp() {
-		return serverTyp;
+	public String getServerType() {
+		return serverType;
 	}
 
 	/**

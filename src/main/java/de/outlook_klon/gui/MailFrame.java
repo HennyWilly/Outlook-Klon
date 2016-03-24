@@ -9,6 +9,7 @@ import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.mail.Address;
 import javax.mail.MessagingException;
@@ -404,14 +405,14 @@ public class MailFrame extends ExtendedFrame {
 
 		addMailAccounts();
 
-		ArrayList<InternetAddress> adressen = new ArrayList<InternetAddress>();
+		List<Address> adressen = new ArrayList<Address>();
 		for (Kontakt k : kontakte) {
-			if (k.getMail1() == null)
+			if (k.getAddress1() == null)
 				continue;
-			adressen.add(k.getMail1());
+			adressen.add(k.getAddress1());
 		}
 
-		String adressString = appendAddresses(adressen.toArray(new InternetAddress[adressen.size()]));
+		String adressString = appendAddresses(adressen.toArray(new Address[adressen.size()]));
 		tTo.setText(adressString);
 	}
 

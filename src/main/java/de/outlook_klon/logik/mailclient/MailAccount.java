@@ -1,11 +1,7 @@
 package de.outlook_klon.logik.mailclient;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
@@ -33,10 +29,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.sun.mail.imap.IMAPFolder;
 
 import de.outlook_klon.logik.Benutzer.MailChecker;
+import de.outlook_klon.serializers.Serializer;
 
 /**
  * Diese Klasse stellt ein Mailkonto dar. Hierüber können Mails gesendet und
@@ -47,22 +45,22 @@ import de.outlook_klon.logik.Benutzer.MailChecker;
 public class MailAccount {
 	private static final Logger LOGGER = LoggerFactory.getLogger(MailAccount.class);
 
-	private static final String MAIL_PATTERN = "Mail/%s/%s/%s.mail";
+	private static final String MAIL_PATTERN = "Mail/%s/%s/%s.json";
 
-	@JsonProperty("inServer")
-	private EmpfangsServer<?> inServer;
+	@JsonProperty("incomingMailServer")
+	private EmpfangsServer incomingMailServer;
 
-	@JsonProperty("outServer")
-	private SendServer outServer;
+	@JsonProperty("outgoingMailServer")
+	private SendServer outgoingMailServer;
 	
 	@JsonProperty("address")
 	private InternetAddress address;
 	
 	@JsonProperty("user")
-	private String benutzer;
+	private String user;
 	
 	@JsonProperty("password")
-	private String passwort;
+	private String password;
 
 	/**
 	 * Bei manchen Anbietern, z.B. Hotmail oder Yahoo, kann die MessageID nicht
@@ -118,15 +116,15 @@ public class MailAccount {
 	 * Erstellt eine neue Instanz der Klasse Mailkonto mit den übergebenen
 	 * Parametern
 	 * 
-	 * @param inServer
+	 * @param incomingMailServer
 	 *            Server-Instanz, die zum Empfangen von Mails verwendet wird
-	 * @param outServer
+	 * @param outgoingMailServer
 	 *            Server-Instanz, die zum Senden von Mails verwendet wird
-	 * @param adresse
+	 * @param address
 	 *            E-Mail-Adresse, das dem Konto zugeordnet ist
-	 * @param benutzer
+	 * @param user
 	 *            Benutzername, der zur Anmeldung verwendet werden soll
-	 * @param passwort
+	 * @param password
 	 *            Passwort, das zur Anmeldung verwendet werden soll
 	 * @throws NullPointerException
 	 *             Tritt auf, wenn mindestens eine der Server-Instanzen null ist
@@ -135,21 +133,21 @@ public class MailAccount {
 	 */
 	@JsonCreator
 	public MailAccount(
-			@JsonProperty("inServer") EmpfangsServer<?> inServer, 
-			@JsonProperty("outServer") SendServer outServer, 
-			@JsonProperty("address") InternetAddress adresse,
-			@JsonProperty("user") String benutzer, 
-			@JsonProperty("password") String passwort) 
+			@JsonProperty("incomingMailServer") EmpfangsServer incomingMailServer, 
+			@JsonProperty("outgoingMailServer") SendServer outgoingMailServer, 
+			@JsonProperty("address") InternetAddress address,
+			@JsonProperty("user") String user, 
+			@JsonProperty("password") String password) 
 					throws NullPointerException, IllegalArgumentException {
-		if (inServer == null || outServer == null)
+		if (incomingMailServer == null || outgoingMailServer == null)
 			throw new NullPointerException("Die übergebenen Server dürfen nicht <null> sein");
 
-		this.inServer = inServer;
-		this.outServer = outServer;
+		this.incomingMailServer = incomingMailServer;
+		this.outgoingMailServer = outgoingMailServer;
 
-		this.address = adresse;
-		this.benutzer = benutzer;
-		this.passwort = passwort;
+		this.address = address;
+		this.user = user;
+		this.password = password;
 	}
 
 	@Override
@@ -173,17 +171,17 @@ public class MailAccount {
 	 * @throws MessagingException
 	 *             Tritt auf, wenn der Sendevorgang fehlgeschlagen ist
 	 */
-	public void sendeMail(final InternetAddress[] to, final InternetAddress[] cc, final String subject,
+	public void sendeMail(final Address[] to, final Address[] cc, final String subject,
 			final String text, final String format, final File[] attachment) throws MessagingException {
 
 		Message gesendet;
 		try {
-			gesendet = outServer.sendeMail(benutzer, passwort, address, to, cc, subject, text, format, attachment);
+			gesendet = outgoingMailServer.sendeMail(user, password, address, to, cc, subject, text, format, attachment);
 		} catch (MessagingException ex) {
 			throw new MessagingException("Could not send mail", ex);
 		}
 
-		if (gesendet != null && !(inServer instanceof Pop3Server)) {
+		if (gesendet != null && !(incomingMailServer instanceof Pop3Server)) {
 			try {
 				// TODO Testen!
 				Store mailStore = connectToMailStore();
@@ -215,8 +213,8 @@ public class MailAccount {
 	}
 
 	private Store connectToMailStore() throws MessagingException {
-		Store mailStore = inServer.getMailStore(benutzer, passwort);
-		mailStore.connect(inServer.settings.getHost(), inServer.settings.getPort(), benutzer, passwort);
+		Store mailStore = incomingMailServer.getMailStore(user, password);
+		mailStore.connect(incomingMailServer.settings.getHost(), incomingMailServer.settings.getPort(), user, password);
 
 		return mailStore;
 	}
@@ -227,13 +225,14 @@ public class MailAccount {
 	 * @return Pfade aller Ordner des Servers zum Mailempfang
 	 * @throws MessagingException
 	 */
+	@JsonIgnore
 	public OrdnerInfo[] getOrdnerstruktur() throws MessagingException {
 		OrdnerInfo[] paths = null;
 
 		Store store = null;
 		try {
-			store = inServer.getMailStore(benutzer, passwort);
-			store.connect(inServer.settings.getHost(), inServer.settings.getPort(), benutzer, passwort);
+			store = incomingMailServer.getMailStore(user, password);
+			store.connect(incomingMailServer.settings.getHost(), incomingMailServer.settings.getPort(), user, password);
 			final Folder[] folders = store.getDefaultFolder().list("*");
 
 			paths = new OrdnerInfo[folders.length];
@@ -715,7 +714,7 @@ public class MailAccount {
 
 			final Folder[] folders = mailStore.getDefaultFolder().list("*");
 
-			if (!(inServer instanceof Pop3Server)) {
+			if (!(incomingMailServer instanceof Pop3Server)) {
 				outer: for (final Folder mailFolder : folders) {
 					final IMAPFolder imap = (IMAPFolder) mailFolder;
 					final String[] attr = imap.getAttributes();
@@ -828,11 +827,7 @@ public class MailAccount {
 			ordner.mkdirs();
 		}
 
-		try (FileOutputStream fos = new FileOutputStream(zielDatei);
-				ObjectOutputStream oos = new ObjectOutputStream(fos)) {
-			oos.writeObject(info);
-			oos.flush();
-		}
+		Serializer.serializeObjectToJson(zielDatei, info);
 	}
 
 	/**
@@ -844,16 +839,14 @@ public class MailAccount {
 	 * @throws IOException
 	 *             Die Datei konnte nicht gelesen werden
 	 */
-	private MailInfo ladeMailInfo(final File datei) throws IOException {
+	private MailInfo ladeMailInfo(final File datei) {
 		MailInfo geladen = null;
 
 		final File absDatei = datei.getAbsoluteFile();
 		if (absDatei.exists()) {
-			try (FileInputStream fis = new FileInputStream(absDatei);
-					ObjectInputStream ois = new ObjectInputStream(fis)) {
-
-				geladen = (MailInfo) ois.readObject();
-			} catch (ClassNotFoundException ex) {
+			try {
+				geladen = Serializer.deserializeJson(absDatei, MailInfo.class);
+			} catch (IOException ex) {
 				LOGGER.error("Could not load MailInfo", ex);
 			}
 		}
@@ -887,7 +880,7 @@ public class MailAccount {
 	 *         <code>false</code>
 	 */
 	public boolean validieren() {
-		return validieren(benutzer, passwort);
+		return validieren(user, password);
 	}
 
 	/**
@@ -901,11 +894,11 @@ public class MailAccount {
 		boolean inValid = false;
 		boolean outValid = false;
 
-		if (inServer != null)
-			inValid = inServer.pruefeLogin(user, passwd);
+		if (incomingMailServer != null)
+			inValid = incomingMailServer.pruefeLogin(user, passwd);
 
-		if (outServer != null)
-			outValid = outServer.pruefeLogin(user, passwd);
+		if (outgoingMailServer != null)
+			outValid = outgoingMailServer.pruefeLogin(user, passwd);
 
 		return inValid && outValid;
 	}
@@ -915,8 +908,8 @@ public class MailAccount {
 	 * 
 	 * @return <code>MailServer</code> zum Empfangen von Mails
 	 */
-	public EmpfangsServer<?> getEmpfangsServer() {
-		return inServer;
+	public EmpfangsServer getIncomingMailServer() {
+		return incomingMailServer;
 	}
 
 	/**
@@ -924,8 +917,8 @@ public class MailAccount {
 	 * 
 	 * @return <code>MailServer</code> zum Versandt von Mails
 	 */
-	public SendServer getSendServer() {
-		return outServer;
+	public SendServer getOutgoingMailServer() {
+		return outgoingMailServer;
 	}
 
 	/**
@@ -933,7 +926,7 @@ public class MailAccount {
 	 * 
 	 * @return Mailadresse des MailAccounts
 	 */
-	public InternetAddress getAdresse() {
+	public InternetAddress getAddress() {
 		return address;
 	}
 
@@ -942,24 +935,24 @@ public class MailAccount {
 	 * 
 	 * @return Benutzername für den <code>MailAccount</code>
 	 */
-	public String getBenutzer() {
-		return benutzer;
+	public String getUser() {
+		return user;
 	}
 
 	/**
 	 * Versucht, das Passwort des Accounts neu zu setzen
 	 * 
-	 * @param passwd
+	 * @param password
 	 *            Zu setzendes Passwort
 	 * @throws AuthenticationFailedException
 	 *             Tritt auf, wenn die Anmeldung mit dem Passwort fehlgeschlagen
 	 *             ist
 	 */
-	public void setPasswort(String passwd) throws AuthenticationFailedException {
-		if (!validieren(benutzer, passwd))
+	public void setPasswort(String password) throws AuthenticationFailedException {
+		if (!validieren(user, password))
 			throw new AuthenticationFailedException("Das übergebene Passwort ist ungültig");
 
-		this.passwort = passwd;
+		this.password = password;
 	}
 
 	@Override

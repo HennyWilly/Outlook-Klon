@@ -4,10 +4,10 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import javax.mail.Address;
 import javax.mail.internet.InternetAddress;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import de.outlook_klon.logik.Benutzer;
@@ -22,114 +22,99 @@ import de.outlook_klon.logik.kontakte.Kontakt;
 public class Termin implements Comparable<Termin> {
 
 	@JsonProperty("subject")
-	private String mBetreff;
+	private String subject;
 
 	@JsonProperty("location")
-	private String mOrt;
+	private String location;
 
 	@JsonProperty("start")
-	private Date mStart;
+	private Date start;
 
 	@JsonProperty("end")
-	private Date mEnde;
+	private Date end;
 
 	@JsonProperty("text")
-	private String mText;
+	private String text;
 
 	@JsonProperty("user")
-	private String mBenutzerkonto;
+	private String user;
 
 	@JsonProperty("contact")
-	private String mKontakt;
+	private String contact;
 
 	@JsonProperty("state")
-	private Status mStatus;
+	private AppointmentState status;
 
 	@JsonProperty("addresses")
-	private InternetAddress[] mAdressen;
-
-	/**
-	 * Diese Aufzählung stellt die möglichen Zustände eines Termins dar
-	 */
-	public static enum Status {
-		/**
-		 * Dem Termin wurde zugesagt
-		 */
-		zugesagt,
-
-		/**
-		 * Der Termin wurde abgelehnt
-		 */
-		abgelehnt
-	}
+	private Address[] addresses;
 
 	/**
 	 * Erstellt eine neue Instanz der Klasse mit den übergebenen Werten
 	 * 
-	 * @param betreff
+	 * @param subject
 	 *            Betreff des Termins
-	 * @param ort
+	 * @param location
 	 *            Ort des Termins
 	 * @param start
 	 *            Startzeitpunkt des Termins
-	 * @param ende
+	 * @param end
 	 *            Endzeitpunkt des Termins
 	 * @param text
 	 *            Text des Termins
 	 */
-	public Termin(String betreff, String ort, Date start, Date ende, String text, String benutzer, String kontakt) {
-		setBetreff(betreff);
-		setOrt(ort);
-		setStartUndEnde(start, ende);
+	public Termin(String subject, String location, Date start, Date end, String text, String user, String contact) {
+		setSubject(subject);
+		setLocation(location);
+		setTimes(start, end);
 		setText(text);
-		setBenutzerkonto(benutzer);
-		setKontakt(kontakt);
-		setStatus(Status.zugesagt);
+		setUser(user);
+		setContact(contact);
+		setState(AppointmentState.PROMISED);
 
-		List<InternetAddress> temp = new ArrayList<InternetAddress>(2);
+		List<Address> temp = new ArrayList<Address>(2);
 		for (Kontakt k : Benutzer.getInstanz().getKontakte()) {
-			if (k.getAnzeigename() == kontakt) {
-				if (k.getMail1() != null) {
-					temp.add(k.getMail1());
+			if (k.getDisplayname() == contact) {
+				if (k.getAddress1() != null) {
+					temp.add(k.getAddress1());
 				}
-				if (k.getMail2() != null) {
-					temp.add(k.getMail2());
+				if (k.getAddress2() != null) {
+					temp.add(k.getAddress2());
 				}
 				break;
 			}
 		}
-		setAdressen(temp.toArray(new InternetAddress[2]));
+		setAddresses(temp.toArray(new InternetAddress[2]));
 	}
 	
 	@JsonCreator
 	public Termin(
-			@JsonProperty("subject") String betreff, 
-			@JsonProperty("location") String ort, 
+			@JsonProperty("subject") String subject, 
+			@JsonProperty("location") String location, 
 			@JsonProperty("start") Date start, 
-			@JsonProperty("end") Date ende, 
+			@JsonProperty("end") Date end, 
 			@JsonProperty("text") String text, 
-			@JsonProperty("user") String benutzer, 
-			@JsonProperty("contact") String kontakt,
-			@JsonProperty("state") Status status,
-			@JsonProperty("addresses") InternetAddress[] adressen) {
-		setBetreff(betreff);
-		setOrt(ort);
-		setStartUndEnde(start, ende);
+			@JsonProperty("user") String user, 
+			@JsonProperty("contact") String contact,
+			@JsonProperty("state") AppointmentState state,
+			@JsonProperty("addresses") InternetAddress[] addresses) {
+		setSubject(subject);
+		setLocation(location);
+		setTimes(start, end);
 		setText(text);
-		setBenutzerkonto(benutzer);
-		setKontakt(kontakt);
-		setStatus(status);
-		setAdressen(adressen);
+		setUser(user);
+		setContact(contact);
+		setState(state);
+		setAddresses(addresses);
 	}
 
 	/**
 	 * Setter für den Betreff des Termins
 	 * 
-	 * @param betreff
+	 * @param subject
 	 *            Zu setzender Betreff
 	 */
-	public void setBetreff(String betreff) {
-		this.mBetreff = betreff;
+	public void setSubject(String subject) {
+		this.subject = subject;
 	}
 
 	/**
@@ -137,19 +122,18 @@ public class Termin implements Comparable<Termin> {
 	 * 
 	 * @return Betreff
 	 */
-	@JsonIgnore
-	public String getBetreff() {
-		return mBetreff;
+	public String getSubject() {
+		return subject;
 	}
 
 	/**
 	 * Setter für den Ort des Termins
 	 * 
-	 * @param ort
+	 * @param location
 	 *            Zu setzender Ort
 	 */
-	public void setOrt(String ort) {
-		this.mOrt = ort;
+	public void setLocation(String location) {
+		this.location = location;
 	}
 
 	/**
@@ -157,9 +141,8 @@ public class Termin implements Comparable<Termin> {
 	 * 
 	 * @return Ort
 	 */
-	@JsonIgnore
-	public String getOrt() {
-		return mOrt;
+	public String getLocation() {
+		return location;
 	}
 
 	/**
@@ -167,14 +150,14 @@ public class Termin implements Comparable<Termin> {
 	 * 
 	 * @param start
 	 *            Zu setzender Startzeitpunkt
-	 * @param ende
+	 * @param end
 	 *            Zu setzender Endzeitpunkt
 	 */
-	public void setStartUndEnde(Date start, Date ende) {
-		if (start.after(ende))
-			throw new RuntimeException("Der Startzeitpunkt darf nicht hinter dem Endzeitpunkt liegen");
-		mStart = new Date(start.getTime());
-		mEnde = new Date(ende.getTime());
+	public void setTimes(Date start, Date end) {
+		if (start.after(end))
+			throw new IllegalArgumentException("Der Startzeitpunkt darf nicht hinter dem Endzeitpunkt liegen");
+		this.start = new Date(start.getTime());
+		this.end = new Date(end.getTime());
 	}
 
 	/**
@@ -182,9 +165,8 @@ public class Termin implements Comparable<Termin> {
 	 * 
 	 * @return Startzeitpunkt
 	 */
-	@JsonIgnore
 	public Date getStart() {
-		return mStart;
+		return start;
 	}
 
 	/**
@@ -192,9 +174,8 @@ public class Termin implements Comparable<Termin> {
 	 * 
 	 * @return Endzeitpunkt
 	 */
-	@JsonIgnore
-	public Date getEnde() {
-		return mEnde;
+	public Date getEnd() {
+		return end;
 	}
 
 	/**
@@ -204,7 +185,7 @@ public class Termin implements Comparable<Termin> {
 	 *            Zu setzende Beschreibung
 	 */
 	public void setText(String text) {
-		this.mText = text;
+		this.text = text;
 	}
 
 	/**
@@ -212,19 +193,18 @@ public class Termin implements Comparable<Termin> {
 	 * 
 	 * @return Beschreibung
 	 */
-	@JsonIgnore
 	public String getText() {
-		return mText;
+		return text;
 	}
 
 	/**
 	 * Setter für das zugeordnete Benutzerkonto des Termins
 	 * 
-	 * @param benutzer
+	 * @param user
 	 *            Zu setzende Benutzerkonto
 	 */
-	public void setBenutzerkonto(String benutzer) {
-		this.mBenutzerkonto = benutzer;
+	public void setUser(String user) {
+		this.user = user;
 	}
 
 	/**
@@ -232,34 +212,37 @@ public class Termin implements Comparable<Termin> {
 	 * 
 	 * @return Benutzerkonto
 	 */
-	@JsonIgnore
-	public String getBenutzerkonto() {
-		return mBenutzerkonto;
-	}
-
-	/**
-	 * Getter für den zugeordneten Kontakt des Termins
-	 * 
-	 * @return Kontakt
-	 */
-	@JsonIgnore
-	public String getKontakt() {
-		return mKontakt;
+	public String getUser() {
+		return user;
 	}
 
 	/**
 	 * Setter für den zugeordneten Kontakt des Termins
 	 * 
-	 * @param kontakt
+	 * @param contact
 	 *            Zu setzende Kontakt
 	 */
-	public void setKontakt(String kontakt) {
-		this.mKontakt = kontakt;
+	public void setContact(String contact) {
+		this.contact = contact;
+	}
+	
+	/**
+	 * Getter für den zugeordneten Kontakt des Termins
+	 * 
+	 * @return Kontakt
+	 */
+	public String getContact() {
+		return contact;
 	}
 
-	@Override
-	public int compareTo(Termin o) {
-		return this.mStart.compareTo(o.mStart);
+	/**
+	 * Setzt den Status des Termins
+	 * 
+	 * @param state
+	 *            Status des Termins
+	 */
+	public void setState(AppointmentState state) {
+		this.status = state;
 	}
 
 	/**
@@ -267,19 +250,8 @@ public class Termin implements Comparable<Termin> {
 	 * 
 	 * @return Status des Termins
 	 */
-	@JsonIgnore
-	public Status getStatus() {
-		return mStatus;
-	}
-
-	/**
-	 * Setzt den Status des Termins
-	 * 
-	 * @param mStatus
-	 *            Status des Termins
-	 */
-	public void setStatus(Status mStatus) {
-		this.mStatus = mStatus;
+	public AppointmentState getState() {
+		return status;
 	}
 
 	/**
@@ -287,18 +259,22 @@ public class Termin implements Comparable<Termin> {
 	 * 
 	 * @return Adressen zum Termin
 	 */
-	@JsonIgnore
-	public InternetAddress[] getAdressen() {
-		return mAdressen;
+	public Address[] getAddresses() {
+		return addresses;
 	}
 
 	/**
 	 * Setzt die verknüpfen Adressen zum Termin
 	 * 
-	 * @param mAdressen
+	 * @param addresses
 	 *            Adressen zum Termin
 	 */
-	public void setAdressen(InternetAddress[] mAdressen) {
-		this.mAdressen = mAdressen;
+	public void setAddresses(Address[] addresses) {
+		this.addresses = addresses;
+	}
+	
+	@Override
+	public int compareTo(Termin o) {
+		return this.start.compareTo(o.start);
 	}
 }

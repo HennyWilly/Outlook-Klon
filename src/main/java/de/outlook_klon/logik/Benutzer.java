@@ -8,25 +8,22 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Vector;
 
+import javax.mail.Address;
 import javax.mail.FolderNotFoundException;
 import javax.mail.MessagingException;
 import javax.mail.internet.InternetAddress;
 
-import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-
 import de.outlook_klon.logik.kalendar.Termin;
 import de.outlook_klon.logik.kalendar.Terminkalender;
 import de.outlook_klon.logik.kontakte.Kontaktverwaltung;
 import de.outlook_klon.logik.mailclient.MailAccount;
 import de.outlook_klon.logik.mailclient.MailInfo;
+import de.outlook_klon.serializers.Serializer;
 
 /**
  * Diese Klasse stellt den Benutzer dar. Bietet Zugriff auf die Termin- und
@@ -276,13 +273,34 @@ public final class Benutzer implements Iterable<Benutzer.MailChecker> {
 		setAnwesend(true);
 
 		File doctorsNote = new File(KRANK_PFAD);
-		krankmeldung = doctorsNote.exists() ? FileUtils.readFileToString(doctorsNote) : "Ich bin krank";
+		try {
+			krankmeldung = Serializer.deserializePlainText(doctorsNote);
+		} catch (IOException ex) {
+			LOGGER.warn("Cold not load doctors note", ex);
+			krankmeldung = "Ich bin krank";
+		}
 
 		File absenceMessage = new File(ABWESEND_PFAD);
-		abwesenheitsmeldung = absenceMessage.exists() ? FileUtils.readFileToString(absenceMessage) : "Ich bin nicht da";
+		try {
+			abwesenheitsmeldung = Serializer.deserializePlainText(absenceMessage);
+		} catch (IOException ex) {
+			LOGGER.warn("Cold not load absence message", ex);
+			abwesenheitsmeldung = "Ich bin nicht da";
+		}
 
-		kontakte = loadOrCreateContactManager();
-		termine = loadOrCreateAppointmentsManager();
+		try {
+			kontakte = Serializer.deserializeJson(new File(KONTAKT_PFAD), Kontaktverwaltung.class);
+		} catch (IOException ex) {
+			LOGGER.warn("Could not create contact manager", ex);
+			kontakte = new Kontaktverwaltung();
+		}
+
+		try {
+			termine = Serializer.deserializeJson(new File(TERMIN_PFAD), Terminkalender.class);
+		} catch (IOException ex) {
+			LOGGER.warn("Could not create appointments manager", ex);
+			termine = new Terminkalender();
+		}
 
 		konten = new ArrayList<MailChecker>();
 
@@ -297,42 +315,17 @@ public final class Benutzer implements Iterable<Benutzer.MailChecker> {
 			}
 		});
 
-		ObjectMapper mapper = new ObjectMapper();
 		for (String directory : directories) {
 			final String settings = String.format(ACCOUNTSETTINGS_PATTERN, directory);
 			File datei = new File(settings).getAbsoluteFile();
 
 			// Lade MailAccount
-			MailAccount geladen = mapper.readValue(datei, MailAccount.class);
-			if (geladen != null) {
-				MailChecker checker = new MailChecker(geladen);
-				checker.addNewMessageListener(getListener());
+			MailAccount geladen = Serializer.deserializeJson(datei, MailAccount.class);
+			MailChecker checker = new MailChecker(geladen);
+			checker.addNewMessageListener(getListener());
 
-				konten.add(checker);
-			}
+			konten.add(checker);
 		}
-	}
-	
-	private Terminkalender loadOrCreateAppointmentsManager() {
-		ObjectMapper mapper = new ObjectMapper();
-		mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
-		try {
-			return mapper.readValue(new File(TERMIN_PFAD), Terminkalender.class);
-		} catch (IOException ex) {
-			LOGGER.warn("Could not create appointments manager", ex);
-		}
-		return new Terminkalender();
-	}
-	
-	private Kontaktverwaltung loadOrCreateContactManager() {
-		ObjectMapper mapper = new ObjectMapper();
-		mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
-		try {
-			return mapper.readValue(new File(KONTAKT_PFAD), Kontaktverwaltung.class);
-		} catch (IOException ex) {
-			LOGGER.warn("Could not create contact manager", ex);
-		}
-		return new Kontaktverwaltung();
 	}
 
 	/**
@@ -350,7 +343,7 @@ public final class Benutzer implements Iterable<Benutzer.MailChecker> {
 				String pfad = e.getFolder();
 
 				InternetAddress from = (InternetAddress) info.getSender();
-				InternetAddress empfaenger = account.getAdresse();
+				InternetAddress empfaenger = account.getAddress();
 
 				String subject = info.getSubject();
 
@@ -464,7 +457,7 @@ public final class Benutzer implements Iterable<Benutzer.MailChecker> {
 			checker.interrupt();
 
 			if (konten.remove(account)) {
-				String adresse = account.getAdresse().getAddress();
+				String adresse = account.getAddress().getAddress();
 				String settings = String.format(ACCOUNTSETTINGS_PATTERN, adresse);
 				deleteRecursive(new File(settings));
 
@@ -513,13 +506,11 @@ public final class Benutzer implements Iterable<Benutzer.MailChecker> {
 			ordner.mkdirs();
 		}
 
-		FileUtils.writeStringToFile(new File(ABWESEND_PFAD), abwesenheitsmeldung);
-		FileUtils.writeStringToFile(new File(KRANK_PFAD), krankmeldung);
+		Serializer.serializeStringToPlainText(new File(ABWESEND_PFAD), abwesenheitsmeldung);
+		Serializer.serializeStringToPlainText(new File(KRANK_PFAD), krankmeldung);
 
-		ObjectMapper mapper = new ObjectMapper();
-		mapper.enable(SerializationFeature.INDENT_OUTPUT);
-		mapper.writeValue(kontaktPfad, kontakte);
-		mapper.writeValue(terminPfad, termine);
+		Serializer.serializeObjectToJson(kontaktPfad, kontakte);
+		Serializer.serializeObjectToJson(terminPfad, termine);
 	}
 
 	/**
@@ -532,7 +523,7 @@ public final class Benutzer implements Iterable<Benutzer.MailChecker> {
 	 *             konnte
 	 */
 	private void speichereMailAccount(MailAccount acc) throws IOException {
-		String strAdresse = acc.getAdresse().getAddress();
+		String strAdresse = acc.getAddress().getAddress();
 		String strPfad = String.format(ACCOUNTSETTINGS_PATTERN, strAdresse);
 
 		File pfad = new File(strPfad).getAbsoluteFile();
@@ -544,8 +535,7 @@ public final class Benutzer implements Iterable<Benutzer.MailChecker> {
 			ordner.mkdirs();
 		}
 
-		ObjectMapper mapper = new ObjectMapper();
-		mapper.writeValue(pfad, acc);
+		Serializer.serializeObjectToJson(pfad, acc);
 	}
 
 	/**
@@ -591,7 +581,7 @@ public final class Benutzer implements Iterable<Benutzer.MailChecker> {
 
 			String text = getAbwesenheitsmeldung();
 			sender.sendeMail(new InternetAddress[] { ziel }, null,
-					"Abwesenheit von " + sender.getAdresse().getPersonal(), text, "TEXT/plain; charset=utf-8", null);
+					"Abwesenheit von " + sender.getAddress().getPersonal(), text, "TEXT/plain; charset=utf-8", null);
 		} catch (MessagingException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -607,8 +597,8 @@ public final class Benutzer implements Iterable<Benutzer.MailChecker> {
 	}
 
 	private void schreibeAbsage(Termin termin, MailAccount sender) throws MessagingException {
-		String betreff = "Absage: " + termin.getBetreff();
-		InternetAddress[] ziele = termin.getAdressen();
+		String betreff = "Absage: " + termin.getSubject();
+		Address[] ziele = termin.getAddresses();
 
 		if (ziele != null) {
 			String text = getKrankmeldung();

@@ -1,27 +1,47 @@
 package de.outlook_klon.logik.mailclient;
 
-import java.io.Serializable;
 import java.util.Date;
 
 import javax.mail.Address;
+
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * Datenklasse zum Halten von abgefragten Informationen von Mails
  * 
  * @author Hendrik Karwanni
  */
-public class MailInfo implements Serializable, Comparable<MailInfo> {
-	private static final long serialVersionUID = 7484178938043380415L;
+public class MailInfo implements Comparable<MailInfo> {
 
+	@JsonProperty("id")
 	private String id;
+
+	@JsonProperty("read")
 	private boolean read;
+
+	@JsonProperty("subject")
 	private String subject;
+
+	@JsonProperty("sender")
 	private Address sender;
+
+	@JsonProperty("date")
 	private Date date;
+
+	@JsonProperty("text")
 	private String text;
+
+	@JsonProperty("contentType")
 	private String contentType;
+
+	@JsonProperty("to")
 	private Address[] to;
+
+	@JsonProperty("cc")
 	private Address[] cc;
+
+	@JsonProperty("attachment")
 	private String[] attachment;
 
 	/**
@@ -36,6 +56,24 @@ public class MailInfo implements Serializable, Comparable<MailInfo> {
 		this.id = id;
 	}
 
+	@JsonCreator
+	private MailInfo(@JsonProperty("id") String id, @JsonProperty("read") boolean read,
+			@JsonProperty("subject") String subject, @JsonProperty("sender") Address sender,
+			@JsonProperty("date") Date date, @JsonProperty("text") String text,
+			@JsonProperty("contentType") String contentType, @JsonProperty("to") Address[] to,
+			@JsonProperty("cc") Address[] cc, @JsonProperty("attachment") String[] attachment) {
+		setID(id);
+		setRead(read);
+		setSubject(subject);
+		setSender(sender);
+		setDate(date);
+		setText(text);
+		setContentType(contentType);
+		setTo(to);
+		setCc(cc);
+		setAttachment(attachment);
+	}
+
 	/**
 	 * Gibt die ID der Mail zurück
 	 * 
@@ -43,6 +81,10 @@ public class MailInfo implements Serializable, Comparable<MailInfo> {
 	 */
 	public String getID() {
 		return id;
+	}
+
+	private void setID(String id) {
+		this.id = id;
 	}
 
 	/**
@@ -156,7 +198,11 @@ public class MailInfo implements Serializable, Comparable<MailInfo> {
 	 *            Texttyp des Inhalts der Mail
 	 */
 	public void setContentType(String contentType) {
-		this.contentType = contentType.replace("text", "TEXT");
+		if (contentType != null) {
+			this.contentType = contentType.replace("text", "TEXT");
+		} else {
+			this.contentType = null;
+		}
 	}
 
 	/**

@@ -2,6 +2,9 @@ package de.outlook_klon.logik.mailclient;
 
 import java.io.Serializable;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 /*
  * SMTP 587
  * IMAP 220
@@ -17,10 +20,17 @@ import java.io.Serializable;
 public class ServerSettings implements Serializable {
 	private static final long serialVersionUID = -2113634498937441789L;
 
+	@JsonProperty("host")
 	private String host;
+
+	@JsonProperty("port")
 	private int port;
-	private Verbindungssicherheit vSicherheit;
-	private Authentifizierungsart authentifizierung;
+
+	@JsonProperty("connectionSecurity")
+	private Verbindungssicherheit connectionSecurity;
+
+	@JsonProperty("authentificationType")
+	private Authentifizierungsart authentificationType;
 
 	/**
 	 * Erstellt eine neue Instanz der Klasse mit den übergebenen Werten
@@ -29,9 +39,9 @@ public class ServerSettings implements Serializable {
 	 *            Hostname/Ip der Zielservers
 	 * @param port
 	 *            Zielport des Servers
-	 * @param vSicherheit
+	 * @param connectionSecurity
 	 *            Art der unterstützten Verschlüsselung des Servers
-	 * @param authentifizierung
+	 * @param authentificationType
 	 *            Art der Authentifizierung an dem Server
 	 * 
 	 * @throws NullPointerException
@@ -40,9 +50,12 @@ public class ServerSettings implements Serializable {
 	 * @throws IllegalArgumentException
 	 *             Tritt auf, wenn <code>port</code> kein korrekter Port ist.
 	 */
-	public ServerSettings(final String host, final int port,
-			final Verbindungssicherheit vSicherheit,
-			final Authentifizierungsart authentifizierung)
+	@JsonCreator
+	public ServerSettings(
+			@JsonProperty("host") String host, 
+			@JsonProperty("port") int port,
+			@JsonProperty("connectionSecurity") Verbindungssicherheit connectionSecurity,
+			@JsonProperty("authentificationType") Authentifizierungsart authentificationType)
 			throws NullPointerException, IllegalArgumentException {
 		if (host == null)
 			throw new NullPointerException("Der Hostname darf nicht null sein");
@@ -52,8 +65,8 @@ public class ServerSettings implements Serializable {
 
 		this.host = host;
 		this.port = port;
-		this.vSicherheit = vSicherheit;
-		this.authentifizierung = authentifizierung;
+		this.connectionSecurity = connectionSecurity;
+		this.authentificationType = authentificationType;
 	}
 
 	/**
@@ -79,8 +92,8 @@ public class ServerSettings implements Serializable {
 	 * 
 	 * @return Verschlüsselungsart
 	 */
-	public Verbindungssicherheit getVerbingungssicherheit() {
-		return vSicherheit;
+	public Verbindungssicherheit getConnectionSecurity() {
+		return connectionSecurity;
 	}
 
 	/**
@@ -88,8 +101,8 @@ public class ServerSettings implements Serializable {
 	 * 
 	 * @return Authentifizierungsart
 	 */
-	public Authentifizierungsart getAuthentifizierungsart() {
-		return authentifizierung;
+	public Authentifizierungsart getAuthentificationType() {
+		return authentificationType;
 	}
 
 	@Override

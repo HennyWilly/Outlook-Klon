@@ -494,7 +494,7 @@ public class AdressbuchFrame extends ExtendedFrame {
 			return;
 
 		for (Kontakt k : kontakte) {
-			model.addRow(new Object[] { k, k.getAnzeigename(), k.getMail1(), k.getTelDienst() });
+			model.addRow(new Object[] { k, k.getDisplayname(), k.getAddress1(), k.getDutyphone() });
 		}
 
 		aktualisiereDetails(null);
@@ -520,24 +520,24 @@ public class AdressbuchFrame extends ExtendedFrame {
 		StringBuilder sb = new StringBuilder();
 
 		if (k != null) {
-			if (!k.getVorname().trim().isEmpty())
-				sb.append("Vorname: ").append(k.getVorname()).append('\n');
-			if (!k.getNachname().trim().isEmpty())
-				sb.append("Nachname: ").append(k.getNachname()).append('\n');
-			if (!k.getAnzeigename().trim().isEmpty())
-				sb.append("Anzeigename: ").append(k.getAnzeigename()).append('\n');
-			if (!k.getSpitzname().trim().isEmpty())
-				sb.append("Spitzname: ").append(k.getSpitzname()).append('\n');
-			if (k.getMail1() != null)
-				sb.append("E-Mail-Adresse: ").append(k.getMail1().toUnicodeString()).append('\n');
-			if (k.getMail2() != null)
-				sb.append("2. E-Mail-Adresse: ").append(k.getMail2().toUnicodeString()).append('\n');
-			if (!k.getTelDienst().trim().isEmpty())
-				sb.append("Telefonnummer (dienstlich): ").append(k.getTelDienst()).append('\n');
-			if (!k.getTelPrivat().trim().isEmpty())
-				sb.append("Telefonnummer (privat): ").append(k.getTelPrivat()).append('\n');
-			if (!k.getTelMobil().trim().isEmpty())
-				sb.append("Telefonnummer (mobil): ").append(k.getTelMobil()).append('\n');
+			if (!k.getForename().trim().isEmpty())
+				sb.append("Vorname: ").append(k.getForename()).append('\n');
+			if (!k.getSurname().trim().isEmpty())
+				sb.append("Nachname: ").append(k.getSurname()).append('\n');
+			if (!k.getDisplayname().trim().isEmpty())
+				sb.append("Anzeigename: ").append(k.getDisplayname()).append('\n');
+			if (!k.getNickname().trim().isEmpty())
+				sb.append("Spitzname: ").append(k.getNickname()).append('\n');
+			if (k.getAddress1() != null)
+				sb.append("E-Mail-Adresse: ").append(k.getAddress1AsString()).append('\n');
+			if (k.getAddress2() != null)
+				sb.append("2. E-Mail-Adresse: ").append(k.getAddress2AsString()).append('\n');
+			if (!k.getDutyphone().trim().isEmpty())
+				sb.append("Telefonnummer (dienstlich): ").append(k.getDutyphone()).append('\n');
+			if (!k.getPrivatephone().trim().isEmpty())
+				sb.append("Telefonnummer (privat): ").append(k.getPrivatephone()).append('\n');
+			if (!k.getMobilephone().trim().isEmpty())
+				sb.append("Telefonnummer (mobil): ").append(k.getMobilephone()).append('\n');
 		}
 
 		txtDetails.setEditable(true);

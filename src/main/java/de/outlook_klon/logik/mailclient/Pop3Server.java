@@ -6,14 +6,15 @@ import javax.mail.NoSuchProviderException;
 import javax.mail.Session;
 import javax.mail.Store;
 
-import com.sun.mail.pop3.POP3Folder;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * Diese Klasse stellt einen POP3-Server dar
  * 
  * @author Hendrik Karwanni
  */
-public class Pop3Server extends EmpfangsServer<POP3Folder> {
+public class Pop3Server extends EmpfangsServer {
 	private static final long serialVersionUID = 926746044207884587L;
 
 	/**
@@ -23,7 +24,8 @@ public class Pop3Server extends EmpfangsServer<POP3Folder> {
 	 * @param settings
 	 *            Einstellungen zur Serververbindung
 	 */
-	public Pop3Server(final ServerSettings settings) {
+	@JsonCreator
+	public Pop3Server(@JsonProperty("settings") ServerSettings settings) {
 		super(settings, "POP3");
 	}
 
@@ -35,7 +37,7 @@ public class Pop3Server extends EmpfangsServer<POP3Folder> {
 		props.put("mail.pop3.port", settings.getPort());
 		props.put("mail.pop3.auth", true);
 
-		if (settings.getVerbingungssicherheit() == Verbindungssicherheit.SSL_TLS) {
+		if (settings.getConnectionSecurity() == Verbindungssicherheit.SSL_TLS) {
 			props.put("mail.pop3.ssl.enable", true);
 		}
 
@@ -47,7 +49,7 @@ public class Pop3Server extends EmpfangsServer<POP3Folder> {
 		final Session session = getSession(new StandardAuthenticator(user, passwd));
 
 		Store store = null;
-		if (settings.getVerbingungssicherheit() == Verbindungssicherheit.SSL_TLS)
+		if (settings.getConnectionSecurity() == Verbindungssicherheit.SSL_TLS)
 			store = session.getStore("pop3s");
 		else
 			store = session.getStore("pop3");

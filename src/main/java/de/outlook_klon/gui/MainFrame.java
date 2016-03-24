@@ -102,7 +102,7 @@ public class MainFrame extends ExtendedFrame {
 	private JTree tree;
 	private HtmlEditorPane tpPreview;
 
-	private final Benutzer benutzer;
+	private Benutzer benutzer;
 	private JMenuItem mntmKonteneinstellungen;
 	private JMenuItem mntmAdressbuch;
 	private JMenuItem mntmKalendar;
@@ -524,11 +524,11 @@ public class MainFrame extends ExtendedFrame {
 
 					String ordnerName = selectedNode.toString();
 
-					setTitle(ordnerName + " - " + account.getAdresse().getAddress());
+					setTitle(ordnerName + " - " + account.getAddress().getAddress());
 				} else {
 					checker = (MailChecker) userObject;
 
-					setTitle(checker.getAccount().getAdresse().getAddress());
+					setTitle(checker.getAccount().getAddress().getAddress());
 				}
 
 				ladeMails(checker, selectedNode);
@@ -544,7 +544,13 @@ public class MainFrame extends ExtendedFrame {
 	 */
 	public MainFrame() {
 		setTitle("MailClient");
+
 		benutzer = Benutzer.getInstanz();
+		if(benutzer == null) {
+			JOptionPane.showMessageDialog(this, "Die Einstellungen konnten nicht geladen werden!",
+					"Fehler", JOptionPane.ERROR_MESSAGE);
+			System.exit(1);
+		}
 
 		JSplitPane horizontalSplitPane = new JSplitPane();
 
@@ -773,7 +779,7 @@ public class MainFrame extends ExtendedFrame {
 
 				while (iterator.hasNext()) {
 					MailAccount acc2 = iterator.next();
-					if (acc2.getAdresse().equals(acc.getAdresse())) {
+					if (acc2.getAddress().equals(acc.getAddress())) {
 						loeschbar.remove(acc2);
 					}
 				}
@@ -1139,7 +1145,7 @@ public class MainFrame extends ExtendedFrame {
 		if (userObject instanceof MailChecker) {
 			MailChecker checker = (MailChecker) userObject;
 			MailAccount acc = checker.getAccount();
-			menuTitel = acc.getAdresse().getAddress();
+			menuTitel = acc.getAddress().getAddress();
 		} else {
 			menuTitel = node.getUserObject().toString();
 		}

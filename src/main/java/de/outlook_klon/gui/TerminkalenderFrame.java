@@ -258,7 +258,7 @@ public class TerminkalenderFrame extends ExtendedFrame {
 
 		for (int i = 0; i < anzahl; i++) {
 			Termin a = einwegKalender.getOldest();
-			model.addRow(new Object[] { a, a.getBetreff(), a.getText(), a.getStart().toString() });
+			model.addRow(new Object[] { a, a.getSubject(), a.getText(), a.getStart().toString() });
 			einwegKalender.löscheTermin(a);
 		}
 	}
@@ -268,14 +268,14 @@ public class TerminkalenderFrame extends ExtendedFrame {
 
 		if (t != null) {
 
-			if (!t.getBetreff().trim().isEmpty())
-				sbshop.append("Betreff: ").append(t.getBetreff()).append('\n');
-			if (!t.getOrt().trim().isEmpty())
-				sbshop.append("Ort: ").append(t.getOrt()).append('\n');
+			if (!t.getSubject().trim().isEmpty())
+				sbshop.append("Betreff: ").append(t.getSubject()).append('\n');
+			if (!t.getLocation().trim().isEmpty())
+				sbshop.append("Ort: ").append(t.getLocation()).append('\n');
 			if (!t.getStart().toString().trim().isEmpty())
 				sbshop.append("Startzeit: ").append(t.getStart().toString()).append('\n');
-			if (!t.getEnde().toString().trim().isEmpty())
-				sbshop.append("Ende: ").append(t.getEnde().toString()).append('\n');
+			if (!t.getEnd().toString().trim().isEmpty())
+				sbshop.append("Ende: ").append(t.getEnd().toString()).append('\n');
 			if (!t.getText().trim().isEmpty())
 				sbshop.append("Info: ").append(t.getText()).append('\n');
 		}
@@ -333,7 +333,7 @@ public class TerminkalenderFrame extends ExtendedFrame {
 		ArrayList<String> apfel = new ArrayList<String>();
 		for (MailChecker checker : Benutzer.getInstanz()) {
 			MailAccount ma = checker.getAccount();
-			apfel.add(ma.getBenutzer());
+			apfel.add(ma.getUser());
 		}
 
 		for (String ben : apfel) {
@@ -348,7 +348,7 @@ public class TerminkalenderFrame extends ExtendedFrame {
 					if (arg0.getStateChange() == ItemEvent.SELECTED) {
 						ArrayList<Termin> temp = new ArrayList<Termin>();
 						for (Termin t : hiddenTermine) {
-							String benutzer = t.getBenutzerkonto();
+							String benutzer = t.getUser();
 
 							if (text.equals(benutzer)) {
 								temp.add(t);
@@ -360,7 +360,7 @@ public class TerminkalenderFrame extends ExtendedFrame {
 
 					} else {
 						for (Termin t : allTermine) {
-							String benutzer = t.getBenutzerkonto();
+							String benutzer = t.getUser();
 							if (text.equals(benutzer))// Name?
 							{
 								hiddenTermine.add(t);

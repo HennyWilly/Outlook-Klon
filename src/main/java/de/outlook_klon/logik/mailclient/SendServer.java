@@ -3,9 +3,9 @@ package de.outlook_klon.logik.mailclient;
 import java.io.File;
 import java.io.IOException;
 
+import javax.mail.Address;
 import javax.mail.Message;
 import javax.mail.MessagingException;
-import javax.mail.internet.InternetAddress;
 
 /**
  * Abstrakte Basisklasse für alle Mailserver, über die Mails gesendet werden
@@ -54,7 +54,7 @@ public abstract class SendServer extends MailServer {
 	 *             Tritt auf, wenn einer der zu sendenden Anhänge nicht gefunden
 	 *             wurde
 	 */
-	public abstract Message sendeMail(String user, String passwd, InternetAddress from, InternetAddress[] to,
-			InternetAddress[] cc, String subject, String text, String format, File[] attachment)
+	public abstract Message sendeMail(String user, String passwd, Address from, Address[] to,
+			Address[] cc, String subject, String text, String format, File[] attachment)
 			throws MessagingException;
 }

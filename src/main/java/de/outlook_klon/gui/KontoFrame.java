@@ -233,29 +233,29 @@ public class KontoFrame extends ExtendedDialog<MailAccount> {
 
 		initFrame();
 
-		EmpfangsServer<?> inServer = acc.getEmpfangsServer();
-		SendServer outServer = acc.getSendServer();
+		EmpfangsServer inServer = acc.getIncomingMailServer();
+		SendServer outServer = acc.getOutgoingMailServer();
 
-		txtAnzeigename.setText(acc.getAdresse().getPersonal());
-		txtMail.setText(acc.getAdresse().getAddress());
-		txtBenutzername.setText(acc.getBenutzer());
+		txtAnzeigename.setText(acc.getAddress().getPersonal());
+		txtMail.setText(acc.getAddress().getAddress());
+		txtBenutzername.setText(acc.getUser());
 
 		if (inServer != null) {
 			ServerSettings settings = inServer.getSettings();
 
-			cbInProtokoll.setSelectedItem(inServer.getServerTyp());
+			cbInProtokoll.setSelectedItem(inServer.getServerType());
 			txtInServer.setText(settings.getHost());
 			spInPort.setValue(settings.getPort());
-			cBInVerbindungssicherheit.setSelectedItem(settings.getVerbingungssicherheit());
-			cBInAuthentifizierung.setSelectedItem(settings.getAuthentifizierungsart());
+			cBInVerbindungssicherheit.setSelectedItem(settings.getConnectionSecurity());
+			cBInAuthentifizierung.setSelectedItem(settings.getAuthentificationType());
 		}
 		if (outServer != null) {
 			ServerSettings settings = outServer.getSettings();
 
 			txtOutServer.setText(settings.getHost());
 			spOutPort.setValue(settings.getPort());
-			cBOutVerbindungssicherheit.setSelectedItem(settings.getVerbingungssicherheit());
-			cBOutAuthentifizierung.setSelectedItem(settings.getAuthentifizierungsart());
+			cBOutVerbindungssicherheit.setSelectedItem(settings.getConnectionSecurity());
+			cBOutAuthentifizierung.setSelectedItem(settings.getAuthentificationType());
 		}
 	}
 
@@ -270,7 +270,7 @@ public class KontoFrame extends ExtendedDialog<MailAccount> {
 				cBInAuthentifizierung.getItemAt(cBInAuthentifizierung.getSelectedIndex()));
 
 		// Instanz für den Mailempfang erstellen
-		EmpfangsServer<?> empfang = null;
+		EmpfangsServer empfang = null;
 		if (cbInProtokoll.getSelectedItem().equals("IMAP")) {
 			empfang = new ImapServer(empfangsSettings);
 		} else if (cbInProtokoll.getSelectedItem().equals("POP3")) {

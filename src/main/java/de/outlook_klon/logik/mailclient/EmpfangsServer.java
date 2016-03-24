@@ -1,6 +1,5 @@
 package de.outlook_klon.logik.mailclient;
 
-import javax.mail.Folder;
 import javax.mail.MessagingException;
 import javax.mail.NoSuchProviderException;
 import javax.mail.Store;
@@ -14,7 +13,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author Hendrik Karwanni
  */
-public abstract class EmpfangsServer<TMailFolder extends Folder> extends MailServer {
+public abstract class EmpfangsServer extends MailServer {
 	private static final long serialVersionUID = -6475925504329915182L;
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(EmpfangsServer.class);

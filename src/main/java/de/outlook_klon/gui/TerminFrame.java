@@ -78,12 +78,12 @@ public class TerminFrame extends ExtendedDialog<Termin> {
 								comboKontakt.getSelectedItem().toString());
 					} else {
 
-						mTermin.setBetreff(textBetreff.getText());
-						mTermin.setOrt(textOrt.getText());
+						mTermin.setSubject(textBetreff.getText());
+						mTermin.setLocation(textOrt.getText());
 						mTermin.setText(textBeschreibung.getText());
-						mTermin.setStartUndEnde(model1.getDate(), model2.getDate());
-						mTermin.setBenutzerkonto(comboKonto.getSelectedItem().toString());
-						mTermin.setKontakt(comboKontakt.getSelectedItem().toString());
+						mTermin.setTimes(model1.getDate(), model2.getDate());
+						mTermin.setUser(comboKonto.getSelectedItem().toString());
+						mTermin.setContact(comboKontakt.getSelectedItem().toString());
 
 					}
 
@@ -106,7 +106,7 @@ public class TerminFrame extends ExtendedDialog<Termin> {
 		ArrayList<String> benutzerKonten = new ArrayList<String>();
 		for (MailChecker checker : Benutzer.getInstanz()) {
 			MailAccount ma = checker.getAccount();
-			benutzerKonten.add(ma.getAdresse().getAddress());
+			benutzerKonten.add(ma.getAddress().getAddress());
 		}
 
 		int comboSize1 = benutzerKonten.size() + 1;
@@ -118,7 +118,7 @@ public class TerminFrame extends ExtendedDialog<Termin> {
 
 		ArrayList<String> allKontakte = new ArrayList<String>();
 		for (Kontakt k : Benutzer.getInstanz().getKontakte()) {
-			allKontakte.add(k.getAnzeigename());
+			allKontakte.add(k.getDisplayname());
 		}
 
 		int comboSize2 = allKontakte.size() + 1;
@@ -252,13 +252,13 @@ public class TerminFrame extends ExtendedDialog<Termin> {
 		mTermin = t;
 		initFrame();
 		this.setTitle("Termin bearbeiten");
-		textBetreff.setText(t.getBetreff());
-		textOrt.setText(t.getOrt());
+		textBetreff.setText(t.getSubject());
+		textOrt.setText(t.getLocation());
 		textBeschreibung.setText(t.getText());
 		dateStart.setValue(t.getStart());
-		dateEnde.setValue(t.getEnde());
-		comboKonto.setSelectedItem(t.getBenutzerkonto());
-		comboKontakt.setSelectedItem(t.getKontakt());
+		dateEnde.setValue(t.getEnd());
+		comboKonto.setSelectedItem(t.getUser());
+		comboKontakt.setSelectedItem(t.getContact());
 	}
 
 	public TerminFrame(Date date) {
