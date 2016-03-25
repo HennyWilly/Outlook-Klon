@@ -97,8 +97,8 @@ public class TestKontaktverwaltung {
         String[] lists = new String[]{"test", "work"};
         String[] expected = new String[]{Kontaktverwaltung.DEFAULT, "test", "work"};
 
-        for (int i = 0; i < lists.length; i++) {
-            verwaltung.addListe(lists[i]);
+        for (String list : lists) {
+            verwaltung.addListe(list);
         }
         String[] result = verwaltung.getListen();
         Arrays.sort(result);
