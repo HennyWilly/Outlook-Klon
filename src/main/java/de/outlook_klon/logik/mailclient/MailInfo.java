@@ -1,8 +1,18 @@
 package de.outlook_klon.logik.mailclient;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.Set;
 
 import javax.mail.Address;
+import javax.mail.BodyPart;
+import javax.mail.Message;
+import javax.mail.MessagingException;
+import javax.mail.Multipart;
+import javax.mail.Part;
+import javax.mail.Flags.Flag;
+import javax.mail.Message.RecipientType;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -74,6 +84,151 @@ public class MailInfo implements Comparable<MailInfo> {
 		setAttachment(attachment);
 	}
 
+	public void loadData(Message serverMessage, Set<MailContent> contents) throws MessagingException, IOException {
+		if (serverMessage == null) {
+			throw new NullPointerException("serverMessage is null");
+		}
+		if (contents == null) {
+			throw new NullPointerException("contents is null");
+		}
+
+		for (MailContent contentType : contents) {
+			switch (contentType) {
+			case ID:
+				if(getID() == null) {
+					throw new IllegalStateException("ID not set");
+				}
+				break;
+			case READ:
+				setRead(serverMessage.isSet(Flag.SEEN));
+				break;
+			case SUBJECT:
+				if (getSubject() == null)
+					setSubject(serverMessage.getSubject());
+				break;
+			case SENDER:
+				if (getSender() == null)
+					setSender(serverMessage.getFrom()[0]);
+				break;
+			case DATE:
+				if (getDate() == null)
+					setDate(serverMessage.getSentDate());
+				break;
+			case TEXT:
+				if (getText() == null)
+					setText(getText(serverMessage));
+				break;
+			case CONTENTTYPE:
+				if (getContentType() == null)
+					setContentType(getType(serverMessage));
+				break;
+			case TO:
+				if (getTo() == null) {
+					Address[] to = serverMessage.getRecipients(RecipientType.TO);
+					if (to == null)
+						to = new Address[0];
+					setTo(to);
+				}
+				break;
+			case CC:
+				if (getCc() == null) {
+					Address[] cc = serverMessage.getRecipients(RecipientType.CC);
+					if (cc == null)
+						cc = new Address[0];
+					setCc(cc);
+				}
+				break;
+			case ATTACHMENT:
+				if (getAttachment() == null) {
+					final ArrayList<String> attachment = new ArrayList<String>();
+					if (serverMessage.getContent() instanceof Multipart) {
+						final Multipart mp = (Multipart) serverMessage.getContent();
+
+						for (int i = 0; i < mp.getCount(); i++) {
+							final BodyPart bp = mp.getBodyPart(i);
+							final String filename = bp.getFileName();
+
+							if (filename != null && !filename.isEmpty())
+								attachment.add(bp.getFileName());
+						}
+					}
+
+					setAttachment(attachment.toArray(new String[attachment.size()]));
+				}
+				break;
+			default:
+				throw new IllegalStateException("Not implemented");
+			}
+		}
+	}
+
+	/**
+	 * Durchsucht den übergebenen <code>Part</code> nach dem Text der E-Mail
+	 * 
+	 * @param p
+	 *            <code>Part</code>-Objekt, indem der Text gesucht werden soll
+	 * @return Text der E-Mail
+	 */
+	private String getText(final Part p) throws MessagingException, IOException {
+		if (p.isMimeType("text/*")) {
+			return (String) p.getContent();
+		}
+
+		if (p.isMimeType("multipart/alternative")) {
+			final Multipart mp = (Multipart) p.getContent();
+			String text = null;
+			for (int i = 0; i < mp.getCount(); i++) {
+				final Part bp = mp.getBodyPart(i);
+				if (bp.isMimeType("text/plain")) {
+					if (text == null)
+						text = getText(bp);
+					continue;
+				} else if (bp.isMimeType("text/html")) {
+					final String s = getText(bp);
+					if (s != null)
+						return s;
+				} else
+					return getText(bp);
+			}
+			return text;
+		} else if (p.isMimeType("multipart/*")) {
+			final Multipart mp = (Multipart) p.getContent();
+			for (int i = 0; i < mp.getCount(); i++) {
+				final String s = getText(mp.getBodyPart(i));
+				if (s != null)
+					return s;
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * Durchsucht den übergebenen <code>Part</code> nach dem ContentType der
+	 * E-Mail
+	 * 
+	 * @param p
+	 *            <code>Part</code>-Objekt, indem der Text gesucht werden soll
+	 * @return ContentType der E-Mail
+	 */
+	private String getType(final Part p) throws IOException, MessagingException {
+		if (p.isMimeType("text/*"))
+			return p.getContentType();
+
+		final Object content = p.getContent();
+		if (content instanceof Multipart) {
+			final Multipart mp = (Multipart) content;
+			for (int i = 0; i < mp.getCount(); i++) {
+				final BodyPart bp = mp.getBodyPart(i);
+				if (bp.getDisposition() == Part.ATTACHMENT)
+					continue;
+
+				return getType(bp);
+			}
+		}
+		return "text/plain";
+	}
+
 	/**
 	 * Gibt die ID der Mail zurück
 	 * 
@@ -84,6 +239,9 @@ public class MailInfo implements Comparable<MailInfo> {
 	}
 
 	private void setID(String id) {
+		if(id == null)
+			throw new NullPointerException("id is null");
+		
 		this.id = id;
 	}
 

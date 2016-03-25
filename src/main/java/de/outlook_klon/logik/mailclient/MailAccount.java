@@ -2,19 +2,16 @@ package de.outlook_klon.logik.mailclient;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Date;
+import java.util.EnumSet;
 import java.util.HashSet;
 
 import javax.mail.Address;
 import javax.mail.AuthenticationFailedException;
-import javax.mail.BodyPart;
 import javax.mail.FetchProfile;
 import javax.mail.Flags;
 import javax.mail.Flags.Flag;
 import javax.mail.Folder;
 import javax.mail.Message;
-import javax.mail.Message.RecipientType;
 import javax.mail.MessagingException;
 import javax.mail.Multipart;
 import javax.mail.Part;
@@ -320,16 +317,12 @@ public class MailAccount {
 
 				MailInfo tmp = ladeMailInfo(lokalerPfad);
 				if (tmp == null) {
-					final boolean read = message.isSet(Flag.SEEN);
-					final String subject = message.getSubject();
-					final Address from = message.getFrom()[0];
-					final Date sendDate = message.getSentDate();
-
 					tmp = new MailInfo(id);
-					tmp.setRead(read);
-					tmp.setSubject(subject);
-					tmp.setSender(from);
-					tmp.setDate(sendDate);
+					tmp.loadData(message, EnumSet.of(
+							MailContent.READ, 
+							MailContent.SUBJECT, 
+							MailContent.SENDER, 
+							MailContent.DATE));
 
 					speichereMailInfo(tmp, pfad);
 				}
@@ -355,73 +348,6 @@ public class MailAccount {
 				LOGGER.error("Could not close folder", ex);
 			}
 		}
-	}
-
-	/**
-	 * Durchsucht den übergebenen <code>Part</code> nach dem Text der E-Mail
-	 * 
-	 * @param p
-	 *            <code>Part</code>-Objekt, indem der Text gesucht werden soll
-	 * @return Text der E-Mail
-	 */
-	private String getText(final Part p) throws MessagingException, IOException {
-		if (p.isMimeType("text/*")) {
-			return (String) p.getContent();
-		}
-
-		if (p.isMimeType("multipart/alternative")) {
-			final Multipart mp = (Multipart) p.getContent();
-			String text = null;
-			for (int i = 0; i < mp.getCount(); i++) {
-				final Part bp = mp.getBodyPart(i);
-				if (bp.isMimeType("text/plain")) {
-					if (text == null)
-						text = getText(bp);
-					continue;
-				} else if (bp.isMimeType("text/html")) {
-					final String s = getText(bp);
-					if (s != null)
-						return s;
-				} else
-					return getText(bp);
-			}
-			return text;
-		} else if (p.isMimeType("multipart/*")) {
-			final Multipart mp = (Multipart) p.getContent();
-			for (int i = 0; i < mp.getCount(); i++) {
-				final String s = getText(mp.getBodyPart(i));
-				if (s != null)
-					return s;
-			}
-		}
-
-		return null;
-	}
-
-	/**
-	 * Durchsucht den übergebenen <code>Part</code> nach dem ContentType der
-	 * E-Mail
-	 * 
-	 * @param p
-	 *            <code>Part</code>-Objekt, indem der Text gesucht werden soll
-	 * @return ContentType der E-Mail
-	 */
-	private String getTyp(final Part p) throws IOException, MessagingException {
-		if (p.isMimeType("text/*"))
-			return p.getContentType();
-
-		final Object content = p.getContent();
-		if (content instanceof Multipart) {
-			final Multipart mp = (Multipart) content;
-			for (int i = 0; i < mp.getCount(); i++) {
-				final BodyPart bp = mp.getBodyPart(i);
-				if (bp.getDisposition() == Part.ATTACHMENT)
-					continue;
-
-				return getTyp(bp);
-			}
-		}
-		return "text/plain";
 	}
 
 	/**
@@ -451,14 +377,11 @@ public class MailAccount {
 			final Message message = infoToMessage(messageInfo, folder);
 
 			if (message != null) {
-				if (messageInfo.getText() == null)
-					messageInfo.setText(getText(message));
-				if (messageInfo.getContentType() == null)
-					messageInfo.setContentType(getTyp(message));
-				if (!messageInfo.isRead()) {
-					message.setFlag(Flag.SEEN, true);
-					messageInfo.setRead(true);
-				}
+				message.setFlag(Flag.SEEN, true);
+				messageInfo.loadData(message, EnumSet.of(
+								MailContent.TEXT, 
+								MailContent.CONTENTTYPE, 
+								MailContent.READ));
 
 				speichereMailInfo(messageInfo, pfad);
 			}
@@ -495,48 +418,8 @@ public class MailAccount {
 
 			final Message message = infoToMessage(messageInfo, folder);
 			if (message != null) {
-				if (messageInfo.getText() == null)
-					messageInfo.setText(getText(message));
-				if (messageInfo.getContentType() == null)
-					messageInfo.setContentType(getTyp(message));
-				if (messageInfo.getSubject() == null)
-					messageInfo.setSubject(message.getSubject());
-				if (messageInfo.getSender() == null)
-					messageInfo.setSender(message.getFrom()[0]);
-				if (messageInfo.getDate() == null)
-					messageInfo.setDate(message.getSentDate());
-				if (messageInfo.getTo() == null) {
-					Address[] to = message.getRecipients(RecipientType.TO);
-					if (to == null)
-						to = new Address[0];
-					messageInfo.setTo(to);
-				}
-				if (messageInfo.getCc() == null) {
-					Address[] cc = message.getRecipients(RecipientType.CC);
-					if (cc == null)
-						cc = new Address[0];
-					messageInfo.setCc(cc);
-				}
-				if (!messageInfo.isRead()) {
-					message.setFlag(Flag.SEEN, true);
-					messageInfo.setRead(true);
-				}
-				if (messageInfo.getAttachment() == null) {
-					final ArrayList<String> attachment = new ArrayList<String>();
-					if (message.getContent() instanceof Multipart) {
-						final Multipart mp = (Multipart) message.getContent();
-
-						for (int i = 0; i < mp.getCount(); i++) {
-							final BodyPart bp = mp.getBodyPart(i);
-							final String filename = bp.getFileName();
-
-							if (filename != null && !filename.isEmpty())
-								attachment.add(bp.getFileName());
-						}
-					}
-
-					messageInfo.setAttachment(attachment.toArray(new String[attachment.size()]));
-				}
+				message.setFlag(Flag.SEEN, true);
+				messageInfo.loadData(message, EnumSet.allOf(MailContent.class));
 
 				speichereMailInfo(messageInfo, pfad);
 			}
