@@ -2,107 +2,104 @@ package de.outlook_klon.logik.mailclient;
 
 /**
  * Datenklasse zum Halten von abgefragten Informationen von Ordnern
- * 
+ *
  * @author Hendrik Karwanni
  */
 public class OrdnerInfo {
-	private String name;
-	private String pfad;
-	private int anzahlUngelesen;
 
-	/**
-	 * Ertsellt eine neue Instanz der Klasse OrdnerInfo mit den übergebenen
-	 * Werten
-	 * 
-	 * @param name
-	 *            Name des Ordners
-	 * @param pfad
-	 *            Pfad innerhalb des MailStores
-	 * @param anzahlUngelesen
-	 *            Anzahl ungelesener Nachrichten
-	 */
-	public OrdnerInfo(String name, String pfad, int anzahlUngelesen) {
-		setName(name);
-		setPfad(pfad);
-		setAnzahlUngelesen(anzahlUngelesen);
-	}
+    private String name;
+    private String pfad;
+    private int anzahlUngelesen;
 
-	/**
-	 * Gibt den Namen des Ordners zurück
-	 * 
-	 * @return Name des Ordners
-	 */
-	public String getName() {
-		return name;
-	}
+    /**
+     * Ertsellt eine neue Instanz der Klasse OrdnerInfo mit den übergebenen
+     * Werten
+     *
+     * @param name Name des Ordners
+     * @param pfad Pfad innerhalb des MailStores
+     * @param anzahlUngelesen Anzahl ungelesener Nachrichten
+     */
+    public OrdnerInfo(String name, String pfad, int anzahlUngelesen) {
+        setName(name);
+        setPfad(pfad);
+        setAnzahlUngelesen(anzahlUngelesen);
+    }
 
-	/**
-	 * Setzt den Namen des Ordners
-	 * 
-	 * @param name
-	 *            Name des Ordners
-	 */
-	public void setName(String name) {
-		this.name = name;
-	}
+    /**
+     * Gibt den Namen des Ordners zurück
+     *
+     * @return Name des Ordners
+     */
+    public String getName() {
+        return name;
+    }
 
-	/**
-	 * Gibt den Pfad des Ordners innerhalb des MailStores zurück
-	 * 
-	 * @return Pfad des Ordners
-	 */
-	public String getPfad() {
-		return pfad;
-	}
+    /**
+     * Setzt den Namen des Ordners
+     *
+     * @param name Name des Ordners
+     */
+    public void setName(String name) {
+        this.name = name;
+    }
 
-	/**
-	 * Setzt den Pfad des Ordners innerhalb des MailStores
-	 * 
-	 * @param pfad
-	 *            Pfad des Ordners
-	 */
-	public void setPfad(String pfad) {
-		this.pfad = pfad;
-	}
+    /**
+     * Gibt den Pfad des Ordners innerhalb des MailStores zurück
+     *
+     * @return Pfad des Ordners
+     */
+    public String getPfad() {
+        return pfad;
+    }
 
-	/**
-	 * Gibt die Anzahl an ungelesenen Mails innerhalb des Ordners zurück
-	 * 
-	 * @return Anzahl an ungelesenen Mails
-	 */
-	public int getAnzahlUngelesen() {
-		return anzahlUngelesen;
-	}
+    /**
+     * Setzt den Pfad des Ordners innerhalb des MailStores
+     *
+     * @param pfad Pfad des Ordners
+     */
+    public void setPfad(String pfad) {
+        this.pfad = pfad;
+    }
 
-	/**
-	 * Setzt die Anzahl an ungelesenen Mails innerhalb des Ordners
-	 * 
-	 * @param anzahlUngelesen
-	 *            Anzahl an ungelesenen Mails
-	 */
-	public void setAnzahlUngelesen(int anzahlUngelesen) {
-		this.anzahlUngelesen = anzahlUngelesen;
-	}
+    /**
+     * Gibt die Anzahl an ungelesenen Mails innerhalb des Ordners zurück
+     *
+     * @return Anzahl an ungelesenen Mails
+     */
+    public int getAnzahlUngelesen() {
+        return anzahlUngelesen;
+    }
 
-	@Override
-	public String toString() {
-		return name;
-	}
+    /**
+     * Setzt die Anzahl an ungelesenen Mails innerhalb des Ordners
+     *
+     * @param anzahlUngelesen Anzahl an ungelesenen Mails
+     */
+    public void setAnzahlUngelesen(int anzahlUngelesen) {
+        this.anzahlUngelesen = anzahlUngelesen;
+    }
 
-	@Override
-	public boolean equals(Object other) {
-		if (other == null || !(other instanceof OrdnerInfo))
-			return false;
-		if (this == other)
-			return true;
+    @Override
+    public String toString() {
+        return name;
+    }
 
-		OrdnerInfo ordner = (OrdnerInfo) other;
+    @Override
+    public boolean equals(Object other) {
+        if (other == null || !(other instanceof OrdnerInfo)) {
+            return false;
+        }
+        if (this == other) {
+            return true;
+        }
 
-		return this.pfad.equals(ordner.pfad);
-	}
+        OrdnerInfo ordner = (OrdnerInfo) other;
 
-	@Override
-	public int hashCode() {
-		return this.pfad.hashCode();
-	}
+        return this.pfad.equals(ordner.pfad);
+    }
+
+    @Override
+    public int hashCode() {
+        return this.pfad.hashCode();
+    }
 }

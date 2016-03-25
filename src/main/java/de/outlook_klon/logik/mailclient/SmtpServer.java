@@ -1,10 +1,11 @@
 package de.outlook_klon.logik.mailclient;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
 import java.util.Properties;
-
 import javax.mail.Address;
 import javax.mail.Flags;
 import javax.mail.Message;
@@ -16,151 +17,149 @@ import javax.mail.Transport;
 import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 /**
  * Diese Klasse stellt einen Simple-Mail-Transport-Server(SMTP) dar.
- * 
+ *
  * @author Hendrik Karwanni
  */
 public class SmtpServer extends SendServer {
-	private static final long serialVersionUID = -4486714062786025360L;
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(SmtpServer.class);
+    private static final long serialVersionUID = -4486714062786025360L;
 
-	/**
-	 * Erstellt eine neue Instanz eines SMTP-Servers mit den übergebenen
-	 * Einstellungen
-	 * 
-	 * @param settings
-	 *            Einstellungen zur Serververbindung
-	 */
-	@JsonCreator
-	public SmtpServer(@JsonProperty("settings") ServerSettings settings) {
-		super(settings, "SMTP");
-	}
+    private static final Logger LOGGER = LoggerFactory.getLogger(SmtpServer.class);
 
-	@Override
-	protected Properties getProperties() {
-		final int port = settings.getPort();
-		final Verbindungssicherheit sicherheit = settings.getConnectionSecurity();
-		final Properties props = new Properties();
+    /**
+     * Erstellt eine neue Instanz eines SMTP-Servers mit den übergebenen
+     * Einstellungen
+     *
+     * @param settings Einstellungen zur Serververbindung
+     */
+    @JsonCreator
+    public SmtpServer(@JsonProperty("settings") ServerSettings settings) {
+        super(settings, "SMTP");
+    }
 
-		props.put("mail.smtp.debug", "true");
-		props.put("mail.smtp.auth", "true");
-		if (sicherheit == Verbindungssicherheit.STARTTLS) {
-			props.put("mail.smtp.starttls.enable", "true");
-		} else if (sicherheit == Verbindungssicherheit.SSL_TLS) {
-			props.put("mail.smtp.socketFactory.port", port);
-			props.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
-			props.put("mail.smtp.socketFactory.fallback", "false");
-		}
+    @Override
+    protected Properties getProperties() {
+        final int port = settings.getPort();
+        final Verbindungssicherheit sicherheit = settings.getConnectionSecurity();
+        final Properties props = new Properties();
 
-		return props;
-	}
+        props.put("mail.smtp.debug", "true");
+        props.put("mail.smtp.auth", "true");
+        if (sicherheit == Verbindungssicherheit.STARTTLS) {
+            props.put("mail.smtp.starttls.enable", "true");
+        } else if (sicherheit == Verbindungssicherheit.SSL_TLS) {
+            props.put("mail.smtp.socketFactory.port", port);
+            props.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
+            props.put("mail.smtp.socketFactory.fallback", "false");
+        }
 
-	@Override
-	public Message sendeMail(final String user, final String passwd, final Address from,
-			final Address[] to, final Address[] cc, final String subject, final String text,
-			final String format, final File[] attachments) throws MessagingException {
-		final Verbindungssicherheit sicherheit = settings.getConnectionSecurity();
+        return props;
+    }
 
-		final Session session = getSession(new StandardAuthenticator(user, passwd));
+    @Override
+    public Message sendeMail(final String user, final String passwd, final Address from,
+            final Address[] to, final Address[] cc, final String subject, final String text,
+            final String format, final File[] attachments) throws MessagingException {
+        final Verbindungssicherheit sicherheit = settings.getConnectionSecurity();
 
-		final MimeMessage mail = new MimeMessage(session);
-		mail.setFrom(from);
+        final Session session = getSession(new StandardAuthenticator(user, passwd));
 
-		for (final Address adrTo : to) {
-			if (adrTo != null)
-				mail.addRecipient(RecipientType.TO, adrTo);
-		}
+        final MimeMessage mail = new MimeMessage(session);
+        mail.setFrom(from);
 
-		if (cc != null && cc.length > 0) {
-			for (final Address adrCC : cc) {
-				if (adrCC != null)
-					mail.addRecipient(RecipientType.CC, adrCC);
-			}
-		}
+        for (final Address adrTo : to) {
+            if (adrTo != null) {
+                mail.addRecipient(RecipientType.TO, adrTo);
+            }
+        }
 
-		mail.setSubject(subject);
+        if (cc != null && cc.length > 0) {
+            for (final Address adrCC : cc) {
+                if (adrCC != null) {
+                    mail.addRecipient(RecipientType.CC, adrCC);
+                }
+            }
+        }
 
-		final MimeMultipart multiPart = new MimeMultipart();
-		final MimeBodyPart textPart = new MimeBodyPart();
-		textPart.setContent(text, format);
-		textPart.setDisposition(Part.INLINE);
-		multiPart.addBodyPart(textPart);
+        mail.setSubject(subject);
 
-		if (attachments != null) {
-			try {
-				for (final File attachment : attachments) {
-					// Fügt jeden Anhang der Mail hinzu
+        final MimeMultipart multiPart = new MimeMultipart();
+        final MimeBodyPart textPart = new MimeBodyPart();
+        textPart.setContent(text, format);
+        textPart.setDisposition(Part.INLINE);
+        multiPart.addBodyPart(textPart);
 
-					final MimeBodyPart attachmentPart = new MimeBodyPart();
-					attachmentPart.attachFile(attachment);
-					attachmentPart.setDisposition(Part.ATTACHMENT);
-					multiPart.addBodyPart(attachmentPart);
-				}
-			} catch (IOException ex) {
-				throw new MessagingException("Could not access attachment", ex);
-			}
-		}
+        if (attachments != null) {
+            try {
+                for (final File attachment : attachments) {
+                    // Fügt jeden Anhang der Mail hinzu
 
-		mail.setContent(multiPart);
-		mail.setSentDate(new Date());
+                    final MimeBodyPart attachmentPart = new MimeBodyPart();
+                    attachmentPart.attachFile(attachment);
+                    attachmentPart.setDisposition(Part.ATTACHMENT);
+                    multiPart.addBodyPart(attachmentPart);
+                }
+            } catch (IOException ex) {
+                throw new MessagingException("Could not access attachment", ex);
+            }
+        }
 
-		Transport transport = null;
-		if (sicherheit == Verbindungssicherheit.SSL_TLS) {
-			transport = session.getTransport("smtps");
-		} else {
-			transport = session.getTransport("smtp");
-		}
+        mail.setContent(multiPart);
+        mail.setSentDate(new Date());
 
-		transport.connect(settings.getHost(), settings.getPort(), user, passwd);
-		transport.sendMessage(mail, mail.getAllRecipients());
-		transport.close();
+        Transport transport = null;
+        if (sicherheit == Verbindungssicherheit.SSL_TLS) {
+            transport = session.getTransport("smtps");
+        } else {
+            transport = session.getTransport("smtp");
+        }
 
-		mail.setFlag(Flags.Flag.SEEN, true);
+        transport.connect(settings.getHost(), settings.getPort(), user, passwd);
+        transport.sendMessage(mail, mail.getAllRecipients());
+        transport.close();
 
-		return mail;
-	}
+        mail.setFlag(Flags.Flag.SEEN, true);
 
-	@Override
-	public boolean pruefeLogin(final String benutzername, final String passwort) {
-		boolean result = true;
+        return mail;
+    }
 
-		final String host = settings.getHost();
-		final int port = settings.getPort();
-		final Verbindungssicherheit sicherheit = settings.getConnectionSecurity();
+    @Override
+    public boolean pruefeLogin(final String benutzername, final String passwort) {
+        boolean result = true;
 
-		final Session session = getSession(new StandardAuthenticator(benutzername, passwort));
+        final String host = settings.getHost();
+        final int port = settings.getPort();
+        final Verbindungssicherheit sicherheit = settings.getConnectionSecurity();
 
-		Transport transport = null;
-		try {
-			if (sicherheit == Verbindungssicherheit.SSL_TLS) {
-				transport = session.getTransport("smtps");
-			} else {
-				transport = session.getTransport("smtp");
-			}
+        final Session session = getSession(new StandardAuthenticator(benutzername, passwort));
 
-			transport.connect(host, port, benutzername, passwort);
-		} catch (MessagingException ex) {
-			LOGGER.error("Could not get transport object", ex);
-			result = false;
-		} finally {
-			if (transport != null && transport.isConnected()) {
-				try {
-					transport.close();
-				} catch (MessagingException ex) {
-					LOGGER.error("Could not close transport object", ex);
-				}
-			}
-		}
+        Transport transport = null;
+        try {
+            if (sicherheit == Verbindungssicherheit.SSL_TLS) {
+                transport = session.getTransport("smtps");
+            } else {
+                transport = session.getTransport("smtp");
+            }
 
-		return result;
-	}
+            transport.connect(host, port, benutzername, passwort);
+        } catch (MessagingException ex) {
+            LOGGER.error("Could not get transport object", ex);
+            result = false;
+        } finally {
+            if (transport != null && transport.isConnected()) {
+                try {
+                    transport.close();
+                } catch (MessagingException ex) {
+                    LOGGER.error("Could not close transport object", ex);
+                }
+            }
+        }
+
+        return result;
+    }
 }

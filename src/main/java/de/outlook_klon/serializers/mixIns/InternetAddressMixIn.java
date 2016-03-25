@@ -2,7 +2,6 @@ package de.outlook_klon.serializers.mixIns;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-
 import de.outlook_klon.serializers.InternetAddressDeserializer;
 
 /**
@@ -10,18 +9,18 @@ import de.outlook_klon.serializers.InternetAddressDeserializer;
  * deserialize non-public sub classes of
  * {@link javax.mail.internet.InternetAddress}, a custom
  * {@link com.fasterxml.jackson.databind.JsonDeserializer} is used.
- * 
+ *
  * @author Hendrik Karwanni
  */
 @JsonDeserialize(using = InternetAddressDeserializer.class)
 public abstract class InternetAddressMixIn {
 
-	/**
-	 * Ignore method {@link javax.mail.internet.InternetAddress#isGroup()}
-	 * during serialization.
-	 * 
-	 * @return Some interesting stuff....
-	 */
-	@JsonIgnore
-	public abstract boolean isGroup();
+    /**
+     * Ignore method {@link javax.mail.internet.InternetAddress#isGroup()}
+     * during serialization.
+     *
+     * @return Some interesting stuff....
+     */
+    @JsonIgnore
+    public abstract boolean isGroup();
 }
