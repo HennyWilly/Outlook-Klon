@@ -37,6 +37,7 @@ public final class Serializer {
      * Deserializes a given {@link java.io.File} into an object of type
      * {@code T}.
      *
+     * @param <T> type of the deserialized instance
      * @param target target file for deserialization
      * @param clazz target type of resulting object
      * @return a deserialized object
@@ -60,6 +61,7 @@ public final class Serializer {
     /**
      * Serializes an object of type {@code T} into a {@link java.io.File}.
      *
+     * @param <T> type of the serialized instance
      * @param target target file for serialization
      * @param value object to be serialized
      * @throws IOException if serialization fails

@@ -1,7 +1,6 @@
 package de.outlook_klon.logik.mailclient;
 
 import java.io.File;
-import java.io.IOException;
 import javax.mail.Address;
 import javax.mail.Message;
 import javax.mail.MessagingException;
@@ -38,11 +37,11 @@ public abstract class SendServer extends MailServer {
      * @param cc CCs der Mail
      * @param subject Betreff der Mail
      * @param text Text der Mail
+     * @param format Format der Mail
+     * @param attachment Anhänge der Mail
      * @return Gibt die gesendete Mail zurück
      * @throws MessagingException Tritt auf, wenn das Senden der Mail
-     * fehlschlägt
-     * @throws IOException Tritt auf, wenn einer der zu sendenden Anhänge nicht
-     * gefunden wurde
+     * fehlschlägt oder einer der zu sendenden Anhänge nicht gefunden wurde
      */
     public abstract Message sendeMail(String user, String passwd, Address from, Address[] to,
             Address[] cc, String subject, String text, String format, File[] attachment)

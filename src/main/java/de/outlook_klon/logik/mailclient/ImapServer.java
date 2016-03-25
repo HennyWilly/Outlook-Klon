@@ -46,7 +46,7 @@ public class ImapServer extends EmpfangsServer {
     public Store getMailStore(final String user, final String passwd) throws NoSuchProviderException {
         final Session session = getSession(new StandardAuthenticator(user, passwd));
 
-        Store store = null;
+        Store store;
         if (settings.getConnectionSecurity() == Verbindungssicherheit.SSL_TLS) {
             store = session.getStore("imaps");
         } else {

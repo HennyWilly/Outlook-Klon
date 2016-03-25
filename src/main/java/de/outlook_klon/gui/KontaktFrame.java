@@ -6,7 +6,9 @@ import java.awt.Container;
 import java.awt.FocusTraversalPolicy;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Vector;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.NoSuchElementException;
 import javax.mail.Address;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
@@ -30,10 +32,10 @@ public class KontaktFrame extends ExtendedDialog<Kontakt> {
 
     private static final long serialVersionUID = 1466530984514818388L;
 
-    private static final String formatStringErstellen1 = "Neuer Kontakt";
-    private static final String formatStringErstellen2 = "Neuer Kontakt für %s";
-    private static final String formatStringBearbeiten1 = "Kontakt bearbeiten";
-    private static final String formatStringBearbeiten2 = "Kontakt von %s bearbeiten";
+    private static final String FORMAT_STRING_ERSTELLEN1 = "Neuer Kontakt";
+    private static final String FORMAT_STRING_ERSTELLEN2 = "Neuer Kontakt für %s";
+    private static final String FORMAT_STRING_BEARBEITEN1 = "Kontakt bearbeiten";
+    private static final String FORMAT_STRING_BEARBEITEN2 = "Kontakt von %s bearbeiten";
 
     private Kontakt mKontakt;
 
@@ -57,10 +59,15 @@ public class KontaktFrame extends ExtendedDialog<Kontakt> {
      */
     public static class VectorFocusTraversalPolicy extends FocusTraversalPolicy {
 
-        private Vector<Component> order;
+        private final List<Component> order;
 
-        public VectorFocusTraversalPolicy(Vector<Component> order) {
-            this.order = new Vector<Component>(order.size());
+        /**
+         * Erstellt eine neue Instanz mit den übergebenen Komponenten.
+         *
+         * @param order Liste aller zu durchlaufenden Komponenten.
+         */
+        public VectorFocusTraversalPolicy(List<Component> order) {
+            this.order = new ArrayList<>(order.size());
             this.order.addAll(order);
         }
 
@@ -89,12 +96,20 @@ public class KontaktFrame extends ExtendedDialog<Kontakt> {
 
         @Override
         public Component getLastComponent(Container focusCycleRoot) {
-            return order.lastElement();
+            if (order.isEmpty()) {
+                throw new NoSuchElementException("The component list is empty");
+            }
+
+            return order.get(order.size() - 1);
         }
 
         @Override
         public Component getFirstComponent(Container focusCycleRoot) {
-            return order.firstElement();
+            if (order.isEmpty()) {
+                throw new NoSuchElementException("The component list is empty");
+            }
+
+            return order.get(0);
         }
     }
 
@@ -289,7 +304,7 @@ public class KontaktFrame extends ExtendedDialog<Kontakt> {
 
         // Vector, der die Reihenfolge speichert, in der bei einem Druck der
         // Tab-Taste durch die Komponenten gewandert werden soll
-        Vector<Component> tabOrder = new Vector<Component>();
+        List<Component> tabOrder = new ArrayList<>();
         tabOrder.add(tVorname);
         tabOrder.add(tName);
         tabOrder.add(tAnzeigename);
@@ -312,7 +327,7 @@ public class KontaktFrame extends ExtendedDialog<Kontakt> {
         super(685, 285);
 
         mKontakt = null;
-        this.setTitle(formatStringErstellen1);
+        this.setTitle(FORMAT_STRING_ERSTELLEN1);
 
         initFrame();
     }
@@ -327,7 +342,7 @@ public class KontaktFrame extends ExtendedDialog<Kontakt> {
         super(685, 285);
 
         mKontakt = k;
-        this.setTitle(String.format(formatStringBearbeiten2, mKontakt));
+        this.setTitle(String.format(FORMAT_STRING_BEARBEITEN2, mKontakt));
 
         initFrame();
 
@@ -357,18 +372,18 @@ public class KontaktFrame extends ExtendedDialog<Kontakt> {
      */
     private void aktualisiereTitel() {
         String name = tAnzeigename.getText();
-        String titel = null;
 
+        String titel;
         if (mKontakt == null) {
             if (name != null & !name.trim().isEmpty()) {
-                titel = String.format(formatStringErstellen2, name);
+                titel = String.format(FORMAT_STRING_ERSTELLEN2, name);
             } else {
-                titel = formatStringErstellen1;
+                titel = FORMAT_STRING_ERSTELLEN1;
             }
         } else if (name != null & !name.trim().isEmpty()) {
-            titel = String.format(formatStringBearbeiten2, name);
+            titel = String.format(FORMAT_STRING_BEARBEITEN2, name);
         } else {
-            titel = formatStringBearbeiten1;
+            titel = FORMAT_STRING_BEARBEITEN1;
         }
 
         setTitle(titel);

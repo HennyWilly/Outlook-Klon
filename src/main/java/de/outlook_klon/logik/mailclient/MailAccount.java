@@ -10,6 +10,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.EnumSet;
 import java.util.HashSet;
+import java.util.Set;
 import javax.mail.Address;
 import javax.mail.AuthenticationFailedException;
 import javax.mail.FetchProfile;
@@ -158,6 +159,8 @@ public class MailAccount {
      * @param cc CCs der Mail
      * @param subject Betreff der Mail
      * @param text Text der Mail
+     * @param format Format der Mail
+     * @param attachment Pfade der Anhänge der Mail
      * @throws MessagingException Tritt auf, wenn der Sendevorgang
      * fehlgeschlagen ist
      */
@@ -187,8 +190,8 @@ public class MailAccount {
                         sendFolder = imap;
                     }
 
-                    for (int i = 0; i < attr.length; i++) {
-                        if (attr[i].equalsIgnoreCase("\\Sent")) {
+                    for (String attr1 : attr) {
+                        if (attr1.equalsIgnoreCase("\\Sent")) {
                             sendFolder = imap;
                             break outer;
                         }
@@ -281,9 +284,11 @@ public class MailAccount {
      *
      * @param pfad Pfad, in dem die Mails gesucht werden.
      * @return Array von MailInfos mit der ID, Betreff, Sender und SendDatum
+     * @throws javax.mail.MessagingException wenn die Nachrichten nicht geladen
+     * werden konnten
      */
     public MailInfo[] getMessages(final String pfad) throws MessagingException {
-        HashSet<MailInfo> set = new HashSet<MailInfo>();
+        Set<MailInfo> set = new HashSet<>();
 
         Store store = null;
         Folder folder = null;
@@ -298,9 +303,7 @@ public class MailAccount {
             fp.add("Message-Id");
             folder.fetch(messages, fp);
 
-            for (int i = 0; i < messages.length; i++) {
-                final Message message = messages[i];
-
+            for (Message message : messages) {
                 String id = getID(message);
                 if (id == null) {
                     continue;
@@ -351,6 +354,8 @@ public class MailAccount {
      *
      * @param pfad Ordnerpfad innerhalb des MailServers
      * @param messageInfo Zu füllende <code>MailInfo</code>
+     * @throws javax.mail.MessagingException wenn die Nachrichten nicht geladen
+     * werden konnten
      */
     public void getMessageText(final String pfad, final MailInfo messageInfo) throws MessagingException {
         if (messageInfo == null || messageInfo.getID() == null) {
@@ -394,6 +399,8 @@ public class MailAccount {
      *
      * @param pfad Ordnerpfad innerhalb des MailServers
      * @param messageInfo Zu füllende <code>MailInfo</code>
+     * @throws javax.mail.MessagingException wenn die Nachrichten nicht geladen
+     * werden konnten
      */
     public void getWholeMessage(final String pfad, final MailInfo messageInfo) throws MessagingException {
         if (messageInfo.getText() != null && messageInfo.getContentType() != null && messageInfo.getSubject() != null
@@ -490,7 +497,8 @@ public class MailAccount {
         for (int i = 0; i < messages.length; i++) {
             try {
                 speichereMailInfo(mails[i], zielPfad);
-            } catch (IOException e) {
+            } catch (IOException ex) {
+                LOGGER.error("Could not save MailInfo", ex);
             }
 
             if (löschen) {
@@ -512,6 +520,8 @@ public class MailAccount {
      * @param mails MailInfos der zu verschiebenen Mails
      * @param quellPfad Pfad zum Quellordner
      * @param zielPfad Pfad zum Zielordner
+     * @throws javax.mail.MessagingException wenn ein Fehler seitens der
+     * Mail-Library auftritt
      */
     public void verschiebeMails(final MailInfo[] mails, final String quellPfad, final String zielPfad)
             throws MessagingException {
@@ -537,6 +547,8 @@ public class MailAccount {
      * @param mails MailInfos der zu kopieren Mails
      * @param quellPfad Pfad zum Quellordner
      * @param zielPfad Pfad zum Zielordner
+     * @throws javax.mail.MessagingException wenn ein Fehler seitens der
+     * Mail-Library auftritt
      */
     public void kopiereMails(final MailInfo[] mails, final String quellPfad, final String zielPfad)
             throws MessagingException {
@@ -562,6 +574,8 @@ public class MailAccount {
      * @param mails MailInfos der zu löschenden Mails
      * @param pfad Pfad zum Ordner
      * @return true, wenn das löschen erfolgreich war; sonst false
+     * @throws javax.mail.MessagingException wenn ein Fehler seitens der
+     * Mail-Library auftritt
      */
     public boolean loescheMails(final MailInfo[] mails, final String pfad) throws MessagingException {
         boolean result = false;
@@ -590,8 +604,8 @@ public class MailAccount {
                         binFolder = imap;
                     }
 
-                    for (int i = 0; i < attr.length; i++) {
-                        if (attr[i].equalsIgnoreCase("\\Trash")) {
+                    for (String attr1 : attr) {
+                        if (attr1.equalsIgnoreCase("\\Trash")) {
                             binFolder = imap;
                             break outer;
                         }

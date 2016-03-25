@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
 import javax.mail.Address;
 import javax.mail.BodyPart;
@@ -65,11 +66,17 @@ public class MailInfo implements Comparable<MailInfo> {
     }
 
     @JsonCreator
-    private MailInfo(@JsonProperty("id") String id, @JsonProperty("read") boolean read,
-            @JsonProperty("subject") String subject, @JsonProperty("sender") Address sender,
-            @JsonProperty("date") Date date, @JsonProperty("text") String text,
-            @JsonProperty("contentType") String contentType, @JsonProperty("to") Address[] to,
-            @JsonProperty("cc") Address[] cc, @JsonProperty("attachment") String[] attachment) {
+    private MailInfo(
+            @JsonProperty("id") String id,
+            @JsonProperty("read") boolean read,
+            @JsonProperty("subject") String subject,
+            @JsonProperty("sender") Address sender,
+            @JsonProperty("date") Date date,
+            @JsonProperty("text") String text,
+            @JsonProperty("contentType") String contentType,
+            @JsonProperty("to") Address[] to,
+            @JsonProperty("cc") Address[] cc,
+            @JsonProperty("attachment") String[] attachment) {
         setID(id);
         setRead(read);
         setSubject(subject);
@@ -82,7 +89,18 @@ public class MailInfo implements Comparable<MailInfo> {
         setAttachment(attachment);
     }
 
-    public void loadData(Message serverMessage, Set<MailContent> contents) throws MessagingException, IOException {
+    /**
+     * Lädt den Inhalt der übergebenen Mail in die Klasse.
+     *
+     * @param serverMessage Mail-Object, das abgefragt wird
+     * @param contents Inhaltsarten, die gespeichert werden sollen
+     * @throws MessagingException wenn ein Fehler beim Lesen des Mail-Objekts
+     * auftritt
+     * @throws IOException wenn ein Fehler beim Lesen des Mail-Objekts auf der
+     * Datenebene auftritt
+     */
+    public void loadData(Message serverMessage, Set<MailContent> contents)
+            throws MessagingException, IOException {
         if (serverMessage == null) {
             throw new NullPointerException("serverMessage is null");
         }
@@ -90,8 +108,8 @@ public class MailInfo implements Comparable<MailInfo> {
             throw new NullPointerException("contents is null");
         }
 
-        for (MailContent contentType : contents) {
-            switch (contentType) {
+        for (MailContent setContentType : contents) {
+            switch (setContentType) {
                 case ID:
                     if (getID() == null) {
                         throw new IllegalStateException("ID not set");
@@ -127,25 +145,25 @@ public class MailInfo implements Comparable<MailInfo> {
                     break;
                 case TO:
                     if (getTo() == null) {
-                        Address[] to = serverMessage.getRecipients(RecipientType.TO);
-                        if (to == null) {
-                            to = new Address[0];
+                        Address[] messageTo = serverMessage.getRecipients(RecipientType.TO);
+                        if (messageTo == null) {
+                            messageTo = new Address[0];
                         }
-                        setTo(to);
+                        setTo(messageTo);
                     }
                     break;
                 case CC:
                     if (getCc() == null) {
-                        Address[] cc = serverMessage.getRecipients(RecipientType.CC);
-                        if (cc == null) {
-                            cc = new Address[0];
+                        Address[] messageCC = serverMessage.getRecipients(RecipientType.CC);
+                        if (messageCC == null) {
+                            messageCC = new Address[0];
                         }
-                        setCc(cc);
+                        setCc(messageCC);
                     }
                     break;
                 case ATTACHMENT:
                     if (getAttachment() == null) {
-                        final ArrayList<String> attachment = new ArrayList<String>();
+                        final List<String> messageAttachment = new ArrayList<>();
                         if (serverMessage.getContent() instanceof Multipart) {
                             final Multipart mp = (Multipart) serverMessage.getContent();
 
@@ -154,12 +172,12 @@ public class MailInfo implements Comparable<MailInfo> {
                                 final String filename = bp.getFileName();
 
                                 if (filename != null && !filename.isEmpty()) {
-                                    attachment.add(bp.getFileName());
+                                    messageAttachment.add(bp.getFileName());
                                 }
                             }
                         }
 
-                        setAttachment(attachment.toArray(new String[attachment.size()]));
+                        setAttachment(messageAttachment.toArray(new String[messageAttachment.size()]));
                     }
                     break;
                 default:
@@ -174,7 +192,7 @@ public class MailInfo implements Comparable<MailInfo> {
      * @param p <code>Part</code>-Objekt, indem der Text gesucht werden soll
      * @return Text der E-Mail
      */
-    private String getText(final Part p) throws MessagingException, IOException {
+    private static String getText(final Part p) throws MessagingException, IOException {
         if (p.isMimeType("text/*")) {
             return (String) p.getContent();
         }
@@ -188,7 +206,6 @@ public class MailInfo implements Comparable<MailInfo> {
                     if (text == null) {
                         text = getText(bp);
                     }
-                    continue;
                 } else if (bp.isMimeType("text/html")) {
                     final String s = getText(bp);
                     if (s != null) {
@@ -219,7 +236,7 @@ public class MailInfo implements Comparable<MailInfo> {
      * @param p <code>Part</code>-Objekt, indem der Text gesucht werden soll
      * @return ContentType der E-Mail
      */
-    private String getType(final Part p) throws IOException, MessagingException {
+    private static String getType(final Part p) throws IOException, MessagingException {
         if (p.isMimeType("text/*")) {
             return p.getContentType();
         }
@@ -229,7 +246,8 @@ public class MailInfo implements Comparable<MailInfo> {
             final Multipart mp = (Multipart) content;
             for (int i = 0; i < mp.getCount(); i++) {
                 final BodyPart bp = mp.getBodyPart(i);
-                if (bp.getDisposition() == Part.ATTACHMENT) {
+                String disposition = bp.getDisposition();
+                if (disposition != null && disposition.equalsIgnoreCase(Part.ATTACHMENT)) {
                     continue;
                 }
 

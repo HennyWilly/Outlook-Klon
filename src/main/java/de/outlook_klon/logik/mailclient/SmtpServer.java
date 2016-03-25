@@ -112,7 +112,7 @@ public class SmtpServer extends SendServer {
         mail.setContent(multiPart);
         mail.setSentDate(new Date());
 
-        Transport transport = null;
+        Transport transport;
         if (sicherheit == Verbindungssicherheit.SSL_TLS) {
             transport = session.getTransport("smtps");
         } else {

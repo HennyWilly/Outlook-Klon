@@ -336,7 +336,7 @@ public class AdressbuchFrame extends ExtendedFrame {
         });
         listenPopup.add(popupListenLoeschen);
 
-        lstListen = new JList<String>(new DefaultListModel<String>());
+        lstListen = new JList<>(new DefaultListModel<String>());
         lstListen.addListSelectionListener(new ListSelectionListener() {
             @Override
             public void valueChanged(ListSelectionEvent arg0) {

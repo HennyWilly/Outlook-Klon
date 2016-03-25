@@ -24,7 +24,7 @@ public class Terminkalender implements Iterable<Termin> {
      * Erstellt eine neue Instanz der Terminverwaltung
      */
     public Terminkalender() {
-        mTermine = new ArrayList<Termin>();
+        mTermine = new ArrayList<>();
     }
 
     @JsonCreator
@@ -85,7 +85,7 @@ public class Terminkalender implements Iterable<Termin> {
      */
     @JsonIgnore
     public Termin getOldest() {
-        if (mTermine.size() == 0) {
+        if (mTermine.isEmpty()) {
             return null;
         }
 
@@ -121,7 +121,7 @@ public class Terminkalender implements Iterable<Termin> {
             throw new IllegalArgumentException("Der Startzeitpunkt darf nicht hinter dem Endzeitpunkt liegen");
         }
 
-        ArrayList<Termin> liste = new ArrayList<Termin>();
+        List<Termin> liste = new ArrayList<>();
         for (Termin termin : mTermine) {
             Date startZeit = termin.getStart();
             if (termin.getState() != AppointmentState.REJECTED
@@ -141,8 +141,6 @@ public class Terminkalender implements Iterable<Termin> {
     public Termin[] getTermine() {
         Date jetzt = new Date();
 
-        Date start = null;
-        Date ende = null;
         GregorianCalendar c = new GregorianCalendar();
 
         c.setTime(jetzt);
@@ -150,9 +148,9 @@ public class Terminkalender implements Iterable<Termin> {
         c.set(Calendar.MINUTE, 0); // Setzt den Eintrag der Minuten auf 0
         c.set(Calendar.SECOND, 0); // Setzt den Eintrag der Sekunden auf 0
 
-        start = c.getTime(); // Übergebener Tag mit der Uhrzeit 00:00:00
+        Date start = c.getTime(); // Übergebener Tag mit der Uhrzeit 00:00:00
         c.add(Calendar.DAY_OF_YEAR, 1);
-        ende = c.getTime(); // Tag um 1 höher als time1
+        Date ende = c.getTime(); // Tag um 1 höher als time1
 
         return getTermine(start, ende);
     }

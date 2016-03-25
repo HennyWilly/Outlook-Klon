@@ -9,6 +9,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -20,6 +21,9 @@ import java.util.Set;
  */
 public class Kontaktverwaltung implements Iterable<Kontakt> {
 
+    /**
+     * Standardm‰ﬂiges Adressbuch der Kontaktverwaltung
+     */
     public static final String DEFAULT = "Adressbuch";
 
     @JsonProperty("contacts")
@@ -29,7 +33,7 @@ public class Kontaktverwaltung implements Iterable<Kontakt> {
      * Erstellt eine neue Instanz der Kontaktverwaltung
      */
     public Kontaktverwaltung() {
-        mKontakte = new HashMap<String, HashSet<Kontakt>>();
+        mKontakte = new HashMap<>();
         mKontakte.put(DEFAULT, new HashSet<Kontakt>());
     }
 
@@ -207,7 +211,7 @@ public class Kontaktverwaltung implements Iterable<Kontakt> {
      * @return String-Array, welches die Listennamen enth‰llt
      */
     public String[] getListen(Kontakt kontakt) {
-        ArrayList<String> listen = new ArrayList<String>();
+        List<String> listen = new ArrayList<>();
 
         for (Entry<String, HashSet<Kontakt>> set : mKontakte.entrySet()) {
             String name = set.getKey();

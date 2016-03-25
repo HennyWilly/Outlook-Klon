@@ -243,6 +243,11 @@ public class Kontakt {
         return mobilephone;
     }
 
+    /**
+     * Getter für die erste E-Mail-Adresse des Kontakts als Unicode-String
+     *
+     * @return Erste E-Mail-Adresse als Unicode-String
+     */
     @JsonIgnore
     public String getAddress1AsString() {
         if (address1 == null) {
@@ -256,6 +261,11 @@ public class Kontakt {
         return address1.toString();
     }
 
+    /**
+     * Getter für die zweite E-Mail-Adresse des Kontakts als Unicode-String
+     *
+     * @return Zweite E-Mail-Adresse als Unicode-String
+     */
     @JsonIgnore
     public String getAddress2AsString() {
         if (address2 == null) {

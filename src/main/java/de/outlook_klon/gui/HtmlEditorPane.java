@@ -6,6 +6,7 @@ import de.outlook_klon.logik.kalendar.Terminkalender;
 import java.awt.Desktop;
 import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -40,24 +41,24 @@ public class HtmlEditorPane extends JEditorPane {
     private static final String PREFIX = "date://";
     private static final String REPLACE_PATTERN = "<a href=\"date://%s\">%s</a>";
 
-    private static Pattern htmlPattern;
-    private static DateFormat formater1;
-    private static DateFormat formater2;
-    private static Pattern timePattern;
+    private static final Pattern HTMLPATTERN;
+    private static final DateFormat DATEFORMAT1;
+    private static final DateFormat DATEFORMAT2;
+    private static final Pattern TIMEPATTERN;
 
     private HTMLEditorKit htmlEditor;
 
     // Statischer Konstruktor
     static {
-        htmlPattern = Pattern.compile("<(\"[^\"]*\"|'[^']*'|[^'\">])*>");
+        HTMLPATTERN = Pattern.compile("<(\"[^\"]*\"|'[^']*'|[^'\">])*>");
 
-        formater1 = new SimpleDateFormat("dd.MM.yyyy HH:mm");
-        formater1.setLenient(false);
+        DATEFORMAT1 = new SimpleDateFormat("dd.MM.yyyy HH:mm");
+        DATEFORMAT1.setLenient(false);
 
-        formater2 = new SimpleDateFormat("dd.MM.yyyy");
-        formater2.setLenient(false);
+        DATEFORMAT2 = new SimpleDateFormat("dd.MM.yyyy");
+        DATEFORMAT2.setLenient(false);
 
-        timePattern = Pattern.compile("\\d{1,2}\\.\\d{1,2}\\.\\d{2,4}( \\d{1,2}:\\d{1,2})?");
+        TIMEPATTERN = Pattern.compile("\\d{1,2}\\.\\d{1,2}\\.\\d{2,4}( \\d{1,2}:\\d{1,2})?");
     }
 
     /**
@@ -67,7 +68,7 @@ public class HtmlEditorPane extends JEditorPane {
      * @return true, wenn der Text ein Html-Code ist; sonst false
      */
     public static boolean istHtml(String text) {
-        Matcher matcher = htmlPattern.matcher(text);
+        Matcher matcher = HTMLPATTERN.matcher(text);
 
         return matcher.find();
     }
@@ -90,9 +91,10 @@ public class HtmlEditorPane extends JEditorPane {
                             Date datum = null;
 
                             try {
-                                datum = formater1.parse(strDatum);
+                                datum = DATEFORMAT1.parse(strDatum);
                             } catch (ParseException ex) {
-                                datum = formater2.parse(strDatum);
+                                LOGGER.info("Failed to parse date with first format", ex);
+                                datum = DATEFORMAT2.parse(strDatum);
                             }
 
                             TerminFrame tf = new TerminFrame(datum);
@@ -103,7 +105,8 @@ public class HtmlEditorPane extends JEditorPane {
                                 kalender.addTermin(t);
                             }
 
-                        } catch (ParseException e) {
+                        } catch (ParseException ex) {
+                            LOGGER.info("Failed to parse date with second format", ex);
                             JOptionPane.showMessageDialog(null, "Kein gültiges Datum", "Fehler",
                                     JOptionPane.ERROR_MESSAGE);
                         }
@@ -116,7 +119,7 @@ public class HtmlEditorPane extends JEditorPane {
 
                         try {
                             meinDesktop.browse(new URI(url));
-                        } catch (Exception ex) {
+                        } catch (UnsupportedOperationException | URISyntaxException | IOException ex) {
                             LOGGER.error("Could not launch url", ex);
                         }
                     } else {
@@ -213,14 +216,14 @@ public class HtmlEditorPane extends JEditorPane {
         // In Plaintexte können keine Hyperlinks eingefügt werden
         if (getContentType().equalsIgnoreCase("text/html")) {
             StringBuilder sb = new StringBuilder(text);
-            Matcher matcher = timePattern.matcher(sb);
+            Matcher matcher = TIMEPATTERN.matcher(sb);
 
             boolean skip = false;
             boolean rematch = false;
             while (matcher.find()) {
                 if (rematch) {
                     rematch = false;
-                    matcher = timePattern.matcher(sb);
+                    matcher = TIMEPATTERN.matcher(sb);
                     continue;
                 }
 
@@ -250,10 +253,10 @@ public class HtmlEditorPane extends JEditorPane {
                 try {
                     try {
                         // Versuche mit Zeitangabe zu parsen
-                        formater1.parse(match);
+                        DATEFORMAT1.parse(match);
                     } catch (ParseException ex) {
                         // Versuche ohne Zeitangabe zu parsen
-                        formater2.parse(match);
+                        DATEFORMAT2.parse(match);
 
                         // Entferne eine eventuelle falsche Uhrzeit
                         match = match.replaceAll(" \\d{1,2}:\\d{1,2}", "");

@@ -13,14 +13,13 @@ public class NewMailEvent extends EventObject {
 
     private static final long serialVersionUID = 6139379408716473287L;
 
-    private String folder;
-    private MailInfo info;
+    private final String folder;
+    private final MailInfo info;
 
     /**
      * Erstellt eine neue Instanz der Klasse mit den übergebenen Werten
      *
      * @param sender Objekt, das das Event ursprünglich ausgelöst hat
-     * @param account MailAccount
      * @param folder Pfad zu Ordner
      * @param info Infos zur Mail
      */

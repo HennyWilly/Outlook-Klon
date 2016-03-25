@@ -12,9 +12,11 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Vector;
+import java.util.List;
+import java.util.Set;
 import javax.mail.Address;
 import javax.mail.FolderNotFoundException;
 import javax.mail.MessagingException;
@@ -41,14 +43,31 @@ public final class Benutzer implements Iterable<Benutzer.MailChecker> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Benutzer.class);
 
+    private static Benutzer singleton;
+
+    /**
+     * Gibt die einzige Instanz der Klasse Benutzer zurück. Beim ersten Aufruf
+     * wird eine neue Instanz der Klasse erstellt.
+     *
+     * @return Einzige Instanz der Klasse
+     */
+    public static Benutzer getInstanz() {
+        if (singleton == null) {
+            try {
+                singleton = new Benutzer();
+            } catch (IOException ex) {
+                LOGGER.error("Could not create user instance", ex);
+            }
+        }
+        return singleton;
+    }
+
     private String abwesenheitsmeldung;
     private String krankmeldung;
 
-    private static Benutzer singleton;
-
     private Kontaktverwaltung kontakte;
     private Terminkalender termine;
-    private ArrayList<MailChecker> konten;
+    private List<MailChecker> konten;
     private boolean anwesend;
 
     /**
@@ -58,9 +77,9 @@ public final class Benutzer implements Iterable<Benutzer.MailChecker> {
     public class MailChecker extends Thread {
 
         private static final String FOLDER = "INBOX";
-        private MailAccount account;
-        private HashSet<MailInfo> mails;
-        private Vector<NewMailListener> listenerVector;
+        private final MailAccount account;
+        private final Set<MailInfo> mails;
+        private final List<NewMailListener> listenerList;
 
         /**
          * Erzeugt ein neues MailChecker-Objekt für den übergebenen Account
@@ -69,8 +88,8 @@ public final class Benutzer implements Iterable<Benutzer.MailChecker> {
          */
         public MailChecker(MailAccount account) {
             this.account = account;
-            this.mails = new HashSet<MailInfo>();
-            this.listenerVector = new Vector<NewMailListener>();
+            this.mails = new HashSet<>();
+            this.listenerList = new ArrayList<>();
         }
 
         /**
@@ -84,8 +103,8 @@ public final class Benutzer implements Iterable<Benutzer.MailChecker> {
                 throw new NullPointerException("Der hinzuzufügende Listener muss initialisiert sein.");
             }
 
-            synchronized (listenerVector) {
-                listenerVector.add(mcl);
+            synchronized (listenerList) {
+                listenerList.add(mcl);
             }
         }
 
@@ -98,8 +117,8 @@ public final class Benutzer implements Iterable<Benutzer.MailChecker> {
         private void fireNewMessageEvent(MailInfo info) {
             NewMailEvent ev = new NewMailEvent(this, FOLDER, info);
 
-            synchronized (listenerVector) {
-                for (NewMailListener listener : listenerVector) {
+            synchronized (listenerList) {
+                for (NewMailListener listener : listenerList) {
                     listener.newMessage(ev);
                 }
             }
@@ -128,10 +147,12 @@ public final class Benutzer implements Iterable<Benutzer.MailChecker> {
                     LOGGER.error("While getting messages", ex);
                 }
 
-                for (MailInfo info : mailInfos) {
-                    mails.add(info);
-                    if (!info.isRead()) {
-                        fireNewMessageEvent(info);
+                if (mailInfos != null) {
+                    for (MailInfo info : mailInfos) {
+                        mails.add(info);
+                        if (!info.isRead()) {
+                            fireNewMessageEvent(info);
+                        }
                     }
                 }
             }
@@ -142,10 +163,10 @@ public final class Benutzer implements Iterable<Benutzer.MailChecker> {
                     MailInfo[] mailTmp = account.getMessages(FOLDER);
 
                     // HashSet, da oft darin gesucht wird (s.u.)
-                    HashSet<MailInfo> tmpSet = new HashSet<MailInfo>();
-                    for (MailInfo info : mailTmp) {
-                        tmpSet.add(info); // Fülle mit abgefragten MailInfos
-                    }
+                    Set<MailInfo> tmpSet = new HashSet<>();
+
+                    // Fülle mit abgefragten MailInfos
+                    tmpSet.addAll(Arrays.asList(mailTmp));
 
                     // Prüfe, ob eine bekannte MailInfo weggefallen ist
                     Iterator<MailInfo> iterator = mails.iterator();
@@ -185,11 +206,13 @@ public final class Benutzer implements Iterable<Benutzer.MailChecker> {
          *
          * @param pfad Zu durchsuchender Ordnerpfad
          * @return MailInfos des gesuchten Ordners
+         * @throws javax.mail.MessagingException wenn die Nachrichten nicht
+         * abgerufen werden konnten
          */
         public MailInfo[] getMessages(String pfad) throws MessagingException {
-            MailInfo[] array = null;
-
             boolean threadOK = this.isAlive() && !this.isInterrupted();
+
+            MailInfo[] array;
             if (threadOK && pfad.toLowerCase().equals(FOLDER.toLowerCase())) {
                 synchronized (mails) {
                     array = mails.toArray(new MailInfo[mails.size()]);
@@ -233,29 +256,12 @@ public final class Benutzer implements Iterable<Benutzer.MailChecker> {
                 return this.getAccount().equals(checker.getAccount());
             }
             if (other instanceof MailAccount) {
-                MailAccount account = (MailAccount) other;
-                return this.getAccount().equals(account);
+                MailAccount mailAccount = (MailAccount) other;
+                return this.getAccount().equals(mailAccount);
             }
 
             return false;
         }
-    }
-
-    /**
-     * Gibt die einzige Instanz der Klasse Benutzer zurück. Beim ersten Aufruf
-     * wird eine neue Instanz der Klasse erstellt.
-     *
-     * @return Einzige Instanz der Klasse
-     */
-    public static Benutzer getInstanz() {
-        if (singleton == null) {
-            try {
-                singleton = new Benutzer();
-            } catch (IOException ex) {
-                LOGGER.error("Could not create user instance", ex);
-            }
-        }
-        return singleton;
     }
 
     /**
@@ -299,7 +305,7 @@ public final class Benutzer implements Iterable<Benutzer.MailChecker> {
             termine = new Terminkalender();
         }
 
-        konten = new ArrayList<MailChecker>();
+        konten = new ArrayList<>();
 
         File file = new File(DATEN_ORDNER).getAbsoluteFile();
         if (!file.exists()) {
@@ -308,6 +314,7 @@ public final class Benutzer implements Iterable<Benutzer.MailChecker> {
 
         // Filter, der nur Pfade von direkten Unterordnern zurückgibt
         String[] directories = file.list(new FilenameFilter() {
+            @Override
             public boolean accept(File dir, String name) {
                 return new File(dir, name).isDirectory();
             }
@@ -333,6 +340,7 @@ public final class Benutzer implements Iterable<Benutzer.MailChecker> {
      */
     private NewMailListener getListener() {
         return new NewMailListener() {
+            @Override
             public void newMessage(NewMailEvent e) {
                 // TODO Teste mich hart
 
@@ -485,6 +493,9 @@ public final class Benutzer implements Iterable<Benutzer.MailChecker> {
 
     /**
      * Speichert die Daten des Benutzers
+     *
+     * @throws java.io.IOException wenn das Speichern der Daten des Benutzers
+     * fehlschlägt
      */
     public void speichern() throws IOException {
         for (MailChecker checker : konten) {
@@ -570,9 +581,8 @@ public final class Benutzer implements Iterable<Benutzer.MailChecker> {
             String text = getAbwesenheitsmeldung();
             sender.sendeMail(new InternetAddress[]{ziel}, null,
                     "Abwesenheit von " + sender.getAddress().getPersonal(), text, "TEXT/plain; charset=utf-8", null);
-        } catch (MessagingException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+        } catch (MessagingException ex) {
+            LOGGER.error("Could not send absence message", ex);
         }
     }
 
@@ -595,6 +605,13 @@ public final class Benutzer implements Iterable<Benutzer.MailChecker> {
         }
     }
 
+    /**
+     * Startet das intervallweise Abfragen der Maileingänge aller registrierten
+     * Konten.
+     *
+     * @return {@code true} wenn die Threads gestartet wurden, {@code false}
+     * wenn nicht
+     */
     public boolean starteChecker() {
         boolean result = true;
 
@@ -602,6 +619,7 @@ public final class Benutzer implements Iterable<Benutzer.MailChecker> {
             try {
                 checker.start();
             } catch (IllegalThreadStateException ex) {
+                LOGGER.warn("Could not start MailChecker-Thread", ex);
                 result = false;
             }
         }
@@ -609,11 +627,18 @@ public final class Benutzer implements Iterable<Benutzer.MailChecker> {
         return result;
     }
 
+    /**
+     * Stoppt das intervallweise Abfragen der Maileingänge aller registrierten
+     * Konten.
+     *
+     * @return {@code true} wenn die Threads gestoppt wurden, {@code false} wenn
+     * nicht
+     */
     public boolean stoppeChecker() {
         boolean result = true;
 
         // Liste von MailAccounts, die keinen Checker haben
-        ArrayList<MailAccount> aloneAccounts = new ArrayList<MailAccount>();
+        List<MailAccount> aloneAccounts = new ArrayList<>();
 
         Iterator<MailChecker> iterator = konten.iterator();
         while (iterator.hasNext()) {
@@ -622,6 +647,7 @@ public final class Benutzer implements Iterable<Benutzer.MailChecker> {
             try {
                 checker.interrupt();
             } catch (SecurityException ex) {
+                LOGGER.warn("Could not interrupt MailChecker-Thread", ex);
                 result = false;
             }
 
@@ -639,19 +665,47 @@ public final class Benutzer implements Iterable<Benutzer.MailChecker> {
         return result;
     }
 
+    /**
+     * Gibt die Abwesenheitsmeldung des Benutzers zurück.
+     *
+     * @return Abwesenheitsmeldung des Benutzers
+     */
     public String getAbwesenheitsmeldung() {
         return abwesenheitsmeldung;
     }
 
+    /**
+     * Setzt die Abwesenheitsmeldung des Benutzers.
+     *
+     * @param abwesenheitsmeldung Abwesenheitsmeldung des Benutzers
+     */
     public void setAbwesenheitsmeldung(String abwesenheitsmeldung) {
+        if (abwesenheitsmeldung == null) {
+            abwesenheitsmeldung = "";
+        }
+
         this.abwesenheitsmeldung = abwesenheitsmeldung;
     }
 
+    /**
+     * Gibt die Krankmeldung des Benutzers zurück.
+     *
+     * @return Krankmeldung des Benutzers
+     */
     public String getKrankmeldung() {
         return krankmeldung;
     }
 
+    /**
+     * Setzt die Krankmeldung des Benutzers.
+     *
+     * @param krankmeldung Krankmeldung des Benutzers
+     */
     public void setKrankmeldung(String krankmeldung) {
+        if (krankmeldung == null) {
+            krankmeldung = "";
+        }
+
         this.krankmeldung = krankmeldung;
     }
 }

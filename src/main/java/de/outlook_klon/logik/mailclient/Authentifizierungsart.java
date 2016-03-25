@@ -7,5 +7,18 @@ package de.outlook_klon.logik.mailclient;
  * @author Hendrik Karwanni
  */
 public enum Authentifizierungsart {
-    NORMAL, KERBEROS, NTLM
+
+    /**
+     * Die Standard-Authentifizierungsmethode für Mail-Server.
+     */
+    NORMAL,
+    /**
+     * Ein verteilter Authentifizierungsdienst für offene und unsichere
+     * Computernetze.
+     */
+    KERBEROS,
+    /**
+     * Ein Authentifizierungsdienst, vornehmlich für Microsoft-Produkte.
+     */
+    NTLM
 }

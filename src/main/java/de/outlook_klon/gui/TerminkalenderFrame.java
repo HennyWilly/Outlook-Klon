@@ -15,6 +15,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import javax.swing.DefaultListSelectionModel;
 import javax.swing.JCheckBox;
 import javax.swing.JMenu;
@@ -31,6 +32,11 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 
+/**
+ * Dieses Fenster zeigt den Terminkalender des Benutzers an.
+ *
+ * @author Hendrik Karwanni
+ */
 public class TerminkalenderFrame extends ExtendedFrame {
 
     private static final long serialVersionUID = 1L;
@@ -44,8 +50,8 @@ public class TerminkalenderFrame extends ExtendedFrame {
     private JMenuItem popupTerminLoeschen;
     private JMenuItem popupTerminVerfassen;
 
-    private ArrayList<Termin> hiddenTermine;
-    private ArrayList<Termin> allTermine;
+    private List<Termin> hiddenTermine;
+    private List<Termin> allTermine;
 
     private JPanel panel;
 
@@ -142,10 +148,9 @@ public class TerminkalenderFrame extends ExtendedFrame {
             public boolean isCellEditable(int row, int column) {
                 return false;
             }
-        ;
         };
 
-		tblTermine.setModel(new DefaultTableModel(new Object[][]{},
+        tblTermine.setModel(new DefaultTableModel(new Object[][]{},
                 new String[]{"Referenz", "Betreff", "Beschreibung", "Datum"}));
 
         tblTermine.removeColumn(tblTermine.getColumn("Referenz"));
@@ -209,9 +214,9 @@ public class TerminkalenderFrame extends ExtendedFrame {
 
         });
 
-        hiddenTermine = new ArrayList<Termin>();
+        hiddenTermine = new ArrayList<>();
 
-        allTermine = new ArrayList<Termin>(); // speichert alle existierenden
+        allTermine = new ArrayList<>(); // speichert alle existierenden
         // Termine in mango ab
         for (Termin t : Benutzer.getInstanz().getTermine()) {
             allTermine.add(t);
@@ -228,6 +233,12 @@ public class TerminkalenderFrame extends ExtendedFrame {
         ladeBenutzer();
     }
 
+    /**
+     * Erstellt ein neues Fenster.
+     *
+     * @param neu bei {@code true} wird das Fenster zum Erstellen eines neuen
+     * Termins mitgestartet
+     */
     public TerminkalenderFrame(boolean neu) {
         initGui();
 
@@ -236,6 +247,12 @@ public class TerminkalenderFrame extends ExtendedFrame {
         }
     }
 
+    /**
+     * Erstellt ein neues Fenster.
+     *
+     * @param start das Datum, das auf dem automatisch startenden Fenster zum
+     * Erstellen eines neuen Termins angezeigt wird
+     */
     public TerminkalenderFrame(Date start) {
         this(false);
         neuerTermin(start);
@@ -327,7 +344,7 @@ public class TerminkalenderFrame extends ExtendedFrame {
 
     private void bearbeiteTermin(Termin t) {
         TerminFrame tf = new TerminFrame(t);
-        t = tf.showDialog();
+        tf.showDialog();
 
         int zeile = tblTermine.convertRowIndexToModel(tblTermine.getSelectedRow());
         aktualisiere2Tabelle();
@@ -338,7 +355,7 @@ public class TerminkalenderFrame extends ExtendedFrame {
 
     private void ladeBenutzer() {
         // speichert alle Konten in apfel
-        ArrayList<String> apfel = new ArrayList<String>();
+        List<String> apfel = new ArrayList<>();
         for (MailChecker checker : Benutzer.getInstanz()) {
             MailAccount ma = checker.getAccount();
             apfel.add(ma.getUser());
@@ -354,7 +371,7 @@ public class TerminkalenderFrame extends ExtendedFrame {
                     String text = cb.getText();
 
                     if (arg0.getStateChange() == ItemEvent.SELECTED) {
-                        ArrayList<Termin> temp = new ArrayList<Termin>();
+                        List<Termin> temp = new ArrayList<>();
                         for (Termin t : hiddenTermine) {
                             String benutzer = t.getUser();
 

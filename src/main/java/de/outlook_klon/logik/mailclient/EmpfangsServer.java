@@ -36,6 +36,8 @@ public abstract class EmpfangsServer extends MailServer {
      * @param passwd Passwort des Empfängers
      * @return <code>Store</code>-Objekt, über welches man auf die Mails
      * zugreifen kann
+     * @throws javax.mail.NoSuchProviderException wenn der Provider des Stores
+     * nicht gefunden wurde
      */
     public abstract Store getMailStore(String user, String passwd) throws NoSuchProviderException;
 

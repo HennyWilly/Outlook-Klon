@@ -12,6 +12,7 @@ import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
@@ -45,6 +46,11 @@ import javax.swing.event.DocumentListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Dieses Frame dient zum Erstellen und Anzeigen von E-Mails.
+ *
+ * @author Hendrik Karwanni
+ */
 public class MailFrame extends ExtendedFrame {
 
     private static final long serialVersionUID = 5976953616015664148L;
@@ -181,7 +187,7 @@ public class MailFrame extends ExtendedFrame {
      * @param splitHead JSplitPane in die die Liste eingefügt werden soll
      */
     private void initListe(JSplitPane splitHead) {
-        lstAnhang = new JList<File>(new DefaultListModel<File>());
+        lstAnhang = new JList<>(new DefaultListModel<File>());
 
         JScrollPane anhangScroller = new JScrollPane(lstAnhang);
         splitHead.setRightComponent(anhangScroller);
@@ -252,7 +258,7 @@ public class MailFrame extends ExtendedFrame {
             }
         });
 
-        cBSender = new JComboBox<MailAccount>();
+        cBSender = new JComboBox<>();
         tSender = new JTextField();
 
         final GroupLayout gl_panel_1 = new GroupLayout(panel_1);
@@ -399,7 +405,7 @@ public class MailFrame extends ExtendedFrame {
 
         addMailAccounts();
 
-        List<Address> adressen = new ArrayList<Address>();
+        List<Address> adressen = new ArrayList<>();
         for (Kontakt k : kontakte) {
             if (k.getAddress1() == null) {
                 continue;
@@ -469,8 +475,8 @@ public class MailFrame extends ExtendedFrame {
 
         // Füge Anhänge in die JList ein
         String[] attachments = mail.getAttachment();
-        for (int i = 0; i < attachments.length; i++) {
-            model.addElement(new File(attachments[i]));
+        for (String attachment : attachments) {
+            model.addElement(new File(attachment));
         }
     }
 
@@ -562,7 +568,7 @@ public class MailFrame extends ExtendedFrame {
      * @throws ParseException Tritt auf, wenn die Adressen nicht geparst werden
      * konnten.
      */
-    private static InternetAddress[] unicodifyAddresses(String adressen) throws ParseException {
+    private static Address[] unicodifyAddresses(String adressen) throws ParseException {
         adressen = adressen.replace(';', ',');
 
         InternetAddress[] recips = InternetAddress.parse(adressen, true);
@@ -586,9 +592,6 @@ public class MailFrame extends ExtendedFrame {
         String text = tpMailtext.getText();
         MailAccount acc = (MailAccount) cBSender.getSelectedItem();
 
-        InternetAddress[] to = null;
-        InternetAddress[] cc = null;
-
         if (acc == null) {
             JOptionPane.showMessageDialog(this,
                     "Es wurde keine Mailadresse angegeben, über die die Mail gesendet werden soll", "Fehler",
@@ -596,6 +599,8 @@ public class MailFrame extends ExtendedFrame {
             return;
         }
 
+        Address[] to;
+        Address[] cc;
         try {
             // Erstelle aus den entsprechenden String InternetAddress-Instanzen
             to = unicodifyAddresses(tTo.getText());
@@ -658,7 +663,7 @@ public class MailFrame extends ExtendedFrame {
             try {
                 // Führt das eigentliche Abspeichern aus
                 acc.anhangSpeichern(info, relPfad, name, pfad);
-            } catch (Exception ex) {
+            } catch (IOException | MessagingException ex) {
                 JOptionPane.showMessageDialog(this,
                         "Es ist ein Fehler beim Speichern des Anhangs aufgetreten: \n" + ex.getMessage(), "Fehler",
                         JOptionPane.OK_OPTION);

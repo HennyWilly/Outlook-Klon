@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Locale;
 import javax.mail.FolderNotFoundException;
 import javax.mail.MessagingException;
@@ -80,7 +81,7 @@ public class MainFrame extends ExtendedFrame {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MainFrame.class);
 
-    private static final DateFormat dateFormater = DateFormat.getDateTimeInstance(DateFormat.FULL, DateFormat.MEDIUM,
+    private static final DateFormat DATEFORMAT = DateFormat.getDateTimeInstance(DateFormat.FULL, DateFormat.MEDIUM,
             Locale.getDefault());
 
     private JPopupMenu tablePopup;
@@ -339,7 +340,7 @@ public class MainFrame extends ExtendedFrame {
             public Component getTableCellRendererComponent(final JTable table, Object value, boolean isSelected,
                     boolean hasFocus, int row, int column) {
                 if (value instanceof Date) {
-                    value = dateFormater.format(value);
+                    value = DATEFORMAT.format(value);
                 } else if (value instanceof InternetAddress) {
                     InternetAddress data = (InternetAddress) value;
                     String personal = data.getPersonal();
@@ -374,7 +375,7 @@ public class MainFrame extends ExtendedFrame {
         tblMails.setDefaultRenderer(Date.class, cellRenderer);
         tblMails.setDefaultRenderer(InternetAddress.class, cellRenderer);
 
-        TableRowSorter<TableModel> myRowSorter = new TableRowSorter<TableModel>(tblMails.getModel());
+        TableRowSorter<TableModel> myRowSorter = new TableRowSorter<>(tblMails.getModel());
         myRowSorter.setSortsOnUpdates(true);
         tblMails.setRowSorter(myRowSorter);
 
@@ -441,6 +442,7 @@ public class MainFrame extends ExtendedFrame {
         tree = new JTree() {
             private static final long serialVersionUID = 1L;
 
+            @Override
             public boolean isEditable() {
                 return false;
             }
@@ -448,9 +450,9 @@ public class MainFrame extends ExtendedFrame {
         tree.setCellRenderer(new DefaultTreeCellRenderer() {
             private static final long serialVersionUID = 3057355870823054419L;
 
-            private Icon mailIcon = new ImageIcon(getClass().getResource("mail.png"));
-            private Icon openFolderIcon = UIManager.getIcon("Tree.openIcon");
-            private Icon closedFolderIcon = UIManager.getIcon("Tree.closedIcon");
+            private final Icon mailIcon = new ImageIcon(getClass().getResource("mail.png"));
+            private final Icon openFolderIcon = UIManager.getIcon("Tree.openIcon");
+            private final Icon closedFolderIcon = UIManager.getIcon("Tree.closedIcon");
 
             @Override
             public Component getTreeCellRendererComponent(JTree tree, Object value, boolean selected, boolean expanded,
@@ -520,7 +522,7 @@ public class MainFrame extends ExtendedFrame {
 
                 Object userObject = selectedNode.getUserObject();
 
-                MailChecker checker = null;
+                MailChecker checker;
                 if (!(userObject instanceof MailChecker)) {
                     checker = ausgewaehlterChecker();
                     MailAccount account = checker.getAccount();
@@ -550,8 +552,6 @@ public class MainFrame extends ExtendedFrame {
 
         benutzer = Benutzer.getInstanz();
         if (benutzer == null) {
-            JOptionPane.showMessageDialog(this, "Die Einstellungen konnten nicht geladen werden!",
-                    "Fehler", JOptionPane.ERROR_MESSAGE);
             System.exit(1);
         }
 
@@ -751,7 +751,7 @@ public class MainFrame extends ExtendedFrame {
             DefaultTreeModel treeModel = (DefaultTreeModel) tree.getModel();
             DefaultMutableTreeNode rootNode = (DefaultMutableTreeNode) treeModel.getRoot();
 
-            ArrayList<MailAccount> loeschbar = new ArrayList<MailAccount>();
+            List<MailAccount> loeschbar = new ArrayList<>();
 
             // Entfernt nicht mehr verwendete Knoten für MailAccounts aus dem
             // Baum
@@ -813,7 +813,7 @@ public class MainFrame extends ExtendedFrame {
     private void sortTable() {
         TableRowSorter<?> sorter = (TableRowSorter<?>) tblMails.getRowSorter();
 
-        ArrayList<RowSorter.SortKey> keys = new ArrayList<RowSorter.SortKey>();
+        List<RowSorter.SortKey> keys = new ArrayList<>();
         RowSorter.SortKey key = new RowSorter.SortKey(0, SortOrder.ASCENDING);
         keys.add(key);
         sorter.setSortKeys(keys);
@@ -894,8 +894,9 @@ public class MainFrame extends ExtendedFrame {
         int i = 0;
         outer:
         for (MailChecker checker : benutzer) {
-            DefaultMutableTreeNode node = null;
             Enumeration<?> e = rootNode.children();
+
+            DefaultMutableTreeNode node;
             while (e.hasMoreElements()) {
                 node = (DefaultMutableTreeNode) e.nextElement();
 
@@ -921,8 +922,8 @@ public class MainFrame extends ExtendedFrame {
             }
 
             // Erstelle für jeden Ordner die passende Baumstruktur
-            for (int j = 0; j < ordner.length; j++) {
-                ordnerZuNode(ordner[j], accNode, 0);
+            for (OrdnerInfo ordner1 : ordner) {
+                ordnerZuNode(ordner1, accNode, 0);
             }
 
             // Füge den neuen Knoten in den Baum ein
@@ -1125,19 +1126,22 @@ public class MainFrame extends ExtendedFrame {
                 String pfad = (String) item.getClientProperty("PFAD");
                 String typ = (String) item.getClientProperty("TYP");
 
-                if (typ.equals("Kopieren")) {
-                    kopiereMail(pfad);
-                } else if (typ.equals("Verschieben")) {
-                    verschiebeMail(pfad);
-                } else {
-                    throw new IllegalArgumentException("Typ \'" + typ + "\' ungültig");
+                switch (typ) {
+                    case "Kopieren":
+                        kopiereMail(pfad);
+                        break;
+                    case "Verschieben":
+                        verschiebeMail(pfad);
+                        break;
+                    default:
+                        throw new IllegalArgumentException("Typ \'" + typ + "\' ungültig");
                 }
             }
         };
 
-        String menuTitel = null;
         Object userObject = node.getUserObject();
 
+        String menuTitel;
         // Bestimme den Titel des MenuItems
         if (userObject instanceof MailChecker) {
             MailChecker checker = (MailChecker) userObject;
@@ -1151,9 +1155,9 @@ public class MainFrame extends ExtendedFrame {
         pfad += menuTitel;
 
         // Zurückzugebendes neues MenüItem
-        JMenuItem untermenu = null;
         int childCount = node.getChildCount();
 
+        JMenuItem untermenu;
         // Wenn Unterordner vorhanden sind
         if (childCount > 0) {
             // "untermenu" ist ein Menü

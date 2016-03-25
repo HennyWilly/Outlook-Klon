@@ -36,27 +36,27 @@ public class KontoverwaltungFrame extends ExtendedDialog<MailAccount[]> {
 
     private static final long serialVersionUID = -5036893845172118794L;
 
-    private MailAccount[] meineAccounts;
+    private MailAccount[] myAccounts;
 
-    private JButton btnNeuesKonto;
-    private JList<MailAccount> lstKonten;
-    private JButton btnAbbrechen;
-    private JButton btnOK;
-    private JButton btnKontoEntfernen;
+    private final JButton btnNeuesKonto;
+    private final JList<MailAccount> lstKonten;
+    private final JButton btnAbbrechen;
+    private final JButton btnOK;
+    private final JButton btnKontoEntfernen;
 
-    private JTextField txtUser;
-    private JTextField txtMail;
-    private JTextField txtName;
-    private JTextField txtEingangTyp;
-    private JTextField txtEingangServer;
-    private JTextField txtEingangPort;
-    private JTextField txtEingangSicherheit;
-    private JTextField txtEingangAuthentifizierung;
-    private JTextField txtAusgangTyp;
-    private JTextField txtAusgangServer;
-    private JTextField txtAusgangPort;
-    private JTextField txtAusgangSicherheit;
-    private JTextField txtAusgangAuthentifizierung;
+    private final JTextField txtUser;
+    private final JTextField txtMail;
+    private final JTextField txtName;
+    private final JTextField txtEingangTyp;
+    private final JTextField txtEingangServer;
+    private final JTextField txtEingangPort;
+    private final JTextField txtEingangSicherheit;
+    private final JTextField txtEingangAuthentifizierung;
+    private final JTextField txtAusgangTyp;
+    private final JTextField txtAusgangServer;
+    private final JTextField txtAusgangPort;
+    private final JTextField txtAusgangSicherheit;
+    private final JTextField txtAusgangAuthentifizierung;
 
     /**
      * Erstellt eine neue Instanz der Klasse zum Verwalten aller bestehenden
@@ -65,18 +65,18 @@ public class KontoverwaltungFrame extends ExtendedDialog<MailAccount[]> {
     public KontoverwaltungFrame() {
         super(711, 695);
 
-        meineAccounts = null;
+        myAccounts = null;
 
         setTitle("Konten-Einstellungen");
         getContentPane().setLayout(null);
 
-        DefaultListModel<MailAccount> listModel = new DefaultListModel<MailAccount>();
+        DefaultListModel<MailAccount> listModel = new DefaultListModel<>();
         for (MailChecker checker : Benutzer.getInstanz()) {
             MailAccount acc = checker.getAccount();
             listModel.addElement(acc);
         }
 
-        lstKonten = new JList<MailAccount>(listModel);
+        lstKonten = new JList<>(listModel);
         lstKonten.setCellRenderer(new DefaultListCellRenderer() {
             private static final long serialVersionUID = 1L;
 
@@ -135,7 +135,7 @@ public class KontoverwaltungFrame extends ExtendedDialog<MailAccount[]> {
         btnAbbrechen.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                meineAccounts = null;
+                myAccounts = null;
                 close();
             }
         });
@@ -147,9 +147,9 @@ public class KontoverwaltungFrame extends ExtendedDialog<MailAccount[]> {
             @Override
             public void actionPerformed(ActionEvent e) {
                 DefaultListModel<MailAccount> model = (DefaultListModel<MailAccount>) lstKonten.getModel();
-                meineAccounts = new MailAccount[model.getSize()];
-                for (int i = 0; i < meineAccounts.length; i++) {
-                    meineAccounts[i] = model.get(i);
+                myAccounts = new MailAccount[model.getSize()];
+                for (int i = 0; i < myAccounts.length; i++) {
+                    myAccounts[i] = model.get(i);
                 }
                 close();
             }
@@ -440,6 +440,6 @@ public class KontoverwaltungFrame extends ExtendedDialog<MailAccount[]> {
 
     @Override
     protected MailAccount[] getDialogResult() {
-        return meineAccounts;
+        return myAccounts;
     }
 }

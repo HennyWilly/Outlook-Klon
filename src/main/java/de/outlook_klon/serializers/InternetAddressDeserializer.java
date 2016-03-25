@@ -44,7 +44,7 @@ public class InternetAddressDeserializer extends JsonDeserializer<Address> {
             } else if (name.equals("personal")) {
                 personal = jsonNode.asText(null);
             } else if (ctxt.isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)) {
-                ctxt.mappingException(InternetAddress.class, jsonNode.asToken());
+                throw ctxt.mappingException(InternetAddress.class, jsonNode.asToken());
             }
         }
 

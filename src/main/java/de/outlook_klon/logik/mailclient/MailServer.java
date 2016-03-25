@@ -22,12 +22,12 @@ public abstract class MailServer implements Serializable {
      * Attribut, das die nötigen Einstellungen zum Aufbau einer Verbindung zu
      * einem Mailserver enthällt
      */
-    protected ServerSettings settings;
+    protected final ServerSettings settings;
 
     /**
      * Attribut, das die Stringdarstellung des Servertyps enthällt
      */
-    protected String serverType;
+    protected final String serverType;
 
     /**
      * Dient zur Authentifikation mit einem Benutzernamen und Passwort

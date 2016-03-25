@@ -53,6 +53,8 @@ public class Termin implements Comparable<Termin> {
      * @param start Startzeitpunkt des Termins
      * @param end Endzeitpunkt des Termins
      * @param text Text des Termins
+     * @param user Name des Benutzers
+     * @param contact Name des Kontakts
      */
     public Termin(String subject, String location, Date start, Date end, String text, String user, String contact) {
         setSubject(subject);
@@ -63,9 +65,9 @@ public class Termin implements Comparable<Termin> {
         setContact(contact);
         setState(AppointmentState.PROMISED);
 
-        List<Address> temp = new ArrayList<Address>(2);
+        List<Address> temp = new ArrayList<>(2);
         for (Kontakt k : Benutzer.getInstanz().getKontakte()) {
-            if (k.getDisplayname() == contact) {
+            if (k.getDisplayname() != null && k.getDisplayname().equals(contact)) {
                 if (k.getAddress1() != null) {
                     temp.add(k.getAddress1());
                 }
@@ -75,9 +77,22 @@ public class Termin implements Comparable<Termin> {
                 break;
             }
         }
-        setAddresses(temp.toArray(new InternetAddress[2]));
+        setAddresses(temp.toArray(new Address[temp.size()]));
     }
 
+    /**
+     * Erstellt eine neue Instanz der Klasse mit den übergebenen Werten
+     *
+     * @param subject Betreff des Termins
+     * @param location Ort des Termins
+     * @param start Startzeitpunkt des Termins
+     * @param end Endzeitpunkt des Termins
+     * @param text Text des Termins
+     * @param user Name des Benutzers
+     * @param contact Name des Kontakts
+     * @param state Status des Termins
+     * @param addresses Verknüpfte Adressen des Termins
+     */
     @JsonCreator
     public Termin(
             @JsonProperty("subject") String subject,

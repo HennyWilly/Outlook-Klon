@@ -79,9 +79,9 @@ public class KontoFrame extends ExtendedDialog<MailAccount> {
         JLabel lblPosteingangserver = new JLabel("Posteingang-Server:");
         lblPosteingangserver.setBounds(10, 37, 138, 14);
 
-        cbInProtokoll = new JComboBox<String>();
+        cbInProtokoll = new JComboBox<>();
         cbInProtokoll.setBounds(158, 34, 57, 20);
-        cbInProtokoll.setModel(new DefaultComboBoxModel<String>(new String[]{"POP3", "IMAP"}));
+        cbInProtokoll.setModel(new DefaultComboBoxModel<>(new String[]{"POP3", "IMAP"}));
 
         txtInServer = new JTextField();
         txtInServer.setBounds(226, 34, 162, 20);
@@ -90,14 +90,14 @@ public class KontoFrame extends ExtendedDialog<MailAccount> {
         spInPort = new JSpinner();
         spInPort.setBounds(394, 34, 54, 20);
 
-        cBInVerbindungssicherheit = new JComboBox<Verbindungssicherheit>();
+        cBInVerbindungssicherheit = new JComboBox<>();
         cBInVerbindungssicherheit.setBounds(454, 34, 127, 20);
         cBInVerbindungssicherheit
-                .setModel(new DefaultComboBoxModel<Verbindungssicherheit>(Verbindungssicherheit.values()));
+                .setModel(new DefaultComboBoxModel<>(Verbindungssicherheit.values()));
 
-        cBInAuthentifizierung = new JComboBox<Authentifizierungsart>();
+        cBInAuthentifizierung = new JComboBox<>();
         cBInAuthentifizierung.setBounds(587, 34, 127, 20);
-        cBInAuthentifizierung.setModel(new DefaultComboBoxModel<Authentifizierungsart>(Authentifizierungsart.values()));
+        cBInAuthentifizierung.setModel(new DefaultComboBoxModel<>(Authentifizierungsart.values()));
 
         JLabel lblPostausgangsserver = new JLabel("Postausgang-Server:");
         lblPostausgangsserver.setBounds(10, 65, 138, 14);
@@ -109,15 +109,15 @@ public class KontoFrame extends ExtendedDialog<MailAccount> {
         spOutPort = new JSpinner();
         spOutPort.setBounds(394, 65, 54, 20);
 
-        cBOutVerbindungssicherheit = new JComboBox<Verbindungssicherheit>();
+        cBOutVerbindungssicherheit = new JComboBox<>();
         cBOutVerbindungssicherheit.setBounds(454, 65, 127, 20);
         cBOutVerbindungssicherheit
-                .setModel(new DefaultComboBoxModel<Verbindungssicherheit>(Verbindungssicherheit.values()));
+                .setModel(new DefaultComboBoxModel<>(Verbindungssicherheit.values()));
 
-        cBOutAuthentifizierung = new JComboBox<Authentifizierungsart>();
+        cBOutAuthentifizierung = new JComboBox<>();
         cBOutAuthentifizierung.setBounds(587, 64, 127, 20);
         cBOutAuthentifizierung
-                .setModel(new DefaultComboBoxModel<Authentifizierungsart>(Authentifizierungsart.values()));
+                .setModel(new DefaultComboBoxModel<>(Authentifizierungsart.values()));
 
         JLabel lblSmtp = new JLabel("SMTP");
         lblSmtp.setBounds(160, 65, 55, 14);

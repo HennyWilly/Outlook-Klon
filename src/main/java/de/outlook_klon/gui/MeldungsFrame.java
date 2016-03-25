@@ -5,6 +5,12 @@ import java.awt.event.ActionListener;
 import javax.swing.JButton;
 import javax.swing.JTextPane;
 
+/**
+ * Diese Frame dient zum Anzeigen und Bearbeiten von Krankheits- und
+ * Abwesenheitsmeldungen.
+ *
+ * @author Hendrik Karwanni
+ */
 public class MeldungsFrame extends ExtendedDialog<String> {
 
     private static final long serialVersionUID = -426579552451278615L;
@@ -47,21 +53,20 @@ public class MeldungsFrame extends ExtendedDialog<String> {
         getContentPane().add(btnAbbrechen);
     }
 
+    /**
+     * Erstellt ein neues {@link MeldungsFrame}.
+     *
+     * @param text Initialer Text des Fensters.
+     * @param titel Titel des Fensters.
+     */
     public MeldungsFrame(String text, String titel) {
         super(400, 365);
 
         initGui(text, titel);
     }
 
+    @Override
     protected String getDialogResult() {
         return info;
-    }
-
-    public void setText(String text) {
-        textAbwes.setText(text);
-    }
-
-    public String getText() {
-        return getText();
     }
 }

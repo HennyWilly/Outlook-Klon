@@ -10,6 +10,7 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
@@ -22,6 +23,11 @@ import javax.swing.JTextField;
 import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.SpinnerDateModel;
 
+/**
+ * Dieses Fenster dient der Eingabe und Anzeige von Terminen.
+ *
+ * @author Hendrik Karwanni
+ */
 public class TerminFrame extends ExtendedDialog<Termin> {
 
     private static final long serialVersionUID = 8451017422297429822L;
@@ -102,7 +108,7 @@ public class TerminFrame extends ExtendedDialog<Termin> {
             }
         });
 
-        ArrayList<String> benutzerKonten = new ArrayList<String>();
+        List<String> benutzerKonten = new ArrayList<>();
         for (MailChecker checker : Benutzer.getInstanz()) {
             MailAccount ma = checker.getAccount();
             benutzerKonten.add(ma.getAddress().getAddress());
@@ -115,7 +121,7 @@ public class TerminFrame extends ExtendedDialog<Termin> {
             selectableBenutzerkonto[i] = benutzerKonten.get(i - 1);
         }
 
-        ArrayList<String> allKontakte = new ArrayList<String>();
+        List<String> allKontakte = new ArrayList<>();
         for (Kontakt k : Benutzer.getInstanz().getKontakte()) {
             allKontakte.add(k.getDisplayname());
         }
@@ -127,11 +133,11 @@ public class TerminFrame extends ExtendedDialog<Termin> {
             selectableKontakt[i] = allKontakte.get(i - 1);
         }
 
-        comboKonto = new JComboBox<String>();
-        comboKonto.setModel(new DefaultComboBoxModel<String>(selectableBenutzerkonto));
+        comboKonto = new JComboBox<>();
+        comboKonto.setModel(new DefaultComboBoxModel<>(selectableBenutzerkonto));
 
-        comboKontakt = new JComboBox<String>();
-        comboKontakt.setModel(new DefaultComboBoxModel<String>(selectableKontakt));
+        comboKontakt = new JComboBox<>();
+        comboKontakt.setModel(new DefaultComboBoxModel<>(selectableKontakt));
 
         GroupLayout groupLayout = new GroupLayout(getContentPane());
         groupLayout
@@ -237,6 +243,9 @@ public class TerminFrame extends ExtendedDialog<Termin> {
         getContentPane().setLayout(groupLayout);
     }
 
+    /**
+     * Erstellt ein neues leeres Fenster.
+     */
     public TerminFrame() {
         super(485, 344);
 
@@ -245,6 +254,11 @@ public class TerminFrame extends ExtendedDialog<Termin> {
         this.setTitle("Neuer Termin");
     }
 
+    /**
+     * Erstellt ein neues Fenster, das initial den übergebenen Termin anzeigt.
+     *
+     * @param t anzuzeigender Termin
+     */
     public TerminFrame(Termin t) {
         super(485, 344);
 
@@ -260,6 +274,11 @@ public class TerminFrame extends ExtendedDialog<Termin> {
         comboKontakt.setSelectedItem(t.getContact());
     }
 
+    /**
+     * Erstellt ein neues Fenster, das initial das übergebe Datum anzeigt.
+     *
+     * @param date initiales Datum
+     */
     public TerminFrame(Date date) {
         this();
 
