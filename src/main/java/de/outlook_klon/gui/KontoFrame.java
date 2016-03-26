@@ -11,7 +11,7 @@ import de.outlook_klon.logik.mailclient.SmtpServer;
 import de.outlook_klon.logik.mailclient.Verbindungssicherheit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.UnsupportedEncodingException;
+import java.io.IOException;
 import javax.mail.internet.InternetAddress;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
@@ -300,7 +300,7 @@ public class KontoFrame extends ExtendedDialog<MailAccount> {
                 JOptionPane.showMessageDialog(this, "Die übergebenen Daten sind ungültig", "Fehler",
                         JOptionPane.OK_OPTION);
             }
-        } catch (UnsupportedEncodingException e) {
+        } catch (IOException e) {
             JOptionPane.showMessageDialog(this, e.getLocalizedMessage(), "Fehler", JOptionPane.OK_OPTION);
         }
     }

@@ -1,5 +1,6 @@
 package de.outlook_klon.gui;
 
+import de.outlook_klon.dao.DAOException;
 import de.outlook_klon.logik.Benutzer;
 import de.outlook_klon.logik.Benutzer.MailChecker;
 import de.outlook_klon.logik.kontakte.Kontakt;
@@ -427,7 +428,7 @@ public class MailFrame extends ExtendedFrame {
      * @throws MessagingException Tritt auf, wenn die Daten der Mail nicht
      * abgefragt werden konnten.
      */
-    public MailFrame(MailInfo mail, String pfad, MailAccount parent) throws MessagingException {
+    public MailFrame(MailInfo mail, String pfad, MailAccount parent) throws MessagingException, DAOException {
         modus = MailModus.OEFFNEN;
 
         initGui();
@@ -493,7 +494,7 @@ public class MailFrame extends ExtendedFrame {
      * @throws MessagingException Tritt auf, wenn die Daten der Mail nicht
      * abgefragt werden konnten.
      */
-    public MailFrame(MailInfo mail, String pfad, MailAccount parent, boolean weiterleiten) throws MessagingException {
+    public MailFrame(MailInfo mail, String pfad, MailAccount parent, boolean weiterleiten) throws MessagingException, DAOException {
         modus = weiterleiten ? MailModus.WEITERLEITEN : MailModus.ANTWORT;
 
         initGui();

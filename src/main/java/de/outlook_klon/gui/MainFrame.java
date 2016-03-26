@@ -1,5 +1,6 @@
 package de.outlook_klon.gui;
 
+import de.outlook_klon.dao.DAOException;
 import de.outlook_klon.logik.Benutzer;
 import de.outlook_klon.logik.Benutzer.MailChecker;
 import de.outlook_klon.logik.NewMailEvent;
@@ -645,7 +646,7 @@ public class MainFrame extends ExtendedFrame {
             mf.setSize(this.getSize());
             mf.setExtendedState(this.getExtendedState());
             mf.setVisible(true);
-        } catch (MessagingException e) {
+        } catch (MessagingException | DAOException e) {
             JOptionPane.showMessageDialog(this, "Antworten fehlgeschlagen: \n" + e.getMessage(), "Fehler",
                     JOptionPane.ERROR_MESSAGE);
         }
@@ -667,7 +668,7 @@ public class MainFrame extends ExtendedFrame {
             mf.setSize(this.getSize());
             mf.setExtendedState(this.getExtendedState());
             mf.setVisible(true);
-        } catch (MessagingException e) {
+        } catch (MessagingException | DAOException e) {
             JOptionPane.showMessageDialog(this, "Weiterleiten fehlgeschlagen: \n" + e.getMessage(), "Fehler",
                     JOptionPane.ERROR_MESSAGE);
         }
@@ -979,7 +980,7 @@ public class MainFrame extends ExtendedFrame {
                 // entfernt
                 DefaultTreeModel treeModel = (DefaultTreeModel) tree.getModel();
                 treeModel.removeNodeFromParent(node);
-            } catch (MessagingException ex) {
+            } catch (MessagingException | DAOException ex) {
                 LOGGER.error("Could not get messages", ex);
             }
 
@@ -1067,7 +1068,7 @@ public class MainFrame extends ExtendedFrame {
             mf.setSize(this.getSize());
             mf.setExtendedState(this.getExtendedState());
             mf.setVisible(true);
-        } catch (MessagingException e1) {
+        } catch (MessagingException | DAOException e1) {
             JOptionPane.showMessageDialog(this,
                     "Es ist ein Fehler beim Öffnen der Mail aufgetreten:\n" + e1.getMessage(), "Fehler",
                     JOptionPane.ERROR_MESSAGE);
@@ -1239,7 +1240,7 @@ public class MainFrame extends ExtendedFrame {
         try {
             // Das eigendliche Kopieren der Mails
             acc.kopiereMails(infos, quelle.getPfad(), ziel);
-        } catch (MessagingException e) {
+        } catch (MessagingException | DAOException e) {
             JOptionPane.showMessageDialog(this, "Kopieren der Mail fehlgeschlagen: \n" + e.getMessage(), "Fehler",
                     JOptionPane.ERROR_MESSAGE);
         }
@@ -1270,7 +1271,7 @@ public class MainFrame extends ExtendedFrame {
 
                 row = tblMails.getSelectedRow();
             }
-        } catch (MessagingException e) {
+        } catch (MessagingException | DAOException e) {
             JOptionPane.showMessageDialog(this, "Verschieben der Mail fehlgeschlagen: \n" + e.getMessage(), "Fehler",
                     JOptionPane.ERROR_MESSAGE);
         }
@@ -1300,7 +1301,7 @@ public class MainFrame extends ExtendedFrame {
                     row = tblMails.getSelectedRow();
                 }
             }
-        } catch (MessagingException e) {
+        } catch (MessagingException | DAOException e) {
             JOptionPane.showMessageDialog(this, "Löschen fehlgeschlagen: \n" + e.getMessage(), "Fehler",
                     JOptionPane.ERROR_MESSAGE);
         }
@@ -1338,7 +1339,7 @@ public class MainFrame extends ExtendedFrame {
                 aktualisiereNodeAnsicht(selectedNode);
             }
 
-        } catch (MessagingException ex) {
+        } catch (MessagingException | DAOException ex) {
             JOptionPane.showMessageDialog(this,
                     "Es ist ein Fehler beim Auslesen des Mail-Textes aufgetreten:\n" + ex.getMessage(), "Fehler",
                     JOptionPane.ERROR_MESSAGE);

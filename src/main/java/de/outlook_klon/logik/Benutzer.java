@@ -2,6 +2,7 @@ package de.outlook_klon.logik;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
+import de.outlook_klon.dao.DAOException;
 import de.outlook_klon.logik.kalendar.Termin;
 import de.outlook_klon.logik.kalendar.Terminkalender;
 import de.outlook_klon.logik.kontakte.Kontaktverwaltung;
@@ -143,8 +144,8 @@ public final class Benutzer implements Iterable<Benutzer.MailChecker> {
                     mailInfos = account.getMessages(FOLDER);
                 } catch (FolderNotFoundException e) {
                     // Ignorieren, da INBOX immer vorhanden sein sollte!
-                } catch (MessagingException ex) {
-                    LOGGER.error("While getting messages", ex);
+                } catch (MessagingException | DAOException ex) {
+                    LOGGER.error("Error while getting messages", ex);
                 }
 
                 if (mailInfos != null) {
@@ -193,7 +194,7 @@ public final class Benutzer implements Iterable<Benutzer.MailChecker> {
                     break;
                 } catch (FolderNotFoundException e) {
                     // Ignorieren, da INBOX immer vorhanden sein sollte!
-                } catch (MessagingException ex) {
+                } catch (MessagingException | DAOException ex) {
                     LOGGER.error("While getting messages", ex);
                 }
             }
@@ -209,7 +210,7 @@ public final class Benutzer implements Iterable<Benutzer.MailChecker> {
          * @throws javax.mail.MessagingException wenn die Nachrichten nicht
          * abgerufen werden konnten
          */
-        public MailInfo[] getMessages(String pfad) throws MessagingException {
+        public MailInfo[] getMessages(String pfad) throws MessagingException, DAOException {
             boolean threadOK = this.isAlive() && !this.isInterrupted();
 
             MailInfo[] array;
@@ -581,7 +582,7 @@ public final class Benutzer implements Iterable<Benutzer.MailChecker> {
             String text = getAbwesenheitsmeldung();
             sender.sendeMail(new InternetAddress[]{ziel}, null,
                     "Abwesenheit von " + sender.getAddress().getPersonal(), text, "TEXT/plain; charset=utf-8", null);
-        } catch (MessagingException ex) {
+        } catch (MessagingException | DAOException ex) {
             LOGGER.error("Could not send absence message", ex);
         }
     }
