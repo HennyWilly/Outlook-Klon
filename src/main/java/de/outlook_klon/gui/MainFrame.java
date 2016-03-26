@@ -729,7 +729,7 @@ public class MainFrame extends ExtendedFrame {
      * geöffnet. Wenn false dann nicht.
      */
     private void oeffneAdressbuchFrame(boolean neu) {
-        AdressbuchFrame af = new AdressbuchFrame(this, neu);
+        AdressbuchFrame af = new AdressbuchFrame(this, benutzer.getKontakte(), neu);
 
         af.setSize(this.getSize());
         af.setExtendedState(this.getExtendedState());

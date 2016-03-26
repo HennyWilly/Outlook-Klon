@@ -1,14 +1,12 @@
 package de.outlook_klon.gui;
 
+import de.outlook_klon.gui.helpers.ListFocusTraversalPolicy;
 import de.outlook_klon.logik.kontakte.Kontakt;
 import java.awt.Component;
-import java.awt.Container;
-import java.awt.FocusTraversalPolicy;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.NoSuchElementException;
 import javax.mail.Address;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
@@ -51,67 +49,6 @@ public class KontaktFrame extends ExtendedDialog<Kontakt> {
 
     private JButton btnOK;
     private JButton btnAbbrechen;
-
-    /**
-     * Erweitert die FocusTraversalPolicy-Klasse zum einfachen Wandern per
-     * Tab-Taste über alle Steuerelemente in der Reihenfolge, die im Vector
-     * beschrieben ist.
-     */
-    public static class VectorFocusTraversalPolicy extends FocusTraversalPolicy {
-
-        private final List<Component> order;
-
-        /**
-         * Erstellt eine neue Instanz mit den übergebenen Komponenten.
-         *
-         * @param order Liste aller zu durchlaufenden Komponenten.
-         */
-        public VectorFocusTraversalPolicy(List<Component> order) {
-            this.order = new ArrayList<>(order.size());
-            this.order.addAll(order);
-        }
-
-        @Override
-        public Component getComponentAfter(Container focusCycleRoot, Component aComponent) {
-            int vectorIndex = order.indexOf(aComponent) + 1;
-            if (vectorIndex >= order.size()) {
-                vectorIndex = 0;
-            }
-            return order.get(vectorIndex);
-        }
-
-        @Override
-        public Component getComponentBefore(Container focusCycleRoot, Component aComponent) {
-            int vectorIndex = order.indexOf(aComponent) - 1;
-            if (vectorIndex < 0) {
-                vectorIndex = order.size() - 1;
-            }
-            return order.get(vectorIndex);
-        }
-
-        @Override
-        public Component getDefaultComponent(Container focusCycleRoot) {
-            return getFirstComponent(focusCycleRoot);
-        }
-
-        @Override
-        public Component getLastComponent(Container focusCycleRoot) {
-            if (order.isEmpty()) {
-                throw new NoSuchElementException("The component list is empty");
-            }
-
-            return order.get(order.size() - 1);
-        }
-
-        @Override
-        public Component getFirstComponent(Container focusCycleRoot) {
-            if (order.isEmpty()) {
-                throw new NoSuchElementException("The component list is empty");
-            }
-
-            return order.get(0);
-        }
-    }
 
     /**
      * Initialisiert die Komponenten der GUI
@@ -302,7 +239,7 @@ public class KontaktFrame extends ExtendedDialog<Kontakt> {
                         .addGap(23)));
         getContentPane().setLayout(groupLayout);
 
-        // Vector, der die Reihenfolge speichert, in der bei einem Druck der
+        // Liste, die die Reihenfolge speichert, in der bei einem Druck der
         // Tab-Taste durch die Komponenten gewandert werden soll
         List<Component> tabOrder = new ArrayList<>();
         tabOrder.add(tVorname);
@@ -317,7 +254,7 @@ public class KontaktFrame extends ExtendedDialog<Kontakt> {
         tabOrder.add(btnOK);
         tabOrder.add(btnAbbrechen);
 
-        setFocusTraversalPolicy(new VectorFocusTraversalPolicy(tabOrder));
+        setFocusTraversalPolicy(new ListFocusTraversalPolicy(tabOrder));
     }
 
     /**

@@ -1,6 +1,5 @@
 package de.outlook_klon.gui;
 
-import de.outlook_klon.logik.Benutzer;
 import de.outlook_klon.logik.kontakte.Kontakt;
 import de.outlook_klon.logik.kontakte.Kontaktverwaltung;
 import java.awt.BorderLayout;
@@ -438,13 +437,18 @@ public class AdressbuchFrame extends ExtendedFrame {
      *
      * @param parent Referenz auf das Vater-Fenster, um darauf ggf. die
      * neueMail-Methode aufzurufen
+     * @param contacts Die Referenz auf die Kontaktverwaltung
      * @param neu Wenn true, wird sofort ein neues KontaktFrame geöffnet; sonst
      * nicht
      */
-    public AdressbuchFrame(MainFrame parent, boolean neu) {
+    public AdressbuchFrame(MainFrame parent, Kontaktverwaltung contacts, boolean neu) {
+        if (contacts == null) {
+            throw new NullPointerException("ontacts instace is null");
+        }
+
         setTitle("Adressbuch");
         this.parent = parent;
-        verwaltung = Benutzer.getInstanz().getKontakte();
+        this.verwaltung = contacts;
 
         initGUI();
 
