@@ -9,6 +9,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 
 /**
+ * Diese Klasse implementiert die {@link MailInfoDAO}-Schnittstelle für den
+ * Zugriff auf die persistierten {@link MailInfo}-Objekte in Dateiform.
  *
  * @author Hendrik Karwanni
  */
