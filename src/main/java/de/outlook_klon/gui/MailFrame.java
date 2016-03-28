@@ -5,6 +5,7 @@ import de.outlook_klon.logik.Benutzer;
 import de.outlook_klon.logik.Benutzer.MailChecker;
 import de.outlook_klon.logik.kontakte.Kontakt;
 import de.outlook_klon.logik.mailclient.MailAccount;
+import de.outlook_klon.logik.mailclient.MailContent;
 import de.outlook_klon.logik.mailclient.MailInfo;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -16,6 +17,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 import javax.mail.Address;
 import javax.mail.MessagingException;
@@ -439,7 +441,7 @@ public class MailFrame extends ExtendedFrame {
         addMailAccount(parent);
         cBSender.setSelectedItem(parent);
 
-        parent.getWholeMessage(pfad, mail);
+        parent.loadMessageData(pfad, mail, EnumSet.allOf(MailContent.class));
         charset = mail.getContentType().split("; ")[1];
 
         tSender.setText(((InternetAddress) mail.getSender()).toUnicodeString());
@@ -505,7 +507,7 @@ public class MailFrame extends ExtendedFrame {
         info = mail;
         relPfad = pfad;
 
-        parent.getWholeMessage(pfad, mail);
+        parent.loadMessageData(pfad, mail, EnumSet.allOf(MailContent.class));
         charset = mail.getContentType().split("; ")[1];
 
         String subject = (weiterleiten ? "Fwd: " : "Re: ") + mail.getSubject();

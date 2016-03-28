@@ -7,6 +7,7 @@ import de.outlook_klon.logik.kalendar.Termin;
 import de.outlook_klon.logik.kalendar.Terminkalender;
 import de.outlook_klon.logik.kontakte.Kontaktverwaltung;
 import de.outlook_klon.logik.mailclient.MailAccount;
+import de.outlook_klon.logik.mailclient.MailContent;
 import de.outlook_klon.logik.mailclient.MailInfo;
 import de.outlook_klon.serializers.Serializer;
 import java.io.File;
@@ -14,6 +15,7 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -575,7 +577,7 @@ public final class Benutzer implements Iterable<Benutzer.MailChecker> {
         // TODO Jetzt Abwesenheitmail senden
 
         try {
-            sender.getWholeMessage(pfad, info);
+            sender.loadMessageData(pfad, info, EnumSet.of(MailContent.SENDER));
 
             InternetAddress ziel = (InternetAddress) info.getSender();
 

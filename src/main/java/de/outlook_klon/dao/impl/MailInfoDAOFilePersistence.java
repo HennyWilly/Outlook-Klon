@@ -40,6 +40,7 @@ public class MailInfoDAOFilePersistence implements MailInfoDAO {
         String formatedID = id.replace(">", "").replace("<", "");
 
         File folderPath = getFolderPath(path);
+        folderPath.mkdirs();
         return new File(folderPath, formatedID + ".json");
     }
 

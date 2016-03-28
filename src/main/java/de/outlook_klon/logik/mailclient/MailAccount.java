@@ -372,23 +372,30 @@ public class MailAccount {
     }
 
     /**
-     * Liest den Text zur E-Mail mit der übergebenen ID in die übergebene
+     * Liest die angegebenen Daten zur E-Mail in die übergebene
      * <code>MailInfo</code> ein
      *
-     * @param pfad Ordnerpfad innerhalb des MailServers
-     * @param messageInfo Zu füllende <code>MailInfo</code>
+     * @param path Ordnerpfad innerhalb des MailServers
+     * @param mailInfo Zu füllende <code>MailInfo</code>
+     * @param mailContent Eine Aufzählung der auszulesenden Daten
      * @throws javax.mail.MessagingException wenn die Nachrichten nicht geladen
      * werden konnten
      * @throws de.outlook_klon.dao.DAOException wenn ein Fehler beim Zugriff auf
-     * die MailInfoDAO ein Fehler auftritt
+     * die MailInfoDAO auftritt
      */
-    public void getMessageText(final String pfad, final MailInfo messageInfo)
+    public void loadMessageData(String path, MailInfo mailInfo, Set<MailContent> mailContent)
             throws MessagingException, DAOException {
-        if (messageInfo == null || messageInfo.getID() == null) {
+        if (path == null || path.trim().length() == 0) {
+            throw new NullPointerException("path ist NULL oder leer");
+        }
+        if (mailInfo == null) {
             throw new NullPointerException("Übergebene MailInfo ist NULL");
         }
+        if (mailContent == null) {
+            throw new NullPointerException("mailContent ist NULL");
+        }
 
-        if (messageInfo.getText() != null && messageInfo.getContentType() != null) {
+        if (mailInfo.hasAlreadyLoadedData(mailContent)) {
             return;
         }
 
@@ -397,64 +404,19 @@ public class MailAccount {
         try {
             store = connectToMailStore();
 
-            folder = store.getFolder(pfad);
+            folder = store.getFolder(path);
             folder.open(Folder.READ_WRITE);
 
-            final Message message = infoToMessage(messageInfo, folder);
+            final Message message = infoToMessage(mailInfo, folder);
 
             if (message != null) {
                 message.setFlag(Flag.SEEN, true);
-                messageInfo.loadData(message, EnumSet.of(
-                        MailContent.TEXT,
-                        MailContent.CONTENTTYPE,
-                        MailContent.READ));
+                mailInfo.loadData(message, mailContent);
 
-                mailInfoDAO.saveMailInfo(messageInfo, pfad);
+                mailInfoDAO.saveMailInfo(mailInfo, path);
             }
         } catch (IOException | MessagingException ex) {
-            throw new MessagingException("Could not get message text", ex);
-        } finally {
-            closeMailFolder(folder, true);
-            closeMailStore(store);
-        }
-    }
-
-    /**
-     * Liest alle Daten zur E-Mail mit der übergebenen ID in die übergebene
-     * <code>MailInfo</code> ein
-     *
-     * @param pfad Ordnerpfad innerhalb des MailServers
-     * @param messageInfo Zu füllende <code>MailInfo</code>
-     * @throws javax.mail.MessagingException wenn die Nachrichten nicht geladen
-     * werden konnten
-     * @throws de.outlook_klon.dao.DAOException wenn ein Fehler beim Zugriff auf
-     * die MailInfoDAO ein Fehler auftritt
-     */
-    public void getWholeMessage(final String pfad, final MailInfo messageInfo)
-            throws MessagingException, DAOException {
-        if (messageInfo.getText() != null && messageInfo.getContentType() != null && messageInfo.getSubject() != null
-                && messageInfo.getSender() != null && messageInfo.getDate() != null && messageInfo.getTo() != null
-                && messageInfo.getCc() != null && messageInfo.getAttachment() != null) {
-            return;
-        }
-
-        Store store = null;
-        Folder folder = null;
-        try {
-            store = connectToMailStore();
-
-            folder = store.getFolder(pfad);
-            folder.open(Folder.READ_WRITE);
-
-            final Message message = infoToMessage(messageInfo, folder);
-            if (message != null) {
-                message.setFlag(Flag.SEEN, true);
-                messageInfo.loadData(message, EnumSet.allOf(MailContent.class));
-
-                mailInfoDAO.saveMailInfo(messageInfo, pfad);
-            }
-        } catch (IOException | MessagingException ex) {
-            throw new MessagingException("Could not get whole message", ex);
+            throw new MessagingException("Could not load message data", ex);
         } finally {
             closeMailFolder(folder, true);
             closeMailStore(store);

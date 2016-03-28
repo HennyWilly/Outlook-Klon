@@ -59,10 +59,7 @@ public class MailInfo implements Comparable<MailInfo> {
      * @param id ID der Mail
      */
     public MailInfo(String id) {
-        if (id == null || id.trim().isEmpty()) {
-            throw new NullPointerException("Die ID darf niemals leer sein");
-        }
-        this.id = id;
+        setID(id);
     }
 
     @JsonCreator
@@ -119,32 +116,32 @@ public class MailInfo implements Comparable<MailInfo> {
                     setRead(serverMessage.isSet(Flag.SEEN));
                     break;
                 case SUBJECT:
-                    if (getSubject() == null) {
+                    if (subject == null) {
                         setSubject(serverMessage.getSubject());
                     }
                     break;
                 case SENDER:
-                    if (getSender() == null) {
+                    if (sender == null) {
                         setSender(serverMessage.getFrom()[0]);
                     }
                     break;
                 case DATE:
-                    if (getDate() == null) {
+                    if (date == null) {
                         setDate(serverMessage.getSentDate());
                     }
                     break;
                 case TEXT:
-                    if (getText() == null) {
+                    if (text == null) {
                         setText(getText(serverMessage));
                     }
                     break;
                 case CONTENTTYPE:
-                    if (getContentType() == null) {
+                    if (contentType == null) {
                         setContentType(getType(serverMessage));
                     }
                     break;
                 case TO:
-                    if (getTo() == null) {
+                    if (to == null) {
                         Address[] messageTo = serverMessage.getRecipients(RecipientType.TO);
                         if (messageTo == null) {
                             messageTo = new Address[0];
@@ -153,7 +150,7 @@ public class MailInfo implements Comparable<MailInfo> {
                     }
                     break;
                 case CC:
-                    if (getCc() == null) {
+                    if (cc == null) {
                         Address[] messageCC = serverMessage.getRecipients(RecipientType.CC);
                         if (messageCC == null) {
                             messageCC = new Address[0];
@@ -162,7 +159,7 @@ public class MailInfo implements Comparable<MailInfo> {
                     }
                     break;
                 case ATTACHMENT:
-                    if (getAttachment() == null) {
+                    if (attachment == null) {
                         final List<String> messageAttachment = new ArrayList<>();
                         if (serverMessage.getContent() instanceof Multipart) {
                             final Multipart mp = (Multipart) serverMessage.getContent();
@@ -184,6 +181,68 @@ public class MailInfo implements Comparable<MailInfo> {
                     throw new IllegalStateException("Not implemented");
             }
         }
+    }
+
+    /**
+     * Gibt zurück, ob die angegebenen Inhaltstypen bereits in die
+     * MailInfo-Instanz geladen wurden.
+     *
+     * @param contents Inhaltsarten, die geprüft werden sollen
+     * @return {@code true}, wenn alle Inhaltsarten bereits geladen wurden;
+     * sonst {@code false}
+     */
+    public boolean hasAlreadyLoadedData(Set<MailContent> contents) {
+        for (MailContent setContentType : contents) {
+            switch (setContentType) {
+                case ID:
+                case READ:
+                    break;
+                case SUBJECT:
+                    if (subject == null) {
+                        return false;
+                    }
+                    break;
+                case SENDER:
+                    if (sender == null) {
+                        return false;
+                    }
+                    break;
+                case DATE:
+                    if (date == null) {
+                        return false;
+                    }
+                    break;
+                case TEXT:
+                    if (text == null) {
+                        return false;
+                    }
+                    break;
+                case CONTENTTYPE:
+                    if (contentType == null) {
+                        return false;
+                    }
+                    break;
+                case TO:
+                    if (to == null) {
+                        return false;
+                    }
+                    break;
+                case CC:
+                    if (cc == null) {
+                        return false;
+                    }
+                    break;
+                case ATTACHMENT:
+                    if (attachment == null) {
+                        return false;
+                    }
+                    break;
+                default:
+                    throw new IllegalStateException("Not implemented");
+            }
+        }
+
+        return true;
     }
 
     /**

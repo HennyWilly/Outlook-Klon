@@ -7,6 +7,7 @@ import de.outlook_klon.logik.NewMailEvent;
 import de.outlook_klon.logik.NewMailListener;
 import de.outlook_klon.logik.kontakte.Kontakt;
 import de.outlook_klon.logik.mailclient.MailAccount;
+import de.outlook_klon.logik.mailclient.MailContent;
 import de.outlook_klon.logik.mailclient.MailInfo;
 import de.outlook_klon.logik.mailclient.OrdnerInfo;
 import java.awt.Component;
@@ -22,10 +23,12 @@ import java.io.IOException;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.EnumSet;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 import javax.mail.FolderNotFoundException;
 import javax.mail.MessagingException;
 import javax.mail.internet.InternetAddress;
@@ -1325,11 +1328,15 @@ public class MainFrame extends ExtendedFrame {
         OrdnerInfo pfad = nodeZuOrdner(selectedNode);
 
         MailAccount account = ausgewaehlterAccount();
+        Set<MailContent> mailContents = EnumSet.of(
+                MailContent.TEXT,
+                MailContent.CONTENTTYPE,
+                MailContent.READ);
 
         try {
             boolean gelesen = info.isRead();
             // Lese den Mailtext aus
-            account.getMessageText(pfad.getPfad(), info);
+            account.loadMessageData(pfad.getPfad(), info, mailContents);
 
             if (!gelesen) {
                 // Dekrementiere den Zähler des Ordners für ungelesene Mails
