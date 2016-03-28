@@ -43,6 +43,11 @@ public class Pop3Server extends EmpfangsServer {
     }
 
     @Override
+    public boolean supportsMultipleFolders() {
+        return false;
+    }
+
+    @Override
     public Store getMailStore(final String user, final String passwd) throws NoSuchProviderException {
         final Session session = getSession(new StandardAuthenticator(user, passwd));
 

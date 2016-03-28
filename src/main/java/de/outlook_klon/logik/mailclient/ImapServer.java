@@ -43,6 +43,11 @@ public class ImapServer extends EmpfangsServer {
     }
 
     @Override
+    public boolean supportsMultipleFolders() {
+        return true;
+    }
+
+    @Override
     public Store getMailStore(final String user, final String passwd) throws NoSuchProviderException {
         final Session session = getSession(new StandardAuthenticator(user, passwd));
 

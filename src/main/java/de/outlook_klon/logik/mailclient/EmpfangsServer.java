@@ -41,6 +41,14 @@ public abstract class EmpfangsServer extends MailServer {
      */
     public abstract Store getMailStore(String user, String passwd) throws NoSuchProviderException;
 
+    /**
+     * Gibt an, ob die Subclasse mehrerer Ordner (nicht nur INBOX) unterstützt.
+     *
+     * @return {@code true}, wenn mehrere Ordner unterstützt werden; sonst
+     * {@code false}.
+     */
+    public abstract boolean supportsMultipleFolders();
+
     @Override
     public boolean pruefeLogin(final String benutzername, final String passwort) {
         boolean result = true;

@@ -186,38 +186,49 @@ public class MailAccount {
             throw new MessagingException("Could not send mail", ex);
         }
 
-        if (gesendet != null && !(incomingMailServer instanceof Pop3Server)) {
+        if (incomingMailServer.supportsMultipleFolders()) {
+            Store mailStore = null;
+            Folder sentFolder = null;
             try {
                 // TODO Testen!
-                Store mailStore = connectToMailStore();
-                final Folder[] folders = mailStore.getDefaultFolder().list("*");
+                mailStore = connectToMailStore();
+                sentFolder = getSentFolder(mailStore);
 
-                Folder sendFolder = null;
-                outer:
-                for (final Folder folder : folders) {
+                if (sentFolder != null) {
+                    sentFolder.appendMessages(new Message[]{gesendet});
+                }
+            } catch (MessagingException ex) {
+                throw new MessagingException("Could not store sent email", ex);
+            } finally {
+                closeMailFolder(sentFolder, true);
+                closeMailStore(mailStore);
+            }
+        }
+    }
+
+    private Folder getSentFolder(Store mailStore) throws MessagingException {
+        if (incomingMailServer.supportsMultipleFolders()) {
+            final Folder[] folders = mailStore.getDefaultFolder().list("*");
+
+            for (final Folder folder : folders) {
+                if (folder instanceof IMAPFolder) {
                     final IMAPFolder imap = (IMAPFolder) folder;
-                    final String[] attr = imap.getAttributes();
-
-                    if (imap.getName().equalsIgnoreCase("sent")
-                            || imap.getName().equalsIgnoreCase("gesendet")) {
-                        sendFolder = imap;
-                    }
-
-                    for (String attr1 : attr) {
-                        if (attr1.equalsIgnoreCase("\\Sent")) {
-                            sendFolder = imap;
-                            break outer;
+                    final String[] attributes = imap.getAttributes();
+                    for (String attribute : attributes) {
+                        if (attribute.equalsIgnoreCase("\\Sent")) {
+                            return imap;
                         }
                     }
                 }
 
-                if (sendFolder != null) {
-                    sendFolder.appendMessages(new Message[]{gesendet});
+                if (folder.getName().equalsIgnoreCase("sent")
+                        || folder.getName().equalsIgnoreCase("gesendet")) {
+                    return folder;
                 }
-            } catch (MessagingException ex) {
-                throw new MessagingException("Could not store sent email", ex);
             }
         }
+
+        return null;
     }
 
     private Store connectToMailStore() throws MessagingException {
@@ -610,39 +621,14 @@ public class MailAccount {
 
         Store mailStore = null;
         Folder folder = null;
+        Folder binFolder = null;
         try {
             mailStore = connectToMailStore();
 
             folder = mailStore.getFolder(pfad);
             folder.open(Folder.READ_WRITE);
 
-            Folder binFolder = null;
-
-            final Folder[] folders = mailStore.getDefaultFolder().list("*");
-
-            if (!(incomingMailServer instanceof Pop3Server)) {
-                outer:
-                for (final Folder mailFolder : folders) {
-                    final IMAPFolder imap = (IMAPFolder) mailFolder;
-                    final String[] attr = imap.getAttributes();
-
-                    String ordnerName = imap.getName();
-                    if (ordnerName.equalsIgnoreCase("trash")
-                            || ordnerName.equalsIgnoreCase("deleted")
-                            || ordnerName.equalsIgnoreCase("papierkorb")
-                            || ordnerName.equalsIgnoreCase("gelöscht")) {
-                        binFolder = imap;
-                    }
-
-                    for (String attr1 : attr) {
-                        if (attr1.equalsIgnoreCase("\\Trash")) {
-                            binFolder = imap;
-                            break outer;
-                        }
-                    }
-                }
-            }
-
+            binFolder = getTrashFolder(mailStore);
             if (binFolder != null) {
                 final String binPfad = binFolder.getFullName();
                 if (!pfad.equals(binPfad)) {
@@ -661,11 +647,40 @@ public class MailAccount {
 
             result = true;
         } finally {
+            closeMailFolder(binFolder, true);
             closeMailFolder(folder, true);
             closeMailStore(mailStore);
         }
 
         return result;
+    }
+
+    private Folder getTrashFolder(Store mailStore) throws MessagingException {
+        if (incomingMailServer.supportsMultipleFolders()) {
+            final Folder[] folders = mailStore.getDefaultFolder().list("*");
+
+            for (final Folder mailFolder : folders) {
+                if (mailFolder instanceof IMAPFolder) {
+                    final IMAPFolder imap = (IMAPFolder) mailFolder;
+                    final String[] attributes = imap.getAttributes();
+                    for (String attribute : attributes) {
+                        if (attribute.equalsIgnoreCase("\\Trash")) {
+                            return imap;
+                        }
+                    }
+                }
+
+                String ordnerName = mailFolder.getName();
+                if (ordnerName.equalsIgnoreCase("trash")
+                        || ordnerName.equalsIgnoreCase("deleted")
+                        || ordnerName.equalsIgnoreCase("papierkorb")
+                        || ordnerName.equalsIgnoreCase("gelöscht")) {
+                    return mailFolder;
+                }
+            }
+        }
+
+        return null;
     }
 
     /**
