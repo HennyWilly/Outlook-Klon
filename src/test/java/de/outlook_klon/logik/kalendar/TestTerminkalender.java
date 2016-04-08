@@ -8,7 +8,6 @@ import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
@@ -22,9 +21,9 @@ public class TestTerminkalender {
 
     @Before
     public void setUp() throws Exception {
-        User user = mock(User.class);
         ContactManagement contacts = new ContactManagement();
 
+        User user = PowerMockito.mock(User.class);
         PowerMockito.mockStatic(User.class);
         PowerMockito.when(User.getInstance()).thenReturn(user);
         when(user.getContacts()).thenReturn(contacts);

@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Hendrik Karwanni
  */
-public class User implements Iterable<User.MailChecker> {
+public final class User implements Iterable<User.MailChecker> {
 
     private static final String DATA_FOLDER = "Mail";
     private static final String ACCOUNT_PATTERN = DATA_FOLDER + "/%s";
