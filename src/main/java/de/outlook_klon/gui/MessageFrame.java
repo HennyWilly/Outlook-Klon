@@ -11,58 +11,58 @@ import javax.swing.JTextPane;
  *
  * @author Hendrik Karwanni
  */
-public class MeldungsFrame extends ExtendedDialog<String> {
+public class MessageFrame extends ExtendedDialog<String> {
 
     private static final long serialVersionUID = -426579552451278615L;
 
-    private JTextPane textAbwes;
+    private JTextPane textMessage;
     private JButton btnOk;
-    private JButton btnAbbrechen;
+    private JButton btnAbort;
     private String info;
 
-    private void initGui(String text, String titel) {
-        setTitle(titel);
+    private void initGui(String text, String title) {
+        setTitle(title);
         getContentPane().setLayout(null);
 
-        textAbwes = new JTextPane();
-        textAbwes.setBounds(0, 0, 394, 292);
-        textAbwes.setText(text);
-        getContentPane().add(textAbwes);
+        textMessage = new JTextPane();
+        textMessage.setBounds(0, 0, 394, 292);
+        textMessage.setText(text);
+        getContentPane().add(textMessage);
 
         btnOk = new JButton("OK");
         btnOk.addActionListener(new ActionListener() {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                info = textAbwes.getText();
+                info = textMessage.getText();
                 close();
             }
         });
         btnOk.setBounds(10, 303, 100, 23);
         getContentPane().add(btnOk);
 
-        btnAbbrechen = new JButton("Abbrechen");
-        btnAbbrechen.addActionListener(new ActionListener() {
+        btnAbort = new JButton("Abbrechen");
+        btnAbort.addActionListener(new ActionListener() {
 
             @Override
             public void actionPerformed(ActionEvent e) {
                 close();
             }
         });
-        btnAbbrechen.setBounds(120, 303, 100, 23);
-        getContentPane().add(btnAbbrechen);
+        btnAbort.setBounds(120, 303, 100, 23);
+        getContentPane().add(btnAbort);
     }
 
     /**
      * Erstellt ein neues {@link MeldungsFrame}.
      *
      * @param text Initialer Text des Fensters.
-     * @param titel Titel des Fensters.
+     * @param title Titel des Fensters.
      */
-    public MeldungsFrame(String text, String titel) {
+    public MessageFrame(String text, String title) {
         super(400, 365);
 
-        initGui(text, titel);
+        initGui(text, title);
     }
 
     @Override

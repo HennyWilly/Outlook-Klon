@@ -6,7 +6,7 @@ package de.outlook_klon.logik.mailclient;
  *
  * @author Hendrik Karwanni
  */
-public enum Authentifizierungsart {
+public enum AuthentificationType {
 
     /**
      * Die Standard-Authentifizierungsmethode für Mail-Server.

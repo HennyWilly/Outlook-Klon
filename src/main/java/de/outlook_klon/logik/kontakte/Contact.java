@@ -7,12 +7,12 @@ import javax.mail.Address;
 import javax.mail.internet.InternetAddress;
 
 /**
- * Dies ist eine Datenklasse, die die Daten von einem Kontakt des Benutzers
- * speichert.
+ * Dies ist eine Datenklasse, die die Daten von einem Contact des Benutzers
+ speichert.
  *
  * @author Hendrik Karwanni
  */
-public class Kontakt {
+public class Contact {
 
     @JsonProperty("surname")
     private String surname;
@@ -55,7 +55,7 @@ public class Kontakt {
      * @param mobilephone Mobiltelefonnummer des Kontakts
      */
     @JsonCreator
-    public Kontakt(
+    public Contact(
             @JsonProperty("surname") String surname,
             @JsonProperty("forename") String forename,
             @JsonProperty("displayname") String displayname,

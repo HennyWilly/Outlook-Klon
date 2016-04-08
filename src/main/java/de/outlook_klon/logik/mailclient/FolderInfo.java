@@ -5,24 +5,24 @@ package de.outlook_klon.logik.mailclient;
  *
  * @author Hendrik Karwanni
  */
-public class OrdnerInfo {
+public class FolderInfo {
 
     private String name;
-    private String pfad;
-    private int anzahlUngelesen;
+    private String path;
+    private int numberUnread;
 
     /**
      * Ertsellt eine neue Instanz der Klasse OrdnerInfo mit den übergebenen
      * Werten
      *
      * @param name Name des Ordners
-     * @param pfad Pfad innerhalb des MailStores
-     * @param anzahlUngelesen Anzahl ungelesener Nachrichten
+     * @param path Pfad innerhalb des MailStores
+     * @param numberUnread Anzahl ungelesener Nachrichten
      */
-    public OrdnerInfo(String name, String pfad, int anzahlUngelesen) {
+    public FolderInfo(String name, String path, int numberUnread) {
         setName(name);
-        setPfad(pfad);
-        setAnzahlUngelesen(anzahlUngelesen);
+        setPath(path);
+        setNumberUnread(numberUnread);
     }
 
     /**
@@ -48,17 +48,17 @@ public class OrdnerInfo {
      *
      * @return Pfad des Ordners
      */
-    public String getPfad() {
-        return pfad;
+    public String getPath() {
+        return path;
     }
 
     /**
      * Setzt den Pfad des Ordners innerhalb des MailStores
      *
-     * @param pfad Pfad des Ordners
+     * @param path Pfad des Ordners
      */
-    public void setPfad(String pfad) {
-        this.pfad = pfad;
+    public void setPath(String path) {
+        this.path = path;
     }
 
     /**
@@ -66,17 +66,17 @@ public class OrdnerInfo {
      *
      * @return Anzahl an ungelesenen Mails
      */
-    public int getAnzahlUngelesen() {
-        return anzahlUngelesen;
+    public int getNumberUnread() {
+        return numberUnread;
     }
 
     /**
      * Setzt die Anzahl an ungelesenen Mails innerhalb des Ordners
      *
-     * @param anzahlUngelesen Anzahl an ungelesenen Mails
+     * @param numberUnread Anzahl an ungelesenen Mails
      */
-    public void setAnzahlUngelesen(int anzahlUngelesen) {
-        this.anzahlUngelesen = anzahlUngelesen;
+    public void setNumberUnread(int numberUnread) {
+        this.numberUnread = numberUnread;
     }
 
     @Override
@@ -86,20 +86,20 @@ public class OrdnerInfo {
 
     @Override
     public boolean equals(Object other) {
-        if (other == null || !(other instanceof OrdnerInfo)) {
+        if (other == null || !(other instanceof FolderInfo)) {
             return false;
         }
         if (this == other) {
             return true;
         }
 
-        OrdnerInfo ordner = (OrdnerInfo) other;
+        FolderInfo ordner = (FolderInfo) other;
 
-        return this.pfad.equals(ordner.pfad);
+        return this.path.equals(ordner.path);
     }
 
     @Override
     public int hashCode() {
-        return this.pfad.hashCode();
+        return this.path.hashCode();
     }
 }

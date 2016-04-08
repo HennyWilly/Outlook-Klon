@@ -1,8 +1,8 @@
 package de.outlook_klon.gui;
 
-import de.outlook_klon.logik.Benutzer;
-import de.outlook_klon.logik.kalendar.Termin;
-import de.outlook_klon.logik.kalendar.Terminkalender;
+import de.outlook_klon.logik.User;
+import de.outlook_klon.logik.kalendar.Appointment;
+import de.outlook_klon.logik.kalendar.AppointmentCalendar;
 import java.awt.Desktop;
 import java.io.IOException;
 import java.net.URI;
@@ -85,24 +85,23 @@ public class HtmlEditorPane extends JEditorPane {
                 if (arg0.getEventType() == EventType.ACTIVATED) {
                     String url = arg0.getDescription();
                     if (url.startsWith(PREFIX)) {
-                        String strDatum = url.substring(PREFIX.length());
+                        String strDate = url.substring(PREFIX.length());
 
                         try {
-                            Date datum = null;
-
+                            Date date;
                             try {
-                                datum = DATEFORMAT1.parse(strDatum);
+                                date = DATEFORMAT1.parse(strDate);
                             } catch (ParseException ex) {
                                 LOGGER.info("Failed to parse date with first format", ex);
-                                datum = DATEFORMAT2.parse(strDatum);
+                                date = DATEFORMAT2.parse(strDate);
                             }
 
-                            TerminFrame tf = new TerminFrame(datum);
-                            Termin t = tf.showDialog();
+                            AppointmentFrame appointmentFrame = new AppointmentFrame(date);
+                            Appointment appointment = appointmentFrame.showDialog();
 
-                            if (t != null) {
-                                Terminkalender kalender = Benutzer.getInstanz().getTermine();
-                                kalender.addTermin(t);
+                            if (appointment != null) {
+                                AppointmentCalendar calendar = User.getInstance().getAppointments();
+                                calendar.addAppointment(appointment);
                             }
 
                         } catch (ParseException ex) {
@@ -115,18 +114,18 @@ public class HtmlEditorPane extends JEditorPane {
                     }
 
                     if (Desktop.isDesktopSupported()) {
-                        Desktop meinDesktop = Desktop.getDesktop();
+                        Desktop myDesktop = Desktop.getDesktop();
 
                         try {
-                            meinDesktop.browse(new URI(url));
+                            myDesktop.browse(new URI(url));
                         } catch (UnsupportedOperationException | URISyntaxException | IOException ex) {
                             LOGGER.error("Could not launch url", ex);
                         }
                     } else {
-                        Runtime meineLaufzeit = Runtime.getRuntime();
+                        Runtime myRuntime = Runtime.getRuntime();
                         try {
                             // Sollte bei OS mit X-Server funktionieren
-                            meineLaufzeit.exec("xdg-open " + url);
+                            myRuntime.exec("xdg-open " + url);
                         } catch (IOException ex) {
                             LOGGER.error("Could not launch url", ex);
                         }
@@ -232,7 +231,7 @@ public class HtmlEditorPane extends JEditorPane {
                     continue;
                 }
                 int start = matcher.start();
-                int ende = matcher.end();
+                int end = matcher.end();
 
                 String match = matcher.group();
                 if (sb.length() - start < 0) {
@@ -260,12 +259,12 @@ public class HtmlEditorPane extends JEditorPane {
 
                         // Entferne eine eventuelle falsche Uhrzeit
                         match = match.replaceAll(" \\d{1,2}:\\d{1,2}", "");
-                        ende = start + match.length();
+                        end = start + match.length();
                     }
 
                     // Bilde Hyperlink und ersetze im Sting mit ebenjenem
                     String replacement = String.format(REPLACE_PATTERN, match, match);
-                    sb.replace(start, ende, replacement);
+                    sb.replace(start, end, replacement);
                     rematch = true;
                 } catch (ParseException e) {
                     // Überspringe, wenn kein Dateparser den String parsen kann

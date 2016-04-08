@@ -26,10 +26,10 @@ public class ServerSettings implements Serializable {
     private int port;
 
     @JsonProperty("connectionSecurity")
-    private Verbindungssicherheit connectionSecurity;
+    private ConnectionSecurity connectionSecurity;
 
     @JsonProperty("authentificationType")
-    private Authentifizierungsart authentificationType;
+    private AuthentificationType authentificationType;
 
     /**
      * Erstellt eine neue Instanz der Klasse mit den übergebenen Werten
@@ -49,8 +49,8 @@ public class ServerSettings implements Serializable {
     public ServerSettings(
             @JsonProperty("host") String host,
             @JsonProperty("port") int port,
-            @JsonProperty("connectionSecurity") Verbindungssicherheit connectionSecurity,
-            @JsonProperty("authentificationType") Authentifizierungsart authentificationType)
+            @JsonProperty("connectionSecurity") ConnectionSecurity connectionSecurity,
+            @JsonProperty("authentificationType") AuthentificationType authentificationType)
             throws NullPointerException, IllegalArgumentException {
         if (host == null) {
             throw new NullPointerException("Der Hostname darf nicht null sein");
@@ -85,20 +85,20 @@ public class ServerSettings implements Serializable {
     }
 
     /**
-     * Getter für die Art der Verbindungssicherheit zum Server
+     * Getter für die Art der ConnectionSecurity zum Server
      *
      * @return Verschlüsselungsart
      */
-    public Verbindungssicherheit getConnectionSecurity() {
+    public ConnectionSecurity getConnectionSecurity() {
         return connectionSecurity;
     }
 
     /**
      * Getter für die Art der Authentifizierung am Server
      *
-     * @return Authentifizierungsart
+     * @return AuthentificationType
      */
-    public Authentifizierungsart getAuthentificationType() {
+    public AuthentificationType getAuthentificationType() {
         return authentificationType;
     }
 

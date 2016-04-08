@@ -19,11 +19,11 @@ public abstract class ExtendedDialog<TDialogTyp> extends JDialog {
      * Wird von Subklassen aufgerufen, um einige häufig in Dialogen verwendete
      * Werte zu setzen.
      *
-     * @param breite Erzwingt die Übergabe der initialen Breite des Dialogs
-     * @param hoehe Erzwingt die Übergabe der initialen Höhe des Dialogs
+     * @param width Erzwingt die Übergabe der initialen Breite des Dialogs
+     * @param height Erzwingt die Übergabe der initialen Höhe des Dialogs
      */
-    protected ExtendedDialog(int breite, int hoehe) {
-        this.setSize(breite, hoehe);
+    protected ExtendedDialog(int width, int height) {
+        this.setSize(width, height);
         // Fenster in der Mitte des Bildschirms
         this.setLocationRelativeTo(null);
         this.setModalityType(Dialog.DEFAULT_MODALITY_TYPE);

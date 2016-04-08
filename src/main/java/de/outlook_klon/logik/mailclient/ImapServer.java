@@ -12,7 +12,7 @@ import javax.mail.Store;
  *
  * @author Hendrik Karwanni
  */
-public class ImapServer extends EmpfangsServer {
+public class ImapServer extends InboxServer {
 
     private static final long serialVersionUID = 3401491699856582843L;
 
@@ -23,7 +23,8 @@ public class ImapServer extends EmpfangsServer {
      * @param settings Einstellungen zur Serververbindung
      */
     @JsonCreator
-    public ImapServer(@JsonProperty("settings") ServerSettings settings) {
+    public ImapServer(
+            @JsonProperty("settings") ServerSettings settings) {
         super(settings, "IMAP");
     }
 
@@ -35,7 +36,7 @@ public class ImapServer extends EmpfangsServer {
         props.put("mail.imap.port", settings.getPort());
         props.put("mail.imap.auth", true);
 
-        if (settings.getConnectionSecurity() == Verbindungssicherheit.SSL_TLS) {
+        if (settings.getConnectionSecurity() == ConnectionSecurity.SSL_TLS) {
             props.put("mail.imap.ssl.enable", true);
         }
 
@@ -52,7 +53,7 @@ public class ImapServer extends EmpfangsServer {
         final Session session = getSession(new StandardAuthenticator(user, passwd));
 
         Store store;
-        if (settings.getConnectionSecurity() == Verbindungssicherheit.SSL_TLS) {
+        if (settings.getConnectionSecurity() == ConnectionSecurity.SSL_TLS) {
             store = session.getStore("imaps");
         } else {
             store = session.getStore("imap");

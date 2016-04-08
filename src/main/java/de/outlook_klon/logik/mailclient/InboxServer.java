@@ -12,20 +12,20 @@ import org.slf4j.LoggerFactory;
  *
  * @author Hendrik Karwanni
  */
-public abstract class EmpfangsServer extends MailServer {
+public abstract class InboxServer extends MailServer {
 
     private static final long serialVersionUID = -6475925504329915182L;
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(EmpfangsServer.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(InboxServer.class);
 
     /**
      * Ruft den protected-Konstruktor der Oberklasse auf
      *
      * @param settings Einstellungen zur Verbindung mit dem Server
-     * @param serverTyp Beschreibender String zum Servertyp
+     * @param serverType Beschreibender String zum Servertyp
      */
-    protected EmpfangsServer(final ServerSettings settings, final String serverTyp) {
-        super(settings, serverTyp);
+    protected InboxServer(final ServerSettings settings, final String serverType) {
+        super(settings, serverType);
     }
 
     /**
@@ -33,13 +33,13 @@ public abstract class EmpfangsServer extends MailServer {
      * enthällt
      *
      * @param user Benutzername des Empfängers
-     * @param passwd Passwort des Empfängers
+     * @param password Passwort des Empfängers
      * @return <code>Store</code>-Objekt, über welches man auf die Mails
      * zugreifen kann
      * @throws javax.mail.NoSuchProviderException wenn der Provider des Stores
      * nicht gefunden wurde
      */
-    public abstract Store getMailStore(String user, String passwd) throws NoSuchProviderException;
+    public abstract Store getMailStore(String user, String password) throws NoSuchProviderException;
 
     /**
      * Gibt an, ob die Subclasse mehrerer Ordner (nicht nur INBOX) unterstützt.
@@ -50,7 +50,7 @@ public abstract class EmpfangsServer extends MailServer {
     public abstract boolean supportsMultipleFolders();
 
     @Override
-    public boolean pruefeLogin(final String benutzername, final String passwort) {
+    public boolean checkLogin(final String benutzername, final String passwort) {
         boolean result = true;
 
         final String host = settings.getHost();

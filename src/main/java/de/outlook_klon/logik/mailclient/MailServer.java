@@ -34,25 +34,25 @@ public abstract class MailServer implements Serializable {
      */
     protected class StandardAuthenticator extends Authenticator {
 
-        private final String benutzername;
-        private final String passwort;
+        private final String userName;
+        private final String password;
 
         /**
          * Erstellt eine neue Instanz des StandardAuthenticators
          *
-         * @param benutzername Verwendeter Benutzername
-         * @param passwort Verwendendetes Passwort
+         * @param userName Verwendeter Benutzername
+         * @param password Verwendendetes Passwort
          */
-        public StandardAuthenticator(final String benutzername, final String passwort) {
+        public StandardAuthenticator(final String userName, final String password) {
             super();
 
-            this.benutzername = benutzername;
-            this.passwort = passwort;
+            this.userName = userName;
+            this.password = password;
         }
 
         @Override
         protected PasswordAuthentication getPasswordAuthentication() {
-            return new PasswordAuthentication(benutzername, passwort);
+            return new PasswordAuthentication(userName, password);
         }
     }
 
@@ -61,26 +61,26 @@ public abstract class MailServer implements Serializable {
      * initialisieren
      *
      * @param settings Einstellungen zum Verbindungsaufbau
-     * @param serverTyp Beschreibender String zum Servertyp
+     * @param serverType Beschreibender String zum Servertyp
      */
-    protected MailServer(final ServerSettings settings, final String serverTyp) {
+    protected MailServer(final ServerSettings settings, final String serverType) {
         if (settings == null) {
             throw new NullPointerException("Servereinstellungen wurden nicht instanziiert");
         }
 
         this.settings = settings;
-        this.serverType = serverTyp;
+        this.serverType = serverType;
     }
 
     /**
      * Prüft, ob man sich mit den übergebenen Login-Daten an dem bekannten
      * Server anmelden kann.
      *
-     * @param benutzername Anmeldename des Benutzers
-     * @param passwort Passwort des Benutzers
+     * @param userName Anmeldename des Benutzers
+     * @param password Passwort des Benutzers
      * @return true, wenn die Anmeldedaten korrekt waren; sonst false
      */
-    public abstract boolean pruefeLogin(String benutzername, String passwort);
+    public abstract boolean checkLogin(String userName, String password);
 
     /**
      * Gibt das <code>Properties</code>-Objekt zurück, das für den Zugriff über

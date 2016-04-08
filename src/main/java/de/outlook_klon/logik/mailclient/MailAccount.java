@@ -7,7 +7,7 @@ import com.sun.mail.imap.IMAPFolder;
 import de.outlook_klon.dao.DAOException;
 import de.outlook_klon.dao.MailInfoDAO;
 import de.outlook_klon.dao.impl.MailInfoDAOFilePersistence;
-import de.outlook_klon.logik.Benutzer.MailChecker;
+import de.outlook_klon.logik.User.MailChecker;
 import java.io.File;
 import java.io.IOException;
 import java.util.EnumSet;
@@ -44,11 +44,11 @@ public class MailAccount {
 
     private static final String MAIL_FOLDER_PATTERN = "Mail/%s";
 
-    @JsonProperty("incomingMailServer")
-    private EmpfangsServer incomingMailServer;
+    @JsonProperty("inboxMailServer")
+    private InboxServer inboxMailServer;
 
-    @JsonProperty("outgoingMailServer")
-    private SendServer outgoingMailServer;
+    @JsonProperty("outboxMailServer")
+    private OutboxServer outboxMailServer;
 
     @JsonProperty("address")
     private InternetAddress address;
@@ -117,9 +117,9 @@ public class MailAccount {
      * Erstellt eine neue Instanz der Klasse Mailkonto mit den übergebenen
      * Parametern
      *
-     * @param incomingMailServer Server-Instanz, die zum Empfangen von Mails
+     * @param inboxMailServer Server-Instanz, die zum Empfangen von Mails
      * verwendet wird
-     * @param outgoingMailServer Server-Instanz, die zum Senden von Mails
+     * @param outboxMailServer Server-Instanz, die zum Senden von Mails
      * verwendet wird
      * @param address E-Mail-Adresse, das dem Konto zugeordnet ist
      * @param user Benutzername, der zur Anmeldung verwendet werden soll
@@ -133,18 +133,18 @@ public class MailAccount {
      */
     @JsonCreator
     public MailAccount(
-            @JsonProperty("incomingMailServer") EmpfangsServer incomingMailServer,
-            @JsonProperty("outgoingMailServer") SendServer outgoingMailServer,
+            @JsonProperty("inboxMailServer") InboxServer inboxMailServer,
+            @JsonProperty("outboxMailServer") OutboxServer outboxMailServer,
             @JsonProperty("address") InternetAddress address,
             @JsonProperty("user") String user,
             @JsonProperty("password") String password)
             throws NullPointerException, IllegalArgumentException, IOException {
-        if (incomingMailServer == null || outgoingMailServer == null) {
+        if (inboxMailServer == null || outboxMailServer == null) {
             throw new NullPointerException("Die übergebenen Server dürfen nicht <null> sein");
         }
 
-        this.incomingMailServer = incomingMailServer;
-        this.outgoingMailServer = outgoingMailServer;
+        this.inboxMailServer = inboxMailServer;
+        this.outboxMailServer = outboxMailServer;
 
         this.address = address;
         this.user = user;
@@ -174,19 +174,19 @@ public class MailAccount {
      * @throws MessagingException Tritt auf, wenn der Sendevorgang
      * fehlgeschlagen ist
      */
-    public void sendeMail(final Address[] to, final Address[] cc, final String subject,
+    public void sendMail(final Address[] to, final Address[] cc, final String subject,
             final String text, final String format, final File[] attachment)
             throws MessagingException {
 
-        Message gesendet;
+        Message sendMail;
         try {
-            gesendet = outgoingMailServer.sendeMail(user, password, address, to,
+            sendMail = outboxMailServer.sendeMail(user, password, address, to,
                     cc, subject, text, format, attachment);
         } catch (MessagingException ex) {
             throw new MessagingException("Could not send mail", ex);
         }
 
-        if (incomingMailServer.supportsMultipleFolders()) {
+        if (inboxMailServer.supportsMultipleFolders()) {
             Store mailStore = null;
             Folder sentFolder = null;
             try {
@@ -195,7 +195,7 @@ public class MailAccount {
                 sentFolder = getSentFolder(mailStore);
 
                 if (sentFolder != null) {
-                    sentFolder.appendMessages(new Message[]{gesendet});
+                    sentFolder.appendMessages(new Message[]{sendMail});
                 }
             } catch (MessagingException ex) {
                 throw new MessagingException("Could not store sent email", ex);
@@ -207,7 +207,7 @@ public class MailAccount {
     }
 
     private Folder getSentFolder(Store mailStore) throws MessagingException {
-        if (incomingMailServer.supportsMultipleFolders()) {
+        if (inboxMailServer.supportsMultipleFolders()) {
             final Folder[] folders = mailStore.getDefaultFolder().list("*");
 
             for (final Folder folder : folders) {
@@ -232,8 +232,8 @@ public class MailAccount {
     }
 
     private Store connectToMailStore() throws MessagingException {
-        Store mailStore = incomingMailServer.getMailStore(user, password);
-        ServerSettings inServerSettings = incomingMailServer.getSettings();
+        Store mailStore = inboxMailServer.getMailStore(user, password);
+        ServerSettings inServerSettings = inboxMailServer.getSettings();
         mailStore.connect(inServerSettings.getHost(), inServerSettings.getPort(), user, password);
 
         return mailStore;
@@ -246,19 +246,19 @@ public class MailAccount {
      * @throws MessagingException
      */
     @JsonIgnore
-    public OrdnerInfo[] getOrdnerstruktur() throws MessagingException {
-        OrdnerInfo[] paths = null;
+    public FolderInfo[] getFolderStructure() throws MessagingException {
+        FolderInfo[] paths = null;
 
         Store store = null;
         try {
             store = connectToMailStore();
             final Folder[] folders = store.getDefaultFolder().list("*");
 
-            paths = new OrdnerInfo[folders.length];
+            paths = new FolderInfo[folders.length];
             for (int i = 0; i < paths.length; i++) {
                 Folder folder = folders[i];
 
-                paths[i] = new OrdnerInfo(folder.getName(), folder.getFullName(), 0);
+                paths[i] = new FolderInfo(folder.getName(), folder.getFullName(), 0);
             }
 
         } finally {
@@ -306,14 +306,14 @@ public class MailAccount {
     /**
      * Gibt die MailInfos aller Messages in dem übergebenen Pfad zurück.
      *
-     * @param pfad Pfad, in dem die Mails gesucht werden.
+     * @param path Pfad, in dem die Mails gesucht werden.
      * @return Array von MailInfos mit der ID, Betreff, Sender und SendDatum
      * @throws javax.mail.MessagingException wenn die Nachrichten nicht geladen
      * werden konnten
      * @throws de.outlook_klon.dao.DAOException wenn ein Fehler beim Zugriff auf
      * die MailInfoDAO ein Fehler auftritt
      */
-    public MailInfo[] getMessages(final String pfad)
+    public MailInfo[] getMessages(final String path)
             throws MessagingException, DAOException {
         Set<MailInfo> set = new HashSet<>();
 
@@ -322,7 +322,7 @@ public class MailAccount {
         try {
             store = connectToMailStore();
 
-            folder = store.getFolder(pfad);
+            folder = store.getFolder(path);
             folder.open(Folder.READ_ONLY);
 
             final Message[] messages = folder.getMessages();
@@ -336,7 +336,7 @@ public class MailAccount {
                     continue;
                 }
 
-                MailInfo tmp = mailInfoDAO.loadMailInfo(id, pfad);
+                MailInfo tmp = mailInfoDAO.loadMailInfo(id, path);
                 if (tmp == null) {
                     tmp = new MailInfo(id);
                     tmp.loadData(message, EnumSet.of(
@@ -345,7 +345,7 @@ public class MailAccount {
                             MailContent.SENDER,
                             MailContent.DATE));
 
-                    mailInfoDAO.saveMailInfo(tmp, pfad);
+                    mailInfoDAO.saveMailInfo(tmp, path);
                 }
 
                 set.add(tmp);
@@ -429,13 +429,13 @@ public class MailAccount {
      *
      * @param mail <code>MailInfo</code>-Objekt, das die ID zur suchenden
      * Message enthällt
-     * @param ordner Ordner, in dem gesucht werden soll
+     * @param folder Ordner, in dem gesucht werden soll
      * @return <code>Message</code>-Objekt zur übergebenen ID
      */
-    private Message infoToMessage(final MailInfo mail, final Folder ordner)
+    private Message infoToMessage(final MailInfo mail, final Folder folder)
             throws MessagingException {
 
-        Message[] result = infoToMessage(new MailInfo[]{mail}, ordner);
+        Message[] result = infoToMessage(new MailInfo[]{mail}, folder);
         return result == null || result.length == 0 ? null : result[0];
     }
 
@@ -445,24 +445,24 @@ public class MailAccount {
      *
      * @param mail <code>MailInfo</code>-Objekte, die die IDs zu den zu
      * suchenden Messages enthallten
-     * @param ordner Ordner, in dem gesucht werden soll
+     * @param folder Ordner, in dem gesucht werden soll
      * @return <code>Message</code>-Objekte zu den übergebenen IDs
      */
-    private Message[] infoToMessage(final MailInfo[] mails, final Folder ordner)
+    private Message[] infoToMessage(final MailInfo[] mails, final Folder folder)
             throws MessagingException {
         Message[] messages = new Message[mails.length];
-        Message[] folderMails = ordner.getMessages();
+        Message[] folderMails = folder.getMessages();
 
         FetchProfile fp = new FetchProfile();
         fp.add("Message-Id");
-        ordner.fetch(folderMails, fp);
+        folder.fetch(folderMails, fp);
 
         for (int i = 0; i < mails.length; i++) {
             String id = mails[i].getID();
 
-            Message[] tmpMessages = ordner.search(new MessageIDTerm(id));
+            Message[] tmpMessages = folder.search(new MessageIDTerm(id));
             if (tmpMessages.length == 0) {
-                tmpMessages = ordner.search(new MyMessageIDTerm(id));
+                tmpMessages = folder.search(new MyMessageIDTerm(id));
             }
 
             messages[i] = tmpMessages.length == 0 ? null : tmpMessages[0];
@@ -475,34 +475,34 @@ public class MailAccount {
      * Kopiert die übergebenen Mails in den Zielordner
      *
      * @param mails MailInfos, die die IDs der zu kopierenden Messages enthalten
-     * @param quellOrdner Quellordner
-     * @param zielOrdner Zielordner
-     * @param löschen Wert, der angibt, ob die Mails nach dem Kopieren im
+     * @param sourceFolder Quellordner
+     * @param targetFolder Zielordner
+     * @param delete Wert, der angibt, ob die Mails nach dem Kopieren im
      * Quellordner gelöscht werden sollen
      * @throws de.outlook_klon.dao.DAOException wenn ein Fehler beim Zugriff auf
      * die MailInfoDAO ein Fehler auftritt
      */
-    private void kopieren(final MailInfo[] mails, final Folder quellOrdner,
-            final Folder zielOrdner, final boolean löschen)
+    private void copy(final MailInfo[] mails, final Folder sourceFolder,
+            final Folder targetFolder, final boolean delete)
             throws MessagingException, DAOException {
-        final Message[] messages = infoToMessage(mails, quellOrdner);
-        final String quellPfad = quellOrdner.getFullName();
-        final String zielPfad = zielOrdner.getFullName();
+        final Message[] messages = infoToMessage(mails, sourceFolder);
+        final String sourcePath = sourceFolder.getFullName();
+        final String targetPath = targetFolder.getFullName();
 
-        quellOrdner.copyMessages(messages, zielOrdner);
+        sourceFolder.copyMessages(messages, targetFolder);
         for (int i = 0; i < messages.length; i++) {
-            mailInfoDAO.saveMailInfo(mails[i], zielPfad);
+            mailInfoDAO.saveMailInfo(mails[i], targetPath);
 
-            if (löschen) {
+            if (delete) {
                 if (!messages[i].isExpunged()) {
                     messages[i].setFlag(Flags.Flag.DELETED, true);
                 }
-                mailInfoDAO.deleteMailInfo(mails[i].getID(), quellPfad);
+                mailInfoDAO.deleteMailInfo(mails[i].getID(), sourcePath);
             }
         }
 
-        if (löschen) {
-            quellOrdner.expunge();
+        if (delete) {
+            sourceFolder.expunge();
         }
     }
 
@@ -510,27 +510,27 @@ public class MailAccount {
      * Verschiebe die Mails vom Quell- in den Zielordner
      *
      * @param mails MailInfos der zu verschiebenen Mails
-     * @param quellPfad Pfad zum Quellordner
-     * @param zielPfad Pfad zum Zielordner
+     * @param sourcePath Pfad zum Quellordner
+     * @param targetPath Pfad zum Zielordner
      * @throws javax.mail.MessagingException wenn ein Fehler seitens der
      * Mail-Library auftritt
      * @throws de.outlook_klon.dao.DAOException wenn ein Fehler beim Zugriff auf
      * die MailInfoDAO ein Fehler auftritt
      */
-    public void verschiebeMails(final MailInfo[] mails, final String quellPfad,
-            final String zielPfad)
+    public void moveMails(final MailInfo[] mails, final String sourcePath,
+            final String targetPath)
             throws MessagingException, DAOException {
         Store mailStore = null;
 
         try {
             mailStore = connectToMailStore();
 
-            final Folder quellOrdner = mailStore.getFolder(quellPfad);
-            quellOrdner.open(Folder.READ_WRITE);
-            final Folder zielOrdner = mailStore.getFolder(zielPfad);
-            zielOrdner.open(Folder.READ_WRITE);
+            final Folder sourceFolder = mailStore.getFolder(sourcePath);
+            sourceFolder.open(Folder.READ_WRITE);
+            final Folder targetFolder = mailStore.getFolder(targetPath);
+            targetFolder.open(Folder.READ_WRITE);
 
-            kopieren(mails, quellOrdner, zielOrdner, true);
+            copy(mails, sourceFolder, targetFolder, true);
         } finally {
             closeMailStore(mailStore);
         }
@@ -540,27 +540,27 @@ public class MailAccount {
      * Kopiere die Mails vom Quell- in den Zielordner
      *
      * @param mails MailInfos der zu kopieren Mails
-     * @param quellPfad Pfad zum Quellordner
-     * @param zielPfad Pfad zum Zielordner
+     * @param sourcePath Pfad zum Quellordner
+     * @param targetPath Pfad zum Zielordner
      * @throws javax.mail.MessagingException wenn ein Fehler seitens der
      * Mail-Library auftritt
      * @throws de.outlook_klon.dao.DAOException wenn ein Fehler beim Zugriff auf
      * die MailInfoDAO ein Fehler auftritt
      */
-    public void kopiereMails(final MailInfo[] mails, final String quellPfad,
-            final String zielPfad)
+    public void copyMails(final MailInfo[] mails, final String sourcePath,
+            final String targetPath)
             throws MessagingException, DAOException {
         Store mailStore = null;
 
         try {
             mailStore = connectToMailStore();
 
-            final Folder quellOrdner = mailStore.getFolder(quellPfad);
-            quellOrdner.open(Folder.READ_ONLY);
-            final Folder zielOrdner = mailStore.getFolder(zielPfad);
-            zielOrdner.open(Folder.READ_WRITE);
+            final Folder sourceFolder = mailStore.getFolder(sourcePath);
+            sourceFolder.open(Folder.READ_ONLY);
+            final Folder targetFolder = mailStore.getFolder(targetPath);
+            targetFolder.open(Folder.READ_WRITE);
 
-            kopieren(mails, quellOrdner, zielOrdner, false);
+            copy(mails, sourceFolder, targetFolder, false);
         } finally {
             closeMailStore(mailStore);
         }
@@ -570,14 +570,14 @@ public class MailAccount {
      * Lösche die Mails aus dem übergebenen Ordner
      *
      * @param mails MailInfos der zu löschenden Mails
-     * @param pfad Pfad zum Ordner
+     * @param path Pfad zum Ordner
      * @return true, wenn das löschen erfolgreich war; sonst false
      * @throws javax.mail.MessagingException wenn ein Fehler seitens der
      * Mail-Library auftritt
      * @throws de.outlook_klon.dao.DAOException wenn ein Fehler beim Zugriff auf
      * die MailInfoDAO ein Fehler auftritt
      */
-    public boolean loescheMails(final MailInfo[] mails, final String pfad)
+    public boolean deleteMails(final MailInfo[] mails, final String path)
             throws MessagingException, DAOException {
         boolean result = false;
 
@@ -587,14 +587,14 @@ public class MailAccount {
         try {
             mailStore = connectToMailStore();
 
-            folder = mailStore.getFolder(pfad);
+            folder = mailStore.getFolder(path);
             folder.open(Folder.READ_WRITE);
 
             binFolder = getTrashFolder(mailStore);
             if (binFolder != null) {
                 final String binPfad = binFolder.getFullName();
-                if (!pfad.equals(binPfad)) {
-                    kopieren(mails, folder, binFolder, true);
+                if (!path.equals(binPfad)) {
+                    copy(mails, folder, binFolder, true);
                     return true;
                 }
             }
@@ -618,7 +618,7 @@ public class MailAccount {
     }
 
     private Folder getTrashFolder(Store mailStore) throws MessagingException {
-        if (incomingMailServer.supportsMultipleFolders()) {
+        if (inboxMailServer.supportsMultipleFolders()) {
             final Folder[] folders = mailStore.getDefaultFolder().list("*");
 
             for (final Folder mailFolder : folders) {
@@ -632,11 +632,11 @@ public class MailAccount {
                     }
                 }
 
-                String ordnerName = mailFolder.getName();
-                if (ordnerName.equalsIgnoreCase("trash")
-                        || ordnerName.equalsIgnoreCase("deleted")
-                        || ordnerName.equalsIgnoreCase("papierkorb")
-                        || ordnerName.equalsIgnoreCase("gelöscht")) {
+                String folderName = mailFolder.getName();
+                if (folderName.equalsIgnoreCase("trash")
+                        || folderName.equalsIgnoreCase("deleted")
+                        || folderName.equalsIgnoreCase("papierkorb")
+                        || folderName.equalsIgnoreCase("gelöscht")) {
                     return mailFolder;
                 }
             }
@@ -649,23 +649,23 @@ public class MailAccount {
      * Speichert den Anhang der übergebenen Mail am übergebenen Ort
      *
      * @param mail <code>MailInfo</code>-Objekt
-     * @param pfad Ordnerpfad innerhalb des MailStores
-     * @param anhangName Name des zu speichernden Anhangs
-     * @param zielPfad Zielpfad, an dem die Datei gespeichert werden soll
+     * @param path Ordnerpfad innerhalb des MailStores
+     * @param attachmentName Name des zu speichernden Anhangs
+     * @param targetPath Zielpfad, an dem die Datei gespeichert werden soll
      * @throws IOException Tritt auf, wenn die Datei nicht gespeichert werden
      * konnte
      * @throws MessagingException Triff auf, wenn es einen Fehler bezüglich der
      * Nachricht gab
      */
-    public void anhangSpeichern(final MailInfo mail, final String pfad,
-            final String anhangName, final String zielPfad)
+    public void saveAttachment(final MailInfo mail, final String path,
+            final String attachmentName, final String targetPath)
             throws IOException, MessagingException {
         Store mailStore = null;
         Folder folder = null;
         try {
             mailStore = connectToMailStore();
 
-            folder = mailStore.getFolder(pfad);
+            folder = mailStore.getFolder(path);
             folder.open(Folder.READ_WRITE);
 
             final Message message = infoToMessage(mail, folder);
@@ -679,8 +679,8 @@ public class MailAccount {
 
                     if (Part.ATTACHMENT.equalsIgnoreCase(disposition)
                             || (fileName != null && !fileName.trim().isEmpty())) {
-                        if (anhangName.equals(fileName)) {
-                            part.saveFile(zielPfad);
+                        if (attachmentName.equals(fileName)) {
+                            part.saveFile(targetPath);
                         }
                     }
                 }
@@ -699,8 +699,8 @@ public class MailAccount {
      * @return <code>true</code>, wenn die Verbindungen erfolgreich waren; sonst
      * <code>false</code>
      */
-    public boolean validieren() {
-        return validieren(user, password);
+    public boolean validate() {
+        return validate(user, password);
     }
 
     /**
@@ -710,16 +710,16 @@ public class MailAccount {
      * @return <code>true</code>, wenn die Verbindungen erfolgreich waren; sonst
      * <code>false</code>
      */
-    private boolean validieren(String user, String passwd) {
+    private boolean validate(String user, String passwd) {
         boolean inValid = false;
         boolean outValid = false;
 
-        if (incomingMailServer != null) {
-            inValid = incomingMailServer.pruefeLogin(user, passwd);
+        if (inboxMailServer != null) {
+            inValid = inboxMailServer.checkLogin(user, passwd);
         }
 
-        if (outgoingMailServer != null) {
-            outValid = outgoingMailServer.pruefeLogin(user, passwd);
+        if (outboxMailServer != null) {
+            outValid = outboxMailServer.checkLogin(user, passwd);
         }
 
         return inValid && outValid;
@@ -730,8 +730,8 @@ public class MailAccount {
      *
      * @return <code>MailServer</code> zum Empfangen von Mails
      */
-    public EmpfangsServer getIncomingMailServer() {
-        return incomingMailServer;
+    public InboxServer getInboxMailServer() {
+        return inboxMailServer;
     }
 
     /**
@@ -739,8 +739,8 @@ public class MailAccount {
      *
      * @return <code>MailServer</code> zum Versandt von Mails
      */
-    public SendServer getOutgoingMailServer() {
-        return outgoingMailServer;
+    public OutboxServer getOutboxMailServer() {
+        return outboxMailServer;
     }
 
     /**
@@ -768,8 +768,8 @@ public class MailAccount {
      * @throws AuthenticationFailedException Tritt auf, wenn die Anmeldung mit
      * dem Passwort fehlgeschlagen ist
      */
-    public void setPasswort(String password) throws AuthenticationFailedException {
-        if (!validieren(user, password)) {
+    public void setPassword(String password) throws AuthenticationFailedException {
+        if (!validate(user, password)) {
             throw new AuthenticationFailedException("Das übergebene Passwort ist ungültig");
         }
 

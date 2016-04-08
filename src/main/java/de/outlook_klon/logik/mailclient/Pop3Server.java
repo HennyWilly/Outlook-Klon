@@ -12,7 +12,7 @@ import javax.mail.Store;
  *
  * @author Hendrik Karwanni
  */
-public class Pop3Server extends EmpfangsServer {
+public class Pop3Server extends InboxServer {
 
     private static final long serialVersionUID = 926746044207884587L;
 
@@ -23,7 +23,8 @@ public class Pop3Server extends EmpfangsServer {
      * @param settings Einstellungen zur Serververbindung
      */
     @JsonCreator
-    public Pop3Server(@JsonProperty("settings") ServerSettings settings) {
+    public Pop3Server(
+            @JsonProperty("settings") ServerSettings settings) {
         super(settings, "POP3");
     }
 
@@ -35,7 +36,7 @@ public class Pop3Server extends EmpfangsServer {
         props.put("mail.pop3.port", settings.getPort());
         props.put("mail.pop3.auth", true);
 
-        if (settings.getConnectionSecurity() == Verbindungssicherheit.SSL_TLS) {
+        if (settings.getConnectionSecurity() == ConnectionSecurity.SSL_TLS) {
             props.put("mail.pop3.ssl.enable", true);
         }
 
@@ -48,11 +49,11 @@ public class Pop3Server extends EmpfangsServer {
     }
 
     @Override
-    public Store getMailStore(final String user, final String passwd) throws NoSuchProviderException {
-        final Session session = getSession(new StandardAuthenticator(user, passwd));
+    public Store getMailStore(final String user, final String password) throws NoSuchProviderException {
+        final Session session = getSession(new StandardAuthenticator(user, password));
 
         Store store;
-        if (settings.getConnectionSecurity() == Verbindungssicherheit.SSL_TLS) {
+        if (settings.getConnectionSecurity() == ConnectionSecurity.SSL_TLS) {
             store = session.getStore("pop3s");
         } else {
             store = session.getStore("pop3");

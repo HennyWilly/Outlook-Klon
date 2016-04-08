@@ -1,6 +1,6 @@
 package de.outlook_klon.logik;
 
-import de.outlook_klon.logik.Benutzer.MailChecker;
+import de.outlook_klon.logik.User.MailChecker;
 import de.outlook_klon.logik.mailclient.MailInfo;
 import java.util.EventObject;
 

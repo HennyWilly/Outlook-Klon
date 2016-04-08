@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Hendrik Karwanni
  */
-public class SmtpServer extends SendServer {
+public class SmtpServer extends OutboxServer {
 
     private static final long serialVersionUID = -4486714062786025360L;
 
@@ -38,21 +38,22 @@ public class SmtpServer extends SendServer {
      * @param settings Einstellungen zur Serververbindung
      */
     @JsonCreator
-    public SmtpServer(@JsonProperty("settings") ServerSettings settings) {
+    public SmtpServer(
+            @JsonProperty("settings") ServerSettings settings) {
         super(settings, "SMTP");
     }
 
     @Override
     protected Properties getProperties() {
         final int port = settings.getPort();
-        final Verbindungssicherheit sicherheit = settings.getConnectionSecurity();
+        final ConnectionSecurity sicherheit = settings.getConnectionSecurity();
         final Properties props = new Properties();
 
         props.put("mail.smtp.debug", "true");
         props.put("mail.smtp.auth", "true");
-        if (sicherheit == Verbindungssicherheit.STARTTLS) {
+        if (sicherheit == ConnectionSecurity.STARTTLS) {
             props.put("mail.smtp.starttls.enable", "true");
-        } else if (sicherheit == Verbindungssicherheit.SSL_TLS) {
+        } else if (sicherheit == ConnectionSecurity.SSL_TLS) {
             props.put("mail.smtp.socketFactory.port", port);
             props.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
             props.put("mail.smtp.socketFactory.fallback", "false");
@@ -65,7 +66,7 @@ public class SmtpServer extends SendServer {
     public Message sendeMail(final String user, final String passwd, final Address from,
             final Address[] to, final Address[] cc, final String subject, final String text,
             final String format, final File[] attachments) throws MessagingException {
-        final Verbindungssicherheit sicherheit = settings.getConnectionSecurity();
+        final ConnectionSecurity security = settings.getConnectionSecurity();
 
         final Session session = getSession(new StandardAuthenticator(user, passwd));
 
@@ -113,7 +114,7 @@ public class SmtpServer extends SendServer {
         mail.setSentDate(new Date());
 
         Transport transport;
-        if (sicherheit == Verbindungssicherheit.SSL_TLS) {
+        if (security == ConnectionSecurity.SSL_TLS) {
             transport = session.getTransport("smtps");
         } else {
             transport = session.getTransport("smtp");
@@ -129,18 +130,18 @@ public class SmtpServer extends SendServer {
     }
 
     @Override
-    public boolean pruefeLogin(final String benutzername, final String passwort) {
+    public boolean checkLogin(final String benutzername, final String passwort) {
         boolean result = true;
 
         final String host = settings.getHost();
         final int port = settings.getPort();
-        final Verbindungssicherheit sicherheit = settings.getConnectionSecurity();
+        final ConnectionSecurity security = settings.getConnectionSecurity();
 
         final Session session = getSession(new StandardAuthenticator(benutzername, passwort));
 
         Transport transport = null;
         try {
-            if (sicherheit == Verbindungssicherheit.SSL_TLS) {
+            if (security == ConnectionSecurity.SSL_TLS) {
                 transport = session.getTransport("smtps");
             } else {
                 transport = session.getTransport("smtp");

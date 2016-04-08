@@ -1,9 +1,9 @@
 package de.outlook_klon.gui;
 
-import de.outlook_klon.logik.Benutzer;
-import de.outlook_klon.logik.Benutzer.MailChecker;
-import de.outlook_klon.logik.kalendar.Termin;
-import de.outlook_klon.logik.kontakte.Kontakt;
+import de.outlook_klon.logik.User;
+import de.outlook_klon.logik.User.MailChecker;
+import de.outlook_klon.logik.kalendar.Appointment;
+import de.outlook_klon.logik.kontakte.Contact;
 import de.outlook_klon.logik.mailclient.MailAccount;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -28,67 +28,67 @@ import javax.swing.SpinnerDateModel;
  *
  * @author Hendrik Karwanni
  */
-public class TerminFrame extends ExtendedDialog<Termin> {
+public class AppointmentFrame extends ExtendedDialog<Appointment> {
 
     private static final long serialVersionUID = 8451017422297429822L;
 
-    private JTextField textBetreff;
-    private JTextField textBeschreibung;
-    private JTextField textOrt;
+    private JTextField textSubject;
+    private JTextField textDescription;
+    private JTextField textLocation;
 
     private JSpinner dateStart;
-    private JSpinner dateEnde;
+    private JSpinner dateEnd;
 
-    private JComboBox<String> comboKonto;
-    private JComboBox<String> comboKontakt;
-    private Termin mTermin;
+    private JComboBox<String> comboAccount;
+    private JComboBox<String> comboContact;
+    private Appointment mAppointment;
 
     private void initFrame() {
         setTitle("Termin");
 
-        JLabel lblNBetreff = new JLabel("Betreff:");
-        JLabel lblOrt = new JLabel("Ort:");
-        JLabel lblNewLabel = new JLabel("Startzeit:");
-        JLabel lblEndzeit = new JLabel("Endzeit:");
-        JLabel lblBeschreibung = new JLabel("Beschreibung:");
-        JLabel lblBenutzerkonto = new JLabel("Benutzerkonto:");
-        JLabel lblKontakt = new JLabel("Kontakt:");
+        JLabel lblSubject = new JLabel("Betreff:");
+        JLabel lblPlace = new JLabel("Ort:");
+        JLabel lblStart = new JLabel("Startzeit:");
+        JLabel lblEnd = new JLabel("Endzeit:");
+        JLabel lblDescription = new JLabel("Beschreibung:");
+        JLabel lblAccount = new JLabel("Benutzerkonto:");
+        JLabel lblContact = new JLabel("Kontakt:");
 
-        textBetreff = new JTextField();
-        textBetreff.setColumns(10);
+        textSubject = new JTextField();
+        textSubject.setColumns(10);
 
-        textBeschreibung = new JTextField();
-        textBeschreibung.setColumns(10);
+        textDescription = new JTextField();
+        textDescription.setColumns(10);
 
-        textOrt = new JTextField();
-        textOrt.setColumns(10);
+        textLocation = new JTextField();
+        textLocation.setColumns(10);
 
         dateStart = new JSpinner();
         dateStart.setModel(new SpinnerDateModel(new Date(), null, null, Calendar.DAY_OF_YEAR));
 
-        dateEnde = new JSpinner();
-        dateEnde.setModel(new SpinnerDateModel(new Date(), null, null, Calendar.DAY_OF_YEAR));
+        dateEnd = new JSpinner();
+        dateEnd.setModel(new SpinnerDateModel(new Date(), null, null, Calendar.DAY_OF_YEAR));
 
         JButton btnOk = new JButton("OK");
         btnOk.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent arg0) {
                 SpinnerDateModel model1 = (SpinnerDateModel) dateStart.getModel();
-                SpinnerDateModel model2 = (SpinnerDateModel) dateEnde.getModel();
+                SpinnerDateModel model2 = (SpinnerDateModel) dateEnd.getModel();
 
                 try {
-                    if (mTermin == null) {
-                        mTermin = new Termin(textBetreff.getText(), textOrt.getText(), model1.getDate(),
-                                model2.getDate(), textBeschreibung.getText(), comboKonto.getSelectedItem().toString(),
-                                comboKontakt.getSelectedItem().toString());
+                    if (mAppointment == null) {
+                        mAppointment = new Appointment(textSubject.getText(), textLocation.getText(), model1.getDate(),
+                                model2.getDate(), textDescription.getText(), comboAccount.getSelectedItem().toString(),
+                                comboContact.getSelectedItem().toString());
                     } else {
 
-                        mTermin.setSubject(textBetreff.getText());
-                        mTermin.setLocation(textOrt.getText());
-                        mTermin.setText(textBeschreibung.getText());
-                        mTermin.setTimes(model1.getDate(), model2.getDate());
-                        mTermin.setUser(comboKonto.getSelectedItem().toString());
-                        mTermin.setContact(comboKontakt.getSelectedItem().toString());
+                        mAppointment.setSubject(textSubject.getText());
+                        mAppointment.setLocation(textLocation.getText());
+                        mAppointment.setText(textDescription.getText());
+                        mAppointment.setTimes(model1.getDate(), model2.getDate());
+                        mAppointment.setUser(comboAccount.getSelectedItem().toString());
+                        mAppointment.setContact(comboContact.getSelectedItem().toString());
 
                     }
 
@@ -100,44 +100,44 @@ public class TerminFrame extends ExtendedDialog<Termin> {
             }
         });
 
-        JButton btnAbbrechen = new JButton("Abbrechen");
-        btnAbbrechen.addActionListener(new ActionListener() {
+        JButton btnAbort = new JButton("Abbrechen");
+        btnAbort.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 close();
             }
         });
 
-        List<String> benutzerKonten = new ArrayList<>();
-        for (MailChecker checker : Benutzer.getInstanz()) {
+        List<String> userAccounts = new ArrayList<>();
+        for (MailChecker checker : User.getInstance()) {
             MailAccount ma = checker.getAccount();
-            benutzerKonten.add(ma.getAddress().getAddress());
+            userAccounts.add(ma.getAddress().getAddress());
         }
 
-        int comboSize1 = benutzerKonten.size() + 1;
-        String[] selectableBenutzerkonto = new String[comboSize1];
-        selectableBenutzerkonto[0] = "";
+        int comboSize1 = userAccounts.size() + 1;
+        String[] selectableAccounts = new String[comboSize1];
+        selectableAccounts[0] = "";
         for (int i = 1; i < comboSize1; i++) {
-            selectableBenutzerkonto[i] = benutzerKonten.get(i - 1);
+            selectableAccounts[i] = userAccounts.get(i - 1);
         }
 
-        List<String> allKontakte = new ArrayList<>();
-        for (Kontakt k : Benutzer.getInstanz().getKontakte()) {
-            allKontakte.add(k.getDisplayname());
+        List<String> allContacts = new ArrayList<>();
+        for (Contact k : User.getInstance().getContacts()) {
+            allContacts.add(k.getDisplayname());
         }
 
-        int comboSize2 = allKontakte.size() + 1;
-        String[] selectableKontakt = new String[comboSize2];
-        selectableKontakt[0] = "";
+        int comboSize2 = allContacts.size() + 1;
+        String[] selectableContact = new String[comboSize2];
+        selectableContact[0] = "";
         for (int i = 1; i < comboSize2; i++) {
-            selectableKontakt[i] = allKontakte.get(i - 1);
+            selectableContact[i] = allContacts.get(i - 1);
         }
 
-        comboKonto = new JComboBox<>();
-        comboKonto.setModel(new DefaultComboBoxModel<>(selectableBenutzerkonto));
+        comboAccount = new JComboBox<>();
+        comboAccount.setModel(new DefaultComboBoxModel<>(selectableAccounts));
 
-        comboKontakt = new JComboBox<>();
-        comboKontakt.setModel(new DefaultComboBoxModel<>(selectableKontakt));
+        comboContact = new JComboBox<>();
+        comboContact.setModel(new DefaultComboBoxModel<>(selectableContact));
 
         GroupLayout groupLayout = new GroupLayout(getContentPane());
         groupLayout
@@ -150,7 +150,7 @@ public class TerminFrame extends ExtendedDialog<Termin> {
                                                 groupLayout.createSequentialGroup().addGap(23)
                                                 .addComponent(
                                                         btnOk)
-                                                .addGap(102).addComponent(btnAbbrechen))
+                                                .addGap(102).addComponent(btnAbort))
                                         .addGroup(groupLayout.createSequentialGroup().addContainerGap()
                                                 .addGroup(groupLayout
                                                         .createParallelGroup(Alignment.LEADING, false)
@@ -158,16 +158,16 @@ public class TerminFrame extends ExtendedDialog<Termin> {
                                                                 .addGroup(groupLayout
                                                                         .createParallelGroup(
                                                                                 Alignment.LEADING)
-                                                                        .addComponent(lblNewLabel)
-                                                                        .addComponent(lblEndzeit,
+                                                                        .addComponent(lblStart)
+                                                                        .addComponent(lblEnd,
                                                                                 GroupLayout.PREFERRED_SIZE,
                                                                                 45,
                                                                                 GroupLayout.PREFERRED_SIZE)
-                                                                        .addComponent(lblOrt,
+                                                                        .addComponent(lblPlace,
                                                                                 GroupLayout.PREFERRED_SIZE,
                                                                                 53,
                                                                                 GroupLayout.PREFERRED_SIZE)
-                                                                        .addComponent(lblNBetreff,
+                                                                        .addComponent(lblSubject,
                                                                                 GroupLayout.PREFERRED_SIZE,
                                                                                 53,
                                                                                 GroupLayout.PREFERRED_SIZE))
@@ -180,65 +180,65 @@ public class TerminFrame extends ExtendedDialog<Termin> {
                                                                                 GroupLayout.PREFERRED_SIZE,
                                                                                 GroupLayout.DEFAULT_SIZE,
                                                                                 GroupLayout.PREFERRED_SIZE)
-                                                                        .addComponent(dateEnde,
+                                                                        .addComponent(dateEnd,
                                                                                 GroupLayout.PREFERRED_SIZE,
                                                                                 GroupLayout.DEFAULT_SIZE,
                                                                                 GroupLayout.PREFERRED_SIZE)
-                                                                        .addComponent(textBetreff,
+                                                                        .addComponent(textSubject,
                                                                                 GroupLayout.DEFAULT_SIZE,
                                                                                 286, Short.MAX_VALUE)
-                                                                        .addComponent(textOrt,
+                                                                        .addComponent(textLocation,
                                                                                 GroupLayout.PREFERRED_SIZE,
                                                                                 GroupLayout.DEFAULT_SIZE,
                                                                                 GroupLayout.PREFERRED_SIZE)))
                                                         .addGroup(groupLayout.createSequentialGroup()
-                                                                .addComponent(lblBeschreibung,
+                                                                .addComponent(lblDescription,
                                                                         GroupLayout.PREFERRED_SIZE, 89,
                                                                         GroupLayout.PREFERRED_SIZE)
                                                                 .addGap(41)
                                                                 .addGroup(groupLayout
                                                                         .createParallelGroup(
                                                                                 Alignment.LEADING)
-                                                                        .addComponent(textBeschreibung)
-                                                                        .addComponent(comboKonto, 0,
+                                                                        .addComponent(textDescription)
+                                                                        .addComponent(comboAccount, 0,
                                                                                 286, Short.MAX_VALUE)
-                                                                        .addComponent(comboKontakt, 0,
+                                                                        .addComponent(comboContact, 0,
                                                                                 286, Short.MAX_VALUE)))))
                                         .addGroup(groupLayout.createSequentialGroup().addContainerGap()
-                                                .addComponent(lblBenutzerkonto))
+                                                .addComponent(lblAccount))
                                         .addGroup(groupLayout.createSequentialGroup().addContainerGap()
-                                                .addComponent(lblKontakt)))
+                                                .addComponent(lblContact)))
                                 .addContainerGap(54, Short.MAX_VALUE)));
         groupLayout.setVerticalGroup(groupLayout.createParallelGroup(Alignment.TRAILING).addGroup(groupLayout
                 .createSequentialGroup().addGap(27)
-                .addGroup(groupLayout.createParallelGroup(Alignment.BASELINE).addComponent(lblNBetreff).addComponent(
-                        textBetreff, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+                .addGroup(groupLayout.createParallelGroup(Alignment.BASELINE).addComponent(lblSubject).addComponent(
+                        textSubject, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(ComponentPlacement.UNRELATED)
                 .addGroup(groupLayout.createParallelGroup(Alignment.BASELINE)
-                        .addComponent(lblOrt, GroupLayout.PREFERRED_SIZE, 16, GroupLayout.PREFERRED_SIZE)
-                        .addComponent(textOrt, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE,
+                        .addComponent(lblPlace, GroupLayout.PREFERRED_SIZE, 16, GroupLayout.PREFERRED_SIZE)
+                        .addComponent(textLocation, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE,
                                 GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(ComponentPlacement.UNRELATED)
                 .addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
-                        .addGroup(groupLayout.createSequentialGroup().addComponent(lblNewLabel).addGap(18)
-                                .addGroup(groupLayout.createParallelGroup(Alignment.BASELINE).addComponent(lblEndzeit)
-                                        .addComponent(dateEnde, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE,
+                        .addGroup(groupLayout.createSequentialGroup().addComponent(lblStart).addGap(18)
+                                .addGroup(groupLayout.createParallelGroup(Alignment.BASELINE).addComponent(lblEnd)
+                                        .addComponent(dateEnd, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE,
                                                 GroupLayout.PREFERRED_SIZE)))
                         .addComponent(dateStart, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE,
                                 GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(ComponentPlacement.UNRELATED)
-                .addGroup(groupLayout.createParallelGroup(Alignment.BASELINE).addComponent(lblBeschreibung)
-                        .addComponent(textBeschreibung, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE,
+                .addGroup(groupLayout.createParallelGroup(Alignment.BASELINE).addComponent(lblDescription)
+                        .addComponent(textDescription, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE,
                                 GroupLayout.PREFERRED_SIZE))
                 .addGap(18)
-                .addGroup(groupLayout.createParallelGroup(Alignment.BASELINE).addComponent(lblBenutzerkonto)
-                        .addComponent(comboKonto, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE,
+                .addGroup(groupLayout.createParallelGroup(Alignment.BASELINE).addComponent(lblAccount)
+                        .addComponent(comboAccount, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE,
                                 GroupLayout.PREFERRED_SIZE))
                 .addGap(18)
-                .addGroup(groupLayout.createParallelGroup(Alignment.BASELINE).addComponent(lblKontakt).addComponent(
-                        comboKontakt, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+                .addGroup(groupLayout.createParallelGroup(Alignment.BASELINE).addComponent(lblContact).addComponent(
+                        comboContact, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(ComponentPlacement.RELATED, 37, Short.MAX_VALUE).addGroup(groupLayout
-                .createParallelGroup(Alignment.BASELINE).addComponent(btnOk).addComponent(btnAbbrechen))
+                .createParallelGroup(Alignment.BASELINE).addComponent(btnOk).addComponent(btnAbort))
                 .addContainerGap()));
         getContentPane().setLayout(groupLayout);
     }
@@ -246,32 +246,32 @@ public class TerminFrame extends ExtendedDialog<Termin> {
     /**
      * Erstellt ein neues leeres Fenster.
      */
-    public TerminFrame() {
+    public AppointmentFrame() {
         super(485, 344);
 
-        mTermin = null;
+        mAppointment = null;
         initFrame();
         this.setTitle("Neuer Termin");
     }
 
     /**
-     * Erstellt ein neues Fenster, das initial den übergebenen Termin anzeigt.
+     * Erstellt ein neues Fenster, das initial den übergebenen Appointment anzeigt.
      *
-     * @param t anzuzeigender Termin
+     * @param appointment anzuzeigender Appointment
      */
-    public TerminFrame(Termin t) {
+    public AppointmentFrame(Appointment appointment) {
         super(485, 344);
 
-        mTermin = t;
+        mAppointment = appointment;
         initFrame();
         this.setTitle("Termin bearbeiten");
-        textBetreff.setText(t.getSubject());
-        textOrt.setText(t.getLocation());
-        textBeschreibung.setText(t.getText());
-        dateStart.setValue(t.getStart());
-        dateEnde.setValue(t.getEnd());
-        comboKonto.setSelectedItem(t.getUser());
-        comboKontakt.setSelectedItem(t.getContact());
+        textSubject.setText(appointment.getSubject());
+        textLocation.setText(appointment.getLocation());
+        textDescription.setText(appointment.getText());
+        dateStart.setValue(appointment.getStart());
+        dateEnd.setValue(appointment.getEnd());
+        comboAccount.setSelectedItem(appointment.getUser());
+        comboContact.setSelectedItem(appointment.getContact());
     }
 
     /**
@@ -279,18 +279,18 @@ public class TerminFrame extends ExtendedDialog<Termin> {
      *
      * @param date initiales Datum
      */
-    public TerminFrame(Date date) {
+    public AppointmentFrame(Date date) {
         this();
 
         SpinnerDateModel m1 = (SpinnerDateModel) dateStart.getModel();
         m1.setValue(date);
 
-        SpinnerDateModel m2 = (SpinnerDateModel) dateEnde.getModel();
+        SpinnerDateModel m2 = (SpinnerDateModel) dateEnd.getModel();
         m2.setValue(date);
     }
 
     @Override
-    protected Termin getDialogResult() {
-        return mTermin;
+    protected Appointment getDialogResult() {
+        return mAppointment;
     }
 }

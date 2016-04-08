@@ -6,7 +6,7 @@ package de.outlook_klon.logik.mailclient;
  *
  * @author Hendrik Karwanni
  */
-public enum Verbindungssicherheit {
+public enum ConnectionSecurity {
     /**
      * Verwende keine Verschlüsselung
      */

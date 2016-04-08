@@ -11,7 +11,7 @@ import javax.mail.MessagingException;
  *
  * @author Hendrik Karwanni
  */
-public abstract class SendServer extends MailServer {
+public abstract class OutboxServer extends MailServer {
 
     private static final long serialVersionUID = -4191787147022537178L;
 
@@ -20,10 +20,10 @@ public abstract class SendServer extends MailServer {
      * initialisieren
      *
      * @param settings Einstellungen zum Verbindungsaufbau
-     * @param serverTyp Beschreibender String zum Servertyp
+     * @param serverType Beschreibender String zum Servertyp
      */
-    protected SendServer(final ServerSettings settings, final String serverTyp) {
-        super(settings, serverTyp);
+    protected OutboxServer(final ServerSettings settings, final String serverType) {
+        super(settings, serverType);
     }
 
     /**
@@ -31,7 +31,7 @@ public abstract class SendServer extends MailServer {
      * Vorgangs ist vom Serverprotokoll abhängig
      *
      * @param user Benutzername des Senders
-     * @param passwd Passwort des Senders
+     * @param password Passwort des Senders
      * @param from Anzeigename des Senders
      * @param to Ziele der Mail
      * @param cc CCs der Mail
@@ -43,7 +43,7 @@ public abstract class SendServer extends MailServer {
      * @throws MessagingException Tritt auf, wenn das Senden der Mail
      * fehlschlägt oder einer der zu sendenden Anhänge nicht gefunden wurde
      */
-    public abstract Message sendeMail(String user, String passwd, Address from, Address[] to,
+    public abstract Message sendeMail(String user, String password, Address from, Address[] to,
             Address[] cc, String subject, String text, String format, File[] attachment)
             throws MessagingException;
 }

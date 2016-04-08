@@ -1,9 +1,9 @@
 package de.outlook_klon.gui;
 
 import de.outlook_klon.dao.DAOException;
-import de.outlook_klon.logik.Benutzer;
-import de.outlook_klon.logik.Benutzer.MailChecker;
-import de.outlook_klon.logik.kontakte.Kontakt;
+import de.outlook_klon.logik.User;
+import de.outlook_klon.logik.User.MailChecker;
+import de.outlook_klon.logik.kontakte.Contact;
 import de.outlook_klon.logik.mailclient.MailAccount;
 import de.outlook_klon.logik.mailclient.MailContent;
 import de.outlook_klon.logik.mailclient.MailInfo;
@@ -64,28 +64,28 @@ public class MailFrame extends ExtendedFrame {
      * Interne Aufzählung, welche die verschiedenen Arten definiert, in welchem
      * Kontext das Frame geöffnet werden kann
      */
-    private enum MailModus {
+    private enum MailMode {
         /**
          * Es wird eine neue Mail geschieben
          */
-        NEU,
+        NEW,
         /**
          * Es wird eine existierende Mail geöffnet
          */
-        OEFFNEN,
+        OPEN,
         /**
          * Es wird auf eine existierende Mail geantwortet
          */
-        ANTWORT,
+        ANSWER,
         /**
          * Es wird eine existierende Mail weitergeleitet
          */
-        WEITERLEITEN
+        FORWARD
     }
 
-    private MailModus modus;
-    private MailInfo info;
-    private String relPfad;
+    private MailMode mailMode;
+    private MailInfo mailInfo;
+    private String relPath;
 
     private JComboBox<MailAccount> cBSender;
     private JTextField tSender;
@@ -95,16 +95,16 @@ public class MailFrame extends ExtendedFrame {
     private JTextField tSubject;
     private HtmlEditorPane tpMailtext;
 
-    private JButton btnSenden;
-    private JButton btnAnhang;
+    private JButton btnSend;
+    private JButton btnAttachment;
 
-    private JMenuItem mntmDateiAnhaengen;
-    private JMenuItem mntmSchliessen;
+    private JMenuItem mntmFileAttach;
+    private JMenuItem mntmFileClose;
 
-    private JRadioButtonMenuItem rdbtnmntmReintext;
-    private JRadioButtonMenuItem rdbtnmntmHtml;
+    private JRadioButtonMenuItem rdBtnMntmPlaintext;
+    private JRadioButtonMenuItem rdBtnMntmHtml;
 
-    private JList<File> lstAnhang;
+    private JList<File> lstAttachment;
 
     private String charset;
 
@@ -115,36 +115,36 @@ public class MailFrame extends ExtendedFrame {
         JMenuBar menuBar = new JMenuBar();
         setJMenuBar(menuBar);
 
-        JMenu mnDatei = new JMenu("Datei");
-        menuBar.add(mnDatei);
+        JMenu mnFile = new JMenu("Datei");
+        menuBar.add(mnFile);
 
-        JMenu mnAnhaengen = new JMenu("Anh\u00E4ngen");
-        mnAnhaengen.setVisible(modus == MailModus.NEU);
-        mnDatei.add(mnAnhaengen);
+        JMenu mnAttach = new JMenu("Anh\u00E4ngen");
+        mnAttach.setVisible(mailMode == MailMode.NEW);
+        mnFile.add(mnAttach);
 
-        mntmDateiAnhaengen = new JMenuItem("Datei anh\u00E4ngen");
-        mntmDateiAnhaengen.addActionListener(new ActionListener() {
+        mntmFileAttach = new JMenuItem("Datei anh\u00E4ngen");
+        mntmFileAttach.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                anhangHinzufügen();
+                addAttachment();
             }
         });
-        mnAnhaengen.add(mntmDateiAnhaengen);
+        mnAttach.add(mntmFileAttach);
 
-        mntmSchliessen = new JMenuItem("Schlie\u00DFen");
-        mntmSchliessen.addActionListener(new ActionListener() {
+        mntmFileClose = new JMenuItem("Schlie\u00DFen");
+        mntmFileClose.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 close();
             }
         });
-        mnDatei.add(mntmSchliessen);
+        mnFile.add(mntmFileClose);
 
-        JMenu mnOptionen = new JMenu("Optionen");
-        menuBar.add(mnOptionen);
+        JMenu mnOptions = new JMenu("Optionen");
+        menuBar.add(mnOptions);
 
         JMenu mnEmailFormat = new JMenu("E-Mail Format");
-        mnOptionen.add(mnEmailFormat);
+        mnOptions.add(mnEmailFormat);
 
         ItemListener radioMenu = new ItemListener() {
             @Override
@@ -156,9 +156,9 @@ public class MailFrame extends ExtendedFrame {
                     String text = tpMailtext.getText();
                     String contentType = tpMailtext.getContentType();
 
-                    if (sender == rdbtnmntmReintext) {
+                    if (sender == rdBtnMntmPlaintext) {
                         contentType = "TEXT/plain; " + charset;
-                    } else if (sender == rdbtnmntmHtml) {
+                    } else if (sender == rdBtnMntmHtml) {
                         contentType = "TEXT/html; " + charset;
                     }
 
@@ -170,18 +170,18 @@ public class MailFrame extends ExtendedFrame {
             }
         };
 
-        rdbtnmntmReintext = new JRadioButtonMenuItem("Reintext");
-        rdbtnmntmReintext.setSelected(true);
-        rdbtnmntmReintext.addItemListener(radioMenu);
-        mnEmailFormat.add(rdbtnmntmReintext);
+        rdBtnMntmPlaintext = new JRadioButtonMenuItem("Reintext");
+        rdBtnMntmPlaintext.setSelected(true);
+        rdBtnMntmPlaintext.addItemListener(radioMenu);
+        mnEmailFormat.add(rdBtnMntmPlaintext);
 
-        rdbtnmntmHtml = new JRadioButtonMenuItem("Html");
-        rdbtnmntmHtml.addItemListener(radioMenu);
-        mnEmailFormat.add(rdbtnmntmHtml);
+        rdBtnMntmHtml = new JRadioButtonMenuItem("Html");
+        rdBtnMntmHtml.addItemListener(radioMenu);
+        mnEmailFormat.add(rdBtnMntmHtml);
 
         ButtonGroup group = new ButtonGroup();
-        group.add(rdbtnmntmReintext);
-        group.add(rdbtnmntmHtml);
+        group.add(rdBtnMntmPlaintext);
+        group.add(rdBtnMntmHtml);
     }
 
     /**
@@ -189,19 +189,19 @@ public class MailFrame extends ExtendedFrame {
      *
      * @param splitHead JSplitPane in die die Liste eingefügt werden soll
      */
-    private void initListe(JSplitPane splitHead) {
-        lstAnhang = new JList<>(new DefaultListModel<File>());
+    private void initList(JSplitPane splitHead) {
+        lstAttachment = new JList<>(new DefaultListModel<File>());
 
-        JScrollPane anhangScroller = new JScrollPane(lstAnhang);
-        splitHead.setRightComponent(anhangScroller);
+        JScrollPane attachmentScroller = new JScrollPane(lstAttachment);
+        splitHead.setRightComponent(attachmentScroller);
 
-        if (modus == MailModus.OEFFNEN) {
-            lstAnhang.addMouseListener(new MouseAdapter() {
+        if (mailMode == MailMode.OPEN) {
+            lstAttachment.addMouseListener(new MouseAdapter() {
                 @Override
                 public void mouseClicked(MouseEvent e) {
                     if (e.getClickCount() == 2) {
-                        File selected = lstAnhang.getSelectedValue();
-                        anhangSpeichern(selected.getName());
+                        File selected = lstAttachment.getSelectedValue();
+                        saveAttachment(selected.getName());
                     }
                 }
             });
@@ -278,7 +278,7 @@ public class MailFrame extends ExtendedFrame {
                                         GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(ComponentPlacement.RELATED)
                         .addGroup(gl_panel_1.createParallelGroup(Alignment.LEADING)
-                                .addComponent(modus != MailModus.OEFFNEN ? cBSender : tSender,
+                                .addComponent(mailMode != MailMode.OPEN ? cBSender : tSender,
                                         GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                 .addComponent(tTo, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 6,
                                         Short.MAX_VALUE)
@@ -289,7 +289,7 @@ public class MailFrame extends ExtendedFrame {
         gl_panel_1.setVerticalGroup(gl_panel_1.createParallelGroup(Alignment.LEADING).addGroup(gl_panel_1
                 .createSequentialGroup().addContainerGap()
                 .addGroup(gl_panel_1.createParallelGroup(Alignment.BASELINE).addComponent(lSender).addComponent(
-                        modus != MailModus.OEFFNEN ? cBSender : tSender, GroupLayout.PREFERRED_SIZE,
+                        mailMode != MailMode.OPEN ? cBSender : tSender, GroupLayout.PREFERRED_SIZE,
                         GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(ComponentPlacement.RELATED)
                 .addGroup(gl_panel_1.createParallelGroup(Alignment.BASELINE).addComponent(lTo).addComponent(tTo,
@@ -303,7 +303,7 @@ public class MailFrame extends ExtendedFrame {
                 .addContainerGap()));
         panel_1.setLayout(gl_panel_1);
 
-        initListe(splitHead);
+        initList(splitHead);
 
         panel.setLayout(gl_panel);
 
@@ -328,24 +328,24 @@ public class MailFrame extends ExtendedFrame {
                         .addPreferredGap(ComponentPlacement.RELATED)
                         .addComponent(splitPane, GroupLayout.DEFAULT_SIZE, 332, Short.MAX_VALUE)));
 
-        btnSenden = new JButton("Senden");
-        toolBar.add(btnSenden);
-        btnSenden.addActionListener(new ActionListener() {
+        btnSend = new JButton("Senden");
+        toolBar.add(btnSend);
+        btnSend.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent arg0) {
-                sendeMail();
+                sendMail();
             }
         });
 
-        btnAnhang = new JButton("Anhang");
-        btnAnhang.addActionListener(new ActionListener() {
+        btnAttachment = new JButton("Anhang");
+        btnAttachment.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                anhangHinzufügen();
+                addAttachment();
             }
         });
-        toolBar.add(btnAnhang);
-        toolBar.setVisible(modus != MailModus.OEFFNEN);
+        toolBar.add(btnAttachment);
+        toolBar.setVisible(mailMode != MailMode.OPEN);
 
         getContentPane().setLayout(groupLayout);
 
@@ -356,22 +356,22 @@ public class MailFrame extends ExtendedFrame {
      * Fügt das übergebene Adress-Array zu einem String mit ';'-Seperator
      * zusammen
      *
-     * @param addr Umzuwandelnde Adressen
+     * @param addresses Umzuwandelnde Adressen
      * @return String, der die Aufzählung der übergebenen Adressen enthält
      */
-    private String appendAddresses(Address[] addr) {
-        if (addr == null || addr.length == 0) {
+    private String appendAddresses(Address[] addresses) {
+        if (addresses == null || addresses.length == 0) {
             return "";
         }
 
         StringBuilder sb = new StringBuilder();
 
-        for (int i = 0; i < addr.length; i++) {
-            InternetAddress inet = (InternetAddress) addr[i];
+        for (int i = 0; i < addresses.length; i++) {
+            InternetAddress inet = (InternetAddress) addresses[i];
 
             sb.append(inet.toUnicodeString());
 
-            if (i < addr.length - 1) {
+            if (i < addresses.length - 1) {
                 sb.append("; ");
             }
         }
@@ -383,7 +383,7 @@ public class MailFrame extends ExtendedFrame {
      * Erstellt eine neue Instanz der Klasse zum Schreiben einer neuen Mail
      */
     public MailFrame() {
-        modus = MailModus.NEU;
+        mailMode = MailMode.NEW;
         charset = "";
 
         setTitle("<Kein Betreff>");
@@ -396,11 +396,11 @@ public class MailFrame extends ExtendedFrame {
      * Erstellt eine neue Instanz der Klasse zum Schreiben einer neuen Mail an
      * die übergebenen Kontakte.
      *
-     * @param kontakte Kontakte, deren Mailadressen standardmäßig als Empfänger
+     * @param contacts Kontakte, deren Mailadressen standardmäßig als Empfänger
      * eingetragen werden.
      */
-    public MailFrame(Kontakt[] kontakte) {
-        modus = MailModus.NEU;
+    public MailFrame(Contact[] contacts) {
+        mailMode = MailMode.NEW;
         charset = "";
 
         setTitle("<Kein Betreff>");
@@ -408,16 +408,16 @@ public class MailFrame extends ExtendedFrame {
 
         addMailAccounts();
 
-        List<Address> adressen = new ArrayList<>();
-        for (Kontakt k : kontakte) {
-            if (k.getAddress1() == null) {
+        List<Address> addresses = new ArrayList<>();
+        for (Contact contact : contacts) {
+            if (contact.getAddress1() == null) {
                 continue;
             }
-            adressen.add(k.getAddress1());
+            addresses.add(contact.getAddress1());
         }
 
-        String adressString = appendAddresses(adressen.toArray(new Address[adressen.size()]));
-        tTo.setText(adressString);
+        String addressString = appendAddresses(addresses.toArray(new Address[addresses.size()]));
+        tTo.setText(addressString);
     }
 
     /**
@@ -425,23 +425,26 @@ public class MailFrame extends ExtendedFrame {
      *
      * @param mail Info-Objekt, das die Informationen zum Anzeigen der Mail
      * enthält.
-     * @param pfad Ordnerpfad, in dem die Mail liegt.
+     * @param path Ordnerpfad, in dem die Mail liegt.
      * @param parent MailAccount, aus dem die Mail stammt.
      * @throws MessagingException Tritt auf, wenn die Daten der Mail nicht
      * abgefragt werden konnten.
+     * @throws de.outlook_klon.dao.DAOException Tritt auf, wenn die Daten der
+     * Mail nicht geladen werden konnten.
      */
-    public MailFrame(MailInfo mail, String pfad, MailAccount parent) throws MessagingException, DAOException {
-        modus = MailModus.OEFFNEN;
+    public MailFrame(MailInfo mail, String path, MailAccount parent)
+            throws MessagingException, DAOException {
+        mailMode = MailMode.OPEN;
 
         initGui();
 
-        info = mail;
-        relPfad = pfad;
+        mailInfo = mail;
+        relPath = path;
 
         addMailAccount(parent);
         cBSender.setSelectedItem(parent);
 
-        parent.loadMessageData(pfad, mail, EnumSet.allOf(MailContent.class));
+        parent.loadMessageData(path, mail, EnumSet.allOf(MailContent.class));
         charset = mail.getContentType().split("; ")[1];
 
         tSender.setText(((InternetAddress) mail.getSender()).toUnicodeString());
@@ -456,8 +459,8 @@ public class MailFrame extends ExtendedFrame {
         tCC.setText(appendAddresses(mail.getCc()));
         tCC.setEditable(false);
 
-        String text = info.getText();
-        String contentType = info.getContentType();
+        String text = mailInfo.getText();
+        String contentType = mailInfo.getContentType();
 
         // Automatisches Umstellen des Anzeigetyps
         if (HtmlEditorPane.istHtml(text)) {
@@ -465,16 +468,16 @@ public class MailFrame extends ExtendedFrame {
         }
 
         if (contentType.toLowerCase().startsWith("text/plain")) {
-            rdbtnmntmReintext.setSelected(true);
+            rdBtnMntmPlaintext.setSelected(true);
             tpMailtext.setText(text);
         } else {
             tpMailtext.setText(text);
-            rdbtnmntmHtml.setSelected(true);
+            rdBtnMntmHtml.setSelected(true);
         }
 
         tpMailtext.setEditable(false);
 
-        DefaultListModel<File> model = (DefaultListModel<File>) lstAnhang.getModel();
+        DefaultListModel<File> model = (DefaultListModel<File>) lstAttachment.getModel();
 
         // Füge Anhänge in die JList ein
         String[] attachments = mail.getAttachment();
@@ -489,49 +492,52 @@ public class MailFrame extends ExtendedFrame {
      *
      * @param mail Info-Objekt, das die Informationen zum Anzeigen der Mail
      * enthält.
-     * @param pfad Ordnerpfad, in dem die Mail liegt.
+     * @param path Ordnerpfad, in dem die Mail liegt.
      * @param parent MailAccount, aus dem die Mail stammt.
-     * @param weiterleiten Wenn true soll die Mail weitergeleitet werden. Sonst
-     * wird auf die Mail geantwortet.
+     * @param forward Wenn true soll die Mail weitergeleitet werden. Sonst wird
+     * auf die Mail geantwortet.
      * @throws MessagingException Tritt auf, wenn die Daten der Mail nicht
      * abgefragt werden konnten.
+     * @throws de.outlook_klon.dao.DAOException Tritt auf, wenn die Daten der
+     * Mail nicht geladen werden konnten.
      */
-    public MailFrame(MailInfo mail, String pfad, MailAccount parent, boolean weiterleiten) throws MessagingException, DAOException {
-        modus = weiterleiten ? MailModus.WEITERLEITEN : MailModus.ANTWORT;
+    public MailFrame(MailInfo mail, String path, MailAccount parent, boolean forward)
+            throws MessagingException, DAOException {
+        mailMode = forward ? MailMode.FORWARD : MailMode.ANSWER;
 
         initGui();
 
         addMailAccounts();
         cBSender.setSelectedItem(parent);
 
-        info = mail;
-        relPfad = pfad;
+        mailInfo = mail;
+        relPath = path;
 
-        parent.loadMessageData(pfad, mail, EnumSet.allOf(MailContent.class));
+        parent.loadMessageData(path, mail, EnumSet.allOf(MailContent.class));
         charset = mail.getContentType().split("; ")[1];
 
-        String subject = (weiterleiten ? "Fwd: " : "Re: ") + mail.getSubject();
+        String subject = (forward ? "Fwd: " : "Re: ") + mail.getSubject();
 
         tSubject.setText(subject);
 
-        if (weiterleiten == false) {
+        if (forward == false) {
             tTo.setText(((InternetAddress) mail.getSender()).toUnicodeString());
         }
         tCC.setText(appendAddresses(mail.getCc()));
 
-        String text = info.getText();
-        String contentType = info.getContentType();
+        String text = mailInfo.getText();
+        String contentType = mailInfo.getContentType();
 
-        if (HtmlEditorPane.istHtml(text))
-			;
-        contentType = contentType.replace("plain", "html");
+        if (HtmlEditorPane.istHtml(text)) {
+            contentType = contentType.replace("plain", "html");
+        }
 
         if (contentType.startsWith("TEXT/plain")) {
-            rdbtnmntmReintext.setSelected(true);
+            rdBtnMntmPlaintext.setSelected(true);
             tpMailtext.setText(text);
         } else {
             tpMailtext.setText(text);
-            rdbtnmntmHtml.setSelected(true);
+            rdBtnMntmHtml.setSelected(true);
         }
     }
 
@@ -539,7 +545,7 @@ public class MailFrame extends ExtendedFrame {
      * Fügt alle registrierten MailAccounts der entsprechenden ComboBox hinzu
      */
     private void addMailAccounts() {
-        for (MailChecker checker : Benutzer.getInstanz()) {
+        for (MailChecker checker : User.getInstance()) {
             MailAccount acc = checker.getAccount();
             addMailAccount(acc);
         }
@@ -566,15 +572,15 @@ public class MailFrame extends ExtendedFrame {
      * Gibt den übergebenen Adress-String als Array von
      * InternetAddress-Instanzen im Unicode-Format zurück.
      *
-     * @param adressen Zu parsende Adressen.
+     * @param addresses Zu parsende Adressen.
      * @return Entsprechende Adressen des übergebenen Strings.
      * @throws ParseException Tritt auf, wenn die Adressen nicht geparst werden
      * konnten.
      */
-    private static Address[] unicodifyAddresses(String adressen) throws ParseException {
-        adressen = adressen.replace(';', ',');
+    private static Address[] unicodifyAddresses(String addresses) throws ParseException {
+        addresses = addresses.replace(';', ',');
 
-        InternetAddress[] recips = InternetAddress.parse(adressen, true);
+        InternetAddress[] recips = InternetAddress.parse(addresses, true);
 
         for (int i = 0; i < recips.length; i++) {
             try {
@@ -590,7 +596,7 @@ public class MailFrame extends ExtendedFrame {
     /**
      * Sendet die Mail
      */
-    private void sendeMail() {
+    private void sendMail() {
         String subject = tSubject.getText();
         String text = tpMailtext.getText();
         MailAccount acc = (MailAccount) cBSender.getSelectedItem();
@@ -613,15 +619,15 @@ public class MailFrame extends ExtendedFrame {
             return;
         }
 
-        DefaultListModel<File> model = (DefaultListModel<File>) lstAnhang.getModel();
-        File[] anhänge = new File[model.getSize()];
-        for (int i = 0; i < anhänge.length; i++) {
-            anhänge[i] = model.get(i);
+        DefaultListModel<File> model = (DefaultListModel<File>) lstAttachment.getModel();
+        File[] attachments = new File[model.getSize()];
+        for (int i = 0; i < attachments.length; i++) {
+            attachments[i] = model.get(i);
         }
 
         try {
             // Eingentliches Sender der Mail
-            acc.sendeMail(to, cc, subject, text, tpMailtext.getContentType(), anhänge);
+            acc.sendMail(to, cc, subject, text, tpMailtext.getContentType(), attachments);
             close();
         } catch (MessagingException ex) {
             JOptionPane.showMessageDialog(this,
@@ -633,12 +639,12 @@ public class MailFrame extends ExtendedFrame {
     /**
      * Fügt eine per JFileChooser ausgewählte Datei der JList hinzu
      */
-    private void anhangHinzufügen() {
-        JFileChooser fc = new JFileChooser();
-        fc.setMultiSelectionEnabled(true);
-        if (fc.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
-            File[] files = fc.getSelectedFiles();
-            DefaultListModel<File> model = (DefaultListModel<File>) lstAnhang.getModel();
+    private void addAttachment() {
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setMultiSelectionEnabled(true);
+        if (fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+            File[] files = fileChooser.getSelectedFiles();
+            DefaultListModel<File> model = (DefaultListModel<File>) lstAttachment.getModel();
 
             for (File file : files) {
                 if (file.exists()) {
@@ -654,18 +660,18 @@ public class MailFrame extends ExtendedFrame {
      *
      * @param name Name des zu speicherndern Anhangs
      */
-    private void anhangSpeichern(String name) {
-        JFileChooser fc = new JFileChooser();
+    private void saveAttachment(String name) {
+        JFileChooser fileChooser = new JFileChooser();
         // Setzt den standardmäßig ausgewählten Dateinamen
-        fc.setSelectedFile(new File(name));
+        fileChooser.setSelectedFile(new File(name));
 
-        if (fc.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
-            String pfad = fc.getSelectedFile().getAbsolutePath();
+        if (fileChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
+            String path = fileChooser.getSelectedFile().getAbsolutePath();
             MailAccount acc = (MailAccount) cBSender.getSelectedItem();
 
             try {
                 // Führt das eigentliche Abspeichern aus
-                acc.anhangSpeichern(info, relPfad, name, pfad);
+                acc.saveAttachment(mailInfo, relPath, name, path);
             } catch (IOException | MessagingException ex) {
                 JOptionPane.showMessageDialog(this,
                         "Es ist ein Fehler beim Speichern des Anhangs aufgetreten: \n" + ex.getMessage(), "Fehler",

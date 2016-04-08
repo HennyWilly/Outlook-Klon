@@ -2,8 +2,8 @@ package de.outlook_klon.logik.kalendar;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import de.outlook_klon.logik.Benutzer;
-import de.outlook_klon.logik.kontakte.Kontakt;
+import de.outlook_klon.logik.User;
+import de.outlook_klon.logik.kontakte.Contact;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -11,12 +11,12 @@ import javax.mail.Address;
 import javax.mail.internet.InternetAddress;
 
 /**
- * Dies ist eine Datenklasse, die die Daten von einem Termin des Benutzers
+ * Dies ist eine Datenklasse, die die Daten von einem Appointment des Benutzers
  * speichert.
  *
  * @author Hendrik Karwanni
  */
-public class Termin implements Comparable<Termin> {
+public class Appointment implements Comparable<Appointment> {
 
     @JsonProperty("subject")
     private String subject;
@@ -56,7 +56,7 @@ public class Termin implements Comparable<Termin> {
      * @param user Name des Benutzers
      * @param contact Name des Kontakts
      */
-    public Termin(String subject, String location, Date start, Date end, String text, String user, String contact) {
+    public Appointment(String subject, String location, Date start, Date end, String text, String user, String contact) {
         setSubject(subject);
         setLocation(location);
         setTimes(start, end);
@@ -66,13 +66,13 @@ public class Termin implements Comparable<Termin> {
         setState(AppointmentState.PROMISED);
 
         List<Address> temp = new ArrayList<>(2);
-        for (Kontakt k : Benutzer.getInstanz().getKontakte()) {
-            if (k.getDisplayname() != null && k.getDisplayname().equals(contact)) {
-                if (k.getAddress1() != null) {
-                    temp.add(k.getAddress1());
+        for (Contact contacts : User.getInstance().getContacts()) {
+            if (contacts.getDisplayname() != null && contacts.getDisplayname().equals(contact)) {
+                if (contacts.getAddress1() != null) {
+                    temp.add(contacts.getAddress1());
                 }
-                if (k.getAddress2() != null) {
-                    temp.add(k.getAddress2());
+                if (contacts.getAddress2() != null) {
+                    temp.add(contacts.getAddress2());
                 }
                 break;
             }
@@ -94,7 +94,7 @@ public class Termin implements Comparable<Termin> {
      * @param addresses Verknüpfte Adressen des Termins
      */
     @JsonCreator
-    public Termin(
+    public Appointment(
             @JsonProperty("subject") String subject,
             @JsonProperty("location") String location,
             @JsonProperty("start") Date start,
@@ -219,18 +219,18 @@ public class Termin implements Comparable<Termin> {
     }
 
     /**
-     * Setter für den zugeordneten Kontakt des Termins
+     * Setter für den zugeordneten Contact des Termins
      *
-     * @param contact Zu setzende Kontakt
+     * @param contact Zu setzende Contact
      */
     public void setContact(String contact) {
         this.contact = contact;
     }
 
     /**
-     * Getter für den zugeordneten Kontakt des Termins
+     * Getter für den zugeordneten Contact des Termins
      *
-     * @return Kontakt
+     * @return Contact
      */
     public String getContact() {
         return contact;
@@ -255,25 +255,25 @@ public class Termin implements Comparable<Termin> {
     }
 
     /**
-     * Gibt die verknüpfen Adressen zum Termin zurück
+     * Gibt die verknüpfen Adressen zum Appointment zurück
      *
-     * @return Adressen zum Termin
+     * @return Adressen zum Appointment
      */
     public Address[] getAddresses() {
         return addresses;
     }
 
     /**
-     * Setzt die verknüpfen Adressen zum Termin
+     * Setzt die verknüpfen Adressen zum Appointment
      *
-     * @param addresses Adressen zum Termin
+     * @param addresses Adressen zum Appointment
      */
     public void setAddresses(Address[] addresses) {
         this.addresses = addresses;
     }
 
     @Override
-    public int compareTo(Termin o) {
+    public int compareTo(Appointment o) {
         return this.start.compareTo(o.start);
     }
 }
