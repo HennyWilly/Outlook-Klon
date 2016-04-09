@@ -74,6 +74,31 @@ public class AddressBookFrame extends ExtendedFrame {
         private JTextField txtList;
 
         /**
+         * Erzeugt eine neue Instanz des Dialogs zum Erstellen einer Liste
+         */
+        public ListDialog() {
+            super(355, 130);
+
+            initGUI();
+
+            setTitle("Neue Liste erstellen");
+        }
+
+        /**
+         * Erzeugt eine neue Instanz des Dialogs zum Bearbeiten einer Liste
+         *
+         * @param list
+         */
+        public ListDialog(String list) {
+            super(355, 130);
+
+            initGUI();
+
+            txtList.setText(list);
+            setTitle("Liste bearbeiten");
+        }
+
+        /**
          * Initalisiert die Komponenten des Dialogs
          */
         private void initGUI() {
@@ -122,31 +147,6 @@ public class AddressBookFrame extends ExtendedFrame {
                                             .addComponent(btnOK).addComponent(btnAbort))
                                     .addContainerGap()));
             getContentPane().setLayout(groupLayout);
-        }
-
-        /**
-         * Erzeugt eine neue Instanz des Dialogs zum Erstellen einer Liste
-         */
-        public ListDialog() {
-            super(355, 130);
-
-            initGUI();
-
-            setTitle("Neue Liste erstellen");
-        }
-
-        /**
-         * Erzeugt eine neue Instanz des Dialogs zum Bearbeiten einer Liste
-         *
-         * @param list
-         */
-        public ListDialog(String list) {
-            super(355, 130);
-
-            initGUI();
-
-            txtList.setText(list);
-            setTitle("Liste bearbeiten");
         }
 
         @Override
@@ -435,10 +435,10 @@ public class AddressBookFrame extends ExtendedFrame {
      * Erstellt eine neue AdressbuchFrame-Instanz
      *
      * @param parent Referenz auf das Vater-Fenster, um darauf ggf. die
- newMail-Methode aufzurufen
+     * newMail-Methode aufzurufen
      * @param contacts Die Referenz auf die ContactManagement
      * @param newContact Wenn true, wird sofort ein neues ContactFrame geöffnet;
- sonst nicht
+     * sonst nicht
      */
     public AddressBookFrame(MainFrame parent, ContactManagement contacts, boolean newContact) {
         if (contacts == null) {
@@ -485,7 +485,7 @@ public class AddressBookFrame extends ExtendedFrame {
      * Aktualisiert die JTable mit den Kontakten der übergebenen Kontaktliste.
      *
      * @param list Gibt an, aus welcher Liste der ContactManagement die Kontakte
- geladen werden sollen.
+     * geladen werden sollen.
      */
     private void refreshTable(String list) {
         if (list == null) {
@@ -521,7 +521,7 @@ public class AddressBookFrame extends ExtendedFrame {
      * Kontakts
      *
      * @param contact Contact, dessen Daten zum Füllen der Details verwendet
- werden
+     * werden
      */
     private void refreshDetails(Contact contact) {
         StringBuilder sb = new StringBuilder();
@@ -711,7 +711,7 @@ public class AddressBookFrame extends ExtendedFrame {
 
     /**
      * Fügt die übergebenen Kontakte in die übergebene Liste der
- ContactManagement ein
+     * ContactManagement ein
      *
      * @param contacts Einzufügende Kontakte
      * @param list Liste, in die die Kontakte eingefügt werden sollen

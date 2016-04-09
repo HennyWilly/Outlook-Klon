@@ -49,6 +49,14 @@ public final class User implements Iterable<User.MailChecker> {
 
     private static User singleton;
 
+    private String absenceMessage;
+    private String sickNote;
+
+    private ContactManagement contacts;
+    private AppointmentCalendar appointments;
+    private List<MailChecker> accounts;
+    private boolean absent;
+
     /**
      * Gibt die einzige Instanz der Klasse User zurück. Beim ersten Aufruf wird
      * eine neue Instanz der Klasse erstellt.
@@ -66,13 +74,74 @@ public final class User implements Iterable<User.MailChecker> {
         return singleton;
     }
 
-    private String absenceMessage;
-    private String sickNote;
+    /**
+     * Erstellt eine neue Instanz der Klasse Benutzer. Liest, wenn vorhanden,
+     * die gespeicherten Daten aus.
+     *
+     * @throws IOException
+     * @throws JsonMappingException
+     * @throws JsonParseException
+     */
+    private User() throws IOException {
+        setAbsent(true);
 
-    private ContactManagement contacts;
-    private AppointmentCalendar appointments;
-    private List<MailChecker> accounts;
-    private boolean absent;
+        File sickNoteFile = new File(SICKNOTE_PATH);
+        try {
+            sickNote = Serializer.deserializePlainText(sickNoteFile);
+        } catch (IOException ex) {
+            LOGGER.warn("Cold not load doctors note", ex);
+            sickNote = "Ich bin krank";
+        }
+
+        File absenceMessageFile = new File(ABSENCE_PATH);
+        try {
+            absenceMessage = Serializer.deserializePlainText(absenceMessageFile);
+        } catch (IOException ex) {
+            LOGGER.warn("Cold not load absence message", ex);
+            absenceMessage = "Ich bin nicht da";
+        }
+
+        try {
+            contacts = Serializer.deserializeJson(new File(CONTACT_PATH), ContactManagement.class);
+        } catch (IOException ex) {
+            LOGGER.warn("Could not create contact manager", ex);
+            contacts = new ContactManagement();
+        }
+
+        try {
+            appointments = Serializer.deserializeJson(new File(APPOINTMENT_PATH), AppointmentCalendar.class);
+        } catch (IOException ex) {
+            LOGGER.warn("Could not create appointments manager", ex);
+            appointments = new AppointmentCalendar();
+        }
+
+        accounts = new ArrayList<>();
+
+        File file = new File(DATA_FOLDER).getAbsoluteFile();
+        if (!file.exists()) {
+            file.mkdirs();
+        }
+
+        // Filter, der nur Pfade von direkten Unterordnern zurückgibt
+        String[] directories = file.list(new FilenameFilter() {
+            @Override
+            public boolean accept(File dir, String name) {
+                return new File(dir, name).isDirectory();
+            }
+        });
+
+        for (String directory : directories) {
+            final String settings = String.format(ACCOUNTSETTINGS_PATTERN, directory);
+            File accountFile = new File(settings).getAbsoluteFile();
+
+            // Lade MailAccount
+            MailAccount loadedAccount = Serializer.deserializeJson(accountFile, MailAccount.class);
+            MailChecker checker = new MailChecker(loadedAccount);
+            checker.addNewMessageListener(getListener());
+
+            accounts.add(checker);
+        }
+    }
 
     /**
      * Diese Klasse dient zum automatischen, intervallweisen Abfragen des
@@ -164,13 +233,14 @@ public final class User implements Iterable<User.MailChecker> {
 
             while (true) {
                 try {
-                    Thread.sleep(SLEEP_TIME); // Pausiere für eine gegebene Zeit
-                    StoredMailInfo[] mailTmp = account.getMessages(FOLDER);
+                    // Pausiere für eine gegebene Zeit
+                    Thread.sleep(SLEEP_TIME);
 
                     // HashSet, da oft darin gesucht wird (s.u.)
                     Set<StoredMailInfo> tmpSet = new HashSet<>();
 
                     // Fülle mit abgefragten MailInfos
+                    StoredMailInfo[] mailTmp = account.getMessages(FOLDER);
                     tmpSet.addAll(Arrays.asList(mailTmp));
 
                     // Prüfe, ob eine bekannte StoredMailInfo weggefallen ist
@@ -268,75 +338,6 @@ public final class User implements Iterable<User.MailChecker> {
             }
 
             return false;
-        }
-    }
-
-    /**
-     * Erstellt eine neue Instanz der Klasse Benutzer. Liest, wenn vorhanden,
-     * die gespeicherten Daten aus.
-     *
-     * @throws IOException
-     * @throws JsonMappingException
-     * @throws JsonParseException
-     */
-    private User() throws IOException {
-        setAbsent(true);
-
-        File sickNoteFile = new File(SICKNOTE_PATH);
-        try {
-            sickNote = Serializer.deserializePlainText(sickNoteFile);
-        } catch (IOException ex) {
-            LOGGER.warn("Cold not load doctors note", ex);
-            sickNote = "Ich bin krank";
-        }
-
-        File absenceMessageFile = new File(ABSENCE_PATH);
-        try {
-            absenceMessage = Serializer.deserializePlainText(absenceMessageFile);
-        } catch (IOException ex) {
-            LOGGER.warn("Cold not load absence message", ex);
-            absenceMessage = "Ich bin nicht da";
-        }
-
-        try {
-            contacts = Serializer.deserializeJson(new File(CONTACT_PATH), ContactManagement.class);
-        } catch (IOException ex) {
-            LOGGER.warn("Could not create contact manager", ex);
-            contacts = new ContactManagement();
-        }
-
-        try {
-            appointments = Serializer.deserializeJson(new File(APPOINTMENT_PATH), AppointmentCalendar.class);
-        } catch (IOException ex) {
-            LOGGER.warn("Could not create appointments manager", ex);
-            appointments = new AppointmentCalendar();
-        }
-
-        accounts = new ArrayList<>();
-
-        File file = new File(DATA_FOLDER).getAbsoluteFile();
-        if (!file.exists()) {
-            file.mkdirs();
-        }
-
-        // Filter, der nur Pfade von direkten Unterordnern zurückgibt
-        String[] directories = file.list(new FilenameFilter() {
-            @Override
-            public boolean accept(File dir, String name) {
-                return new File(dir, name).isDirectory();
-            }
-        });
-
-        for (String directory : directories) {
-            final String settings = String.format(ACCOUNTSETTINGS_PATTERN, directory);
-            File accountFile = new File(settings).getAbsoluteFile();
-
-            // Lade MailAccount
-            MailAccount loadedAccount = Serializer.deserializeJson(accountFile, MailAccount.class);
-            MailChecker checker = new MailChecker(loadedAccount);
-            checker.addNewMessageListener(getListener());
-
-            accounts.add(checker);
         }
     }
 
@@ -443,7 +444,8 @@ public final class User implements Iterable<User.MailChecker> {
             }
         }
 
-        if (!file.delete()) { // Eigentliches Löschen
+        // Eigentliches Löschen
+        if (!file.delete()) {
             // Löschen fehlgeschlagen
             throw new IOException("Datei \'" + file.getPath() + "\' konnte nicht gelöscht werden");
         }

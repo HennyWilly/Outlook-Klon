@@ -32,7 +32,7 @@ public class ContactManagement implements Iterable<Contact> {
      * Erstellt eine neue Instanz der Kontaktverwaltung
      */
     public ContactManagement() {
-        mContacts = new HashMap<>();
+        this(new HashMap<String, Set<Contact>>());
         mContacts.put(DEFAULT, new HashSet<Contact>());
     }
 
@@ -48,13 +48,17 @@ public class ContactManagement implements Iterable<Contact> {
      * @param contact Der hinzuzufügende Contact
      */
     public void addContact(final Contact contact) {
-        if (contact == null) {
-            throw new NullPointerException("Instanz des Kontakts wurde nicht initialisiert");
-        }
+        throwIfContactIsNull(contact);
 
         final Set<Contact> contactList = mContacts.get(DEFAULT);
 
         contactList.add(contact);
+    }
+
+    private void throwIfContactIsNull(Contact contact) {
+        if (contact == null) {
+            throw new NullPointerException("Instanz des Kontakts wurde nicht initialisiert");
+        }
     }
 
     /**
@@ -67,9 +71,7 @@ public class ContactManagement implements Iterable<Contact> {
         if (list == null || list.trim().isEmpty()) {
             throw new NullPointerException("Der Name der Liste darf nicht leer sein.");
         }
-        if (contact == null) {
-            throw new NullPointerException("Instanz des Kontakts wurde nicht initialisiert");
-        }
+        throwIfContactIsNull(contact);
 
         final Set<Contact> contactList = mContacts.get(list);
         if (contactList == null) {
@@ -105,9 +107,7 @@ public class ContactManagement implements Iterable<Contact> {
      * @param contact Zu löschender Contact
      */
     public void deleteContact(final Contact contact) {
-        if (contact == null) {
-            throw new NullPointerException("Instanz des Kontakts wurde nicht initialisiert");
-        }
+        throwIfContactIsNull(contact);
 
         for (final Set<Contact> list : mContacts.values()) {
             list.remove(contact);
@@ -121,9 +121,7 @@ public class ContactManagement implements Iterable<Contact> {
      * @param list Liste, aus der der Contact gelöscht werden soll
      */
     public void deleteContact(final Contact contact, final String list) {
-        if (contact == null) {
-            throw new NullPointerException("Instanz des Kontakts wurde nicht initialisiert");
-        }
+        throwIfContactIsNull(contact);
         if (list == null || list.trim().isEmpty()) {
             throw new NullPointerException("Der Name der Liste darf nicht leer sein.");
         }
@@ -209,6 +207,7 @@ public class ContactManagement implements Iterable<Contact> {
      * @return String-Array, welches die Listennamen enthällt
      */
     public String[] getLists(Contact contact) {
+        throwIfContactIsNull(contact);
         List<String> lists = new ArrayList<>();
 
         for (Entry<String, Set<Contact>> set : mContacts.entrySet()) {

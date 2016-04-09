@@ -100,10 +100,7 @@ public abstract class MailServer implements Serializable {
     protected Session getSession(Authenticator auth) {
         Properties props = getProperties();
 
-        Session session = Session.getInstance(props, auth);
-        //session.setDebug(true);
-
-        return session;
+        return Session.getInstance(props, auth);
     }
 
     /**

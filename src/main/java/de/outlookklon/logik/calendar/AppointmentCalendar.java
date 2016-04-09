@@ -146,11 +146,18 @@ public class AppointmentCalendar implements Iterable<Appointment> {
         GregorianCalendar c = new GregorianCalendar();
 
         c.setTime(now);
-        c.set(Calendar.HOUR, 0); // Setzt den Eintrag der Stunden auf 0
-        c.set(Calendar.MINUTE, 0); // Setzt den Eintrag der Minuten auf 0
-        c.set(Calendar.SECOND, 0); // Setzt den Eintrag der Sekunden auf 0
 
-        Date start = c.getTime(); // Übergebener Tag mit der Uhrzeit 00:00:00
+        // Setzt den Eintrag der Stunden auf 0
+        c.set(Calendar.HOUR, 0);
+
+        // Setzt den Eintrag der Minuten auf 0
+        c.set(Calendar.MINUTE, 0);
+
+        // Setzt den Eintrag der Sekunden auf 0
+        c.set(Calendar.SECOND, 0);
+
+        // Übergebener Tag mit der Uhrzeit 00:00:00
+        Date start = c.getTime();
         c.add(Calendar.DAY_OF_YEAR, 1);
         Date end = c.getTime(); // Tag um 1 höher als time1
 

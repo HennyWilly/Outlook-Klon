@@ -61,6 +61,8 @@ public class MailFrame extends ExtendedFrame {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MailFrame.class);
 
+    private static final String DEFAULT_EMPTY_SUBJECT = "<Kein Betreff>";
+
     /**
      * Interne Aufzählung, welche die verschiedenen Arten definiert, in welchem
      * Kontext das Frame geöffnet werden kann
@@ -116,7 +118,7 @@ public class MailFrame extends ExtendedFrame {
         mailMode = MailMode.NEW;
         charset = "";
 
-        setTitle("<Kein Betreff>");
+        setTitle(DEFAULT_EMPTY_SUBJECT);
         initGui();
 
         addMailAccounts();
@@ -133,7 +135,7 @@ public class MailFrame extends ExtendedFrame {
         mailMode = MailMode.NEW;
         charset = "";
 
-        setTitle("<Kein Betreff>");
+        setTitle(DEFAULT_EMPTY_SUBJECT);
         initGui();
 
         addMailAccounts();
@@ -250,7 +252,7 @@ public class MailFrame extends ExtendedFrame {
 
         tSubject.setText(subject);
 
-        if (forward == false) {
+        if (!forward) {
             tTo.setText(((InternetAddress) mail.getSender()).toUnicodeString());
         }
         tCC.setText(appendAddresses(mail.getCc()));
@@ -690,7 +692,7 @@ public class MailFrame extends ExtendedFrame {
         String text = tSubject.getText();
 
         if (text.trim().isEmpty()) {
-            this.setTitle("<Kein Betreff>");
+            this.setTitle(DEFAULT_EMPTY_SUBJECT);
         } else {
             this.setTitle(text);
         }

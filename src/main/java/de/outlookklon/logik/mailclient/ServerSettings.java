@@ -50,8 +50,7 @@ public class ServerSettings implements Serializable {
             @JsonProperty("host") String host,
             @JsonProperty("port") int port,
             @JsonProperty("connectionSecurity") ConnectionSecurity connectionSecurity,
-            @JsonProperty("authentificationType") AuthentificationType authentificationType)
-            throws NullPointerException, IllegalArgumentException {
+            @JsonProperty("authentificationType") AuthentificationType authentificationType) {
         if (host == null) {
             throw new NullPointerException("Der Hostname darf nicht null sein");
         }

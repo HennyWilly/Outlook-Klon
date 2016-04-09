@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.sun.mail.imap.IMAPFolder;
 import de.outlookklon.dao.DAOException;
+import de.outlookklon.dao.StoredMailInfoDAO;
 import de.outlookklon.dao.impl.StoredMailInfoDAOFilePersistence;
 import de.outlookklon.logik.User.MailChecker;
 import java.io.File;
@@ -29,7 +30,6 @@ import javax.mail.search.MessageIDTerm;
 import javax.mail.search.StringTerm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import de.outlookklon.dao.StoredMailInfoDAO;
 
 /**
  * Diese Klasse stellt ein Mailkonto dar. Hierüber können Mails gesendet und
@@ -42,6 +42,7 @@ public class MailAccount {
     private static final Logger LOGGER = LoggerFactory.getLogger(MailAccount.class);
 
     private static final String MAIL_FOLDER_PATTERN = "Mail/%s";
+    private static final String MESSAGE_ID_HEADER_NAME = "Message-Id";
 
     @JsonProperty("inboxMailServer")
     private InboxServer inboxMailServer;
@@ -91,7 +92,7 @@ public class MailAccount {
             boolean result = false;
 
             try {
-                String[] tmpId = message.getHeader("Message-Id");
+                String[] tmpId = message.getHeader(MESSAGE_ID_HEADER_NAME);
                 String id = null;
 
                 if (tmpId != null && tmpId.length == 1) {
@@ -128,7 +129,7 @@ public class MailAccount {
      * @throws IllegalArgumentException Tritt auf, wenn die übergebene
      * Mailadresse ungültig ist
      * @throws java.io.IOException Tritt auf, wenn die StoredMailInfoDAO nicht
- erstellt werden konnte.
+     * erstellt werden konnte.
      */
     @JsonCreator
     public MailAccount(
@@ -278,7 +279,7 @@ public class MailAccount {
      * @return ID der Mail, oder <code>null</code>, wenn nicht gefunden
      */
     private String getID(Message message) throws MessagingException {
-        String[] tmpID = message.getHeader("Message-ID");
+        String[] tmpID = message.getHeader(MESSAGE_ID_HEADER_NAME);
         if (tmpID != null && tmpID.length > 0) {
             return tmpID[0];
         }
@@ -304,7 +305,7 @@ public class MailAccount {
      * @throws javax.mail.MessagingException wenn die Nachrichten nicht geladen
      * werden konnten
      * @throws de.outlookklon.dao.DAOException wenn ein Fehler beim Zugriff auf
- die StoredMailInfoDAO ein Fehler auftritt
+     * die StoredMailInfoDAO ein Fehler auftritt
      */
     public StoredMailInfo[] getMessages(final String path)
             throws MessagingException, DAOException {
@@ -320,7 +321,7 @@ public class MailAccount {
 
             final Message[] messages = folder.getMessages();
             FetchProfile fp = new FetchProfile();
-            fp.add("Message-Id");
+            fp.add(MESSAGE_ID_HEADER_NAME);
             folder.fetch(messages, fp);
 
             for (Message message : messages) {
@@ -374,7 +375,7 @@ public class MailAccount {
      * @throws javax.mail.MessagingException wenn die Nachrichten nicht geladen
      * werden konnten
      * @throws de.outlookklon.dao.DAOException wenn ein Fehler beim Zugriff auf
- die StoredMailInfoDAO auftritt
+     * die StoredMailInfoDAO auftritt
      */
     public void loadMessageData(String path, StoredMailInfo mailInfo, Set<MailContent> mailContent)
             throws MessagingException, DAOException {
@@ -447,7 +448,7 @@ public class MailAccount {
         Message[] folderMails = folder.getMessages();
 
         FetchProfile fp = new FetchProfile();
-        fp.add("Message-Id");
+        fp.add(MESSAGE_ID_HEADER_NAME);
         folder.fetch(folderMails, fp);
 
         for (int i = 0; i < mails.length; i++) {
@@ -473,7 +474,7 @@ public class MailAccount {
      * @param delete Wert, der angibt, ob die Mails nach dem Kopieren im
      * Quellordner gelöscht werden sollen
      * @throws de.outlookklon.dao.DAOException wenn ein Fehler beim Zugriff auf
- die StoredMailInfoDAO ein Fehler auftritt
+     * die StoredMailInfoDAO ein Fehler auftritt
      */
     private void copy(final StoredMailInfo[] mails, final Folder sourceFolder,
             final Folder targetFolder, final boolean delete)
@@ -508,7 +509,7 @@ public class MailAccount {
      * @throws javax.mail.MessagingException wenn ein Fehler seitens der
      * Mail-Library auftritt
      * @throws de.outlookklon.dao.DAOException wenn ein Fehler beim Zugriff auf
- die StoredMailInfoDAO ein Fehler auftritt
+     * die StoredMailInfoDAO ein Fehler auftritt
      */
     public void moveMails(final StoredMailInfo[] mails, final String sourcePath,
             final String targetPath)
@@ -538,7 +539,7 @@ public class MailAccount {
      * @throws javax.mail.MessagingException wenn ein Fehler seitens der
      * Mail-Library auftritt
      * @throws de.outlookklon.dao.DAOException wenn ein Fehler beim Zugriff auf
- die StoredMailInfoDAO ein Fehler auftritt
+     * die StoredMailInfoDAO ein Fehler auftritt
      */
     public void copyMails(final StoredMailInfo[] mails, final String sourcePath,
             final String targetPath)
@@ -568,7 +569,7 @@ public class MailAccount {
      * @throws javax.mail.MessagingException wenn ein Fehler seitens der
      * Mail-Library auftritt
      * @throws de.outlookklon.dao.DAOException wenn ein Fehler beim Zugriff auf
- die StoredMailInfoDAO ein Fehler auftritt
+     * die StoredMailInfoDAO ein Fehler auftritt
      */
     public boolean deleteMails(final StoredMailInfo[] mails, final String path)
             throws MessagingException, DAOException {
