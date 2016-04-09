@@ -1,0 +1,72 @@
+package de.outlookklon.gui;
+
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import javax.swing.JButton;
+import javax.swing.JTextPane;
+
+/**
+ * Diese Frame dient zum Anzeigen und Bearbeiten von Krankheits- und
+ * Abwesenheitsmeldungen.
+ *
+ * @author Hendrik Karwanni
+ */
+public class MessageFrame extends ExtendedDialog<String> {
+
+    private static final long serialVersionUID = -426579552451278615L;
+
+    private JTextPane textMessage;
+    private JButton btnOk;
+    private JButton btnAbort;
+    private String info;
+
+    private void initGui(String text, String title) {
+        setTitle(title);
+        getContentPane().setLayout(null);
+
+        textMessage = new JTextPane();
+        textMessage.setBounds(0, 0, 394, 292);
+        textMessage.setText(text);
+        getContentPane().add(textMessage);
+
+        btnOk = new JButton("OK");
+        btnOk.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                info = textMessage.getText();
+                close();
+            }
+        });
+        btnOk.setBounds(10, 303, 100, 23);
+        getContentPane().add(btnOk);
+
+        btnAbort = new JButton("Abbrechen");
+        btnAbort.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                close();
+            }
+        });
+        btnAbort.setBounds(120, 303, 100, 23);
+        getContentPane().add(btnAbort);
+    }
+
+    /**
+     * Erstellt ein neues {@link MeldungsFrame}.
+     *
+     * @param text Initialer Text des Fensters.
+     * @param title Titel des Fensters.
+     */
+    public MessageFrame(String text, String title) {
+        super(400, 365);
+
+        initGui(text, title);
+    }
+
+    @Override
+    protected String getDialogResult() {
+        return info;
+    }
+}
