@@ -1,4 +1,4 @@
-package de.outlookklon.logik.kalendar;
+package de.outlookklon.logik.calendar;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;

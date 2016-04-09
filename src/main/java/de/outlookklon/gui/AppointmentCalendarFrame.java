@@ -2,8 +2,8 @@ package de.outlookklon.gui;
 
 import de.outlookklon.logik.User;
 import de.outlookklon.logik.User.MailChecker;
-import de.outlookklon.logik.kalendar.Appointment;
-import de.outlookklon.logik.kalendar.AppointmentCalendar;
+import de.outlookklon.logik.calendar.Appointment;
+import de.outlookklon.logik.calendar.AppointmentCalendar;
 import de.outlookklon.logik.mailclient.MailAccount;
 import java.awt.BorderLayout;
 import java.awt.GridLayout;

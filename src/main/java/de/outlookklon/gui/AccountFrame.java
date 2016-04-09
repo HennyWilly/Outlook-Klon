@@ -1,14 +1,14 @@
 package de.outlookklon.gui;
 
 import de.outlookklon.logik.mailclient.AuthentificationType;
-import de.outlookklon.logik.mailclient.InboxServer;
+import de.outlookklon.logik.mailclient.ConnectionSecurity;
 import de.outlookklon.logik.mailclient.ImapServer;
+import de.outlookklon.logik.mailclient.InboxServer;
 import de.outlookklon.logik.mailclient.MailAccount;
-import de.outlookklon.logik.mailclient.Pop3Server;
 import de.outlookklon.logik.mailclient.OutboxServer;
+import de.outlookklon.logik.mailclient.Pop3Server;
 import de.outlookklon.logik.mailclient.ServerSettings;
 import de.outlookklon.logik.mailclient.SmtpServer;
-import de.outlookklon.logik.mailclient.ConnectionSecurity;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
@@ -270,9 +270,9 @@ public class AccountFrame extends ExtendedDialog<MailAccount> {
 
         // Instanz für den Mailempfang erstellen
         InboxServer inbox = null;
-        if (cbInProtocoll.getSelectedItem().equals("IMAP")) {
+        if ("IMAP".equals(cbInProtocoll.getSelectedItem())) {
             inbox = new ImapServer(inboxSettings);
-        } else if (cbInProtocoll.getSelectedItem().equals("POP3")) {
+        } else if ("POP3".equals(cbInProtocoll.getSelectedItem())) {
             inbox = new Pop3Server(inboxSettings);
         } else {
             throw new UnsupportedOperationException("Unbekanntes Protokoll ausgewählt");

@@ -3,7 +3,7 @@ package de.outlookklon.gui;
 import de.outlookklon.dao.DAOException;
 import de.outlookklon.logik.User;
 import de.outlookklon.logik.User.MailChecker;
-import de.outlookklon.logik.kontakte.Contact;
+import de.outlookklon.logik.contacts.Contact;
 import de.outlookklon.logik.mailclient.MailAccount;
 import de.outlookklon.logik.mailclient.MailContent;
 import de.outlookklon.logik.mailclient.MailInfo;

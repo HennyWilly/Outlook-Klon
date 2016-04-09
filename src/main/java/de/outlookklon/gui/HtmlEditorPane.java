@@ -1,8 +1,8 @@
 package de.outlookklon.gui;
 
 import de.outlookklon.logik.User;
-import de.outlookklon.logik.kalendar.Appointment;
-import de.outlookklon.logik.kalendar.AppointmentCalendar;
+import de.outlookklon.logik.calendar.Appointment;
+import de.outlookklon.logik.calendar.AppointmentCalendar;
 import java.awt.Desktop;
 import java.io.IOException;
 import java.net.URI;
@@ -213,7 +213,7 @@ public class HtmlEditorPane extends JEditorPane {
         }
 
         // In Plaintexte können keine Hyperlinks eingefügt werden
-        if (getContentType().equalsIgnoreCase("text/html")) {
+        if ("text/html".equalsIgnoreCase(getContentType())) {
             StringBuilder sb = new StringBuilder(text);
             Matcher matcher = TIMEPATTERN.matcher(sb);
 

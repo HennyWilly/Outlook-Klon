@@ -39,9 +39,9 @@ public class InternetAddressDeserializer extends JsonDeserializer<Address> {
             String name = entry.getKey();
             JsonNode jsonNode = entry.getValue();
 
-            if (name.equals("address")) {
+            if ("address".equals(name)) {
                 address = jsonNode.asText(null);
-            } else if (name.equals("personal")) {
+            } else if ("personal".equals(name)) {
                 personal = jsonNode.asText(null);
             } else if (ctxt.isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)) {
                 throw ctxt.mappingException(InternetAddress.class, jsonNode.asToken());

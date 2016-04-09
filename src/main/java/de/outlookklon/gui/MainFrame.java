@@ -1,15 +1,15 @@
 package de.outlookklon.gui;
 
 import de.outlookklon.dao.DAOException;
-import de.outlookklon.logik.User;
-import de.outlookklon.logik.User.MailChecker;
 import de.outlookklon.logik.NewMailEvent;
 import de.outlookklon.logik.NewMailListener;
-import de.outlookklon.logik.kontakte.Contact;
+import de.outlookklon.logik.User;
+import de.outlookklon.logik.User.MailChecker;
+import de.outlookklon.logik.contacts.Contact;
+import de.outlookklon.logik.mailclient.FolderInfo;
 import de.outlookklon.logik.mailclient.MailAccount;
 import de.outlookklon.logik.mailclient.MailContent;
 import de.outlookklon.logik.mailclient.MailInfo;
-import de.outlookklon.logik.mailclient.FolderInfo;
 import java.awt.Component;
 import java.awt.Font;
 import java.awt.Frame;
@@ -828,7 +828,7 @@ public class MainFrame extends ExtendedFrame {
      *
      * @param node Knoten, aus dem das FolderInfo-Objekt ausgelesen werden soll
      * @return FolderInfo-Instanz, wenn der Knoten aus UserObject eine
- FolderInfo enthält, sonst null
+     * FolderInfo enthält, sonst null
      */
     private FolderInfo nodeToFolder(DefaultMutableTreeNode node) {
         FolderInfo ret = null;
@@ -843,10 +843,10 @@ public class MainFrame extends ExtendedFrame {
 
     /**
      * Erstellt rekursiv aus dem Pfad des übergebenen FolderInfo-Objekts die
- Struktur der Baumknoten.
+     * Struktur der Baumknoten.
      *
      * @param folder FolderInfo-Objekt zu dem die Baumstruktur erstellt werden
- soll
+     * soll
      * @param parent Vaterknoten, in dem die Baumstruktur erstellt werden soll
      * @param depth Tiefe des Pfads des Ordners, die sich aus dem Trennen des
      * Pfads nach dem '/'-Zeichen ergibt
@@ -1448,7 +1448,7 @@ public class MainFrame extends ExtendedFrame {
                             DefaultMutableTreeNode folderNode = (DefaultMutableTreeNode) child.getChildAt(j);
                             FolderInfo folder = (FolderInfo) folderNode.getUserObject();
 
-                            if (folder.getName().equalsIgnoreCase("inbox")) {
+                            if ("inbox".equalsIgnoreCase(folder.getName())) {
                                 // Inkrementiere Anzahl ungelesener Mails im
                                 // Ordner
                                 folder.setNumberUnread(folder.getNumberUnread() + 1);

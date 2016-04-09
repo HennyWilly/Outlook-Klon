@@ -1,4 +1,4 @@
-package de.outlookklon.logik.kontakte;
+package de.outlookklon.logik.contacts;
 
 import java.util.Arrays;
 import static org.hamcrest.CoreMatchers.is;

@@ -1,7 +1,7 @@
 package de.outlookklon.gui;
 
 import de.outlookklon.gui.helpers.ListFocusTraversalPolicy;
-import de.outlookklon.logik.kontakte.Contact;
+import de.outlookklon.logik.contacts.Contact;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;

@@ -1,4 +1,4 @@
-package de.outlookklon.logik.kalendar;
+package de.outlookklon.logik.calendar;
 
 /**
  * Diese Aufzählung stellt die möglichen Zustände eines Termins dar

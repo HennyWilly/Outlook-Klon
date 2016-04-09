@@ -1,7 +1,7 @@
 package de.outlookklon.gui;
 
-import de.outlookklon.logik.kontakte.Contact;
-import de.outlookklon.logik.kontakte.ContactManagement;
+import de.outlookklon.logik.contacts.Contact;
+import de.outlookklon.logik.contacts.ContactManagement;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;

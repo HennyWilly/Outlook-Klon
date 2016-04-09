@@ -1,11 +1,10 @@
-package de.outlookklon.logik.kontakte;
+package de.outlookklon.logik.contacts;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -27,7 +26,7 @@ public class ContactManagement implements Iterable<Contact> {
     public static final String DEFAULT = "Adressbuch";
 
     @JsonProperty("contacts")
-    private final Map<String, HashSet<Contact>> mContacts;
+    private final Map<String, Set<Contact>> mContacts;
 
     /**
      * Erstellt eine neue Instanz der Kontaktverwaltung
@@ -39,7 +38,7 @@ public class ContactManagement implements Iterable<Contact> {
 
     @JsonCreator
     private ContactManagement(
-            @JsonProperty("contacts") Map<String, HashSet<Contact>> contacts) {
+            @JsonProperty("contacts") Map<String, Set<Contact>> contacts) {
         this.mContacts = contacts;
     }
 
@@ -53,7 +52,7 @@ public class ContactManagement implements Iterable<Contact> {
             throw new NullPointerException("Instanz des Kontakts wurde nicht initialisiert");
         }
 
-        final HashSet<Contact> contactList = mContacts.get(DEFAULT);
+        final Set<Contact> contactList = mContacts.get(DEFAULT);
 
         contactList.add(contact);
     }
@@ -72,7 +71,7 @@ public class ContactManagement implements Iterable<Contact> {
             throw new NullPointerException("Instanz des Kontakts wurde nicht initialisiert");
         }
 
-        final HashSet<Contact> contactList = mContacts.get(list);
+        final Set<Contact> contactList = mContacts.get(list);
         if (contactList == null) {
             throw new IllegalArgumentException("Der Listenname existiert nicht");
         }
@@ -110,8 +109,7 @@ public class ContactManagement implements Iterable<Contact> {
             throw new NullPointerException("Instanz des Kontakts wurde nicht initialisiert");
         }
 
-        final Collection<HashSet<Contact>> collection = mContacts.values();
-        for (final HashSet<Contact> list : collection) {
+        for (final Set<Contact> list : mContacts.values()) {
             list.remove(contact);
         }
     }
@@ -133,7 +131,7 @@ public class ContactManagement implements Iterable<Contact> {
         if (DEFAULT.equals(list)) {
             ContactManagement.this.deleteContact(contact);
         } else {
-            final HashSet<Contact> targetList = mContacts.get(list);
+            final Set<Contact> targetList = mContacts.get(list);
 
             if (targetList == null) {
                 throw new IllegalArgumentException("Der Listenname existiert nicht");
@@ -156,8 +154,7 @@ public class ContactManagement implements Iterable<Contact> {
             throw new IllegalArgumentException("Das Standardadressbuch darf nicht entfernt werden");
         }
 
-        final HashSet<Contact> listArray = mContacts.remove(list);
-
+        final Set<Contact> listArray = mContacts.remove(list);
         if (listArray == null) {
             throw new NullPointerException("Der Listenname existiert nicht");
         }
@@ -178,7 +175,7 @@ public class ContactManagement implements Iterable<Contact> {
             throw new IllegalArgumentException("Das Standardadressbuch darf nicht umbenannt werden");
         }
 
-        final HashSet<Contact> list = mContacts.remove(oldName);
+        final Set<Contact> list = mContacts.remove(oldName);
         if (list == null) {
             throw new IllegalArgumentException("Der alte Listenname existiert nicht");
         }
@@ -214,14 +211,14 @@ public class ContactManagement implements Iterable<Contact> {
     public String[] getLists(Contact contact) {
         List<String> lists = new ArrayList<>();
 
-        for (Entry<String, HashSet<Contact>> set : mContacts.entrySet()) {
+        for (Entry<String, Set<Contact>> set : mContacts.entrySet()) {
             String name = set.getKey();
-            HashSet<Contact> content = set.getValue();
 
             if (DEFAULT.equals(name)) {
                 continue;
             }
 
+            Set<Contact> content = set.getValue();
             if (content.contains(contact)) {
                 lists.add(name);
             }
@@ -245,7 +242,7 @@ public class ContactManagement implements Iterable<Contact> {
             throw new NullPointerException("Der Name der Liste darf nicht leer sein.");
         }
 
-        final HashSet<Contact> set = mContacts.get(list);
+        final Set<Contact> set = mContacts.get(list);
         if (set == null) {
             throw new IllegalArgumentException("Der Listenname existiert nicht");
         }

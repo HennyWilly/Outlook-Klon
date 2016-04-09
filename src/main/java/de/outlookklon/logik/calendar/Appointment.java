@@ -1,9 +1,9 @@
-package de.outlookklon.logik.kalendar;
+package de.outlookklon.logik.calendar;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import de.outlookklon.logik.User;
-import de.outlookklon.logik.kontakte.Contact;
+import de.outlookklon.logik.contacts.Contact;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -65,7 +65,7 @@ public class Appointment implements Comparable<Appointment> {
         setContact(contact);
         setState(AppointmentState.PROMISED);
 
-        List<Address> temp = new ArrayList<>(2);
+        List<Address> temp = new ArrayList<>();
         for (Contact contacts : User.getInstance().getContacts()) {
             if (contacts.getDisplayname() != null && contacts.getDisplayname().equals(contact)) {
                 if (contacts.getAddress1() != null) {

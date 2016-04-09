@@ -1,7 +1,7 @@
-package de.outlookklon.logik.kalendar;
+package de.outlookklon.logik.calendar;
 
 import de.outlookklon.logik.User;
-import de.outlookklon.logik.kontakte.ContactManagement;
+import de.outlookklon.logik.contacts.ContactManagement;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import org.joda.time.DateTime;

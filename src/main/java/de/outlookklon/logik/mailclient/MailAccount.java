@@ -215,14 +215,14 @@ public class MailAccount {
                     final IMAPFolder imap = (IMAPFolder) folder;
                     final String[] attributes = imap.getAttributes();
                     for (String attribute : attributes) {
-                        if (attribute.equalsIgnoreCase("\\Sent")) {
+                        if ("\\Sent".equalsIgnoreCase(attribute)) {
                             return imap;
                         }
                     }
                 }
 
-                if (folder.getName().equalsIgnoreCase("sent")
-                        || folder.getName().equalsIgnoreCase("gesendet")) {
+                if ("sent".equalsIgnoreCase(folder.getName())
+                        || "gesendet".equalsIgnoreCase(folder.getName())) {
                     return folder;
                 }
             }
@@ -626,17 +626,17 @@ public class MailAccount {
                     final IMAPFolder imap = (IMAPFolder) mailFolder;
                     final String[] attributes = imap.getAttributes();
                     for (String attribute : attributes) {
-                        if (attribute.equalsIgnoreCase("\\Trash")) {
+                        if ("\\Trash".equalsIgnoreCase(attribute)) {
                             return imap;
                         }
                     }
                 }
 
                 String folderName = mailFolder.getName();
-                if (folderName.equalsIgnoreCase("trash")
-                        || folderName.equalsIgnoreCase("deleted")
-                        || folderName.equalsIgnoreCase("papierkorb")
-                        || folderName.equalsIgnoreCase("gelöscht")) {
+                if ("trash".equalsIgnoreCase(folderName)
+                        || "deleted".equalsIgnoreCase(folderName)
+                        || "papierkorb".equalsIgnoreCase(folderName)
+                        || "gelöscht".equalsIgnoreCase(folderName)) {
                     return mailFolder;
                 }
             }

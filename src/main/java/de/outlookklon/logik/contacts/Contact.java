@@ -1,4 +1,4 @@
-package de.outlookklon.logik.kontakte;
+package de.outlookklon.logik.contacts;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;

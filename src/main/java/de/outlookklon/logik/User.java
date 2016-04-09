@@ -3,9 +3,9 @@ package de.outlookklon.logik;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import de.outlookklon.dao.DAOException;
-import de.outlookklon.logik.kalendar.Appointment;
-import de.outlookklon.logik.kalendar.AppointmentCalendar;
-import de.outlookklon.logik.kontakte.ContactManagement;
+import de.outlookklon.logik.calendar.Appointment;
+import de.outlookklon.logik.calendar.AppointmentCalendar;
+import de.outlookklon.logik.contacts.ContactManagement;
 import de.outlookklon.logik.mailclient.MailAccount;
 import de.outlookklon.logik.mailclient.MailContent;
 import de.outlookklon.logik.mailclient.MailInfo;
@@ -79,6 +79,7 @@ public final class User implements Iterable<User.MailChecker> {
      */
     public class MailChecker extends Thread {
 
+        private static final int SLEEP_TIME = 60000;
         private static final String FOLDER = "INBOX";
         private final MailAccount account;
         private final Set<MailInfo> mails;
@@ -162,7 +163,7 @@ public final class User implements Iterable<User.MailChecker> {
 
             while (true) {
                 try {
-                    Thread.sleep(60000); // Pausiere für eine Minute
+                    Thread.sleep(SLEEP_TIME); // Pausiere für eine gegebene Zeit
                     MailInfo[] mailTmp = account.getMessages(FOLDER);
 
                     // HashSet, da oft darin gesucht wird (s.u.)
@@ -359,7 +360,7 @@ public final class User implements Iterable<User.MailChecker> {
                 String subject = info.getSubject();
 
                 // Abfrage auf erhaltene Krankheits-Mail
-                if (from.equals(to) && subject.equals("Ich bin krank")) {
+                if (from.equals(to) && "Ich bin krank".equals(subject)) {
                     try {
                         cancelAppointments(account);
                     } catch (MessagingException ex) {

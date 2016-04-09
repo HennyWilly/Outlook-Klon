@@ -151,7 +151,7 @@
           <archive>
             <manifest>
               <!-- Jar file entry point -->
-              <mainClass>de.outlook_klon.gui.MainFrame</mainClass>
+              <mainClass>de.outlookklon.gui.MainFrame</mainClass>
             </manifest>
           </archive>
         </configuration>
@@ -162,7 +162,7 @@
         <artifactId>exec-maven-plugin</artifactId>
         <version>${exec-plugin.version}</version>
         <configuration>
-          <mainClass>de.outlook_klon.gui.MainFrame</mainClass>
+          <mainClass>de.outlookklon.gui.MainFrame</mainClass>
         </configuration>
       </plugin>
       
