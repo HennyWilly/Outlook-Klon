@@ -19,7 +19,7 @@ public interface StoredMailInfoDAO {
      * @throws de.outlookklon.dao.DAOException wenn ein Fehler beim Laden der
  StoredMailInfo auftritt
      */
-    StoredMailInfo loadMailInfo(String id, String path) throws DAOException;
+    StoredMailInfo loadStoredMailInfo(String id, String path) throws DAOException;
 
     /**
      * Speichert die übergebene {@link StoredMailInfo} am übergebenen Pfad
@@ -29,7 +29,7 @@ public interface StoredMailInfoDAO {
      * @throws de.outlookklon.dao.DAOException wenn ein Fehler beim Speichern
  der StoredMailInfo auftritt
      */
-    void saveMailInfo(StoredMailInfo info, String path) throws DAOException;
+    void saveStoredMailInfo(StoredMailInfo info, String path) throws DAOException;
 
     /**
      * Löscht die gespeicherte Datei der übergebenen {@link StoredMailInfo}
@@ -39,5 +39,5 @@ public interface StoredMailInfoDAO {
      * @throws de.outlookklon.dao.DAOException wenn ein Fehler beim Löschen der
  StoredMailInfo auftritt
      */
-    void deleteMailInfo(String id, String path) throws DAOException;
+    void deleteStoredMailInfo(String id, String path) throws DAOException;
 }

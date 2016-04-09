@@ -24,7 +24,7 @@ public class AppointmentCalendar implements Iterable<Appointment> {
      * Erstellt eine neue Instanz der Terminverwaltung
      */
     public AppointmentCalendar() {
-        mAppointments = new ArrayList<>();
+        this(new ArrayList<Appointment>());
     }
 
     @JsonCreator

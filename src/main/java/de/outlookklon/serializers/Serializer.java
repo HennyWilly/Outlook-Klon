@@ -48,6 +48,19 @@ public final class Serializer {
     }
 
     /**
+     * Deserializes a given {@link String} into an object of type {@code T}.
+     *
+     * @param <T> type of the deserialized instance
+     * @param jsonString string to be deserialized
+     * @param clazz target type of resulting object
+     * @return a deserialized object
+     * @throws IOException if deserialization fails
+     */
+    public static <T> T deserializeJson(String jsonString, Class<T> clazz) throws IOException {
+        return MAPPER.readValue(jsonString, clazz);
+    }
+
+    /**
      * Deserializes a given {@link java.io.File} into a {@link String}.
      *
      * @param target target file for deserialization
@@ -68,6 +81,18 @@ public final class Serializer {
      */
     public static <T> void serializeObjectToJson(File target, T value) throws IOException {
         MAPPER.writeValue(target, value);
+    }
+
+    /**
+     * Serializes an object of type {@code T} into a {@link String}.
+     *
+     * @param <T> type of the serialized instance
+     * @param value object to be serialized
+     * @return JSON as String
+     * @throws IOException if serialization fails
+     */
+    public static <T> String serializeObjectToJson(T value) throws IOException {
+        return MAPPER.writeValueAsString(value);
     }
 
     /**

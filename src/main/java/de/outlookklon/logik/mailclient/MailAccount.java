@@ -330,7 +330,7 @@ public class MailAccount {
                     continue;
                 }
 
-                StoredMailInfo tmp = mailInfoDAO.loadMailInfo(id, path);
+                StoredMailInfo tmp = mailInfoDAO.loadStoredMailInfo(id, path);
                 if (tmp == null) {
                     tmp = new StoredMailInfo(id);
                     tmp.loadData(message, EnumSet.of(
@@ -339,7 +339,7 @@ public class MailAccount {
                             MailContent.SENDER,
                             MailContent.DATE));
 
-                    mailInfoDAO.saveMailInfo(tmp, path);
+                    mailInfoDAO.saveStoredMailInfo(tmp, path);
                 }
 
                 set.add(tmp);
@@ -407,7 +407,7 @@ public class MailAccount {
                 message.setFlag(Flag.SEEN, true);
                 mailInfo.loadData(message, mailContent);
 
-                mailInfoDAO.saveMailInfo(mailInfo, path);
+                mailInfoDAO.saveStoredMailInfo(mailInfo, path);
             }
         } catch (IOException | MessagingException ex) {
             throw new MessagingException("Could not load message data", ex);
@@ -485,13 +485,13 @@ public class MailAccount {
 
         sourceFolder.copyMessages(messages, targetFolder);
         for (int i = 0; i < messages.length; i++) {
-            mailInfoDAO.saveMailInfo(mails[i], targetPath);
+            mailInfoDAO.saveStoredMailInfo(mails[i], targetPath);
 
             if (delete) {
                 if (!messages[i].isExpunged()) {
                     messages[i].setFlag(Flags.Flag.DELETED, true);
                 }
-                mailInfoDAO.deleteMailInfo(mails[i].getID(), sourcePath);
+                mailInfoDAO.deleteStoredMailInfo(mails[i].getID(), sourcePath);
             }
         }
 
