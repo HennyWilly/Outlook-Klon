@@ -51,6 +51,46 @@ public class ContactFrame extends ExtendedDialog<Contact> {
     private JButton btnAbort;
 
     /**
+     * Erstellt eine neue Instanz der Klasse zum Erstellen eines Kontakts
+     */
+    public ContactFrame() {
+        super(685, 285);
+
+        mContact = null;
+        this.setTitle(FORMAT_STRING_CREATE1);
+
+        initFrame();
+    }
+
+    /**
+     * Erstellt eine neue Instanz der Klasse zum Bearbeiten des übergebenen
+     * Kontakts
+     *
+     * @param k Contact-Instanz, die in dem Frame bearbeitet werden soll
+     */
+    public ContactFrame(Contact k) {
+        super(685, 285);
+
+        mContact = k;
+        this.setTitle(String.format(FORMAT_STRING_EDIT2, mContact));
+
+        initFrame();
+
+        String mail1 = mContact.getAddress1AsString();
+        String mail2 = mContact.getAddress2AsString();
+
+        tForename.setText(mContact.getForename());
+        tSurname.setText(mContact.getSurname());
+        tDisplayname.setText(mContact.getDisplayname());
+        tNickname.setText(mContact.getNickname());
+        tEmailaddress_1.setText(mail1);
+        tEmailaddress_2.setText(mail2);
+        tDutyphone.setText(mContact.getDutyphone());
+        tPrivatephone.setText(mContact.getPrivatephone());
+        tMobilephone.setText(mContact.getMobilephone());
+    }
+
+    /**
      * Initialisiert die Komponenten der GUI
      */
     private void initFrame() {
@@ -258,46 +298,6 @@ public class ContactFrame extends ExtendedDialog<Contact> {
     }
 
     /**
-     * Erstellt eine neue Instanz der Klasse zum Erstellen eines Kontakts
-     */
-    public ContactFrame() {
-        super(685, 285);
-
-        mContact = null;
-        this.setTitle(FORMAT_STRING_CREATE1);
-
-        initFrame();
-    }
-
-    /**
-     * Erstellt eine neue Instanz der Klasse zum Bearbeiten des übergebenen
-     * Kontakts
-     *
-     * @param k Contact-Instanz, die in dem Frame bearbeitet werden soll
-     */
-    public ContactFrame(Contact k) {
-        super(685, 285);
-
-        mContact = k;
-        this.setTitle(String.format(FORMAT_STRING_EDIT2, mContact));
-
-        initFrame();
-
-        String mail1 = mContact.getAddress1AsString();
-        String mail2 = mContact.getAddress2AsString();
-
-        tForename.setText(mContact.getForename());
-        tSurname.setText(mContact.getSurname());
-        tDisplayname.setText(mContact.getDisplayname());
-        tNickname.setText(mContact.getNickname());
-        tEmailaddress_1.setText(mail1);
-        tEmailaddress_2.setText(mail2);
-        tDutyphone.setText(mContact.getDutyphone());
-        tPrivatephone.setText(mContact.getPrivatephone());
-        tMobilephone.setText(mContact.getMobilephone());
-    }
-
-    /**
      * Aktualisiert den Anzeigenamen des Kontakts
      */
     private void refreshDisplayname() {
@@ -328,7 +328,7 @@ public class ContactFrame extends ExtendedDialog<Contact> {
 
     /**
      * Wird beim Klick auf den OK-Buttom aufgerufen, um den Dialog auf die
- Rückgabe des finalen Contact-Objekts vorzubereiten.
+     * Rückgabe des finalen Contact-Objekts vorzubereiten.
      */
     private void finalizeFrame() {
         try {

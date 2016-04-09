@@ -9,7 +9,7 @@ import de.outlookklon.logik.contacts.Contact;
 import de.outlookklon.logik.mailclient.FolderInfo;
 import de.outlookklon.logik.mailclient.MailAccount;
 import de.outlookklon.logik.mailclient.MailContent;
-import de.outlookklon.logik.mailclient.MailInfo;
+import de.outlookklon.logik.mailclient.StoredMailInfo;
 import java.awt.Component;
 import java.awt.Font;
 import java.awt.Frame;
@@ -111,6 +111,91 @@ public class MainFrame extends ExtendedFrame {
     private JMenuItem mntmCalendar;
 
     private boolean load;
+
+    /**
+     * Erstellt eine neue Instanz des Hauptfensters
+     */
+    public MainFrame() {
+        setTitle("MailClient");
+
+        user = User.getInstance();
+        if (user == null) {
+            System.exit(1);
+        }
+
+        JSplitPane horizontalSplitPane = new JSplitPane();
+
+        initTablePopup();
+        initTree(horizontalSplitPane);
+
+        JSplitPane verticalSplitPane = new JSplitPane();
+        verticalSplitPane.setContinuousLayout(true);
+        verticalSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
+        horizontalSplitPane.setRightComponent(verticalSplitPane);
+
+        initTabelle(verticalSplitPane);
+
+        tpPreview = new HtmlEditorPane();
+        tpPreview.setEditable(false);
+
+        JScrollPane previewScroller = new JScrollPane(tpPreview);
+        verticalSplitPane.setRightComponent(previewScroller);
+
+        JToolBar toolBar = new JToolBar();
+
+        btnPoll = new JButton("Abrufen");
+        btnPoll.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                DefaultTableModel tableModel = (DefaultTableModel) tblMails.getModel();
+                tableModel.setRowCount(0);
+
+                DefaultTreeModel treeModel = (DefaultTreeModel) tree.getModel();
+                DefaultMutableTreeNode root = (DefaultMutableTreeNode) treeModel.getRoot();
+
+                int childs = root.getChildCount();
+                for (int i = 0; i < childs; i++) {
+                    DefaultMutableTreeNode childNode = (DefaultMutableTreeNode) root.getChildAt(0);
+
+                    treeModel.removeNodeFromParent(childNode);
+                }
+
+                tpPreview.setText(null);
+
+                user.stopChecker();
+                loadFolder();
+            }
+        });
+        toolBar.add(btnPoll);
+        GroupLayout groupLayout = new GroupLayout(getContentPane());
+        groupLayout.setHorizontalGroup(groupLayout.createParallelGroup(Alignment.LEADING)
+                .addComponent(toolBar, GroupLayout.DEFAULT_SIZE, 547, Short.MAX_VALUE)
+                .addComponent(horizontalSplitPane, GroupLayout.DEFAULT_SIZE, 547, Short.MAX_VALUE));
+        groupLayout.setVerticalGroup(groupLayout.createParallelGroup(Alignment.LEADING)
+                .addGroup(groupLayout.createSequentialGroup()
+                        .addComponent(toolBar, GroupLayout.PREFERRED_SIZE, 28, GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(ComponentPlacement.RELATED)
+                        .addComponent(horizontalSplitPane, GroupLayout.DEFAULT_SIZE, 343, Short.MAX_VALUE).addGap(0)));
+        getContentPane().setLayout(groupLayout);
+
+        initMenu();
+
+        this.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent windowEvent) {
+                try {
+                    user.save();
+                } catch (IOException e) {
+                    Component component = windowEvent.getComponent();
+                    JOptionPane.showMessageDialog(component, "Die Einstellungen konnten nicht gespeichert werden!",
+                            "Fehler", JOptionPane.ERROR_MESSAGE);
+                }
+                System.exit(0);
+            }
+        });
+
+        load = false;
+    }
 
     /**
      * Initialisiert das Menü des Frames
@@ -247,7 +332,7 @@ public class MainFrame extends ExtendedFrame {
                 }
 
                 int row = tblMails.convertRowIndexToModel(viewRow);
-                MailInfo mailID = (MailInfo) model.getValueAt(row, 0);
+                StoredMailInfo mailID = (StoredMailInfo) model.getValueAt(row, 0);
 
                 openMail(mailID);
             }
@@ -273,7 +358,7 @@ public class MainFrame extends ExtendedFrame {
                 }
 
                 int row = tblMails.convertRowIndexToModel(viewZeile);
-                MailInfo mailID = (MailInfo) model.getValueAt(row, 0);
+                StoredMailInfo mailID = (StoredMailInfo) model.getValueAt(row, 0);
 
                 answer(mailID);
             }
@@ -291,7 +376,7 @@ public class MainFrame extends ExtendedFrame {
                 }
 
                 int row = tblMails.convertRowIndexToModel(viewZeile);
-                MailInfo mailID = (MailInfo) model.getValueAt(row, 0);
+                StoredMailInfo mailID = (StoredMailInfo) model.getValueAt(row, 0);
 
                 forward(mailID);
             }
@@ -324,10 +409,9 @@ public class MainFrame extends ExtendedFrame {
                 return false;
             }
         };
-        tblMails.setModel(
-                new DefaultTableModel(new Object[][]{}, new String[]{"MailInfo", "Betreff", "Von", "Datum"}) {
+        tblMails.setModel(new DefaultTableModel(new Object[][]{}, new String[]{"MailInfo", "Betreff", "Von", "Datum"}) {
             private static final long serialVersionUID = 1L;
-            Class<?>[] columnTypes = new Class<?>[]{MailInfo.class, String.class, InternetAddress.class,
+            Class<?>[] columnTypes = new Class<?>[]{StoredMailInfo.class, String.class, InternetAddress.class,
                 Date.class};
 
             @Override
@@ -361,8 +445,8 @@ public class MainFrame extends ExtendedFrame {
                 int modelRow = table.convertRowIndexToModel(row);
                 DefaultTableModel model = (DefaultTableModel) table.getModel();
                 Object obj = model.getValueAt(modelRow, 0);
-                if (obj instanceof MailInfo) {
-                    MailInfo info = (MailInfo) obj;
+                if (obj instanceof StoredMailInfo) {
+                    StoredMailInfo info = (StoredMailInfo) obj;
                     if (isSelected || info.isRead()) {
                         comp.setFont(comp.getFont().deriveFont(Font.PLAIN));
                     } else {
@@ -390,11 +474,11 @@ public class MainFrame extends ExtendedFrame {
                     DefaultTableModel model = (DefaultTableModel) tblMails.getModel();
                     int viewRow = tblMails.getSelectedRow();
 
-                    MailInfo info = null;
+                    StoredMailInfo info = null;
 
                     if (viewRow >= 0) {
                         int row = tblMails.convertRowIndexToModel(viewRow);
-                        info = (MailInfo) model.getValueAt(row, 0);
+                        info = (StoredMailInfo) model.getValueAt(row, 0);
                     }
 
                     showPreview(info);
@@ -414,7 +498,7 @@ public class MainFrame extends ExtendedFrame {
                     }
 
                     int row = tblMails.convertRowIndexToModel(viewRow);
-                    MailInfo mailID = (MailInfo) model.getValueAt(row, 0);
+                    StoredMailInfo mailID = (StoredMailInfo) model.getValueAt(row, 0);
 
                     openMail(mailID);
                 }
@@ -548,96 +632,11 @@ public class MainFrame extends ExtendedFrame {
     }
 
     /**
-     * Erstellt eine neue Instanz des Hauptfensters
-     */
-    public MainFrame() {
-        setTitle("MailClient");
-
-        user = User.getInstance();
-        if (user == null) {
-            System.exit(1);
-        }
-
-        JSplitPane horizontalSplitPane = new JSplitPane();
-
-        initTablePopup();
-        initTree(horizontalSplitPane);
-
-        JSplitPane verticalSplitPane = new JSplitPane();
-        verticalSplitPane.setContinuousLayout(true);
-        verticalSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
-        horizontalSplitPane.setRightComponent(verticalSplitPane);
-
-        initTabelle(verticalSplitPane);
-
-        tpPreview = new HtmlEditorPane();
-        tpPreview.setEditable(false);
-
-        JScrollPane previewScroller = new JScrollPane(tpPreview);
-        verticalSplitPane.setRightComponent(previewScroller);
-
-        JToolBar toolBar = new JToolBar();
-
-        btnPoll = new JButton("Abrufen");
-        btnPoll.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                DefaultTableModel tableModel = (DefaultTableModel) tblMails.getModel();
-                tableModel.setRowCount(0);
-
-                DefaultTreeModel treeModel = (DefaultTreeModel) tree.getModel();
-                DefaultMutableTreeNode root = (DefaultMutableTreeNode) treeModel.getRoot();
-
-                int childs = root.getChildCount();
-                for (int i = 0; i < childs; i++) {
-                    DefaultMutableTreeNode childNode = (DefaultMutableTreeNode) root.getChildAt(0);
-
-                    treeModel.removeNodeFromParent(childNode);
-                }
-
-                tpPreview.setText(null);
-
-                user.stopChecker();
-                loadFolder();
-            }
-        });
-        toolBar.add(btnPoll);
-        GroupLayout groupLayout = new GroupLayout(getContentPane());
-        groupLayout.setHorizontalGroup(groupLayout.createParallelGroup(Alignment.LEADING)
-                .addComponent(toolBar, GroupLayout.DEFAULT_SIZE, 547, Short.MAX_VALUE)
-                .addComponent(horizontalSplitPane, GroupLayout.DEFAULT_SIZE, 547, Short.MAX_VALUE));
-        groupLayout.setVerticalGroup(groupLayout.createParallelGroup(Alignment.LEADING)
-                .addGroup(groupLayout.createSequentialGroup()
-                        .addComponent(toolBar, GroupLayout.PREFERRED_SIZE, 28, GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(ComponentPlacement.RELATED)
-                        .addComponent(horizontalSplitPane, GroupLayout.DEFAULT_SIZE, 343, Short.MAX_VALUE).addGap(0)));
-        getContentPane().setLayout(groupLayout);
-
-        initMenu();
-
-        this.addWindowListener(new WindowAdapter() {
-            @Override
-            public void windowClosing(WindowEvent windowEvent) {
-                try {
-                    user.save();
-                } catch (IOException e) {
-                    Component component = windowEvent.getComponent();
-                    JOptionPane.showMessageDialog(component, "Die Einstellungen konnten nicht gespeichert werden!",
-                            "Fehler", JOptionPane.ERROR_MESSAGE);
-                }
-                System.exit(0);
-            }
-        });
-
-        load = false;
-    }
-
-    /**
-     * Öffnet ein MailFrame zum Antworten auf die übergebene MailInfo
+     * Öffnet ein MailFrame zum Antworten auf die übergebene StoredMailInfo
      *
      * @param info Info-Objekt der Mail, auf die geantwortet werden soll
      */
-    private void answer(MailInfo info) {
+    private void answer(StoredMailInfo info) {
         MailAccount acc = selectedAccount();
         FolderInfo path = nodeToFolder((DefaultMutableTreeNode) tree.getLastSelectedPathComponent());
 
@@ -659,7 +658,7 @@ public class MainFrame extends ExtendedFrame {
      *
      * @param info Info-Objekt der Mail, die weitergeleitet werden soll
      */
-    private void forward(MailInfo info) {
+    private void forward(StoredMailInfo info) {
         MailAccount acc = selectedAccount();
         FolderInfo path = nodeToFolder((DefaultMutableTreeNode) tree.getLastSelectedPathComponent());
 
@@ -957,11 +956,11 @@ public class MainFrame extends ExtendedFrame {
             load = true;
 
             try {
-                MailInfo[] messages = checker.getMessages(folder.getPath());
+                StoredMailInfo[] messages = checker.getMessages(folder.getPath());
                 int unread = 0;
 
                 // Füge jede Mail der Tabelle hinzu
-                for (MailInfo info : messages) {
+                for (StoredMailInfo info : messages) {
                     if (!info.isRead()) {
                         unread++;
                     }
@@ -990,14 +989,14 @@ public class MainFrame extends ExtendedFrame {
     }
 
     /**
-     * Gibt die ausgewählten MailInfo-Objekte der Tabelle zurück.
+     * Gibt die ausgewählten StoredMailInfo-Objekte der Tabelle zurück.
      *
      * @return Ausgewählte MailInfos
      */
-    private MailInfo[] selectedMailInfos() {
+    private StoredMailInfo[] selectedMailInfos() {
         DefaultTableModel model = (DefaultTableModel) tblMails.getModel();
 
-        MailInfo[] infos = new MailInfo[tblMails.getSelectedRowCount()];
+        StoredMailInfo[] infos = new StoredMailInfo[tblMails.getSelectedRowCount()];
 
         // Lese Index der ausgewählten Spalten der View aus
         int[] indices = tblMails.getSelectedRows();
@@ -1006,7 +1005,7 @@ public class MainFrame extends ExtendedFrame {
             // Konvertiere Index, da das Auslesen aus dem Model erfolgt
             int modelIndex = tblMails.convertRowIndexToModel(indices[i]);
 
-            infos[i] = (MailInfo) model.getValueAt(modelIndex, 0);
+            infos[i] = (StoredMailInfo) model.getValueAt(modelIndex, 0);
         }
 
         return infos;
@@ -1053,11 +1052,11 @@ public class MainFrame extends ExtendedFrame {
     }
 
     /**
-     * Öffnet ein neues MailFrame für die übergebene MailInfo
+     * Öffnet ein neues MailFrame für die übergebene StoredMailInfo
      *
      * @param info Die im MailFrame anzuzeigende Mail
      */
-    private void openMail(MailInfo info) {
+    private void openMail(StoredMailInfo info) {
         MailAccount acc = selectedAccount();
         DefaultMutableTreeNode selected = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
         FolderInfo path = nodeToFolder(selected);
@@ -1235,7 +1234,7 @@ public class MainFrame extends ExtendedFrame {
      */
     private void copyMail(String target) {
         MailAccount acc = selectedAccount();
-        MailInfo[] infos = selectedMailInfos();
+        StoredMailInfo[] infos = selectedMailInfos();
         FolderInfo source = nodeToFolder((DefaultMutableTreeNode) tree.getLastSelectedPathComponent());
 
         try {
@@ -1255,7 +1254,7 @@ public class MainFrame extends ExtendedFrame {
     private void moveMail(String target) {
         MailChecker checker = selectedChecker();
         MailAccount acc = checker.getAccount();
-        MailInfo[] infos = selectedMailInfos();
+        StoredMailInfo[] infos = selectedMailInfos();
         FolderInfo source = nodeToFolder((DefaultMutableTreeNode) tree.getLastSelectedPathComponent());
 
         try {
@@ -1282,7 +1281,7 @@ public class MainFrame extends ExtendedFrame {
      * Lösche die ausgewählten Mails
      */
     private void deleteMail() {
-        MailInfo[] infos = selectedMailInfos();
+        StoredMailInfo[] infos = selectedMailInfos();
         FolderInfo path = nodeToFolder((DefaultMutableTreeNode) tree.getLastSelectedPathComponent());
         MailChecker checker = selectedChecker();
         MailAccount acc = checker.getAccount();
@@ -1309,11 +1308,11 @@ public class MainFrame extends ExtendedFrame {
     }
 
     /**
-     * Zeige die übergebene MailInfo in dem Vorschau-Feld an
+     * Zeige die übergebene StoredMailInfo in dem Vorschau-Feld an
      *
      * @param info Info-Objekt, das angezeigt werden soll
      */
-    private void showPreview(MailInfo info) {
+    private void showPreview(StoredMailInfo info) {
         if (info == null) {
             tpPreview.setEditable(true);
             tpPreview.setText("");
@@ -1463,7 +1462,7 @@ public class MainFrame extends ExtendedFrame {
                                     // Füge Zeile für die neue Mail in die
                                     // Tabelle ein
 
-                                    MailInfo info = e.getInfo();
+                                    StoredMailInfo info = e.getInfo();
                                     DefaultTableModel tableModel = (DefaultTableModel) tblMails.getModel();
                                     tableModel.addRow(
                                             new Object[]{info, info.getSubject(), info.getSender(), info.getDate()});

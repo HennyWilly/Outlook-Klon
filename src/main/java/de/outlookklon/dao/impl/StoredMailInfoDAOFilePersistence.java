@@ -1,24 +1,24 @@
 package de.outlookklon.dao.impl;
 
 import de.outlookklon.dao.DAOException;
-import de.outlookklon.dao.MailInfoDAO;
-import de.outlookklon.logik.mailclient.MailInfo;
+import de.outlookklon.logik.mailclient.StoredMailInfo;
 import de.outlookklon.serializers.Serializer;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import de.outlookklon.dao.StoredMailInfoDAO;
 
 /**
- * Diese Klasse implementiert die {@link MailInfoDAO}-Schnittstelle für den
- * Zugriff auf die persistierten {@link MailInfo}-Objekte in Dateiform.
+ * Diese Klasse implementiert die {@link StoredMailInfoDAO}-Schnittstelle für den
+ * Zugriff auf die persistierten {@link StoredMailInfo}-Objekte in Dateiform.
  *
  * @author Hendrik Karwanni
  */
-public class MailInfoDAOFilePersistence implements MailInfoDAO {
+public class StoredMailInfoDAOFilePersistence implements StoredMailInfoDAO {
 
     private File folder;
 
-    public MailInfoDAOFilePersistence(File folder) throws IOException {
+    public StoredMailInfoDAOFilePersistence(File folder) throws IOException {
         if (folder == null) {
             throw new NullPointerException("folder is null");
         }
@@ -45,13 +45,13 @@ public class MailInfoDAOFilePersistence implements MailInfoDAO {
     }
 
     @Override
-    public MailInfo loadMailInfo(String id, String path) throws DAOException {
+    public StoredMailInfo loadMailInfo(String id, String path) throws DAOException {
         File filePath = getFilePath(path, id);
 
-        MailInfo geladen = null;
+        StoredMailInfo geladen = null;
         if (filePath.exists()) {
             try {
-                geladen = Serializer.deserializeJson(filePath, MailInfo.class);
+                geladen = Serializer.deserializeJson(filePath, StoredMailInfo.class);
             } catch (IOException ex) {
                 throw new DAOException("Could not load MailInfo", ex);
             }
@@ -61,7 +61,7 @@ public class MailInfoDAOFilePersistence implements MailInfoDAO {
     }
 
     @Override
-    public void saveMailInfo(MailInfo info, String path) throws DAOException {
+    public void saveMailInfo(StoredMailInfo info, String path) throws DAOException {
         final File filePath = getFilePath(path, info.getID());
 
         try {

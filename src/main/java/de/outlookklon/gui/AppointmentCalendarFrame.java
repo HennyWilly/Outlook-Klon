@@ -55,6 +55,31 @@ public class AppointmentCalendarFrame extends ExtendedFrame {
 
     private JPanel panel;
 
+    /**
+     * Erstellt ein neues Fenster.
+     *
+     * @param newAppointment bei {@code true} wird das Fenster zum Erstellen
+     * eines neuen Termins mitgestartet
+     */
+    public AppointmentCalendarFrame(boolean newAppointment) {
+        initGui();
+
+        if (newAppointment) {
+            newAppointment();
+        }
+    }
+
+    /**
+     * Erstellt ein neues Fenster.
+     *
+     * @param start das Datum, das auf dem automatisch startenden Fenster zum
+     * Erstellen eines neuen Termins angezeigt wird
+     */
+    public AppointmentCalendarFrame(Date start) {
+        this(false);
+        newAppointment(start);
+    }
+
     private void initGui() {
         setTitle("Termine");
         appointmentPopup = new JPopupMenu();
@@ -231,31 +256,6 @@ public class AppointmentCalendarFrame extends ExtendedFrame {
 
         updateTable();
         loadUser();
-    }
-
-    /**
-     * Erstellt ein neues Fenster.
-     *
-     * @param newAppointment bei {@code true} wird das Fenster zum Erstellen
-     * eines neuen Termins mitgestartet
-     */
-    public AppointmentCalendarFrame(boolean newAppointment) {
-        initGui();
-
-        if (newAppointment) {
-            newAppointment();
-        }
-    }
-
-    /**
-     * Erstellt ein neues Fenster.
-     *
-     * @param start das Datum, das auf dem automatisch startenden Fenster zum
-     * Erstellen eines neuen Termins angezeigt wird
-     */
-    public AppointmentCalendarFrame(Date start) {
-        this(false);
-        newAppointment(start);
     }
 
     private void updateTable() {

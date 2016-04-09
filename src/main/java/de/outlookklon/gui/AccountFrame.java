@@ -57,6 +57,55 @@ public class AccountFrame extends ExtendedDialog<MailAccount> {
     private JButton btnFinish;
 
     /**
+     * Erstellt eine neue Instanz der Klasse zum Erstellen eines neuen
+     * MailAccount-Objekts
+     */
+    public AccountFrame() {
+        super(750, 350);
+
+        setTitle("Neues Konto hinzufügen");
+
+        initFrame();
+    }
+
+    /**
+     * Erstellt eine neue Instanz der Klasse zum Bearbeiten eines neuen
+     * MailAccount-Objekts
+     */
+    public AccountFrame(MailAccount account) {
+        super(750, 350);
+
+        setTitle("Konto bearbeiten");
+
+        initFrame();
+
+        InboxServer inServer = account.getInboxMailServer();
+        OutboxServer outServer = account.getOutboxMailServer();
+
+        txtDisplayname.setText(account.getAddress().getPersonal());
+        txtMail.setText(account.getAddress().getAddress());
+        txtUsername.setText(account.getUser());
+
+        if (inServer != null) {
+            ServerSettings settings = inServer.getSettings();
+
+            cbInProtocoll.setSelectedItem(inServer.getServerType());
+            txtInServer.setText(settings.getHost());
+            spInPort.setValue(settings.getPort());
+            cBInConnectionSecurity.setSelectedItem(settings.getConnectionSecurity());
+            cBInAuthentificationType.setSelectedItem(settings.getAuthentificationType());
+        }
+        if (outServer != null) {
+            ServerSettings settings = outServer.getSettings();
+
+            txtOutServer.setText(settings.getHost());
+            spOutPort.setValue(settings.getPort());
+            cBOutConnectionSecurity.setSelectedItem(settings.getConnectionSecurity());
+            cBOutAuthentificationType.setSelectedItem(settings.getAuthentificationType());
+        }
+    }
+
+    /**
      * Initialisiert die GUI-Elemente des Frames
      */
     private void initFrame() {
@@ -207,55 +256,6 @@ public class AccountFrame extends ExtendedDialog<MailAccount> {
         txtDisplayname.setColumns(10);
         txtDisplayname.setBounds(140, 11, 315, 20);
         getContentPane().add(txtDisplayname);
-    }
-
-    /**
-     * Erstellt eine neue Instanz der Klasse zum Erstellen eines neuen
-     * MailAccount-Objekts
-     */
-    public AccountFrame() {
-        super(750, 350);
-
-        setTitle("Neues Konto hinzufügen");
-
-        initFrame();
-    }
-
-    /**
-     * Erstellt eine neue Instanz der Klasse zum Bearbeiten eines neuen
-     * MailAccount-Objekts
-     */
-    public AccountFrame(MailAccount account) {
-        super(750, 350);
-
-        setTitle("Konto bearbeiten");
-
-        initFrame();
-
-        InboxServer inServer = account.getInboxMailServer();
-        OutboxServer outServer = account.getOutboxMailServer();
-
-        txtDisplayname.setText(account.getAddress().getPersonal());
-        txtMail.setText(account.getAddress().getAddress());
-        txtUsername.setText(account.getUser());
-
-        if (inServer != null) {
-            ServerSettings settings = inServer.getSettings();
-
-            cbInProtocoll.setSelectedItem(inServer.getServerType());
-            txtInServer.setText(settings.getHost());
-            spInPort.setValue(settings.getPort());
-            cBInConnectionSecurity.setSelectedItem(settings.getConnectionSecurity());
-            cBInAuthentificationType.setSelectedItem(settings.getAuthentificationType());
-        }
-        if (outServer != null) {
-            ServerSettings settings = outServer.getSettings();
-
-            txtOutServer.setText(settings.getHost());
-            spOutPort.setValue(settings.getPort());
-            cBOutConnectionSecurity.setSelectedItem(settings.getConnectionSecurity());
-            cBOutAuthentificationType.setSelectedItem(settings.getAuthentificationType());
-        }
     }
 
     /**

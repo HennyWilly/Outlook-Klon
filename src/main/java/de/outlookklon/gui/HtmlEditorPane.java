@@ -48,6 +48,51 @@ public class HtmlEditorPane extends JEditorPane {
 
     private HTMLEditorKit htmlEditor;
 
+    /**
+     * Erstellt ein neues HtmlEditorPane
+     */
+    public HtmlEditorPane() {
+        super();
+        init();
+    }
+
+    /**
+     * Erstellt ein neues HtmlEditorPane basierend auf einem String mit
+     * Url-Spzifikationen
+     *
+     * @param url String der URL der automatisch anzuzeigenden Seite
+     * @throws IOException Tritt auf, wenn der String null ist, oder auf die Url
+     * nicht zugegriffen werden kann
+     */
+    public HtmlEditorPane(String url) throws IOException {
+        super(url);
+        init();
+    }
+
+    /**
+     * Erstellt ein neues HtmlEditorPane basierend den übergebenen
+     * Url-Spzifikationen
+     *
+     * @param url URL der automatisch anzuzeigenden Seite
+     * @throws IOException Tritt auf, wenn die URL null ist, oder darauf nicht
+     * zugegriffen werden kann
+     */
+    public HtmlEditorPane(URL url) throws IOException {
+        super(url);
+        init();
+    }
+
+    /**
+     * Erstellt ein neues HtmlEditorPane mit den übergebenen Einstellungen
+     *
+     * @param type Typ des übergebenen Texts
+     * @param text Anzuzeigender Text
+     */
+    public HtmlEditorPane(String type, String text) {
+        super(type, text);
+        init();
+    }
+
     // Statischer Konstruktor
     static {
         HTMLPATTERN = Pattern.compile("<(\"[^\"]*\"|'[^']*'|[^'\">])*>");
@@ -133,51 +178,6 @@ public class HtmlEditorPane extends JEditorPane {
                 }
             }
         });
-    }
-
-    /**
-     * Erstellt ein neues HtmlEditorPane
-     */
-    public HtmlEditorPane() {
-        super();
-        init();
-    }
-
-    /**
-     * Erstellt ein neues HtmlEditorPane basierend auf einem String mit
-     * Url-Spzifikationen
-     *
-     * @param url String der URL der automatisch anzuzeigenden Seite
-     * @throws IOException Tritt auf, wenn der String null ist, oder auf die Url
-     * nicht zugegriffen werden kann
-     */
-    public HtmlEditorPane(String url) throws IOException {
-        super(url);
-        init();
-    }
-
-    /**
-     * Erstellt ein neues HtmlEditorPane basierend den übergebenen
-     * Url-Spzifikationen
-     *
-     * @param url URL der automatisch anzuzeigenden Seite
-     * @throws IOException Tritt auf, wenn die URL null ist, oder darauf nicht
-     * zugegriffen werden kann
-     */
-    public HtmlEditorPane(URL url) throws IOException {
-        super(url);
-        init();
-    }
-
-    /**
-     * Erstellt ein neues HtmlEditorPane mit den übergebenen Einstellungen
-     *
-     * @param type Typ des übergebenen Texts
-     * @param text Anzuzeigender Text
-     */
-    public HtmlEditorPane(String type, String text) {
-        super(type, text);
-        init();
     }
 
     /**

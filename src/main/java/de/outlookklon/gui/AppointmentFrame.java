@@ -43,6 +43,53 @@ public class AppointmentFrame extends ExtendedDialog<Appointment> {
     private JComboBox<String> comboContact;
     private Appointment mAppointment;
 
+    /**
+     * Erstellt ein neues leeres Fenster.
+     */
+    public AppointmentFrame() {
+        super(485, 344);
+
+        mAppointment = null;
+        initFrame();
+        this.setTitle("Neuer Termin");
+    }
+
+    /**
+     * Erstellt ein neues Fenster, das initial den übergebenen Appointment
+     * anzeigt.
+     *
+     * @param appointment anzuzeigender Appointment
+     */
+    public AppointmentFrame(Appointment appointment) {
+        super(485, 344);
+
+        mAppointment = appointment;
+        initFrame();
+        this.setTitle("Termin bearbeiten");
+        textSubject.setText(appointment.getSubject());
+        textLocation.setText(appointment.getLocation());
+        textDescription.setText(appointment.getText());
+        dateStart.setValue(appointment.getStart());
+        dateEnd.setValue(appointment.getEnd());
+        comboAccount.setSelectedItem(appointment.getUser());
+        comboContact.setSelectedItem(appointment.getContact());
+    }
+
+    /**
+     * Erstellt ein neues Fenster, das initial das übergebe Datum anzeigt.
+     *
+     * @param date initiales Datum
+     */
+    public AppointmentFrame(Date date) {
+        this();
+
+        SpinnerDateModel m1 = (SpinnerDateModel) dateStart.getModel();
+        m1.setValue(date);
+
+        SpinnerDateModel m2 = (SpinnerDateModel) dateEnd.getModel();
+        m2.setValue(date);
+    }
+
     private void initFrame() {
         setTitle("Termin");
 
@@ -241,52 +288,6 @@ public class AppointmentFrame extends ExtendedDialog<Appointment> {
                 .createParallelGroup(Alignment.BASELINE).addComponent(btnOk).addComponent(btnAbort))
                 .addContainerGap()));
         getContentPane().setLayout(groupLayout);
-    }
-
-    /**
-     * Erstellt ein neues leeres Fenster.
-     */
-    public AppointmentFrame() {
-        super(485, 344);
-
-        mAppointment = null;
-        initFrame();
-        this.setTitle("Neuer Termin");
-    }
-
-    /**
-     * Erstellt ein neues Fenster, das initial den übergebenen Appointment anzeigt.
-     *
-     * @param appointment anzuzeigender Appointment
-     */
-    public AppointmentFrame(Appointment appointment) {
-        super(485, 344);
-
-        mAppointment = appointment;
-        initFrame();
-        this.setTitle("Termin bearbeiten");
-        textSubject.setText(appointment.getSubject());
-        textLocation.setText(appointment.getLocation());
-        textDescription.setText(appointment.getText());
-        dateStart.setValue(appointment.getStart());
-        dateEnd.setValue(appointment.getEnd());
-        comboAccount.setSelectedItem(appointment.getUser());
-        comboContact.setSelectedItem(appointment.getContact());
-    }
-
-    /**
-     * Erstellt ein neues Fenster, das initial das übergebe Datum anzeigt.
-     *
-     * @param date initiales Datum
-     */
-    public AppointmentFrame(Date date) {
-        this();
-
-        SpinnerDateModel m1 = (SpinnerDateModel) dateStart.getModel();
-        m1.setValue(date);
-
-        SpinnerDateModel m2 = (SpinnerDateModel) dateEnd.getModel();
-        m2.setValue(date);
     }
 
     @Override

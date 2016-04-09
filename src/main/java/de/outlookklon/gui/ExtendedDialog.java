@@ -9,9 +9,9 @@ import javax.swing.JDialog;
  * benötigt, aber leider nicht standardmäßig in Java implementiert wurden.
  *
  * @author Hendrik Karwanni
- * @param <TDialogTyp> Datentyp, der vom Dialog zurückgegeben werden soll
+ * @param <T> Datentyp, der vom Dialog zurückgegeben werden soll
  */
-public abstract class ExtendedDialog<TDialogTyp> extends JDialog {
+public abstract class ExtendedDialog<T> extends JDialog {
 
     private static final long serialVersionUID = -8078692720731679550L;
 
@@ -36,7 +36,7 @@ public abstract class ExtendedDialog<TDialogTyp> extends JDialog {
      *
      * @return Wert, der beim Schließen des Dialogs zurückgegeben wird
      */
-    protected abstract TDialogTyp getDialogResult();
+    protected abstract T getDialogResult();
 
     /**
      * Öffnet den Dialog und gibt nach dem Schließen das Ergebnis des Dialogs
@@ -44,7 +44,7 @@ public abstract class ExtendedDialog<TDialogTyp> extends JDialog {
      *
      * @return Ergbnis des Dialogs
      */
-    public TDialogTyp showDialog() {
+    public T showDialog() {
         // Durch "ModalityType=DEFAULT_MODALITY_TYPE" wird bei setVisible(true)
         // blockiert
         setVisible(true);

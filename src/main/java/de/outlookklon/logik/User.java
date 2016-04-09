@@ -9,6 +9,7 @@ import de.outlookklon.logik.contacts.ContactManagement;
 import de.outlookklon.logik.mailclient.MailAccount;
 import de.outlookklon.logik.mailclient.MailContent;
 import de.outlookklon.logik.mailclient.MailInfo;
+import de.outlookklon.logik.mailclient.StoredMailInfo;
 import de.outlookklon.serializers.Serializer;
 import java.io.File;
 import java.io.FilenameFilter;
@@ -82,7 +83,7 @@ public final class User implements Iterable<User.MailChecker> {
         private static final int SLEEP_TIME = 60000;
         private static final String FOLDER = "INBOX";
         private final MailAccount account;
-        private final Set<MailInfo> mails;
+        private final Set<StoredMailInfo> mails;
         private final List<NewMailListener> listenerList;
 
         /**
@@ -113,12 +114,12 @@ public final class User implements Iterable<User.MailChecker> {
         }
 
         /**
-         * Feuert ein neues NewMessageEvent für die übergebene MailInfo an alle
-         * registrierten Listener
+         * Feuert ein neues NewMessageEvent für die übergebene StoredMailInfo an
+         * alle registrierten Listener
          *
-         * @param info MailInfo-Objekt, aus dem das Event erzeugt wird
+         * @param info StoredMailInfo-Objekt, aus dem das Event erzeugt wird
          */
-        private void fireNewMessageEvent(MailInfo info) {
+        private void fireNewMessageEvent(StoredMailInfo info) {
             NewMailEvent ev = new NewMailEvent(this, FOLDER, info);
 
             synchronized (listenerList) {
@@ -142,7 +143,7 @@ public final class User implements Iterable<User.MailChecker> {
             synchronized (mails) {
                 // Erstmaliges Abfragen des Posteingangs
 
-                MailInfo[] mailInfos = null;
+                StoredMailInfo[] mailInfos = null;
                 try {
                     mailInfos = account.getMessages(FOLDER);
                 } catch (FolderNotFoundException e) {
@@ -152,7 +153,7 @@ public final class User implements Iterable<User.MailChecker> {
                 }
 
                 if (mailInfos != null) {
-                    for (MailInfo info : mailInfos) {
+                    for (StoredMailInfo info : mailInfos) {
                         mails.add(info);
                         if (!info.isRead()) {
                             fireNewMessageEvent(info);
@@ -164,29 +165,29 @@ public final class User implements Iterable<User.MailChecker> {
             while (true) {
                 try {
                     Thread.sleep(SLEEP_TIME); // Pausiere für eine gegebene Zeit
-                    MailInfo[] mailTmp = account.getMessages(FOLDER);
+                    StoredMailInfo[] mailTmp = account.getMessages(FOLDER);
 
                     // HashSet, da oft darin gesucht wird (s.u.)
-                    Set<MailInfo> tmpSet = new HashSet<>();
+                    Set<StoredMailInfo> tmpSet = new HashSet<>();
 
                     // Fülle mit abgefragten MailInfos
                     tmpSet.addAll(Arrays.asList(mailTmp));
 
-                    // Prüfe, ob eine bekannte MailInfo weggefallen ist
-                    Iterator<MailInfo> iterator = mails.iterator();
+                    // Prüfe, ob eine bekannte StoredMailInfo weggefallen ist
+                    Iterator<StoredMailInfo> iterator = mails.iterator();
                     while (iterator.hasNext()) {
-                        MailInfo current = iterator.next();
+                        StoredMailInfo current = iterator.next();
 
                         if (!tmpSet.contains(current)) {
-                            // Entferne weggefallene MailInfo aus dem Speicher
+                            // Entferne weggefallene StoredMailInfo aus dem Speicher
                             iterator.remove();
                         }
                     }
 
                     synchronized (mails) {
-                        for (MailInfo info : mailTmp) {
+                        for (StoredMailInfo info : mailTmp) {
                             if (mails.add(info)) {
-                                // Wird eine neue MailInfo hinzugefügt, werden
+                                // Wird eine neue StoredMailInfo hinzugefügt, werden
                                 // die Listener benachrichtigt
                                 fireNewMessageEvent(info);
                             }
@@ -215,13 +216,13 @@ public final class User implements Iterable<User.MailChecker> {
          * @throws de.outlookklon.dao.DAOException wenn das Laden der
          * Nachrichten fehlschlägt
          */
-        public MailInfo[] getMessages(String path) throws MessagingException, DAOException {
+        public StoredMailInfo[] getMessages(String path) throws MessagingException, DAOException {
             boolean threadOK = this.isAlive() && !this.isInterrupted();
 
-            MailInfo[] array;
+            StoredMailInfo[] array;
             if (threadOK && path.toLowerCase().equals(FOLDER.toLowerCase())) {
                 synchronized (mails) {
-                    array = mails.toArray(new MailInfo[mails.size()]);
+                    array = mails.toArray(new StoredMailInfo[mails.size()]);
                 }
             } else {
                 array = account.getMessages(path);
@@ -235,9 +236,9 @@ public final class User implements Iterable<User.MailChecker> {
          *
          * @param infos Zu entfernende MailInfos
          */
-        public void removeMailInfos(MailInfo[] infos) {
+        public void removeMailInfos(StoredMailInfo[] infos) {
             synchronized (mails) {
-                for (MailInfo info : infos) {
+                for (StoredMailInfo info : infos) {
                     mails.remove(info);
                 }
             }
@@ -351,7 +352,7 @@ public final class User implements Iterable<User.MailChecker> {
                 // TODO Teste mich hart
 
                 MailAccount account = ((MailChecker) e.getSource()).getAccount();
-                MailInfo info = e.getInfo();
+                StoredMailInfo info = e.getInfo();
                 String path = e.getFolder();
 
                 InternetAddress from = (InternetAddress) info.getSender();
@@ -574,9 +575,9 @@ public final class User implements Iterable<User.MailChecker> {
      *
      * @param sender MailAccount über den die Mail gesendet werden soll
      * @param path Pfad der zu beantwortenden Mail
-     * @param info MailInfo der zu beantwortenden Mail
+     * @param info StoredMailInfo der zu beantwortenden Mail
      */
-    private void sendAbsenceMail(MailAccount sender, String path, MailInfo info) {
+    private void sendAbsenceMail(MailAccount sender, String path, StoredMailInfo info) {
         // TODO Jetzt Abwesenheitmail senden
 
         try {
@@ -585,8 +586,9 @@ public final class User implements Iterable<User.MailChecker> {
             InternetAddress target = (InternetAddress) info.getSender();
 
             String text = getAbsenceMessage();
-            sender.sendMail(new InternetAddress[]{target}, null,
-                    "Abwesenheit von " + sender.getAddress().getPersonal(), text, "TEXT/plain; charset=utf-8", null);
+            MailInfo mailToSend = new MailInfo("Abwesenheit von " + sender.getAddress().getPersonal(),
+                    text, "TEXT/plain; charset=utf-8", new InternetAddress[]{target}, null, null);
+            sender.sendMail(mailToSend);
         } catch (MessagingException | DAOException ex) {
             LOGGER.error("Could not send absence message", ex);
         }
@@ -606,8 +608,9 @@ public final class User implements Iterable<User.MailChecker> {
 
         if (to != null) {
             String text = getSickNote();
-
-            sender.sendMail(to, null, subject, text, "TEXT/plain; charset=utf-8", null);
+            MailInfo mailToSend = new MailInfo(subject,
+                    text, "TEXT/plain; charset=utf-8", to, null, null);
+            sender.sendMail(mailToSend);
         }
     }
 

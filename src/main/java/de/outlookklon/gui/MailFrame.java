@@ -7,6 +7,7 @@ import de.outlookklon.logik.contacts.Contact;
 import de.outlookklon.logik.mailclient.MailAccount;
 import de.outlookklon.logik.mailclient.MailContent;
 import de.outlookklon.logik.mailclient.MailInfo;
+import de.outlookklon.logik.mailclient.StoredMailInfo;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
@@ -84,7 +85,7 @@ public class MailFrame extends ExtendedFrame {
     }
 
     private MailMode mailMode;
-    private MailInfo mailInfo;
+    private StoredMailInfo mailInfo;
     private String relPath;
 
     private JComboBox<MailAccount> cBSender;
@@ -104,9 +105,171 @@ public class MailFrame extends ExtendedFrame {
     private JRadioButtonMenuItem rdBtnMntmPlaintext;
     private JRadioButtonMenuItem rdBtnMntmHtml;
 
-    private JList<File> lstAttachment;
+    private JList<String> lstAttachment;
 
     private String charset;
+
+    /**
+     * Erstellt eine neue Instanz der Klasse zum Schreiben einer neuen Mail
+     */
+    public MailFrame() {
+        mailMode = MailMode.NEW;
+        charset = "";
+
+        setTitle("<Kein Betreff>");
+        initGui();
+
+        addMailAccounts();
+    }
+
+    /**
+     * Erstellt eine neue Instanz der Klasse zum Schreiben einer neuen Mail an
+     * die übergebenen Kontakte.
+     *
+     * @param contacts Kontakte, deren Mailadressen standardmäßig als Empfänger
+     * eingetragen werden.
+     */
+    public MailFrame(Contact[] contacts) {
+        mailMode = MailMode.NEW;
+        charset = "";
+
+        setTitle("<Kein Betreff>");
+        initGui();
+
+        addMailAccounts();
+
+        List<Address> addresses = new ArrayList<>();
+        for (Contact contact : contacts) {
+            if (contact.getAddress1() == null) {
+                continue;
+            }
+            addresses.add(contact.getAddress1());
+        }
+
+        String addressString = appendAddresses(addresses.toArray(new Address[addresses.size()]));
+        tTo.setText(addressString);
+    }
+
+    /**
+     * Erstellt eine neue Instanz der Klasse zum Anzeigen einer Mail.
+     *
+     * @param mail Info-Objekt, das die Informationen zum Anzeigen der Mail
+     * enthält.
+     * @param path Ordnerpfad, in dem die Mail liegt.
+     * @param parent MailAccount, aus dem die Mail stammt.
+     * @throws MessagingException Tritt auf, wenn die Daten der Mail nicht
+     * abgefragt werden konnten.
+     * @throws de.outlookklon.dao.DAOException Tritt auf, wenn die Daten der
+     * Mail nicht geladen werden konnten.
+     */
+    public MailFrame(StoredMailInfo mail, String path, MailAccount parent)
+            throws MessagingException, DAOException {
+        mailMode = MailMode.OPEN;
+
+        initGui();
+
+        mailInfo = mail;
+        relPath = path;
+
+        addMailAccount(parent);
+        cBSender.setSelectedItem(parent);
+
+        parent.loadMessageData(path, mail, EnumSet.allOf(MailContent.class));
+        charset = mail.getContentType().split("; ")[1];
+
+        tSender.setText(((InternetAddress) mail.getSender()).toUnicodeString());
+        tSender.setEditable(false);
+
+        tSubject.setText(mail.getSubject());
+        tSubject.setEditable(false);
+
+        tTo.setText(appendAddresses(mail.getTo()));
+        tTo.setEditable(false);
+
+        tCC.setText(appendAddresses(mail.getCc()));
+        tCC.setEditable(false);
+
+        String text = mailInfo.getText();
+        String contentType = mailInfo.getContentType();
+
+        // Automatisches Umstellen des Anzeigetyps
+        if (HtmlEditorPane.istHtml(text)) {
+            contentType = contentType.replace("plain", "html");
+        }
+
+        if (contentType.toLowerCase().startsWith("text/plain")) {
+            rdBtnMntmPlaintext.setSelected(true);
+            tpMailtext.setText(text);
+        } else {
+            tpMailtext.setText(text);
+            rdBtnMntmHtml.setSelected(true);
+        }
+
+        tpMailtext.setEditable(false);
+
+        DefaultListModel<String> model = (DefaultListModel<String>) lstAttachment.getModel();
+
+        // Füge Anhänge in die JList ein
+        String[] attachments = mail.getAttachment();
+        for (String attachment : attachments) {
+            model.addElement(attachment);
+        }
+    }
+
+    /**
+     * Erstellt eine neue Instanz der Klasse zum Antworten oder Weiterleiten
+     * einer Mail.
+     *
+     * @param mail Info-Objekt, das die Informationen zum Anzeigen der Mail
+     * enthält.
+     * @param path Ordnerpfad, in dem die Mail liegt.
+     * @param parent MailAccount, aus dem die Mail stammt.
+     * @param forward Wenn true soll die Mail weitergeleitet werden. Sonst wird
+     * auf die Mail geantwortet.
+     * @throws MessagingException Tritt auf, wenn die Daten der Mail nicht
+     * abgefragt werden konnten.
+     * @throws de.outlookklon.dao.DAOException Tritt auf, wenn die Daten der
+     * Mail nicht geladen werden konnten.
+     */
+    public MailFrame(StoredMailInfo mail, String path, MailAccount parent, boolean forward)
+            throws MessagingException, DAOException {
+        mailMode = forward ? MailMode.FORWARD : MailMode.ANSWER;
+
+        initGui();
+
+        addMailAccounts();
+        cBSender.setSelectedItem(parent);
+
+        mailInfo = mail;
+        relPath = path;
+
+        parent.loadMessageData(path, mail, EnumSet.allOf(MailContent.class));
+        charset = mail.getContentType().split("; ")[1];
+
+        String subject = (forward ? "Fwd: " : "Re: ") + mail.getSubject();
+
+        tSubject.setText(subject);
+
+        if (forward == false) {
+            tTo.setText(((InternetAddress) mail.getSender()).toUnicodeString());
+        }
+        tCC.setText(appendAddresses(mail.getCc()));
+
+        String text = mailInfo.getText();
+        String contentType = mailInfo.getContentType();
+
+        if (HtmlEditorPane.istHtml(text)) {
+            contentType = contentType.replace("plain", "html");
+        }
+
+        if (contentType.startsWith("TEXT/plain")) {
+            rdBtnMntmPlaintext.setSelected(true);
+            tpMailtext.setText(text);
+        } else {
+            tpMailtext.setText(text);
+            rdBtnMntmHtml.setSelected(true);
+        }
+    }
 
     /**
      * Initialisiert das Menü des Frames
@@ -190,7 +353,7 @@ public class MailFrame extends ExtendedFrame {
      * @param splitHead JSplitPane in die die Liste eingefügt werden soll
      */
     private void initList(JSplitPane splitHead) {
-        lstAttachment = new JList<>(new DefaultListModel<File>());
+        lstAttachment = new JList<>(new DefaultListModel<String>());
 
         JScrollPane attachmentScroller = new JScrollPane(lstAttachment);
         splitHead.setRightComponent(attachmentScroller);
@@ -200,8 +363,8 @@ public class MailFrame extends ExtendedFrame {
                 @Override
                 public void mouseClicked(MouseEvent e) {
                     if (e.getClickCount() == 2) {
-                        File selected = lstAttachment.getSelectedValue();
-                        saveAttachment(selected.getName());
+                        String selected = lstAttachment.getSelectedValue();
+                        saveAttachment(new File(selected).getName());
                     }
                 }
             });
@@ -380,168 +543,6 @@ public class MailFrame extends ExtendedFrame {
     }
 
     /**
-     * Erstellt eine neue Instanz der Klasse zum Schreiben einer neuen Mail
-     */
-    public MailFrame() {
-        mailMode = MailMode.NEW;
-        charset = "";
-
-        setTitle("<Kein Betreff>");
-        initGui();
-
-        addMailAccounts();
-    }
-
-    /**
-     * Erstellt eine neue Instanz der Klasse zum Schreiben einer neuen Mail an
-     * die übergebenen Kontakte.
-     *
-     * @param contacts Kontakte, deren Mailadressen standardmäßig als Empfänger
-     * eingetragen werden.
-     */
-    public MailFrame(Contact[] contacts) {
-        mailMode = MailMode.NEW;
-        charset = "";
-
-        setTitle("<Kein Betreff>");
-        initGui();
-
-        addMailAccounts();
-
-        List<Address> addresses = new ArrayList<>();
-        for (Contact contact : contacts) {
-            if (contact.getAddress1() == null) {
-                continue;
-            }
-            addresses.add(contact.getAddress1());
-        }
-
-        String addressString = appendAddresses(addresses.toArray(new Address[addresses.size()]));
-        tTo.setText(addressString);
-    }
-
-    /**
-     * Erstellt eine neue Instanz der Klasse zum Anzeigen einer Mail.
-     *
-     * @param mail Info-Objekt, das die Informationen zum Anzeigen der Mail
-     * enthält.
-     * @param path Ordnerpfad, in dem die Mail liegt.
-     * @param parent MailAccount, aus dem die Mail stammt.
-     * @throws MessagingException Tritt auf, wenn die Daten der Mail nicht
-     * abgefragt werden konnten.
-     * @throws de.outlookklon.dao.DAOException Tritt auf, wenn die Daten der
-     * Mail nicht geladen werden konnten.
-     */
-    public MailFrame(MailInfo mail, String path, MailAccount parent)
-            throws MessagingException, DAOException {
-        mailMode = MailMode.OPEN;
-
-        initGui();
-
-        mailInfo = mail;
-        relPath = path;
-
-        addMailAccount(parent);
-        cBSender.setSelectedItem(parent);
-
-        parent.loadMessageData(path, mail, EnumSet.allOf(MailContent.class));
-        charset = mail.getContentType().split("; ")[1];
-
-        tSender.setText(((InternetAddress) mail.getSender()).toUnicodeString());
-        tSender.setEditable(false);
-
-        tSubject.setText(mail.getSubject());
-        tSubject.setEditable(false);
-
-        tTo.setText(appendAddresses(mail.getTo()));
-        tTo.setEditable(false);
-
-        tCC.setText(appendAddresses(mail.getCc()));
-        tCC.setEditable(false);
-
-        String text = mailInfo.getText();
-        String contentType = mailInfo.getContentType();
-
-        // Automatisches Umstellen des Anzeigetyps
-        if (HtmlEditorPane.istHtml(text)) {
-            contentType = contentType.replace("plain", "html");
-        }
-
-        if (contentType.toLowerCase().startsWith("text/plain")) {
-            rdBtnMntmPlaintext.setSelected(true);
-            tpMailtext.setText(text);
-        } else {
-            tpMailtext.setText(text);
-            rdBtnMntmHtml.setSelected(true);
-        }
-
-        tpMailtext.setEditable(false);
-
-        DefaultListModel<File> model = (DefaultListModel<File>) lstAttachment.getModel();
-
-        // Füge Anhänge in die JList ein
-        String[] attachments = mail.getAttachment();
-        for (String attachment : attachments) {
-            model.addElement(new File(attachment));
-        }
-    }
-
-    /**
-     * Erstellt eine neue Instanz der Klasse zum Antworten oder Weiterleiten
-     * einer Mail.
-     *
-     * @param mail Info-Objekt, das die Informationen zum Anzeigen der Mail
-     * enthält.
-     * @param path Ordnerpfad, in dem die Mail liegt.
-     * @param parent MailAccount, aus dem die Mail stammt.
-     * @param forward Wenn true soll die Mail weitergeleitet werden. Sonst wird
-     * auf die Mail geantwortet.
-     * @throws MessagingException Tritt auf, wenn die Daten der Mail nicht
-     * abgefragt werden konnten.
-     * @throws de.outlookklon.dao.DAOException Tritt auf, wenn die Daten der
-     * Mail nicht geladen werden konnten.
-     */
-    public MailFrame(MailInfo mail, String path, MailAccount parent, boolean forward)
-            throws MessagingException, DAOException {
-        mailMode = forward ? MailMode.FORWARD : MailMode.ANSWER;
-
-        initGui();
-
-        addMailAccounts();
-        cBSender.setSelectedItem(parent);
-
-        mailInfo = mail;
-        relPath = path;
-
-        parent.loadMessageData(path, mail, EnumSet.allOf(MailContent.class));
-        charset = mail.getContentType().split("; ")[1];
-
-        String subject = (forward ? "Fwd: " : "Re: ") + mail.getSubject();
-
-        tSubject.setText(subject);
-
-        if (forward == false) {
-            tTo.setText(((InternetAddress) mail.getSender()).toUnicodeString());
-        }
-        tCC.setText(appendAddresses(mail.getCc()));
-
-        String text = mailInfo.getText();
-        String contentType = mailInfo.getContentType();
-
-        if (HtmlEditorPane.istHtml(text)) {
-            contentType = contentType.replace("plain", "html");
-        }
-
-        if (contentType.startsWith("TEXT/plain")) {
-            rdBtnMntmPlaintext.setSelected(true);
-            tpMailtext.setText(text);
-        } else {
-            tpMailtext.setText(text);
-            rdBtnMntmHtml.setSelected(true);
-        }
-    }
-
-    /**
      * Fügt alle registrierten MailAccounts der entsprechenden ComboBox hinzu
      */
     private void addMailAccounts() {
@@ -619,15 +620,17 @@ public class MailFrame extends ExtendedFrame {
             return;
         }
 
-        DefaultListModel<File> model = (DefaultListModel<File>) lstAttachment.getModel();
-        File[] attachments = new File[model.getSize()];
+        DefaultListModel<String> model = (DefaultListModel<String>) lstAttachment.getModel();
+        String[] attachments = new String[model.getSize()];
         for (int i = 0; i < attachments.length; i++) {
             attachments[i] = model.get(i);
         }
 
         try {
-            // Eingentliches Sender der Mail
-            acc.sendMail(to, cc, subject, text, tpMailtext.getContentType(), attachments);
+            MailInfo mailToSend = new MailInfo(subject, text, tpMailtext.getContentType(), to, cc, attachments);
+
+            // Eingentliches Senden der Mail
+            acc.sendMail(mailToSend);
             close();
         } catch (MessagingException ex) {
             JOptionPane.showMessageDialog(this,
@@ -644,11 +647,11 @@ public class MailFrame extends ExtendedFrame {
         fileChooser.setMultiSelectionEnabled(true);
         if (fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
             File[] files = fileChooser.getSelectedFiles();
-            DefaultListModel<File> model = (DefaultListModel<File>) lstAttachment.getModel();
+            DefaultListModel<String> model = (DefaultListModel<String>) lstAttachment.getModel();
 
             for (File file : files) {
                 if (file.exists()) {
-                    model.addElement(file);
+                    model.addElement(file.getAbsolutePath());
                 }
             }
         }

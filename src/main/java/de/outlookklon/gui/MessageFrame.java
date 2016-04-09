@@ -20,6 +20,18 @@ public class MessageFrame extends ExtendedDialog<String> {
     private JButton btnAbort;
     private String info;
 
+    /**
+     * Erstellt ein neues {@link MeldungsFrame}.
+     *
+     * @param text Initialer Text des Fensters.
+     * @param title Titel des Fensters.
+     */
+    public MessageFrame(String text, String title) {
+        super(400, 365);
+
+        initGui(text, title);
+    }
+
     private void initGui(String text, String title) {
         setTitle(title);
         getContentPane().setLayout(null);
@@ -51,18 +63,6 @@ public class MessageFrame extends ExtendedDialog<String> {
         });
         btnAbort.setBounds(120, 303, 100, 23);
         getContentPane().add(btnAbort);
-    }
-
-    /**
-     * Erstellt ein neues {@link MeldungsFrame}.
-     *
-     * @param text Initialer Text des Fensters.
-     * @param title Titel des Fensters.
-     */
-    public MessageFrame(String text, String title) {
-        super(400, 365);
-
-        initGui(text, title);
     }
 
     @Override
