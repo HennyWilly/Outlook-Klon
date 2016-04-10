@@ -5,6 +5,7 @@ import de.outlookklon.logik.NewMailEvent;
 import de.outlookklon.logik.NewMailListener;
 import de.outlookklon.logik.User;
 import de.outlookklon.logik.User.MailChecker;
+import de.outlookklon.logik.UserException;
 import de.outlookklon.logik.contacts.Contact;
 import de.outlookklon.logik.mailclient.FolderInfo;
 import de.outlookklon.logik.mailclient.MailAccount;
@@ -115,13 +116,10 @@ public class MainFrame extends ExtendedFrame {
     /**
      * Erstellt eine neue Instanz des Hauptfensters
      */
-    public MainFrame() {
+    public MainFrame() throws UserException {
         setTitle("MailClient");
 
         user = User.getInstance();
-        if (user == null) {
-            System.exit(1);
-        }
 
         JSplitPane horizontalSplitPane = new JSplitPane();
 
@@ -190,7 +188,6 @@ public class MainFrame extends ExtendedFrame {
                     JOptionPane.showMessageDialog(component, "Die Einstellungen konnten nicht gespeichert werden!",
                             "Fehler", JOptionPane.ERROR_MESSAGE);
                 }
-                System.exit(0);
             }
         });
 
@@ -1483,10 +1480,14 @@ public class MainFrame extends ExtendedFrame {
      * @param args Komandozeilenparamenter
      */
     public static void main(final String[] args) {
-        final MainFrame mainFrame = new MainFrame();
+        try {
+            JFrame mainFrame = new MainFrame();
 
-        mainFrame.setExtendedState(Frame.MAXIMIZED_BOTH);
-        mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        mainFrame.setVisible(true);
+            mainFrame.setExtendedState(Frame.MAXIMIZED_BOTH);
+            mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            mainFrame.setVisible(true);
+        } catch (UserException ex) {
+            LOGGER.error("Could not start MainFrame", ex);
+        }
     }
 }

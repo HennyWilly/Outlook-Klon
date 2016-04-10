@@ -12,10 +12,12 @@ import static org.mockito.Mockito.when;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(User.class)
-public class TestTerminkalender {
+public class AppointmentCalendarTest {
 
     private AppointmentCalendar calendar;
 

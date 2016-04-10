@@ -2,7 +2,16 @@ package de.outlookklon.logik.mailclient;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.io.IOException;
+import java.util.Date;
 import javax.mail.Address;
+import javax.mail.Message;
+import javax.mail.MessagingException;
+import javax.mail.Part;
+import javax.mail.Session;
+import javax.mail.internet.MimeBodyPart;
+import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeMultipart;
 
 /**
  * Datenklasse zum Halten von Mailinformationen
@@ -54,6 +63,52 @@ public class MailInfo {
         this(subject, text, contentType, to, cc, attachment);
 
         setSender(sender);
+    }
+
+    /**
+     * Erstellt ein neues Message-Objekt, das gesendet werden kann.
+     *
+     * @param session Die Session des Servers
+     * @return Ein noch nicht versendetes Message-Objekt
+     * @throws MessagingException tritt auf, wenn ein Attribut nicht in das
+     * Message-Objekt geschrieben werden konnte.
+     */
+    public Message createMessage(Session session)
+            throws MessagingException {
+        final Message mail = new MimeMessage(session);
+
+        mail.setFrom(getSender());
+        mail.addRecipients(Message.RecipientType.TO, getTo());
+        mail.addRecipients(Message.RecipientType.CC, getCc());
+        mail.setSubject(getSubject());
+
+        final MimeBodyPart textPart = new MimeBodyPart();
+        textPart.setContent(getText(), getContentType());
+        textPart.setDisposition(Part.INLINE);
+
+        final MimeMultipart multiPart = new MimeMultipart();
+        multiPart.addBodyPart(textPart);
+
+        String[] attachments = getAttachment();
+        if (attachments != null) {
+            try {
+                for (final String strAttachment : attachments) {
+                    // Fügt jeden Anhang der Mail hinzu
+
+                    final MimeBodyPart attachmentPart = new MimeBodyPart();
+                    attachmentPart.attachFile(strAttachment);
+                    attachmentPart.setDisposition(Part.ATTACHMENT);
+                    multiPart.addBodyPart(attachmentPart);
+                }
+            } catch (IOException ex) {
+                throw new MessagingException("Could not access attachment", ex);
+            }
+        }
+
+        mail.setContent(multiPart);
+        mail.setSentDate(new Date());
+
+        return mail;
     }
 
     /**

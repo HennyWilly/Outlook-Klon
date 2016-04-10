@@ -66,7 +66,7 @@ public class SmtpServer extends OutboxServer {
             transport = session.getTransport("smtp");
         }
 
-        final Message mail = createMessage(mailToSend, session);
+        final Message mail = mailToSend.createMessage(session);
         try {
             transport.connect(settings.getHost(), settings.getPort(), user, password);
             transport.sendMessage(mail, mail.getAllRecipients());

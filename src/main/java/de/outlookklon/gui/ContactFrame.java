@@ -104,9 +104,7 @@ public class ContactFrame extends ExtendedDialog<Contact> {
         final JLabel lblPrivatephone = new JLabel("Privat: ");
         final JLabel lblMobilephone = new JLabel("Mobil: ");
 
-        tForename = new JTextField();
-        tForename.setColumns(10);
-        tForename.getDocument().addDocumentListener(new DocumentListener() {
+        final DocumentListener nameDocListener = new DocumentListener() {
             @Override
             public void removeUpdate(DocumentEvent arg0) {
                 // Aktualisiere den Anzeigenamen beim Entfernen eines Zeichens
@@ -124,29 +122,15 @@ public class ContactFrame extends ExtendedDialog<Contact> {
                 // Aktualisiere den Anzeigenamen beim Verändern eines Zeichens
                 refreshDisplayname();
             }
-        });
+        };
+
+        tForename = new JTextField();
+        tForename.setColumns(10);
+        tForename.getDocument().addDocumentListener(nameDocListener);
 
         tSurname = new JTextField();
         tSurname.setColumns(10);
-        tSurname.getDocument().addDocumentListener(new DocumentListener() {
-            @Override
-            public void removeUpdate(DocumentEvent arg0) {
-                // Aktualisiere den Anzeigenamen beim Entfernen eines Zeichens
-                refreshDisplayname();
-            }
-
-            @Override
-            public void insertUpdate(DocumentEvent arg0) {
-                // Aktualisiere den Anzeigenamen beim Einfügen eines Zeichens
-                refreshDisplayname();
-            }
-
-            @Override
-            public void changedUpdate(DocumentEvent arg0) {
-                // Aktualisiere den Anzeigenamen beim Verändern eines Zeichens
-                refreshDisplayname();
-            }
-        });
+        tSurname.getDocument().addDocumentListener(nameDocListener);
 
         tDisplayname = new JTextField();
         tDisplayname.setColumns(10);

@@ -1,7 +1,5 @@
 package de.outlookklon.logik;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import de.outlookklon.dao.DAOException;
 import de.outlookklon.logik.calendar.Appointment;
 import de.outlookklon.logik.calendar.AppointmentCalendar;
@@ -63,12 +61,12 @@ public final class User implements Iterable<User.MailChecker> {
      *
      * @return Einzige Instanz der Klasse
      */
-    public static User getInstance() {
+    public static User getInstance() throws UserException {
         if (singleton == null) {
             try {
                 singleton = new User();
             } catch (IOException ex) {
-                LOGGER.error("Could not create user instance", ex);
+                throw new UserException("Could not create user instance", ex);
             }
         }
         return singleton;
@@ -79,8 +77,6 @@ public final class User implements Iterable<User.MailChecker> {
      * die gespeicherten Daten aus.
      *
      * @throws IOException
-     * @throws JsonMappingException
-     * @throws JsonParseException
      */
     private User() throws IOException {
         setAbsent(true);

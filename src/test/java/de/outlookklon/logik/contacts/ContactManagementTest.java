@@ -5,8 +5,10 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import org.junit.Before;
 import org.junit.Test;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
 
-public class TestKontaktverwaltung {
+public class ContactManagementTest {
 
     private static final Contact TEST_CONTACT_1 = new Contact("Mustermann", "Max", "Max Mustermann", "MMuster", null,
             null, "", "", "");
