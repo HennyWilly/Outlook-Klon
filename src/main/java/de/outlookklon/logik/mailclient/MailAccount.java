@@ -7,7 +7,7 @@ import com.sun.mail.imap.IMAPFolder;
 import de.outlookklon.dao.DAOException;
 import de.outlookklon.dao.StoredMailInfoDAO;
 import de.outlookklon.dao.impl.StoredMailInfoDAOFilePersistence;
-import de.outlookklon.logik.User.MailChecker;
+import de.outlookklon.logik.mailclient.checker.MailAccountChecker;
 import java.io.File;
 import java.io.IOException;
 import java.util.EnumSet;
@@ -782,8 +782,8 @@ public class MailAccount {
             return thisAddress.equalsIgnoreCase(accAddress);
         }
 
-        if (obj instanceof MailChecker) {
-            MailChecker checker = (MailChecker) obj;
+        if (obj instanceof MailAccountChecker) {
+            MailAccountChecker checker = (MailAccountChecker) obj;
             return this.equals(checker.getAccount());
         }
 

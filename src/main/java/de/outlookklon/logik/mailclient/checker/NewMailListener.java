@@ -1,4 +1,4 @@
-package de.outlookklon.logik;
+package de.outlookklon.logik.mailclient.checker;
 
 import java.util.EventListener;
 

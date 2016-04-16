@@ -2,12 +2,12 @@ package de.outlookklon.gui;
 
 import de.outlookklon.dao.DAOException;
 import de.outlookklon.logik.User;
-import de.outlookklon.logik.User.MailChecker;
 import de.outlookklon.logik.contacts.Contact;
 import de.outlookklon.logik.mailclient.MailAccount;
 import de.outlookklon.logik.mailclient.MailContent;
 import de.outlookklon.logik.mailclient.MailInfo;
 import de.outlookklon.logik.mailclient.StoredMailInfo;
+import de.outlookklon.logik.mailclient.checker.MailAccountChecker;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
@@ -548,7 +548,7 @@ public class MailFrame extends ExtendedFrame {
      * Fügt alle registrierten MailAccounts der entsprechenden ComboBox hinzu
      */
     private void addMailAccounts() {
-        for (MailChecker checker : User.getInstance()) {
+        for (MailAccountChecker checker : User.getInstance()) {
             MailAccount acc = checker.getAccount();
             addMailAccount(acc);
         }

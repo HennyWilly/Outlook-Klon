@@ -1,6 +1,5 @@
-package de.outlookklon.logik;
+package de.outlookklon.logik.mailclient.checker;
 
-import de.outlookklon.logik.User.MailChecker;
 import de.outlookklon.logik.mailclient.StoredMailInfo;
 import java.util.EventObject;
 
@@ -23,7 +22,7 @@ public class NewMailEvent extends EventObject {
      * @param folder Pfad zu Ordner
      * @param info Infos zur Mail
      */
-    public NewMailEvent(MailChecker sender, String folder, StoredMailInfo info) {
+    public NewMailEvent(MailAccountChecker sender, String folder, StoredMailInfo info) {
         super(sender);
 
         this.folder = folder;

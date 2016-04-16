@@ -1,11 +1,11 @@
 package de.outlookklon.gui;
 
 import de.outlookklon.logik.User;
-import de.outlookklon.logik.User.MailChecker;
 import de.outlookklon.logik.mailclient.InboxServer;
 import de.outlookklon.logik.mailclient.MailAccount;
 import de.outlookklon.logik.mailclient.OutboxServer;
 import de.outlookklon.logik.mailclient.ServerSettings;
+import de.outlookklon.logik.mailclient.checker.MailAccountChecker;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
@@ -73,7 +73,7 @@ public class AccountManagementFrame extends ExtendedDialog<MailAccount[]> {
         getContentPane().setLayout(null);
 
         DefaultListModel<MailAccount> listModel = new DefaultListModel<>();
-        for (MailChecker checker : User.getInstance()) {
+        for (MailAccountChecker checker : User.getInstance()) {
             MailAccount acc = checker.getAccount();
             listModel.addElement(acc);
         }

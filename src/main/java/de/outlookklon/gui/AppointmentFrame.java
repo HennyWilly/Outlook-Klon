@@ -1,10 +1,10 @@
 package de.outlookklon.gui;
 
 import de.outlookklon.logik.User;
-import de.outlookklon.logik.User.MailChecker;
 import de.outlookklon.logik.calendar.Appointment;
 import de.outlookklon.logik.contacts.Contact;
 import de.outlookklon.logik.mailclient.MailAccount;
+import de.outlookklon.logik.mailclient.checker.MailAccountChecker;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -156,7 +156,7 @@ public class AppointmentFrame extends ExtendedDialog<Appointment> {
         });
 
         List<String> userAccounts = new ArrayList<>();
-        for (MailChecker checker : User.getInstance()) {
+        for (MailAccountChecker checker : User.getInstance()) {
             MailAccount ma = checker.getAccount();
             userAccounts.add(ma.getAddress().getAddress());
         }

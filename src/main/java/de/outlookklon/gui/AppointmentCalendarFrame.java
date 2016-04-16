@@ -1,10 +1,10 @@
 package de.outlookklon.gui;
 
 import de.outlookklon.logik.User;
-import de.outlookklon.logik.User.MailChecker;
 import de.outlookklon.logik.calendar.Appointment;
 import de.outlookklon.logik.calendar.AppointmentCalendar;
 import de.outlookklon.logik.mailclient.MailAccount;
+import de.outlookklon.logik.mailclient.checker.MailAccountChecker;
 import java.awt.BorderLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
@@ -355,7 +355,7 @@ public class AppointmentCalendarFrame extends ExtendedFrame {
     private void loadUser() {
         // speichert alle Konten in apfel
         List<String> usernames = new ArrayList<>();
-        for (MailChecker checker : User.getInstance()) {
+        for (MailAccountChecker checker : User.getInstance()) {
             MailAccount ma = checker.getAccount();
             usernames.add(ma.getUser());
         }

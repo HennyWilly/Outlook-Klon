@@ -1,16 +1,16 @@
 package de.outlookklon.gui;
 
 import de.outlookklon.dao.DAOException;
-import de.outlookklon.logik.NewMailEvent;
-import de.outlookklon.logik.NewMailListener;
 import de.outlookklon.logik.User;
-import de.outlookklon.logik.User.MailChecker;
 import de.outlookklon.logik.UserException;
 import de.outlookklon.logik.contacts.Contact;
 import de.outlookklon.logik.mailclient.FolderInfo;
 import de.outlookklon.logik.mailclient.MailAccount;
 import de.outlookklon.logik.mailclient.MailContent;
 import de.outlookklon.logik.mailclient.StoredMailInfo;
+import de.outlookklon.logik.mailclient.checker.MailAccountChecker;
+import de.outlookklon.logik.mailclient.checker.NewMailEvent;
+import de.outlookklon.logik.mailclient.checker.NewMailListener;
 import java.awt.Component;
 import java.awt.Font;
 import java.awt.Frame;
@@ -559,7 +559,7 @@ public class MainFrame extends ExtendedFrame {
 
                 if (value instanceof DefaultMutableTreeNode) {
                     Object userObject = ((DefaultMutableTreeNode) value).getUserObject();
-                    if (userObject instanceof MailChecker) {
+                    if (userObject instanceof MailAccountChecker) {
                         setIcon(mailIcon);
                     } else if (userObject instanceof FolderInfo) {
                         if (expanded) {
@@ -606,8 +606,8 @@ public class MainFrame extends ExtendedFrame {
 
                 Object userObject = selectedNode.getUserObject();
 
-                MailChecker checker;
-                if (!(userObject instanceof MailChecker)) {
+                MailAccountChecker checker;
+                if (!(userObject instanceof MailAccountChecker)) {
                     checker = selectedChecker();
                     MailAccount account = checker.getAccount();
 
@@ -615,7 +615,7 @@ public class MainFrame extends ExtendedFrame {
 
                     setTitle(folderName + " - " + account.getAddress().getAddress());
                 } else {
-                    checker = (MailChecker) userObject;
+                    checker = (MailAccountChecker) userObject;
 
                     setTitle(checker.getAccount().getAddress().getAddress());
                 }
@@ -757,7 +757,7 @@ public class MainFrame extends ExtendedFrame {
             outer:
             for (int i = 0; i < rootNode.getChildCount(); i++) {
                 DefaultMutableTreeNode node = (DefaultMutableTreeNode) rootNode.getChildAt(i);
-                MailChecker treeChecker = (MailChecker) node.getUserObject();
+                MailAccountChecker treeChecker = (MailAccountChecker) node.getUserObject();
                 MailAccount treeAccount = treeChecker.getAccount();
 
                 for (MailAccount acc : accounts) {
@@ -891,7 +891,7 @@ public class MainFrame extends ExtendedFrame {
 
         int i = 0;
         outer:
-        for (MailChecker checker : user) {
+        for (MailAccountChecker checker : user) {
             Enumeration<?> e = rootNode.children();
 
             DefaultMutableTreeNode node;
@@ -942,7 +942,7 @@ public class MainFrame extends ExtendedFrame {
      * @param checker Checker-Objekt über das die Mails abgefragt werden sollen
      * @param node Baumknoten der den auszulesenden Ordner enthält
      */
-    private void loadMails(MailChecker checker, DefaultMutableTreeNode node) {
+    private void loadMails(MailAccountChecker checker, DefaultMutableTreeNode node) {
         DefaultTableModel model = (DefaultTableModel) tblMails.getModel();
         // Leere Tabelle
         model.setRowCount(0);
@@ -1015,7 +1015,7 @@ public class MainFrame extends ExtendedFrame {
      * @return Ausgewählter MailAccount; oder null, falls nicht selektiert wurde
      */
     private MailAccount selectedAccount() {
-        MailChecker checker = selectedChecker();
+        MailAccountChecker checker = selectedChecker();
         if (checker == null) {
             return null;
         }
@@ -1029,7 +1029,7 @@ public class MainFrame extends ExtendedFrame {
      *
      * @return Ausgewählter MailChecker; oder null, falls nicht selektiert wurde
      */
-    private MailChecker selectedChecker() {
+    private MailAccountChecker selectedChecker() {
         DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
         if (selectedNode == null) {
             return null;
@@ -1039,13 +1039,13 @@ public class MainFrame extends ExtendedFrame {
 
         do {
             userObject = selectedNode.getUserObject();
-            if (userObject instanceof MailChecker) {
+            if (userObject instanceof MailAccountChecker) {
                 break;
             }
             selectedNode = (DefaultMutableTreeNode) selectedNode.getParent();
         } while (true);
 
-        return (MailChecker) userObject;
+        return (MailAccountChecker) userObject;
     }
 
     /**
@@ -1141,8 +1141,8 @@ public class MainFrame extends ExtendedFrame {
 
         String menuTitle;
         // Bestimme den Titel des MenuItems
-        if (userObject instanceof MailChecker) {
-            MailChecker checker = (MailChecker) userObject;
+        if (userObject instanceof MailAccountChecker) {
+            MailAccountChecker checker = (MailAccountChecker) userObject;
             MailAccount acc = checker.getAccount();
             menuTitle = acc.getAddress().getAddress();
         } else {
@@ -1198,7 +1198,7 @@ public class MainFrame extends ExtendedFrame {
         DefaultTreeModel treeModel = (DefaultTreeModel) tree.getModel();
         DefaultMutableTreeNode rootNode = (DefaultMutableTreeNode) treeModel.getRoot();
 
-        MailChecker selectedChecker = selectedChecker();
+        MailAccountChecker selectedChecker = selectedChecker();
 
         // Iteriere über alle Knoten, die MailChecker enthalten
         for (int i = 0; i < rootNode.getChildCount(); i++) {
@@ -1249,7 +1249,7 @@ public class MainFrame extends ExtendedFrame {
      * @param target Pfad zum Zielordner
      */
     private void moveMail(String target) {
-        MailChecker checker = selectedChecker();
+        MailAccountChecker checker = selectedChecker();
         MailAccount acc = checker.getAccount();
         StoredMailInfo[] infos = selectedMailInfos();
         FolderInfo source = nodeToFolder((DefaultMutableTreeNode) tree.getLastSelectedPathComponent());
@@ -1280,7 +1280,7 @@ public class MainFrame extends ExtendedFrame {
     private void deleteMail() {
         StoredMailInfo[] infos = selectedMailInfos();
         FolderInfo path = nodeToFolder((DefaultMutableTreeNode) tree.getLastSelectedPathComponent());
-        MailChecker checker = selectedChecker();
+        MailAccountChecker checker = selectedChecker();
         MailAccount acc = checker.getAccount();
 
         try {
@@ -1426,7 +1426,7 @@ public class MainFrame extends ExtendedFrame {
                 }
 
                 // Spätestens hier ist der ausführende Thread der GUI-Thread
-                MailChecker sender = (MailChecker) e.getSource();
+                MailAccountChecker sender = (MailAccountChecker) e.getSource();
 
                 DefaultTreeModel model = (DefaultTreeModel) tree.getModel();
                 DefaultMutableTreeNode root = (DefaultMutableTreeNode) model.getRoot();

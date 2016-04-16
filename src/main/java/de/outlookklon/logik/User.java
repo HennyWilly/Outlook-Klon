@@ -8,19 +8,18 @@ import de.outlookklon.logik.mailclient.MailAccount;
 import de.outlookklon.logik.mailclient.MailContent;
 import de.outlookklon.logik.mailclient.MailInfo;
 import de.outlookklon.logik.mailclient.StoredMailInfo;
+import de.outlookklon.logik.mailclient.checker.MailAccountChecker;
+import de.outlookklon.logik.mailclient.checker.NewMailEvent;
+import de.outlookklon.logik.mailclient.checker.NewMailListener;
 import de.outlookklon.serializers.Serializer;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.EnumSet;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 import javax.mail.Address;
-import javax.mail.FolderNotFoundException;
 import javax.mail.MessagingException;
 import javax.mail.internet.InternetAddress;
 import lombok.NonNull;
@@ -34,7 +33,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Hendrik Karwanni
  */
-public final class User implements Iterable<User.MailChecker> {
+public final class User implements Iterable<MailAccountChecker> {
 
     private static final String DATA_FOLDER = "Mail";
     private static final String ACCOUNT_PATTERN = DATA_FOLDER + "/%s";
@@ -53,7 +52,7 @@ public final class User implements Iterable<User.MailChecker> {
 
     private ContactManagement contacts;
     private AppointmentCalendar appointments;
-    private List<MailChecker> accounts;
+    private List<MailAccountChecker> accounts;
     private boolean absent;
 
     /**
@@ -133,205 +132,10 @@ public final class User implements Iterable<User.MailChecker> {
 
             // Lade MailAccount
             MailAccount loadedAccount = Serializer.deserializeJson(accountFile, MailAccount.class);
-            MailChecker checker = new MailChecker(loadedAccount);
+            MailAccountChecker checker = new MailAccountChecker(loadedAccount);
             checker.addNewMessageListener(getListener());
 
             accounts.add(checker);
-        }
-    }
-
-    /**
-     * Diese Klasse dient zum automatischen, intervallweisen Abfragen des
-     * Posteingangs eines MailAccounts.
-     */
-    public class MailChecker extends Thread {
-
-        private static final int SLEEP_TIME = 60000;
-        private static final String FOLDER = "INBOX";
-        private final MailAccount account;
-        private final Set<StoredMailInfo> mails;
-        private final List<NewMailListener> listenerList;
-
-        /**
-         * Erzeugt ein neues MailChecker-Objekt für den übergebenen Account
-         *
-         * @param account MailAccount, der abgehört werden soll
-         */
-        public MailChecker(@NonNull MailAccount account) {
-            this.account = account;
-            this.mails = new HashSet<>();
-            this.listenerList = new ArrayList<>();
-        }
-
-        /**
-         * Registriert einen neuen NewMailListener für Events innerhalb der
-         * Klasse
-         *
-         * @param mcl Neuer NewMailListener
-         */
-        public void addNewMessageListener(@NonNull NewMailListener mcl) {
-            synchronized (listenerList) {
-                listenerList.add(mcl);
-            }
-        }
-
-        /**
-         * Feuert ein neues NewMessageEvent für die übergebene StoredMailInfo an
-         * alle registrierten Listener
-         *
-         * @param info StoredMailInfo-Objekt, aus dem das Event erzeugt wird
-         */
-        private void fireNewMessageEvent(StoredMailInfo info) {
-            NewMailEvent ev = new NewMailEvent(this, FOLDER, info);
-
-            synchronized (listenerList) {
-                for (NewMailListener listener : listenerList) {
-                    listener.newMessage(ev);
-                }
-            }
-        }
-
-        /**
-         * Gibt den internen MailAccount zurück
-         *
-         * @return Interner MailAccount
-         */
-        public MailAccount getAccount() {
-            return account;
-        }
-
-        @Override
-        public void run() {
-            synchronized (mails) {
-                // Erstmaliges Abfragen des Posteingangs
-
-                StoredMailInfo[] mailInfos = null;
-                try {
-                    mailInfos = account.getMessages(FOLDER);
-                } catch (FolderNotFoundException e) {
-                    // Ignorieren, da INBOX immer vorhanden sein sollte!
-                } catch (MessagingException | DAOException ex) {
-                    LOGGER.error("Error while getting messages", ex);
-                }
-
-                if (mailInfos != null) {
-                    for (StoredMailInfo info : mailInfos) {
-                        mails.add(info);
-                        if (!info.isRead()) {
-                            fireNewMessageEvent(info);
-                        }
-                    }
-                }
-            }
-
-            while (true) {
-                try {
-                    // Pausiere für eine gegebene Zeit
-                    Thread.sleep(SLEEP_TIME);
-
-                    // HashSet, da oft darin gesucht wird (s.u.)
-                    Set<StoredMailInfo> tmpSet = new HashSet<>();
-
-                    // Fülle mit abgefragten MailInfos
-                    StoredMailInfo[] mailTmp = account.getMessages(FOLDER);
-                    tmpSet.addAll(Arrays.asList(mailTmp));
-
-                    // Prüfe, ob eine bekannte StoredMailInfo weggefallen ist
-                    Iterator<StoredMailInfo> iterator = mails.iterator();
-                    while (iterator.hasNext()) {
-                        StoredMailInfo current = iterator.next();
-
-                        if (!tmpSet.contains(current)) {
-                            // Entferne weggefallene StoredMailInfo aus dem Speicher
-                            iterator.remove();
-                        }
-                    }
-
-                    synchronized (mails) {
-                        for (StoredMailInfo info : mailTmp) {
-                            if (mails.add(info)) {
-                                // Wird eine neue StoredMailInfo hinzugefügt, werden
-                                // die Listener benachrichtigt
-                                fireNewMessageEvent(info);
-                            }
-                        }
-                    }
-                } catch (InterruptedException e) {
-                    // Bricht die Ausführung ab
-                    break;
-                } catch (FolderNotFoundException e) {
-                    // Ignorieren, da INBOX immer vorhanden sein sollte!
-                } catch (MessagingException | DAOException ex) {
-                    LOGGER.error("While getting messages", ex);
-                }
-            }
-        }
-
-        /**
-         * Wenn der Thread aktiv und der gesuchte Ordner "INBOX" ist, werden die
-         * MailInfos aus dem Speicher des MailCheckers zurückgegeben; sonst wird
-         * die getMessages-Methode des internen MailAccount-Objekts aufgerufen
-         *
-         * @param path Zu durchsuchender Ordnerpfad
-         * @return MailInfos des gesuchten Ordners
-         * @throws javax.mail.MessagingException wenn die Nachrichten nicht
-         * abgerufen werden konnten
-         * @throws de.outlookklon.dao.DAOException wenn das Laden der
-         * Nachrichten fehlschlägt
-         */
-        public StoredMailInfo[] getMessages(@NonNull String path)
-                throws MessagingException, DAOException {
-            boolean threadOK = this.isAlive() && !this.isInterrupted();
-
-            StoredMailInfo[] array;
-            if (threadOK && path.toLowerCase().equals(FOLDER.toLowerCase())) {
-                synchronized (mails) {
-                    array = mails.toArray(new StoredMailInfo[mails.size()]);
-                }
-            } else {
-                array = account.getMessages(path);
-            }
-
-            return array;
-        }
-
-        /**
-         * Entfernt die übergebenen MailInfos aus dem Speicher
-         *
-         * @param infos Zu entfernende MailInfos
-         */
-        public void removeMailInfos(@NonNull StoredMailInfo[] infos) {
-            synchronized (mails) {
-                for (StoredMailInfo info : infos) {
-                    mails.remove(info);
-                }
-            }
-        }
-
-        @Override
-        public String toString() {
-            return account.toString();
-        }
-
-        @Override
-        public boolean equals(Object other) {
-            if (this == other) {
-                return true;
-            }
-            if (other == null) {
-                return false;
-            }
-
-            if (other instanceof MailChecker) {
-                MailChecker checker = ((MailChecker) other);
-                return this.getAccount().equals(checker.getAccount());
-            }
-            if (other instanceof MailAccount) {
-                MailAccount mailAccount = (MailAccount) other;
-                return this.getAccount().equals(mailAccount);
-            }
-
-            return false;
         }
     }
 
@@ -346,7 +150,7 @@ public final class User implements Iterable<User.MailChecker> {
             public void newMessage(NewMailEvent e) {
                 // TODO Teste mich hart
 
-                MailAccount account = ((MailChecker) e.getSource()).getAccount();
+                MailAccount account = ((MailAccountChecker) e.getSource()).getAccount();
                 StoredMailInfo info = e.getInfo();
                 String path = e.getFolder();
 
@@ -373,7 +177,7 @@ public final class User implements Iterable<User.MailChecker> {
     }
 
     @Override
-    public Iterator<MailChecker> iterator() {
+    public Iterator<MailAccountChecker> iterator() {
         return accounts.iterator();
     }
 
@@ -411,7 +215,7 @@ public final class User implements Iterable<User.MailChecker> {
         try {
             saveMailAccount(account);
 
-            MailChecker checker = new MailChecker(account);
+            MailAccountChecker checker = new MailAccountChecker(account);
             checker.addNewMessageListener(getListener());
             accounts.add(checker);
         } catch (IOException ex) {
@@ -458,7 +262,7 @@ public final class User implements Iterable<User.MailChecker> {
     public boolean removeMailAccount(MailAccount account, boolean delete) throws IOException {
         int index = accounts.indexOf(account);
         if (index != -1) {
-            MailChecker checker = accounts.get(index);
+            MailAccountChecker checker = accounts.get(index);
             checker.interrupt();
 
             if (accounts.remove(account)) {
@@ -501,7 +305,7 @@ public final class User implements Iterable<User.MailChecker> {
      * fehlschlägt
      */
     public void save() throws IOException {
-        for (MailChecker checker : accounts) {
+        for (MailAccountChecker checker : accounts) {
             MailAccount acc = checker.getAccount();
             saveMailAccount(acc);
         }
@@ -620,7 +424,7 @@ public final class User implements Iterable<User.MailChecker> {
     public boolean startChecker() {
         boolean result = true;
 
-        for (MailChecker checker : accounts) {
+        for (MailAccountChecker checker : accounts) {
             try {
                 checker.start();
             } catch (IllegalThreadStateException ex) {
@@ -645,9 +449,9 @@ public final class User implements Iterable<User.MailChecker> {
         // Liste von MailAccounts, die keinen Checker haben
         List<MailAccount> aloneAccounts = new ArrayList<>();
 
-        Iterator<MailChecker> iterator = accounts.iterator();
+        Iterator<MailAccountChecker> iterator = accounts.iterator();
         while (iterator.hasNext()) {
-            MailChecker checker = iterator.next();
+            MailAccountChecker checker = iterator.next();
 
             try {
                 checker.interrupt();
@@ -662,7 +466,7 @@ public final class User implements Iterable<User.MailChecker> {
 
         for (MailAccount account : aloneAccounts) {
             // Erstellt einen neuen Checker für die MailAccounts
-            MailChecker newChecker = new MailChecker(account);
+            MailAccountChecker newChecker = new MailAccountChecker(account);
             newChecker.addNewMessageListener(getListener());
             accounts.add(newChecker);
         }
