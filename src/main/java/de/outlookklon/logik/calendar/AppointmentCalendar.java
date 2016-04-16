@@ -9,6 +9,7 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Iterator;
 import java.util.List;
+import lombok.NonNull;
 
 /**
  * Diese Klasse stellt die Verwaltung für die Termine des Benutzers dar
@@ -43,7 +44,7 @@ public class AppointmentCalendar implements Iterable<Appointment> {
      *
      * @param appointment Der hinzuzufügende Appointment
      */
-    public void addAppointment(Appointment appointment) {
+    public void addAppointment(@NonNull Appointment appointment) {
         mAppointments.add(appointment);
     }
 
@@ -52,7 +53,7 @@ public class AppointmentCalendar implements Iterable<Appointment> {
      *
      * @param appointment Zu löschender Appointment
      */
-    public void deleteAppointment(Appointment appointment) {
+    public void deleteAppointment(@NonNull Appointment appointment) {
         mAppointments.remove(appointment);
     }
 
@@ -64,7 +65,7 @@ public class AppointmentCalendar implements Iterable<Appointment> {
      * @return true, wenn sich mindestens ein Appointment überschneidet; sonst
      * false
      */
-    public boolean isOverlapping(Appointment a) {
+    public boolean isOverlapping(@NonNull Appointment a) {
         Date startA = a.getStart();
         Date endA = a.getEnd();
 
@@ -118,7 +119,7 @@ public class AppointmentCalendar implements Iterable<Appointment> {
      * @param end Endzeit der Auswertung
      * @return Termine innerhalb des intervalls
      */
-    public Appointment[] getAppointments(Date start, Date end) {
+    public Appointment[] getAppointments(@NonNull Date start, @NonNull Date end) {
         if (end.before(start)) {
             throw new IllegalArgumentException("Der Startzeitpunkt darf nicht hinter dem Endzeitpunkt liegen");
         }

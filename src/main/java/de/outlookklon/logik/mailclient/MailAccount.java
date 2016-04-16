@@ -28,6 +28,7 @@ import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.search.MessageIDTerm;
 import javax.mail.search.StringTerm;
+import lombok.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -133,16 +134,12 @@ public class MailAccount {
      */
     @JsonCreator
     public MailAccount(
-            @JsonProperty("inboxMailServer") InboxServer inboxMailServer,
-            @JsonProperty("outboxMailServer") OutboxServer outboxMailServer,
+            @JsonProperty("inboxMailServer") @NonNull InboxServer inboxMailServer,
+            @JsonProperty("outboxMailServer") @NonNull OutboxServer outboxMailServer,
             @JsonProperty("address") InternetAddress address,
             @JsonProperty("user") String user,
             @JsonProperty("password") String password)
             throws NullPointerException, IllegalArgumentException, IOException {
-        if (inboxMailServer == null || outboxMailServer == null) {
-            throw new NullPointerException("Die übergebenen Server dürfen nicht <null> sein");
-        }
-
         this.inboxMailServer = inboxMailServer;
         this.outboxMailServer = outboxMailServer;
 
@@ -175,7 +172,7 @@ public class MailAccount {
         Message sendMail;
         try {
             mailToSend.setSender(address);
-            sendMail = outboxMailServer.sendeMail(user, password, mailToSend);
+            sendMail = outboxMailServer.sendMail(user, password, mailToSend);
         } catch (MessagingException ex) {
             throw new MessagingException("Could not send mail", ex);
         }
@@ -377,16 +374,11 @@ public class MailAccount {
      * @throws de.outlookklon.dao.DAOException wenn ein Fehler beim Zugriff auf
      * die StoredMailInfoDAO auftritt
      */
-    public void loadMessageData(String path, StoredMailInfo mailInfo, Set<MailContent> mailContent)
+    public void loadMessageData(@NonNull String path, @NonNull StoredMailInfo mailInfo,
+            @NonNull Set<MailContent> mailContent)
             throws MessagingException, DAOException {
-        if (path == null || path.trim().length() == 0) {
-            throw new NullPointerException("path ist NULL oder leer");
-        }
-        if (mailInfo == null) {
-            throw new NullPointerException("Übergebene MailInfo ist NULL");
-        }
-        if (mailContent == null) {
-            throw new NullPointerException("mailContent ist NULL");
+        if (path.trim().length() == 0) {
+            throw new NullPointerException("path ist leer");
         }
 
         if (mailInfo.hasAlreadyLoadedData(mailContent)) {

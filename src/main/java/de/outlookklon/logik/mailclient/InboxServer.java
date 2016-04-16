@@ -39,7 +39,8 @@ public abstract class InboxServer extends MailServer {
      * @throws javax.mail.NoSuchProviderException wenn der Provider des Stores
      * nicht gefunden wurde
      */
-    public abstract Store getMailStore(String user, String password) throws NoSuchProviderException;
+    public abstract Store getMailStore(String user, String password)
+            throws NoSuchProviderException;
 
     /**
      * Gibt an, ob die Subclasse mehrerer Ordner (nicht nur INBOX) unterstützt.
@@ -50,7 +51,7 @@ public abstract class InboxServer extends MailServer {
     public abstract boolean supportsMultipleFolders();
 
     @Override
-    public boolean checkLogin(final String benutzername, final String passwort) {
+    public boolean checkLogin(final String username, final String password) {
         boolean result = true;
 
         final String host = settings.getHost();
@@ -58,8 +59,8 @@ public abstract class InboxServer extends MailServer {
 
         Store store = null;
         try {
-            store = getMailStore(benutzername, passwort);
-            store.connect(host, port, benutzername, passwort);
+            store = getMailStore(username, password);
+            store.connect(host, port, username, password);
         } catch (MessagingException ex) {
             LOGGER.error("Error while connecting to MailStore", ex);
             result = false;

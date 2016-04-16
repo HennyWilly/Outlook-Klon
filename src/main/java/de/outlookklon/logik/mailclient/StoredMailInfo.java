@@ -15,6 +15,7 @@ import javax.mail.Message.RecipientType;
 import javax.mail.MessagingException;
 import javax.mail.Multipart;
 import javax.mail.Part;
+import lombok.NonNull;
 
 /**
  * Datenklasse zum Halten von abgefragten Informationen von Mails
@@ -72,15 +73,8 @@ public class StoredMailInfo extends MailInfo implements Comparable<StoredMailInf
      * @throws IOException wenn ein Fehler beim Lesen des Mail-Objekts auf der
      * Datenebene auftritt
      */
-    public void loadData(Message serverMessage, Set<MailContent> contents)
+    public void loadData(@NonNull Message serverMessage, @NonNull Set<MailContent> contents)
             throws MessagingException, IOException {
-        if (serverMessage == null) {
-            throw new NullPointerException("serverMessage is null");
-        }
-        if (contents == null) {
-            throw new NullPointerException("contents is null");
-        }
-
         for (MailContent setContentType : contents) {
             switch (setContentType) {
                 case ID:
@@ -301,11 +295,7 @@ public class StoredMailInfo extends MailInfo implements Comparable<StoredMailInf
         return id;
     }
 
-    private void setID(String id) {
-        if (id == null) {
-            throw new NullPointerException("id is null");
-        }
-
+    private void setID(@NonNull String id) {
         this.id = id;
     }
 

@@ -1,5 +1,7 @@
 package de.outlookklon.logik;
 
+import lombok.NonNull;
+
 /**
  * Eine Auﬂnahme, die beim Initialisieren der user-Instanz auftreten kann.
  *
@@ -12,7 +14,7 @@ public class UserException extends RuntimeException {
      *
      * @param message Nachricht der Exception
      */
-    public UserException(String message) {
+    public UserException(@NonNull String message) {
         super(message);
     }
 
@@ -22,7 +24,7 @@ public class UserException extends RuntimeException {
      * @param message Nachricht der Exception
      * @param cause Ursprung der Auﬂnahme
      */
-    public UserException(String message, Throwable cause) {
+    public UserException(@NonNull String message, @NonNull Throwable cause) {
         super(message, cause);
     }
 }

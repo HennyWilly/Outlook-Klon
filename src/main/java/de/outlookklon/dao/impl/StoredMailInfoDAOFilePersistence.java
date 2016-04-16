@@ -7,6 +7,7 @@ import de.outlookklon.serializers.Serializer;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import lombok.NonNull;
 
 /**
  * Diese Klasse implementiert die {@link StoredMailInfoDAO}-Schnittstelle für
@@ -19,8 +20,8 @@ public class StoredMailInfoDAOFilePersistence implements StoredMailInfoDAO {
 
     private File folder;
 
-    public StoredMailInfoDAOFilePersistence(File folder) throws IOException {
-        if (folder == null || folder.isFile()) {
+    public StoredMailInfoDAOFilePersistence(@NonNull File folder) throws IOException {
+        if (folder.isFile()) {
             throw new IllegalArgumentException("Please provide a valid path to a dictionary (not null and not a file)");
         }
         if (!folder.exists()) {
@@ -43,7 +44,8 @@ public class StoredMailInfoDAOFilePersistence implements StoredMailInfoDAO {
     }
 
     @Override
-    public StoredMailInfo loadStoredMailInfo(String id, String path) throws DAOException {
+    public StoredMailInfo loadStoredMailInfo(@NonNull String id, @NonNull String path)
+            throws DAOException {
         File filePath = getFilePath(path, id);
 
         StoredMailInfo geladen = null;
@@ -59,7 +61,8 @@ public class StoredMailInfoDAOFilePersistence implements StoredMailInfoDAO {
     }
 
     @Override
-    public void saveStoredMailInfo(StoredMailInfo info, String path) throws DAOException {
+    public void saveStoredMailInfo(@NonNull StoredMailInfo info, @NonNull String path)
+            throws DAOException {
         final File filePath = getFilePath(path, info.getID());
 
         try {
@@ -70,7 +73,8 @@ public class StoredMailInfoDAOFilePersistence implements StoredMailInfoDAO {
     }
 
     @Override
-    public void deleteStoredMailInfo(String id, String path) throws DAOException {
+    public void deleteStoredMailInfo(@NonNull String id, @NonNull String path)
+            throws DAOException {
         final File filePath = getFilePath(path, id);
 
         try {

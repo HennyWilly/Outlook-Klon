@@ -23,6 +23,7 @@ import javax.mail.Address;
 import javax.mail.FolderNotFoundException;
 import javax.mail.MessagingException;
 import javax.mail.internet.InternetAddress;
+import lombok.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -156,7 +157,7 @@ public final class User implements Iterable<User.MailChecker> {
          *
          * @param account MailAccount, der abgehört werden soll
          */
-        public MailChecker(MailAccount account) {
+        public MailChecker(@NonNull MailAccount account) {
             this.account = account;
             this.mails = new HashSet<>();
             this.listenerList = new ArrayList<>();
@@ -168,11 +169,7 @@ public final class User implements Iterable<User.MailChecker> {
          *
          * @param mcl Neuer NewMailListener
          */
-        public void addNewMessageListener(NewMailListener mcl) {
-            if (mcl == null) {
-                throw new NullPointerException("Der hinzuzufügende Listener muss initialisiert sein.");
-            }
-
+        public void addNewMessageListener(@NonNull NewMailListener mcl) {
             synchronized (listenerList) {
                 listenerList.add(mcl);
             }
@@ -282,7 +279,8 @@ public final class User implements Iterable<User.MailChecker> {
          * @throws de.outlookklon.dao.DAOException wenn das Laden der
          * Nachrichten fehlschlägt
          */
-        public StoredMailInfo[] getMessages(String path) throws MessagingException, DAOException {
+        public StoredMailInfo[] getMessages(@NonNull String path)
+                throws MessagingException, DAOException {
             boolean threadOK = this.isAlive() && !this.isInterrupted();
 
             StoredMailInfo[] array;
@@ -302,7 +300,7 @@ public final class User implements Iterable<User.MailChecker> {
          *
          * @param infos Zu entfernende MailInfos
          */
-        public void removeMailInfos(StoredMailInfo[] infos) {
+        public void removeMailInfos(@NonNull StoredMailInfo[] infos) {
             synchronized (mails) {
                 for (StoredMailInfo info : infos) {
                     mails.remove(info);
@@ -530,7 +528,7 @@ public final class User implements Iterable<User.MailChecker> {
      * @throws IOException Tritt auf, wenn der MailAccount nicht gespeichert
      * werden konnte
      */
-    private void saveMailAccount(MailAccount acc) throws IOException {
+    private void saveMailAccount(@NonNull MailAccount acc) throws IOException {
         String strAddress = acc.getAddress().getAddress();
         String strPath = String.format(ACCOUNTSETTINGS_PATTERN, strAddress);
 

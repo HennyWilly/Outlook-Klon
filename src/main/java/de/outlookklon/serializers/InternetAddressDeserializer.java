@@ -23,7 +23,8 @@ import javax.mail.internet.InternetAddress;
 public class InternetAddressDeserializer extends JsonDeserializer<Address> {
 
     @Override
-    public Address deserialize(JsonParser p, DeserializationContext ctxt) throws IOException, JsonProcessingException {
+    public Address deserialize(JsonParser p, DeserializationContext ctxt)
+            throws IOException, JsonProcessingException {
         if (p.getCurrentToken() == JsonToken.START_OBJECT) {
             p.nextToken();
         }

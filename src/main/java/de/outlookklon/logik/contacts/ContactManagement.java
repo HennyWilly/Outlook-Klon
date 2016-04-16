@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import lombok.NonNull;
 
 /**
  * Diese Klasse stellt die Verwaltung für die Kontakte des Benutzers dar
@@ -47,18 +48,10 @@ public class ContactManagement implements Iterable<Contact> {
      *
      * @param contact Der hinzuzufügende Contact
      */
-    public void addContact(final Contact contact) {
-        throwIfContactIsNull(contact);
-
+    public void addContact(@NonNull final Contact contact) {
         final Set<Contact> contactList = mContacts.get(DEFAULT);
 
         contactList.add(contact);
-    }
-
-    private void throwIfContactIsNull(Contact contact) {
-        if (contact == null) {
-            throw new NullPointerException("Instanz des Kontakts wurde nicht initialisiert");
-        }
     }
 
     /**
@@ -67,11 +60,10 @@ public class ContactManagement implements Iterable<Contact> {
      * @param contact Der hinzuzufügende Contact
      * @param list Listen, in die eingefügt werden soll
      */
-    public void addToContactList(final Contact contact, final String list) {
-        if (list == null || list.trim().isEmpty()) {
+    public void addToContactList(@NonNull final Contact contact, @NonNull final String list) {
+        if (list.trim().isEmpty()) {
             throw new NullPointerException("Der Name der Liste darf nicht leer sein.");
         }
-        throwIfContactIsNull(contact);
 
         final Set<Contact> contactList = mContacts.get(list);
         if (contactList == null) {
@@ -89,8 +81,8 @@ public class ContactManagement implements Iterable<Contact> {
      *
      * @param list Die hinzuzufügende Liste
      */
-    public void addList(final String list) {
-        if (list == null || list.trim().isEmpty()) {
+    public void addList(@NonNull final String list) {
+        if (list.trim().isEmpty()) {
             throw new NullPointerException("Der Name der Liste darf nicht leer sein.");
         }
 
@@ -106,9 +98,7 @@ public class ContactManagement implements Iterable<Contact> {
      *
      * @param contact Zu löschender Contact
      */
-    public void deleteContact(final Contact contact) {
-        throwIfContactIsNull(contact);
-
+    public void deleteContact(@NonNull final Contact contact) {
         for (final Set<Contact> list : mContacts.values()) {
             list.remove(contact);
         }
@@ -120,9 +110,8 @@ public class ContactManagement implements Iterable<Contact> {
      * @param contact Zu löschender Contact
      * @param list Liste, aus der der Contact gelöscht werden soll
      */
-    public void deleteContact(final Contact contact, final String list) {
-        throwIfContactIsNull(contact);
-        if (list == null || list.trim().isEmpty()) {
+    public void deleteContact(@NonNull final Contact contact, @NonNull final String list) {
+        if (list.trim().isEmpty()) {
             throw new NullPointerException("Der Name der Liste darf nicht leer sein.");
         }
 
@@ -144,8 +133,8 @@ public class ContactManagement implements Iterable<Contact> {
      *
      * @param list Liste, die gelöscht werden soll
      */
-    public void deleteList(final String list) {
-        if (list == null || list.trim().isEmpty()) {
+    public void deleteList(@NonNull final String list) {
+        if (list.trim().isEmpty()) {
             throw new NullPointerException("Der Name der Liste darf nicht leer sein.");
         }
         if (DEFAULT.equals(list)) {
@@ -164,8 +153,8 @@ public class ContactManagement implements Iterable<Contact> {
      * @param oldName Alter Name der Liste
      * @param newName Neuer Name der Liste
      */
-    public void renameList(final String oldName, final String newName) {
-        if (oldName == null || oldName.trim().isEmpty() || newName == null || newName.trim().isEmpty()) {
+    public void renameList(@NonNull final String oldName, @NonNull final String newName) {
+        if (oldName.trim().isEmpty() || newName.trim().isEmpty()) {
             throw new NullPointerException("Die Listennamen dürfen nicht leer sein!");
         }
 
@@ -206,8 +195,7 @@ public class ContactManagement implements Iterable<Contact> {
      * @param contact Contact, zu dem die Listen bestimmt werden sollen
      * @return String-Array, welches die Listennamen enthällt
      */
-    public String[] getLists(Contact contact) {
-        throwIfContactIsNull(contact);
+    public String[] getLists(@NonNull Contact contact) {
         List<String> lists = new ArrayList<>();
 
         for (Entry<String, Set<Contact>> set : mContacts.entrySet()) {
@@ -236,8 +224,8 @@ public class ContactManagement implements Iterable<Contact> {
      * sollen
      * @return Kontakte der übergebenen Liste
      */
-    public Contact[] getContacts(final String list) {
-        if (list == null || list.trim().isEmpty()) {
+    public Contact[] getContacts(@NonNull final String list) {
+        if (list.trim().isEmpty()) {
             throw new NullPointerException("Der Name der Liste darf nicht leer sein.");
         }
 

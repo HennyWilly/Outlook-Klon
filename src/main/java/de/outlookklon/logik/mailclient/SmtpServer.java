@@ -54,7 +54,7 @@ public class SmtpServer extends OutboxServer {
     }
 
     @Override
-    public Message sendeMail(final String user, final String password, MailInfo mailToSend)
+    public Message sendMail(final String user, final String password, MailInfo mailToSend)
             throws MessagingException {
         final Session session = getSession(new StandardAuthenticator(user, password));
 
@@ -80,14 +80,14 @@ public class SmtpServer extends OutboxServer {
     }
 
     @Override
-    public boolean checkLogin(final String benutzername, final String passwort) {
+    public boolean checkLogin(final String userName, final String password) {
         boolean result = true;
 
         final String host = settings.getHost();
         final int port = settings.getPort();
         final ConnectionSecurity security = settings.getConnectionSecurity();
 
-        final Session session = getSession(new StandardAuthenticator(benutzername, passwort));
+        final Session session = getSession(new StandardAuthenticator(userName, password));
 
         Transport transport = null;
         try {
@@ -97,7 +97,7 @@ public class SmtpServer extends OutboxServer {
                 transport = session.getTransport("smtp");
             }
 
-            transport.connect(host, port, benutzername, passwort);
+            transport.connect(host, port, userName, password);
         } catch (MessagingException ex) {
             LOGGER.error("Could not get transport object", ex);
             result = false;

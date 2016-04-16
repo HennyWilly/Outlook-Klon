@@ -29,6 +29,7 @@ import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
+import lombok.NonNull;
 
 /**
  * In diesem Frame werden alle Kontaktlisten der Verwaltung und deren Kontakte
@@ -440,11 +441,7 @@ public class AddressBookFrame extends ExtendedFrame {
      * @param newContact Wenn true, wird sofort ein neues ContactFrame geöffnet;
      * sonst nicht
      */
-    public AddressBookFrame(MainFrame parent, ContactManagement contacts, boolean newContact) {
-        if (contacts == null) {
-            throw new NullPointerException("contacts instace is null");
-        }
-
+    public AddressBookFrame(@NonNull MainFrame parent, @NonNull ContactManagement contacts, boolean newContact) {
         setTitle("Adressbuch");
         this.parent = parent;
         this.management = contacts;

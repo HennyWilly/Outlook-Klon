@@ -6,6 +6,7 @@ import java.util.Properties;
 import javax.mail.Authenticator;
 import javax.mail.PasswordAuthentication;
 import javax.mail.Session;
+import lombok.NonNull;
 
 /**
  * Abstrakte Basisklasse für alle Mailserver. Stellt grundlegende Funktionen für
@@ -63,11 +64,7 @@ public abstract class MailServer implements Serializable {
      * @param settings Einstellungen zum Verbindungsaufbau
      * @param serverType Beschreibender String zum Servertyp
      */
-    protected MailServer(final ServerSettings settings, final String serverType) {
-        if (settings == null) {
-            throw new NullPointerException("Servereinstellungen wurden nicht instanziiert");
-        }
-
+    protected MailServer(@NonNull final ServerSettings settings, @NonNull final String serverType) {
         this.settings = settings;
         this.serverType = serverType;
     }

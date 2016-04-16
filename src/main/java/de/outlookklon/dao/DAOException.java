@@ -1,5 +1,7 @@
 package de.outlookklon.dao;
 
+import lombok.NonNull;
+
 /**
  * Ausnahme für Data Access Objekte
  *
@@ -12,7 +14,7 @@ public class DAOException extends Exception {
      *
      * @param message Die detailierte Nachricht der Ausnamhe
      */
-    public DAOException(String message) {
+    public DAOException(@NonNull String message) {
         super(message);
     }
 
@@ -23,7 +25,7 @@ public class DAOException extends Exception {
      * @param message Die detailierte Nachricht der Ausnamhe
      * @param cause Die Ursache der Ausnahme
      */
-    public DAOException(String message, Throwable cause) {
+    public DAOException(@NonNull String message, @NonNull Throwable cause) {
         super(message, cause);
     }
 }

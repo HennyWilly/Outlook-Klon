@@ -3,6 +3,7 @@ package de.outlookklon.logik.mailclient;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.io.Serializable;
+import lombok.NonNull;
 
 /*
  * SMTP 587
@@ -47,13 +48,10 @@ public class ServerSettings implements Serializable {
      */
     @JsonCreator
     public ServerSettings(
-            @JsonProperty("host") String host,
+            @JsonProperty("host") @NonNull String host,
             @JsonProperty("port") int port,
             @JsonProperty("connectionSecurity") ConnectionSecurity connectionSecurity,
             @JsonProperty("authentificationType") AuthentificationType authentificationType) {
-        if (host == null) {
-            throw new NullPointerException("Der Hostname darf nicht null sein");
-        }
         if (port < 0 || port > 49151) {
             throw new IllegalArgumentException(
                     "Der übergebene Wert ist kein zulässiger Port");

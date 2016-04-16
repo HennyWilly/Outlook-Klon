@@ -46,7 +46,7 @@ public class StoredMailInfoDAOFilePersistenceTest {
         }
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = NullPointerException.class)
     public void shouldNotCreateFilePersistence_DirectoryIsNull() throws Exception {
         new StoredMailInfoDAOFilePersistence(null).toString();
     }

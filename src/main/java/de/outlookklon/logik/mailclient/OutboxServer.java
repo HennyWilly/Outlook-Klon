@@ -35,6 +35,6 @@ public abstract class OutboxServer extends MailServer {
      * @throws MessagingException Tritt auf, wenn das Senden der Mail
      * fehlschlägt oder einer der zu sendenden Anhänge nicht gefunden wurde
      */
-    public abstract Message sendeMail(String user, String password, MailInfo mailToSend)
+    public abstract Message sendMail(String user, String password, MailInfo mailToSend)
             throws MessagingException;
 }
