@@ -1285,18 +1285,17 @@ public class MainFrame extends ExtendedFrame {
 
         try {
             // Das eigendliche Löschen der Mails
-            if (acc.deleteMails(infos, path.getPath())) {
-                checker.removeMailInfos(infos);
+            acc.deleteMails(infos, path.getPath());
+            checker.removeMailInfos(infos);
 
-                // Entferne bei Erfolg alle ausgewählten Mails aus der Tabelle
-                DefaultTableModel model = (DefaultTableModel) tblMails.getModel();
-                int row = tblMails.getSelectedRow();
-                while (row != -1) {
-                    int mapped = tblMails.convertRowIndexToModel(row);
-                    model.removeRow(mapped);
+            // Entferne bei Erfolg alle ausgewählten Mails aus der Tabelle
+            DefaultTableModel model = (DefaultTableModel) tblMails.getModel();
+            int row = tblMails.getSelectedRow();
+            while (row != -1) {
+                int mapped = tblMails.convertRowIndexToModel(row);
+                model.removeRow(mapped);
 
-                    row = tblMails.getSelectedRow();
-                }
+                row = tblMails.getSelectedRow();
             }
         } catch (MessagingException | DAOException e) {
             JOptionPane.showMessageDialog(this, "Löschen fehlgeschlagen: \n" + e.getMessage(), "Fehler",

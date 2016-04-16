@@ -205,21 +205,33 @@ public class MailAccount {
                 if (folder instanceof IMAPFolder) {
                     final IMAPFolder imap = (IMAPFolder) folder;
                     final String[] attributes = imap.getAttributes();
-                    for (String attribute : attributes) {
-                        if ("\\Sent".equalsIgnoreCase(attribute)) {
-                            return imap;
-                        }
+                    if (attributesContainValue(attributes, "\\Sent")) {
+                        return imap;
                     }
                 }
 
-                if ("sent".equalsIgnoreCase(folder.getName())
-                        || "gesendet".equalsIgnoreCase(folder.getName())) {
+                if (isSentFolderName(folder.getName())) {
                     return folder;
                 }
             }
         }
 
         return null;
+    }
+
+    private boolean attributesContainValue(String[] attributes, String value) {
+        for (String attribute : attributes) {
+            if (value.equalsIgnoreCase(attribute)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private boolean isSentFolderName(@NonNull String folderName) {
+        return "sent".equalsIgnoreCase(folderName)
+                || "gesendet".equalsIgnoreCase(folderName);
     }
 
     private Store connectToMailStore() throws MessagingException {
@@ -355,7 +367,9 @@ public class MailAccount {
     private void closeMailFolder(Folder mailFolder, boolean expurge) {
         if (mailFolder != null) {
             try {
-                mailFolder.close(expurge);
+                if (mailFolder.isOpen()) {
+                    mailFolder.close(expurge);
+                }
             } catch (MessagingException ex) {
                 LOGGER.error("Could not close folder", ex);
             }
@@ -563,10 +577,8 @@ public class MailAccount {
      * @throws de.outlookklon.dao.DAOException wenn ein Fehler beim Zugriff auf
      * die StoredMailInfoDAO ein Fehler auftritt
      */
-    public boolean deleteMails(final StoredMailInfo[] mails, final String path)
+    public void deleteMails(final StoredMailInfo[] mails, final String path)
             throws MessagingException, DAOException {
-        boolean result = false;
-
         Store mailStore = null;
         Folder folder = null;
         Folder binFolder = null;
@@ -581,7 +593,7 @@ public class MailAccount {
                 final String binPfad = binFolder.getFullName();
                 if (!path.equals(binPfad)) {
                     copy(mails, folder, binFolder, true);
-                    return true;
+                    return;
                 }
             }
             final Message[] messages = infoToMessage(mails, folder);
@@ -592,15 +604,11 @@ public class MailAccount {
             }
 
             folder.expunge();
-
-            result = true;
         } finally {
             closeMailFolder(binFolder, true);
             closeMailFolder(folder, true);
             closeMailStore(mailStore);
         }
-
-        return result;
     }
 
     private Folder getTrashFolder(Store mailStore) throws MessagingException {
@@ -611,24 +619,25 @@ public class MailAccount {
                 if (mailFolder instanceof IMAPFolder) {
                     final IMAPFolder imap = (IMAPFolder) mailFolder;
                     final String[] attributes = imap.getAttributes();
-                    for (String attribute : attributes) {
-                        if ("\\Trash".equalsIgnoreCase(attribute)) {
-                            return imap;
-                        }
+                    if (attributesContainValue(attributes, "\\Trash")) {
+                        return imap;
                     }
                 }
 
-                String folderName = mailFolder.getName();
-                if ("trash".equalsIgnoreCase(folderName)
-                        || "deleted".equalsIgnoreCase(folderName)
-                        || "papierkorb".equalsIgnoreCase(folderName)
-                        || "gelöscht".equalsIgnoreCase(folderName)) {
+                if (isTrashFolderName(mailFolder.getName())) {
                     return mailFolder;
                 }
             }
         }
 
         return null;
+    }
+
+    private boolean isTrashFolderName(@NonNull String folderName) {
+        return "trash".equalsIgnoreCase(folderName)
+                || "deleted".equalsIgnoreCase(folderName)
+                || "papierkorb".equalsIgnoreCase(folderName)
+                || "gelöscht".equalsIgnoreCase(folderName);
     }
 
     /**
