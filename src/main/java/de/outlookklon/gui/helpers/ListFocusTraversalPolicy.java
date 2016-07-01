@@ -5,7 +5,6 @@ import java.awt.Container;
 import java.awt.FocusTraversalPolicy;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 /**
  * Erweitert die FocusTraversalPolicy-Klasse zum einfachen Wandern per Tab-Taste
@@ -52,7 +51,7 @@ public class ListFocusTraversalPolicy extends FocusTraversalPolicy {
     @Override
     public Component getLastComponent(Container focusCycleRoot) {
         if (order.isEmpty()) {
-            throw new NoSuchElementException("The component list is empty");
+            return null;
         }
 
         return order.get(order.size() - 1);
@@ -61,7 +60,7 @@ public class ListFocusTraversalPolicy extends FocusTraversalPolicy {
     @Override
     public Component getFirstComponent(Container focusCycleRoot) {
         if (order.isEmpty()) {
-            throw new NoSuchElementException("The component list is empty");
+            return null;
         }
 
         return order.get(0);

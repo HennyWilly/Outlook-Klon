@@ -1,5 +1,7 @@
 package de.outlookklon.gui;
 
+import de.outlookklon.Program;
+import de.outlookklon.gui.helpers.Buttons;
 import de.outlookklon.logik.mailclient.AuthentificationType;
 import de.outlookklon.logik.mailclient.ConnectionSecurity;
 import de.outlookklon.logik.mailclient.ImapServer;
@@ -67,7 +69,7 @@ public class AccountFrame extends ExtendedDialog<MailAccount> {
     public AccountFrame() {
         super(750, 350);
 
-        setTitle("Neues Konto hinzufügen");
+        setTitle(Program.STRINGS.getString("AccountFrame_DefaultTitle"));
 
         initFrame();
     }
@@ -75,11 +77,13 @@ public class AccountFrame extends ExtendedDialog<MailAccount> {
     /**
      * Erstellt eine neue Instanz der Klasse zum Bearbeiten eines neuen
      * MailAccount-Objekts
+     *
+     * @param account Zu bearbeitender Account
      */
     public AccountFrame(MailAccount account) {
         super(750, 350);
 
-        setTitle("Konto bearbeiten");
+        setTitle(Program.STRINGS.getString("AccountFrame_EditTitle"));
 
         initFrame();
 
@@ -117,10 +121,10 @@ public class AccountFrame extends ExtendedDialog<MailAccount> {
         txtMail.setBounds(140, 58, 315, 20);
         txtMail.setColumns(10);
 
-        JLabel lblMail = new JLabel("E-Mail-Adresse:");
+        JLabel lblMail = new JLabel(Program.STRINGS.getString("Account_MailAddress"));
         lblMail.setBounds(10, 61, 120, 14);
 
-        JLabel lblPassword = new JLabel("Passwort:");
+        JLabel lblPassword = new JLabel(Program.STRINGS.getString("Account_Password"));
         lblPassword.setBounds(37, 92, 93, 14);
 
         passwordField = new JPasswordField();
@@ -129,7 +133,7 @@ public class AccountFrame extends ExtendedDialog<MailAccount> {
         JPanel groupBox = new JPanel();
         groupBox.setBounds(10, 120, 724, 137);
 
-        JLabel lblInboxServer = new JLabel("Posteingang-Server:");
+        JLabel lblInboxServer = new JLabel(Program.STRINGS.getString("Account_Inbox"));
         lblInboxServer.setBounds(10, 37, 138, 14);
 
         cbInProtocoll = new JComboBox<>();
@@ -152,7 +156,7 @@ public class AccountFrame extends ExtendedDialog<MailAccount> {
         cBInAuthentificationType.setBounds(587, 34, 127, 20);
         cBInAuthentificationType.setModel(new DefaultComboBoxModel<>(AuthentificationType.values()));
 
-        JLabel lblOutboxServer = new JLabel("Postausgang-Server:");
+        JLabel lblOutboxServer = new JLabel(Program.STRINGS.getString("Account_Outbox"));
         lblOutboxServer.setBounds(10, 65, 138, 14);
 
         txtOutServer = new JTextField();
@@ -175,7 +179,7 @@ public class AccountFrame extends ExtendedDialog<MailAccount> {
         JLabel lblSmtp = new JLabel("SMTP");
         lblSmtp.setBounds(160, 65, 55, 14);
 
-        JLabel lblUsername = new JLabel("Benutzername:");
+        JLabel lblUsername = new JLabel(Program.STRINGS.getString("Account_Username"));
         lblUsername.setBounds(10, 106, 138, 14);
 
         txtUsername = new JTextField();
@@ -203,23 +207,23 @@ public class AccountFrame extends ExtendedDialog<MailAccount> {
         groupBox.add(cBOutAuthentificationType);
         groupBox.add(txtUsername);
 
-        JLabel lblServerAddress = new JLabel("Server-Adresse");
+        JLabel lblServerAddress = new JLabel(Program.STRINGS.getString("Account_ServerAddress"));
         lblServerAddress.setBounds(226, 11, 162, 14);
         groupBox.add(lblServerAddress);
 
-        JLabel lblPort = new JLabel("Port");
+        JLabel lblPort = new JLabel("Port:");
         lblPort.setBounds(394, 11, 54, 14);
         groupBox.add(lblPort);
 
-        JLabel lblSsl = new JLabel("SSL");
+        JLabel lblSsl = new JLabel("SSL:");
         lblSsl.setBounds(454, 11, 123, 14);
         groupBox.add(lblSsl);
 
-        JLabel lblAuthentification = new JLabel("Authentifizierung");
+        JLabel lblAuthentification = new JLabel(Program.STRINGS.getString("Account_Authentification"));
         lblAuthentification.setBounds(587, 11, 127, 14);
         groupBox.add(lblAuthentification);
 
-        btnAbort = new JButton("Abbrechen");
+        btnAbort = Buttons.getAbortButton();
         btnAbort.setBounds(649, 288, 85, 23);
         btnAbort.addActionListener(new ActionListener() {
             @Override
@@ -230,7 +234,7 @@ public class AccountFrame extends ExtendedDialog<MailAccount> {
         });
         getContentPane().add(btnAbort);
 
-        btnTest = new JButton("Testen");
+        btnTest = new JButton(Program.STRINGS.getString("Button_Test"));
         btnTest.setBounds(459, 288, 85, 23);
         btnTest.addActionListener(new ActionListener() {
             @Override
@@ -240,7 +244,7 @@ public class AccountFrame extends ExtendedDialog<MailAccount> {
         });
         getContentPane().add(btnTest);
 
-        btnFinish = new JButton("Fertig");
+        btnFinish = Buttons.getDoneButton();
         btnFinish.setEnabled(false);
         btnFinish.setBounds(554, 288, 85, 23);
         btnFinish.addActionListener(new ActionListener() {
@@ -252,7 +256,7 @@ public class AccountFrame extends ExtendedDialog<MailAccount> {
         });
         getContentPane().add(btnFinish);
 
-        JLabel lblDisplayname = new JLabel("Anzeigename:");
+        JLabel lblDisplayname = new JLabel(Program.STRINGS.getString("Account_DisplayName"));
         lblDisplayname.setBounds(10, 14, 120, 14);
         getContentPane().add(lblDisplayname);
 
@@ -279,7 +283,7 @@ public class AccountFrame extends ExtendedDialog<MailAccount> {
         } else if ("POP3".equals(cbInProtocoll.getSelectedItem())) {
             inbox = new Pop3Server(inboxSettings);
         } else {
-            throw new UnsupportedOperationException("Unbekanntes Protokoll ausgewählt");
+            throw new UnsupportedOperationException(Program.STRINGS.getString("AccountFrame_UnknownProtocol"));
         }
 
         // Settings-Instanz für den Mailversandt erstellen
@@ -301,13 +305,14 @@ public class AccountFrame extends ExtendedDialog<MailAccount> {
 
             btnFinish.setEnabled(valid);
             if (!valid) {
-                JOptionPane.showMessageDialog(this, "Die übergebenen Daten sind ungültig", "Fehler",
-                        JOptionPane.OK_OPTION);
+                JOptionPane.showMessageDialog(this, Program.STRINGS.getString("AccountFrame_InvalidData"),
+                        Program.STRINGS.getString("Dialog_Error"), JOptionPane.OK_OPTION);
             }
         } catch (IOException e) {
-            LOGGER.error("Could not create account", e);
+            LOGGER.error(Program.STRINGS.getString("AccountFrame_CouldNotCreateAccount"), e);
 
-            JOptionPane.showMessageDialog(this, e.getLocalizedMessage(), "Fehler", JOptionPane.OK_OPTION);
+            JOptionPane.showMessageDialog(this, e.getLocalizedMessage(),
+                    Program.STRINGS.getString("Dialog_Error"), JOptionPane.OK_OPTION);
         }
     }
 

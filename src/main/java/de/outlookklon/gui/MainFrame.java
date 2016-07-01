@@ -1,5 +1,6 @@
 package de.outlookklon.gui;
 
+import de.outlookklon.Program;
 import de.outlookklon.dao.DAOException;
 import de.outlookklon.logik.User;
 import de.outlookklon.logik.UserException;
@@ -13,7 +14,6 @@ import de.outlookklon.logik.mailclient.checker.NewMailEvent;
 import de.outlookklon.logik.mailclient.checker.NewMailListener;
 import java.awt.Component;
 import java.awt.Font;
-import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -39,7 +39,6 @@ import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -71,6 +70,7 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -118,7 +118,7 @@ public class MainFrame extends ExtendedFrame {
      * Erstellt eine neue Instanz des Hauptfensters
      */
     public MainFrame() throws UserException {
-        setTitle("MailClient");
+        setTitle(Program.STRINGS.getString("MainFrame_Title"));
 
         user = User.getInstance();
 
@@ -132,7 +132,7 @@ public class MainFrame extends ExtendedFrame {
         verticalSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
         horizontalSplitPane.setRightComponent(verticalSplitPane);
 
-        initTabelle(verticalSplitPane);
+        initTable(verticalSplitPane);
 
         tpPreview = new HtmlEditorPane();
         tpPreview.setEditable(false);
@@ -142,7 +142,7 @@ public class MainFrame extends ExtendedFrame {
 
         JToolBar toolBar = new JToolBar();
 
-        btnPoll = new JButton("Abrufen");
+        btnPoll = new JButton(Program.STRINGS.getString("MainFrame_Receive"));
         btnPoll.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -185,11 +185,13 @@ public class MainFrame extends ExtendedFrame {
                 try {
                     user.save();
                 } catch (IOException e) {
-                    LOGGER.error("Could not save user data", e);
+                    LOGGER.error(Program.STRINGS.getString("MainFrame_SaveSettingsError"), e);
 
                     Component component = windowEvent.getComponent();
-                    JOptionPane.showMessageDialog(component, "Die Einstellungen konnten nicht gespeichert werden!",
-                            "Fehler", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(component,
+                            Program.STRINGS.getString("MainFrame_SaveSettingsError"),
+                            Program.STRINGS.getString("Dialog_Error"),
+                            JOptionPane.ERROR_MESSAGE);
                 }
             }
         });
@@ -204,13 +206,13 @@ public class MainFrame extends ExtendedFrame {
         JMenuBar menuBar = new JMenuBar();
         setJMenuBar(menuBar);
 
-        JMenu mnFile = new JMenu("Datei");
+        JMenu mnFile = new JMenu(Program.STRINGS.getString("Menu_File"));
         menuBar.add(mnFile);
 
-        JMenu mnNewMenu = new JMenu("Neu");
+        JMenu mnNewMenu = new JMenu(Program.STRINGS.getString("Menu_New"));
         mnFile.add(mnNewMenu);
 
-        mntmEmail = new JMenuItem("E-Mail");
+        mntmEmail = new JMenuItem(Program.STRINGS.getString("MainFrame_EMail"));
         mntmEmail.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -219,7 +221,7 @@ public class MainFrame extends ExtendedFrame {
         });
         mnNewMenu.add(mntmEmail);
 
-        mntmContact = new JMenuItem("Kontakt");
+        mntmContact = new JMenuItem(Program.STRINGS.getString("Contact"));
         mntmContact.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -228,7 +230,7 @@ public class MainFrame extends ExtendedFrame {
         });
         mnNewMenu.add(mntmContact);
 
-        mntmAppointment = new JMenuItem("Termin");
+        mntmAppointment = new JMenuItem(Program.STRINGS.getString("Appointment"));
         mntmAppointment.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -237,7 +239,7 @@ public class MainFrame extends ExtendedFrame {
         });
         mnNewMenu.add(mntmAppointment);
 
-        mntmClose = new JMenuItem("Beenden");
+        mntmClose = new JMenuItem(Program.STRINGS.getString("Menu_Close"));
         mntmClose.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -246,10 +248,10 @@ public class MainFrame extends ExtendedFrame {
         });
         mnFile.add(mntmClose);
 
-        JMenu mnMessages = new JMenu("Meldungen");
+        JMenu mnMessages = new JMenu(Program.STRINGS.getString("MainFrame_Messanges"));
         menuBar.add(mnMessages);
 
-        JMenuItem mntFileNewSickNote = new JMenuItem("Krankmeldung");
+        JMenuItem mntFileNewSickNote = new JMenuItem(Program.STRINGS.getString("Message_SickNote"));
         mntFileNewSickNote.addActionListener(new ActionListener() {
 
             @Override
@@ -259,7 +261,7 @@ public class MainFrame extends ExtendedFrame {
         });
         mnMessages.add(mntFileNewSickNote);
 
-        JMenuItem mntFileNewAbsenceMessage = new JMenuItem("Abwesenheitsmeldung");
+        JMenuItem mntFileNewAbsenceMessage = new JMenuItem(Program.STRINGS.getString("Message_AbsenceMessage"));
         mntFileNewAbsenceMessage.addActionListener(new ActionListener() {
 
             @Override
@@ -271,7 +273,7 @@ public class MainFrame extends ExtendedFrame {
 
         mnMessages.add(new JSeparator());
 
-        JCheckBoxMenuItem mnEnableAbsenceMessage = new JCheckBoxMenuItem("Abwesend");
+        JCheckBoxMenuItem mnEnableAbsenceMessage = new JCheckBoxMenuItem(Program.STRINGS.getString("MainFrame_Absend"));
         mnEnableAbsenceMessage.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -283,10 +285,10 @@ public class MainFrame extends ExtendedFrame {
         });
         mnMessages.add(mnEnableAbsenceMessage);
 
-        JMenu mnExtras = new JMenu("Extras");
+        JMenu mnExtras = new JMenu(Program.STRINGS.getString("Menu_Extras"));
         menuBar.add(mnExtras);
 
-        mntmAccountSettings = new JMenuItem("Konteneinstellungen");
+        mntmAccountSettings = new JMenuItem(Program.STRINGS.getString("AccountManagementFrame_Title"));
         mntmAccountSettings.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -294,7 +296,7 @@ public class MainFrame extends ExtendedFrame {
             }
         });
 
-        mntmAddressBook = new JMenuItem("Adressbuch");
+        mntmAddressBook = new JMenuItem(Program.STRINGS.getString("AddressBookFrame_Title"));
         mntmAddressBook.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -303,7 +305,7 @@ public class MainFrame extends ExtendedFrame {
         });
         mnExtras.add(mntmAddressBook);
 
-        mntmCalendar = new JMenuItem("Kalendar");
+        mntmCalendar = new JMenuItem(Program.STRINGS.getString("Calendar"));
         mntmCalendar.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -320,7 +322,7 @@ public class MainFrame extends ExtendedFrame {
      * Initialisiert das Popup-Menü der Mailtabelle
      */
     private void initTablePopup() {
-        popupOpen = new JMenuItem("Öffnen");
+        popupOpen = new JMenuItem(Program.STRINGS.getString("Menu_Open"));
         popupOpen.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -338,7 +340,7 @@ public class MainFrame extends ExtendedFrame {
             }
         });
 
-        popupDelete = new JMenuItem("Löschen");
+        popupDelete = new JMenuItem(Program.STRINGS.getString("Menu_Delete"));
         popupDelete.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -346,7 +348,7 @@ public class MainFrame extends ExtendedFrame {
             }
         });
 
-        popupAnswer = new JMenuItem("Antworten");
+        popupAnswer = new JMenuItem(Program.STRINGS.getString("Answer"));
         popupAnswer.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -364,7 +366,7 @@ public class MainFrame extends ExtendedFrame {
             }
         });
 
-        popupForward = new JMenuItem("Weiterleiten");
+        popupForward = new JMenuItem(Program.STRINGS.getString("Forward"));
         popupForward.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -382,8 +384,8 @@ public class MainFrame extends ExtendedFrame {
             }
         });
 
-        popupCopy = new JMenu("Kopieren");
-        popupMove = new JMenu("Verschieben");
+        popupCopy = new JMenu(Program.STRINGS.getString("Menu_Copy"));
+        popupMove = new JMenu(Program.STRINGS.getString("Menu_Move"));
 
         tablePopup = new JPopupMenu();
         tablePopup.add(popupOpen);
@@ -400,7 +402,7 @@ public class MainFrame extends ExtendedFrame {
      * @param verticalSplitPane JSplitPane, in die die Tabelle eingefügt werden
      * soll
      */
-    private void initTabelle(JSplitPane verticalSplitPane) {
+    private void initTable(JSplitPane verticalSplitPane) {
         tblMails = new JTable() {
             private static final long serialVersionUID = 1L;
 
@@ -409,7 +411,16 @@ public class MainFrame extends ExtendedFrame {
                 return false;
             }
         };
-        tblMails.setModel(new DefaultTableModel(new Object[][]{}, new String[]{"MailInfo", "Betreff", "Von", "Datum"}) {
+        tblMails.setModel(
+                new DefaultTableModel(
+                        new Object[][]{},
+                        new String[]{
+                            "MailInfo",
+                            Program.STRINGS.getString("MailFrame_Subject"),
+                            Program.STRINGS.getString("MailFrame_From"),
+                            Program.STRINGS.getString("Appointment_Date")
+                        }
+                ) {
             private static final long serialVersionUID = 1L;
             Class<?>[] columnTypes = new Class<?>[]{StoredMailInfo.class, String.class, InternetAddress.class,
                 Date.class};
@@ -435,7 +446,7 @@ public class MainFrame extends ExtendedFrame {
                     String personal = data.getPersonal();
                     String address = data.getAddress();
 
-                    if (personal != null && !personal.trim().isEmpty()) {
+                    if (!StringUtils.isBlank(personal)) {
                         cellValue = personal;
                     } else {
                         cellValue = address;
@@ -653,9 +664,11 @@ public class MainFrame extends ExtendedFrame {
             mf.setExtendedState(this.getExtendedState());
             mf.setVisible(true);
         } catch (MessagingException | DAOException e) {
-            LOGGER.error("Could not answer to mail", e);
+            LOGGER.error(Program.STRINGS.getString("MainFrame_CouldNotAnswerMail"), e);
 
-            JOptionPane.showMessageDialog(this, "Antworten fehlgeschlagen: \n" + e.getMessage(), "Fehler",
+            JOptionPane.showMessageDialog(this,
+                    Program.STRINGS.getString("MainFrame_CouldNotAnswerMail") + ": \n" + e.getMessage(),
+                    Program.STRINGS.getString("Dialog_Error"),
                     JOptionPane.ERROR_MESSAGE);
         }
     }
@@ -677,9 +690,11 @@ public class MainFrame extends ExtendedFrame {
             mf.setExtendedState(this.getExtendedState());
             mf.setVisible(true);
         } catch (MessagingException | DAOException e) {
-            LOGGER.error("Could not forward mail", e);
+            LOGGER.error(Program.STRINGS.getString("MainFrame_CouldNotForwarMail"), e);
 
-            JOptionPane.showMessageDialog(this, "Weiterleiten fehlgeschlagen: \n" + e.getMessage(), "Fehler",
+            JOptionPane.showMessageDialog(this,
+                    Program.STRINGS.getString("MainFrame_CouldNotForwarMail") + ": \n" + e.getMessage(),
+                    Program.STRINGS.getString("Dialog_Error"),
                     JOptionPane.ERROR_MESSAGE);
         }
     }
@@ -803,10 +818,11 @@ public class MainFrame extends ExtendedFrame {
                 try {
                     user.removeMailAccount(acc, true);
                 } catch (IOException e) {
-                    LOGGER.error("Could not delete mail account settings", e);
+                    LOGGER.error(Program.STRINGS.getString("MainFrame_CouldNotDeleteAccountSettings"), e);
 
                     JOptionPane.showMessageDialog(this,
-                            "Es ist ein Fehler beim Löschen der vorhandenen Einstellungen aufgetreten!", "Fehler",
+                            Program.STRINGS.getString("MainFrame_CouldNotDeleteAccountSettings"),
+                            Program.STRINGS.getString("Dialog_Error"),
                             JOptionPane.ERROR_MESSAGE);
                 }
             }
@@ -915,7 +931,7 @@ public class MainFrame extends ExtendedFrame {
             try {
                 folders = checker.getAccount().getFolderStructure();
             } catch (MessagingException ex) {
-                LOGGER.error("Could not get folder structure", ex);
+                LOGGER.error(Program.STRINGS.getString("MainFrame_CouldNotGetFolders"), ex);
                 folders = new FolderInfo[0];
             }
 
@@ -995,9 +1011,9 @@ public class MainFrame extends ExtendedFrame {
                 DefaultTreeModel treeModel = (DefaultTreeModel) tree.getModel();
                 treeModel.removeNodeFromParent(node);
 
-                LOGGER.warn("Could not find mail folder", e);
+                LOGGER.warn(Program.STRINGS.getString("MainFrame_CouldNotFindMailFolder"), e);
             } catch (MessagingException | DAOException ex) {
-                LOGGER.error("Could not get messages", ex);
+                LOGGER.error(Program.STRINGS.getString("MainFrame_CouldNotGetMessage"), ex);
             }
 
             load = false;
@@ -1055,7 +1071,6 @@ public class MainFrame extends ExtendedFrame {
         }
 
         Object userObject = null;
-
         do {
             userObject = selectedNode.getUserObject();
             if (userObject instanceof MailAccountChecker) {
@@ -1085,10 +1100,11 @@ public class MainFrame extends ExtendedFrame {
             mailFrame.setExtendedState(this.getExtendedState());
             mailFrame.setVisible(true);
         } catch (MessagingException | DAOException e) {
-            LOGGER.error("Could not open mail", e);
+            LOGGER.error(Program.STRINGS.getString("MainFrame_CouldNotOpenMail"), e);
 
             JOptionPane.showMessageDialog(this,
-                    "Es ist ein Fehler beim Öffnen der Mail aufgetreten:\n" + e.getMessage(), "Fehler",
+                    Program.STRINGS.getString("MainFrame_CouldNotOpenMail") + ":\n" + e.getMessage(),
+                    Program.STRINGS.getString("Dialog_Error"),
                     JOptionPane.ERROR_MESSAGE);
         }
     }
@@ -1108,11 +1124,11 @@ public class MainFrame extends ExtendedFrame {
                 tblMails.setRowSelectionInterval(row, row);
 
                 tablePopup.remove(popupCopy);
-                popupCopy = generateFolderMenu(popupCopy.getText(), "In Ordner kopieren");
+                popupCopy = generateFolderMenu(popupCopy.getText(), Program.STRINGS.getString("MainFrame_CopyToFolder"));
                 tablePopup.add(popupCopy);
 
                 tablePopup.remove(popupMove);
-                popupMove = generateFolderMenu(popupMove.getText(), "In Ordner verschieben");
+                popupMove = generateFolderMenu(popupMove.getText(), Program.STRINGS.getString("MainFrame_MoveToFolder"));
                 tablePopup.add(popupMove);
 
                 // Öffnet das Popup an der Mausposition relativ zur Tabelle
@@ -1145,15 +1161,13 @@ public class MainFrame extends ExtendedFrame {
                 String path = (String) item.getClientProperty("PFAD");
                 String type = (String) item.getClientProperty("TYP");
 
-                switch (type) {
-                    case "Kopieren":
-                        copyMail(path);
-                        break;
-                    case "Verschieben":
-                        moveMail(path);
-                        break;
-                    default:
-                        throw new IllegalArgumentException("Typ \'" + type + "\' ungültig");
+                if (type.equals(Program.STRINGS.getString("Menu_Copy"))) {
+                    copyMail(path);
+                } else if (type.equals(Program.STRINGS.getString("Menu_Move"))) {
+                    moveMail(path);
+                } else {
+                    throw new IllegalArgumentException(
+                            String.format(Program.STRINGS.getString("MainFrame_InvalidTypeFormat"), type));
                 }
             }
         };
@@ -1259,9 +1273,11 @@ public class MainFrame extends ExtendedFrame {
             // Das eigendliche Kopieren der Mails
             acc.copyMails(infos, source.getPath(), target);
         } catch (MessagingException | DAOException e) {
-            LOGGER.error("Could not copy mail", e);
+            LOGGER.error(Program.STRINGS.getString("MainFrame_CouldNotCopyMail"), e);
 
-            JOptionPane.showMessageDialog(this, "Kopieren der Mail fehlgeschlagen: \n" + e.getMessage(), "Fehler",
+            JOptionPane.showMessageDialog(this,
+                    Program.STRINGS.getString("MainFrame_CouldNotCopyMail") + ": \n" + e.getMessage(),
+                    Program.STRINGS.getString("Dialog_Error"),
                     JOptionPane.ERROR_MESSAGE);
         }
     }
@@ -1292,9 +1308,11 @@ public class MainFrame extends ExtendedFrame {
                 row = tblMails.getSelectedRow();
             }
         } catch (MessagingException | DAOException e) {
-            LOGGER.error("Could not move mail", e);
+            LOGGER.error(Program.STRINGS.getString("MainFrame_CouldNotMoveMail"), e);
 
-            JOptionPane.showMessageDialog(this, "Verschieben der Mail fehlgeschlagen: \n" + e.getMessage(), "Fehler",
+            JOptionPane.showMessageDialog(this,
+                    Program.STRINGS.getString("MainFrame_CouldNotMoveMail") + ": \n" + e.getMessage(),
+                    Program.STRINGS.getString("Dialog_Error"),
                     JOptionPane.ERROR_MESSAGE);
         }
     }
@@ -1323,9 +1341,11 @@ public class MainFrame extends ExtendedFrame {
                 row = tblMails.getSelectedRow();
             }
         } catch (MessagingException | DAOException e) {
-            LOGGER.error("Could not delete mail", e);
+            LOGGER.error(Program.STRINGS.getString("MainFrame_CouldNotDeleteMail"), e);
 
-            JOptionPane.showMessageDialog(this, "Löschen fehlgeschlagen: \n" + e.getMessage(), "Fehler",
+            JOptionPane.showMessageDialog(this,
+                    Program.STRINGS.getString("MainFrame_CouldNotDeleteMail") + ": \n" + e.getMessage(),
+                    Program.STRINGS.getString("Dialog_Error"),
                     JOptionPane.ERROR_MESSAGE);
         }
     }
@@ -1367,10 +1387,11 @@ public class MainFrame extends ExtendedFrame {
             }
 
         } catch (MessagingException | DAOException ex) {
-            LOGGER.error("Could not load mail data", ex);
+            LOGGER.error(Program.STRINGS.getString("MainFrame_CouldNotLoadMailText"), ex);
 
             JOptionPane.showMessageDialog(this,
-                    "Es ist ein Fehler beim Auslesen des Mail-Textes aufgetreten:\n" + ex.getMessage(), "Fehler",
+                    Program.STRINGS.getString("MainFrame_CouldNotLoadMailText") + ":\n" + ex.getMessage(),
+                    Program.STRINGS.getString("Dialog_Error"),
                     JOptionPane.ERROR_MESSAGE);
         }
 
@@ -1390,9 +1411,9 @@ public class MainFrame extends ExtendedFrame {
      */
     private void noMailAccount() {
         JOptionPane.showMessageDialog(this,
-                "Es wurde noch kein Mail-Account hinzugefügt!\n"
-                + "Unter dem Menü \"Extras\" -> \"Konteneinstellungen\" können Sie Konten hinzufügen",
-                "Fehler", JOptionPane.ERROR_MESSAGE);
+                Program.STRINGS.getString("MainFrame_NoMailAccount"),
+                Program.STRINGS.getString("Dialog_Error"),
+                JOptionPane.ERROR_MESSAGE);
     }
 
     /**
@@ -1409,7 +1430,8 @@ public class MainFrame extends ExtendedFrame {
      * Öffnet ein Fenster zum Bearbeiten der Abwesenheitmeldung des Benutzers
      */
     private void editAbsenceMessage() {
-        MessageFrame messageFrame = new MessageFrame(user.getAbsenceMessage(), "Abwesenheitsmeldung");
+        MessageFrame messageFrame = new MessageFrame(user.getAbsenceMessage(),
+                Program.STRINGS.getString("Message_AbsenceMessage"));
         String message = messageFrame.showDialog();
 
         if (message != null) {
@@ -1421,7 +1443,8 @@ public class MainFrame extends ExtendedFrame {
      * Öffnet ein Fenster zum Bearbeiten der Krankmeldung des Benutzers
      */
     private void editSickNote() {
-        MessageFrame messageFrame = new MessageFrame(user.getSickNote(), "Krankheitsmeldung");
+        MessageFrame messageFrame = new MessageFrame(user.getSickNote(),
+                Program.STRINGS.getString("Message_SickNote"));
         String message = messageFrame.showDialog();
 
         if (message != null) {
@@ -1465,7 +1488,7 @@ public class MainFrame extends ExtendedFrame {
 
             DefaultMutableTreeNode checkerNode = getMailCheckerNode(root, sender);
             if (checkerNode == null) {
-                LOGGER.warn("Could not find node for new mail");
+                LOGGER.warn(Program.STRINGS.getString("MainFrame_NoNodeForMail"));
                 return;
             }
 
@@ -1512,23 +1535,6 @@ public class MainFrame extends ExtendedFrame {
             }
 
             return null;
-        }
-    }
-
-    /**
-     * Hier wird das MainFrame erzeugt und angezeigt
-     *
-     * @param args Komandozeilenparamenter
-     */
-    public static void main(final String[] args) {
-        try {
-            JFrame mainFrame = new MainFrame();
-
-            mainFrame.setExtendedState(Frame.MAXIMIZED_BOTH);
-            mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            mainFrame.setVisible(true);
-        } catch (UserException ex) {
-            LOGGER.error("Could not start MainFrame", ex);
         }
     }
 }

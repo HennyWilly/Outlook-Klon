@@ -1,5 +1,7 @@
 package de.outlookklon.gui;
 
+import de.outlookklon.Program;
+import de.outlookklon.gui.helpers.Buttons;
 import de.outlookklon.gui.helpers.ListFocusTraversalPolicy;
 import de.outlookklon.logik.contacts.Contact;
 import java.awt.Component;
@@ -34,10 +36,10 @@ public class ContactFrame extends ExtendedDialog<Contact> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ContactFrame.class);
 
-    private static final String FORMAT_STRING_CREATE1 = "Neuer Kontakt";
-    private static final String FORMAT_STRING_CREATE2 = "Neuer Kontakt für %s";
-    private static final String FORMAT_STRING_EDIT1 = "Kontakt bearbeiten";
-    private static final String FORMAT_STRING_EDIT2 = "Kontakt von %s bearbeiten";
+    private static final String FORMAT_STRING_CREATE1 = Program.STRINGS.getString("AddressBookFrame_Menu_NewContact");
+    private static final String FORMAT_STRING_CREATE2 = Program.STRINGS.getString("ContactFrame_NewContactFormat");
+    private static final String FORMAT_STRING_EDIT1 = Program.STRINGS.getString("ContactFrame_EditContact");
+    private static final String FORMAT_STRING_EDIT2 = Program.STRINGS.getString("ContactFrame_EditContactFormat");
 
     private Contact mContact;
 
@@ -98,15 +100,15 @@ public class ContactFrame extends ExtendedDialog<Contact> {
      * Initialisiert die Komponenten der GUI
      */
     private void initFrame() {
-        final JLabel lblForename = new JLabel("Vorname: ");
-        final JLabel lblSurname = new JLabel("Name: ");
-        final JLabel lblDisplayname = new JLabel("Anzeigename: ");
-        final JLabel lblNickname = new JLabel("Spitzname: ");
-        final JLabel lblEmailaddress1 = new JLabel("E-Mail-Adresse: ");
-        final JLabel lblEmailaddress2 = new JLabel("2. E-Mail-Adresse: ");
-        final JLabel lblDutyphone = new JLabel("Dienstlich: ");
-        final JLabel lblPrivatephone = new JLabel("Privat: ");
-        final JLabel lblMobilephone = new JLabel("Mobil: ");
+        final JLabel lblForename = new JLabel(Program.STRINGS.getString("Contact_Forename"));
+        final JLabel lblSurname = new JLabel(Program.STRINGS.getString("Contact_Surname"));
+        final JLabel lblDisplayname = new JLabel(Program.STRINGS.getString("Account_DisplayName"));
+        final JLabel lblNickname = new JLabel(Program.STRINGS.getString("Contact_Nickname"));
+        final JLabel lblEmailaddress1 = new JLabel(Program.STRINGS.getString("Account_MailAddress"));
+        final JLabel lblEmailaddress2 = new JLabel(Program.STRINGS.getString("Contact_MailAddress2"));
+        final JLabel lblDutyphone = new JLabel(Program.STRINGS.getString("Contact_DutyPhone"));
+        final JLabel lblPrivatephone = new JLabel(Program.STRINGS.getString("Contact_PrivatePhone"));
+        final JLabel lblMobilephone = new JLabel(Program.STRINGS.getString("Contact_MobilePhone"));
 
         final DocumentListener nameDocListener = new DocumentListener() {
             @Override
@@ -176,7 +178,7 @@ public class ContactFrame extends ExtendedDialog<Contact> {
         tMobilephone = new JTextField();
         tMobilephone.setColumns(10);
 
-        btnOK = new JButton("OK");
+        btnOK = Buttons.getOkButton();
         btnOK.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent arg0) {
@@ -184,7 +186,7 @@ public class ContactFrame extends ExtendedDialog<Contact> {
             }
         });
 
-        btnAbort = new JButton("Abbrechen");
+        btnAbort = Buttons.getAbortButton();
         btnAbort.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -328,10 +330,11 @@ public class ContactFrame extends ExtendedDialog<Contact> {
             mail1 = strMail1.isEmpty() ? null : new InternetAddress(tEmailaddress1.getText(), true);
             mail2 = strMail2.isEmpty() ? null : new InternetAddress(tEmailaddress2.getText(), true);
         } catch (AddressException ex) {
-            LOGGER.error("Could not parse mail address", ex);
+            LOGGER.error(Program.STRINGS.getString("ContactFrame_ParseMailAddressError"), ex);
 
             JOptionPane.showMessageDialog(this,
-                    "Es ist ein Fehler beim Parsen einer Mailadresse aufgetreten:\n" + ex.getMessage(), "Fehler",
+                    Program.STRINGS.getString("ContactFrame_ParseMailAddressError") + "\n" + ex.getMessage(),
+                    Program.STRINGS.getString("Dialog_Error"),
                     JOptionPane.ERROR_MESSAGE);
 
             return;
@@ -345,9 +348,9 @@ public class ContactFrame extends ExtendedDialog<Contact> {
         if (mail1 == null && tForename.getText().trim().isEmpty() && tSurname.getText().trim().isEmpty()
                 && tDisplayname.getText().trim().isEmpty()) {
             JOptionPane.showMessageDialog(this,
-                    "Sie müssen mindestens eine der folgenden Angaben machen:\n"
-                    + "E-Mail-Adresse, Vorname, Name, Anzeigename",
-                    "Informationen fehlen", JOptionPane.WARNING_MESSAGE);
+                    Program.STRINGS.getString("ContactFrame_NotEnoughInformation"),
+                    Program.STRINGS.getString("ContactFrame_MissingInfomation"),
+                    JOptionPane.WARNING_MESSAGE);
             return;
         }
 

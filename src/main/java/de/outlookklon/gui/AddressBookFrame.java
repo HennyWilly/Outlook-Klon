@@ -1,5 +1,7 @@
 package de.outlookklon.gui;
 
+import de.outlookklon.Program;
+import de.outlookklon.gui.helpers.Buttons;
 import de.outlookklon.logik.contacts.Contact;
 import de.outlookklon.logik.contacts.ContactManagement;
 import java.awt.BorderLayout;
@@ -78,7 +80,7 @@ public class AddressBookFrame extends ExtendedFrame {
      * sonst nicht
      */
     public AddressBookFrame(@NonNull MainFrame parent, @NonNull ContactManagement contacts, boolean newContact) {
-        setTitle("Adressbuch");
+        setTitle(Program.STRINGS.getString("AddressBookFrame_Title"));
         this.parent = parent;
         this.management = contacts;
 
@@ -100,7 +102,7 @@ public class AddressBookFrame extends ExtendedFrame {
     private void initTable(JSplitPane verticalSplit) {
         tablePopup = new JPopupMenu();
 
-        tablePopupOpen = new JMenuItem("Öffnen");
+        tablePopupOpen = new JMenuItem(Program.STRINGS.getString("Menu_Open"));
         tablePopupOpen.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -119,7 +121,7 @@ public class AddressBookFrame extends ExtendedFrame {
         });
         tablePopup.add(tablePopupOpen);
 
-        tablePopupCreate = new JMenuItem("Verfassen");
+        tablePopupCreate = new JMenuItem(Program.STRINGS.getString("AddressBookFrame_Menu_Create"));
         tablePopupCreate.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -128,7 +130,7 @@ public class AddressBookFrame extends ExtendedFrame {
         });
         tablePopup.add(tablePopupCreate);
 
-        tablePopupDelete = new JMenuItem("Löschen");
+        tablePopupDelete = new JMenuItem(Program.STRINGS.getString("Menu_Delete"));
         tablePopupDelete.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -155,8 +157,19 @@ public class AddressBookFrame extends ExtendedFrame {
                 return false;
             }
         };
-        tableContacts.setModel(new DefaultTableModel(new Object[][]{{null, null, null},},
-                new String[]{"Referenz", "Name", "E-Mail-Adresse", "Tel. dienstlich"}) {
+
+        String refName = Program.STRINGS.getString("Table_Ref");
+        tableContacts.setModel(
+                new DefaultTableModel(
+                        new Object[][]{
+                            {
+                                null, null, null
+                            },}, new String[]{
+                            refName,
+                            Program.STRINGS.getString("AddressBookFrame_Table_Name"),
+                            Program.STRINGS.getString("AddressBookFrame_Table_Mail"),
+                            Program.STRINGS.getString("AddressBookFrame_Table_DutyPhone")
+                        }) {
             private static final long serialVersionUID = 1L;
             Class<?>[] columnTypes = new Class<?>[]{Contact.class, String.class, String.class, String.class};
 
@@ -165,7 +178,7 @@ public class AddressBookFrame extends ExtendedFrame {
                 return columnTypes[columnIndex];
             }
         });
-        tableContacts.removeColumn(tableContacts.getColumn("Referenz"));
+        tableContacts.removeColumn(tableContacts.getColumn(refName));
 
         tableContacts.getColumnModel().getColumn(1).setPreferredWidth(91);
         tableContacts.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -237,7 +250,7 @@ public class AddressBookFrame extends ExtendedFrame {
     private void initLists(JSplitPane horizontalSplit) {
         listPopup = new JPopupMenu();
 
-        listPopupRename = new JMenuItem("Umbennen");
+        listPopupRename = new JMenuItem(Program.STRINGS.getString("Menu_Rename"));
         listPopupRename.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -246,7 +259,7 @@ public class AddressBookFrame extends ExtendedFrame {
         });
         listPopup.add(listPopupRename);
 
-        listPopupCreate = new JMenuItem("Verfassen");
+        listPopupCreate = new JMenuItem(Program.STRINGS.getString("AddressBookFrame_Menu_Create"));
         listPopupCreate.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -256,7 +269,7 @@ public class AddressBookFrame extends ExtendedFrame {
         });
         listPopup.add(listPopupCreate);
 
-        listPopupDelete = new JMenuItem("Löschen");
+        listPopupDelete = new JMenuItem(Program.STRINGS.getString("Menu_Delete"));
         listPopupDelete.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -328,13 +341,13 @@ public class AddressBookFrame extends ExtendedFrame {
         JMenuBar menuBar = new JMenuBar();
         setJMenuBar(menuBar);
 
-        JMenu mnFile = new JMenu("Datei");
+        JMenu mnFile = new JMenu(Program.STRINGS.getString("Menu_File"));
         menuBar.add(mnFile);
 
-        JMenu mnNewMenu = new JMenu("Neu");
+        JMenu mnNewMenu = new JMenu(Program.STRINGS.getString("Menu_New"));
         mnFile.add(mnNewMenu);
 
-        mntFileNewContact = new JMenuItem("Neuer Kontakt");
+        mntFileNewContact = new JMenuItem(Program.STRINGS.getString("AddressBookFrame_Menu_NewContact"));
         mntFileNewContact.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent arg0) {
@@ -343,7 +356,7 @@ public class AddressBookFrame extends ExtendedFrame {
         });
         mnNewMenu.add(mntFileNewContact);
 
-        mntFileNewList = new JMenuItem("Neue Kontaktliste");
+        mntFileNewList = new JMenuItem(Program.STRINGS.getString("AddressBookFrame_Menu_NewContactList"));
         mntFileNewList.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -358,7 +371,7 @@ public class AddressBookFrame extends ExtendedFrame {
         });
         mnNewMenu.add(mntFileNewList);
 
-        mntFileClose = new JMenuItem("Beenden");
+        mntFileClose = new JMenuItem(Program.STRINGS.getString("Menu_Close"));
         mntFileClose.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -437,31 +450,31 @@ public class AddressBookFrame extends ExtendedFrame {
 
         if (contact != null) {
             if (!contact.getForename().trim().isEmpty()) {
-                sb.append("Vorname: ").append(contact.getForename()).append('\n');
+                sb.append(Program.STRINGS.getString("Contact_Forename")).append(" ").append(contact.getForename()).append('\n');
             }
             if (!contact.getSurname().trim().isEmpty()) {
-                sb.append("Nachname: ").append(contact.getSurname()).append('\n');
+                sb.append(Program.STRINGS.getString("Contact_Surname")).append(" ").append(contact.getSurname()).append('\n');
             }
             if (!contact.getDisplayname().trim().isEmpty()) {
-                sb.append("Anzeigename: ").append(contact.getDisplayname()).append('\n');
+                sb.append(Program.STRINGS.getString("Account_DisplayName")).append(" ").append(contact.getDisplayname()).append('\n');
             }
             if (!contact.getNickname().trim().isEmpty()) {
-                sb.append("Spitzname: ").append(contact.getNickname()).append('\n');
+                sb.append(Program.STRINGS.getString("Contact_Nickname")).append(" ").append(contact.getNickname()).append('\n');
             }
             if (contact.getAddress1() != null) {
-                sb.append("E-Mail-Adresse: ").append(contact.getAddress1AsString()).append('\n');
+                sb.append(Program.STRINGS.getString("Account_MailAddress")).append(" ").append(contact.getAddress1AsString()).append('\n');
             }
             if (contact.getAddress2() != null) {
-                sb.append("2. E-Mail-Adresse: ").append(contact.getAddress2AsString()).append('\n');
+                sb.append(Program.STRINGS.getString("Contact_MailAddress2")).append(" ").append(contact.getAddress2AsString()).append('\n');
             }
             if (!contact.getDutyphone().trim().isEmpty()) {
-                sb.append("Telefonnummer (dienstlich): ").append(contact.getDutyphone()).append('\n');
+                sb.append(Program.STRINGS.getString("Contact_DutyPhone")).append(" ").append(contact.getDutyphone()).append('\n');
             }
             if (!contact.getPrivatephone().trim().isEmpty()) {
-                sb.append("Telefonnummer (privat): ").append(contact.getPrivatephone()).append('\n');
+                sb.append(Program.STRINGS.getString("Contact_PrivatePhone")).append(" ").append(contact.getPrivatephone()).append('\n');
             }
             if (!contact.getMobilephone().trim().isEmpty()) {
-                sb.append("Telefonnummer (mobil): ").append(contact.getMobilephone()).append('\n');
+                sb.append(Program.STRINGS.getString("Contact_MobilePhone")).append(" ").append(contact.getMobilephone()).append('\n');
             }
         }
 
@@ -515,9 +528,10 @@ public class AddressBookFrame extends ExtendedFrame {
                 refreshContactLists();
                 lstLists.setSelectedValue(newName, true);
             } catch (IllegalArgumentException ex) {
-                LOGGER.warn("Could not rename list", ex);
+                LOGGER.warn(Program.STRINGS.getString("AddressBookFrame_CouldNotRenameList"), ex);
 
-                JOptionPane.showMessageDialog(this, ex.getMessage(), "Fehler", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, ex.getMessage(),
+                        Program.STRINGS.getString("Dialog_Error"), JOptionPane.ERROR_MESSAGE);
             }
         }
     }
@@ -599,7 +613,7 @@ public class AddressBookFrame extends ExtendedFrame {
      * @return Neues JMenu mit den Kontaktlisten
      */
     private JMenu createListMenu() {
-        JMenu menu = new JMenu("Zu Liste zuordnen");
+        JMenu menu = new JMenu(Program.STRINGS.getString("AddressBookFrame_Menu_AssignToList"));
         DefaultListModel<String> model = (DefaultListModel<String>) lstLists.getModel();
 
         for (int i = 0; i < model.getSize(); i++) {
@@ -633,7 +647,7 @@ public class AddressBookFrame extends ExtendedFrame {
                 management.addToContactList(k, list);
             } catch (IllegalArgumentException ex) {
                 // Ignoriere Fehler
-                LOGGER.warn("Could not add contact to list", ex);
+                LOGGER.warn(Program.STRINGS.getString("AddressBookFrame_CouldNotAddContactToList"), ex);
             }
         }
     }
@@ -656,7 +670,7 @@ public class AddressBookFrame extends ExtendedFrame {
 
             initGUI();
 
-            setTitle("Neue Liste erstellen");
+            setTitle(Program.STRINGS.getString("AddressBookFrame_CreateNewList"));
         }
 
         /**
@@ -670,7 +684,7 @@ public class AddressBookFrame extends ExtendedFrame {
             initGUI();
 
             txtList.setText(list);
-            setTitle("Liste bearbeiten");
+            setTitle(Program.STRINGS.getString("AddressBookFrame_EditList"));
         }
 
         /**
@@ -680,7 +694,7 @@ public class AddressBookFrame extends ExtendedFrame {
             txtList = new JTextField();
             txtList.setColumns(10);
 
-            JButton btnOK = new JButton("OK");
+            JButton btnOK = Buttons.getOkButton();
             btnOK.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent arg0) {
@@ -689,7 +703,7 @@ public class AddressBookFrame extends ExtendedFrame {
                 }
             });
 
-            JButton btnAbort = new JButton("Abbruch");
+            JButton btnAbort = Buttons.getAbortButton();
             btnAbort.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
@@ -697,7 +711,7 @@ public class AddressBookFrame extends ExtendedFrame {
                 }
             });
 
-            JLabel lblNameOfList = new JLabel("Name der Liste:");
+            JLabel lblNameOfList = new JLabel(Program.STRINGS.getString("AddressBookFrame_ListName"));
             GroupLayout groupLayout = new GroupLayout(getContentPane());
             groupLayout.setHorizontalGroup(groupLayout.createParallelGroup(Alignment.LEADING)
                     .addGroup(groupLayout.createSequentialGroup().addContainerGap()

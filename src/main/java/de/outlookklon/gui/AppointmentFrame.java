@@ -1,5 +1,7 @@
 package de.outlookklon.gui;
 
+import de.outlookklon.Program;
+import de.outlookklon.gui.helpers.Buttons;
 import de.outlookklon.logik.User;
 import de.outlookklon.logik.calendar.Appointment;
 import de.outlookklon.logik.contacts.Contact;
@@ -56,7 +58,7 @@ public class AppointmentFrame extends ExtendedDialog<Appointment> {
 
         mAppointment = null;
         initFrame();
-        this.setTitle("Neuer Termin");
+        this.setTitle(Program.STRINGS.getString("AppointmentFrame_DefaultTitle"));
     }
 
     /**
@@ -70,7 +72,7 @@ public class AppointmentFrame extends ExtendedDialog<Appointment> {
 
         mAppointment = appointment;
         initFrame();
-        this.setTitle("Termin bearbeiten");
+        this.setTitle(Program.STRINGS.getString("AppointmentFrame_EditTitle"));
         textSubject.setText(appointment.getSubject());
         textLocation.setText(appointment.getLocation());
         textDescription.setText(appointment.getText());
@@ -96,15 +98,13 @@ public class AppointmentFrame extends ExtendedDialog<Appointment> {
     }
 
     private void initFrame() {
-        setTitle("Termin");
-
-        JLabel lblSubject = new JLabel("Betreff:");
-        JLabel lblPlace = new JLabel("Ort:");
-        JLabel lblStart = new JLabel("Startzeit:");
-        JLabel lblEnd = new JLabel("Endzeit:");
-        JLabel lblDescription = new JLabel("Beschreibung:");
-        JLabel lblAccount = new JLabel("Benutzerkonto:");
-        JLabel lblContact = new JLabel("Kontakt:");
+        JLabel lblSubject = new JLabel(Program.STRINGS.getString("Appointment_Subject") + ":");
+        JLabel lblPlace = new JLabel(Program.STRINGS.getString("Appointment_Location") + ":");
+        JLabel lblStart = new JLabel(Program.STRINGS.getString("Appointment_Start") + ":");
+        JLabel lblEnd = new JLabel(Program.STRINGS.getString("Appointment_End") + ":");
+        JLabel lblDescription = new JLabel(Program.STRINGS.getString("Appointment_Description") + ":");
+        JLabel lblAccount = new JLabel(Program.STRINGS.getString("Account") + ":");
+        JLabel lblContact = new JLabel(Program.STRINGS.getString("Contact") + ":");
 
         textSubject = new JTextField();
         textSubject.setColumns(10);
@@ -121,7 +121,7 @@ public class AppointmentFrame extends ExtendedDialog<Appointment> {
         dateEnd = new JSpinner();
         dateEnd.setModel(new SpinnerDateModel(new Date(), null, null, Calendar.DAY_OF_YEAR));
 
-        JButton btnOk = new JButton("OK");
+        JButton btnOk = Buttons.getOkButton();
         btnOk.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent arg0) {
@@ -148,15 +148,16 @@ public class AppointmentFrame extends ExtendedDialog<Appointment> {
 
                     close();
                 } catch (RuntimeException ex) {
-                    LOGGER.error("Error while creating appointment", ex);
+                    LOGGER.error(Program.STRINGS.getString("AppointmentFrame_ErrorCreatingAppointment"), ex);
 
-                    JOptionPane.showMessageDialog(null, "Es ist ein Fehler aufgetreten:\n" + ex.getMessage(), "Fehler",
+                    JOptionPane.showMessageDialog(null, Program.STRINGS.getString("Dialog_ErrorText") + ex.getMessage(),
+                            Program.STRINGS.getString("Dialog_Error"),
                             JOptionPane.ERROR_MESSAGE);
                 }
             }
         });
 
-        JButton btnAbort = new JButton("Abbrechen");
+        JButton btnAbort = Buttons.getAbortButton();
         btnAbort.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
