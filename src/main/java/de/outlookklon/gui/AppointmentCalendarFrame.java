@@ -162,9 +162,9 @@ public class AppointmentCalendarFrame extends ExtendedFrame {
         panel.setLayout(new GridLayout(0, 1, 0, 0));
         splitPane.setLeftComponent(scrollPane);
 
-        final JSplitPane splitPane_1 = new JSplitPane();
-        splitPane_1.setOrientation(JSplitPane.VERTICAL_SPLIT);
-        splitPane.setRightComponent(splitPane_1);
+        final JSplitPane splitPane1 = new JSplitPane();
+        splitPane1.setOrientation(JSplitPane.VERTICAL_SPLIT);
+        splitPane.setRightComponent(splitPane1);
 
         tblAppointments = new JTable() {
             private static final long serialVersionUID = 1L;
@@ -240,18 +240,18 @@ public class AppointmentCalendarFrame extends ExtendedFrame {
         });
 
         hiddenAppointments = new ArrayList<>();
+        allAppointments = new ArrayList<>();
 
-        allAppointments = new ArrayList<>(); // speichert alle existierenden
-        // Termine in mango ab
+        // speichert alle existierenden Termine in mango ab
         for (Appointment appointment : User.getInstance().getAppointments()) {
             allAppointments.add(appointment);
         }
 
-        final JScrollPane scrollPane_1 = new JScrollPane(tblAppointments);
-        splitPane_1.setLeftComponent(scrollPane_1);
+        final JScrollPane scrollPane1 = new JScrollPane(tblAppointments);
+        splitPane1.setLeftComponent(scrollPane1);
 
         textDetails = new JTextPane();
-        splitPane_1.setRightComponent(textDetails);
+        splitPane1.setRightComponent(textDetails);
         getContentPane().add(splitPane);
 
         updateTable();
@@ -265,7 +265,7 @@ public class AppointmentCalendarFrame extends ExtendedFrame {
         AppointmentCalendar onewayCalendar = new AppointmentCalendar();
 
         for (int i = 0; i < allAppointments.size(); i++) {
-            if (hiddenAppointments.size() > 0) {
+            if (!hiddenAppointments.isEmpty()) {
                 if (!hiddenAppointments.contains(allAppointments.get(i))) {
                     onewayCalendar.addAppointment(allAppointments.get(i));
                 }

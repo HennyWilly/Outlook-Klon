@@ -56,23 +56,6 @@ public final class User implements Iterable<MailAccountChecker> {
     private boolean absent;
 
     /**
-     * Gibt die einzige Instanz der Klasse User zurück. Beim ersten Aufruf wird
-     * eine neue Instanz der Klasse erstellt.
-     *
-     * @return Einzige Instanz der Klasse
-     */
-    public static User getInstance() throws UserException {
-        if (singleton == null) {
-            try {
-                singleton = new User();
-            } catch (IOException ex) {
-                throw new UserException("Could not create user instance", ex);
-            }
-        }
-        return singleton;
-    }
-
-    /**
      * Erstellt eine neue Instanz der Klasse Benutzer. Liest, wenn vorhanden,
      * die gespeicherten Daten aus.
      *
@@ -137,6 +120,23 @@ public final class User implements Iterable<MailAccountChecker> {
 
             accounts.add(checker);
         }
+    }
+
+    /**
+     * Gibt die einzige Instanz der Klasse User zurück. Beim ersten Aufruf wird
+     * eine neue Instanz der Klasse erstellt.
+     *
+     * @return Einzige Instanz der Klasse
+     */
+    public static User getInstance() throws UserException {
+        if (singleton == null) {
+            try {
+                singleton = new User();
+            } catch (IOException ex) {
+                throw new UserException("Could not create user instance", ex);
+            }
+        }
+        return singleton;
     }
 
     /**

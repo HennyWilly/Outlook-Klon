@@ -167,10 +167,8 @@ public class AccountManagementFrame extends ExtendedDialog<MailAccount[]> {
                 MailAccount acc = lstAccounts.getSelectedValue();
 
                 deleteAccount(acc);
-                if (model.indexOf(acc) == -1) {
-                    if (!model.isEmpty()) {
-                        lstAccounts.setSelectedIndex(0);
-                    }
+                if (!model.isEmpty() && model.indexOf(acc) == -1) {
+                    lstAccounts.setSelectedIndex(0);
                 }
 
             }

@@ -19,6 +19,8 @@ import javax.swing.JTextField;
 import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * In diesem Frame werden neue Kontakte erstellt, bzw. bestehende Kontakte
@@ -29,6 +31,8 @@ import javax.swing.event.DocumentListener;
 public class ContactFrame extends ExtendedDialog<Contact> {
 
     private static final long serialVersionUID = 1466530984514818388L;
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ContactFrame.class);
 
     private static final String FORMAT_STRING_CREATE1 = "Neuer Kontakt";
     private static final String FORMAT_STRING_CREATE2 = "Neuer Kontakt für %s";
@@ -41,8 +45,8 @@ public class ContactFrame extends ExtendedDialog<Contact> {
     private JTextField tSurname;
     private JTextField tDisplayname;
     private JTextField tNickname;
-    private JTextField tEmailaddress_1;
-    private JTextField tEmailaddress_2;
+    private JTextField tEmailaddress1;
+    private JTextField tEmailaddress2;
     private JTextField tDutyphone;
     private JTextField tPrivatephone;
     private JTextField tMobilephone;
@@ -83,8 +87,8 @@ public class ContactFrame extends ExtendedDialog<Contact> {
         tSurname.setText(mContact.getSurname());
         tDisplayname.setText(mContact.getDisplayname());
         tNickname.setText(mContact.getNickname());
-        tEmailaddress_1.setText(mail1);
-        tEmailaddress_2.setText(mail2);
+        tEmailaddress1.setText(mail1);
+        tEmailaddress2.setText(mail2);
         tDutyphone.setText(mContact.getDutyphone());
         tPrivatephone.setText(mContact.getPrivatephone());
         tMobilephone.setText(mContact.getMobilephone());
@@ -98,8 +102,8 @@ public class ContactFrame extends ExtendedDialog<Contact> {
         final JLabel lblSurname = new JLabel("Name: ");
         final JLabel lblDisplayname = new JLabel("Anzeigename: ");
         final JLabel lblNickname = new JLabel("Spitzname: ");
-        final JLabel lblEmailaddress_1 = new JLabel("E-Mail-Adresse: ");
-        final JLabel lblEmailaddress_2 = new JLabel("2. E-Mail-Adresse: ");
+        final JLabel lblEmailaddress1 = new JLabel("E-Mail-Adresse: ");
+        final JLabel lblEmailaddress2 = new JLabel("2. E-Mail-Adresse: ");
         final JLabel lblDutyphone = new JLabel("Dienstlich: ");
         final JLabel lblPrivatephone = new JLabel("Privat: ");
         final JLabel lblMobilephone = new JLabel("Mobil: ");
@@ -157,11 +161,11 @@ public class ContactFrame extends ExtendedDialog<Contact> {
         tNickname = new JTextField();
         tNickname.setColumns(10);
 
-        tEmailaddress_1 = new JTextField();
-        tEmailaddress_1.setColumns(10);
+        tEmailaddress1 = new JTextField();
+        tEmailaddress1.setColumns(10);
 
-        tEmailaddress_2 = new JTextField();
-        tEmailaddress_2.setColumns(10);
+        tEmailaddress2 = new JTextField();
+        tEmailaddress2.setColumns(10);
 
         tDutyphone = new JTextField();
         tDutyphone.setColumns(10);
@@ -195,8 +199,8 @@ public class ContactFrame extends ExtendedDialog<Contact> {
                                 .addComponent(btnOK, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE,
                                         Short.MAX_VALUE)
                                 .addComponent(lblNickname, Alignment.TRAILING)
-                                .addComponent(lblEmailaddress_1, Alignment.TRAILING)
-                                .addComponent(lblEmailaddress_2, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE,
+                                .addComponent(lblEmailaddress1, Alignment.TRAILING)
+                                .addComponent(lblEmailaddress2, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE,
                                         Short.MAX_VALUE)
                                 .addGroup(groupLayout.createSequentialGroup().addGap(20)
                                         .addGroup(groupLayout.createParallelGroup(Alignment.TRAILING)
@@ -211,8 +215,8 @@ public class ContactFrame extends ExtendedDialog<Contact> {
                                         .addComponent(tForename, GroupLayout.DEFAULT_SIZE, 244,
                                                 Short.MAX_VALUE)
                                         .addComponent(tSurname).addComponent(tDisplayname)
-                                        .addComponent(tNickname).addComponent(tEmailaddress_1)
-                                        .addComponent(tEmailaddress_2))
+                                        .addComponent(tNickname).addComponent(tEmailaddress1)
+                                        .addComponent(tEmailaddress2))
                                 .addPreferredGap(ComponentPlacement.RELATED)
                                 .addGroup(groupLayout.createParallelGroup(Alignment.TRAILING)
                                         .addComponent(lblDutyphone)
@@ -251,12 +255,12 @@ public class ContactFrame extends ExtendedDialog<Contact> {
                                 .addComponent(tNickname, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE,
                                         GroupLayout.PREFERRED_SIZE))
                         .addGap(18)
-                        .addGroup(groupLayout.createParallelGroup(Alignment.BASELINE).addComponent(lblEmailaddress_1)
-                                .addComponent(tEmailaddress_1, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE,
+                        .addGroup(groupLayout.createParallelGroup(Alignment.BASELINE).addComponent(lblEmailaddress1)
+                                .addComponent(tEmailaddress1, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE,
                                         GroupLayout.PREFERRED_SIZE))
                         .addGap(18)
-                        .addGroup(groupLayout.createParallelGroup(Alignment.BASELINE).addComponent(lblEmailaddress_2)
-                                .addComponent(tEmailaddress_2, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE,
+                        .addGroup(groupLayout.createParallelGroup(Alignment.BASELINE).addComponent(lblEmailaddress2)
+                                .addComponent(tEmailaddress2, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE,
                                         GroupLayout.PREFERRED_SIZE))
                         .addGap(18).addGroup(groupLayout.createParallelGroup(Alignment.BASELINE).addComponent(btnOK)
                         .addComponent(btnAbort))
@@ -270,8 +274,8 @@ public class ContactFrame extends ExtendedDialog<Contact> {
         tabOrder.add(tSurname);
         tabOrder.add(tDisplayname);
         tabOrder.add(tNickname);
-        tabOrder.add(tEmailaddress_1);
-        tabOrder.add(tEmailaddress_2);
+        tabOrder.add(tEmailaddress1);
+        tabOrder.add(tEmailaddress2);
         tabOrder.add(tDutyphone);
         tabOrder.add(tPrivatephone);
         tabOrder.add(tMobilephone);
@@ -315,50 +319,56 @@ public class ContactFrame extends ExtendedDialog<Contact> {
      * Rückgabe des finalen Contact-Objekts vorzubereiten.
      */
     private void finalizeFrame() {
+        String strMail1 = tEmailaddress1.getText().trim();
+        String strMail2 = tEmailaddress2.getText().trim();
+
+        Address mail1;
+        Address mail2;
         try {
-            String strMail1 = tEmailaddress_1.getText().trim();
-            String strMail2 = tEmailaddress_2.getText().trim();
-
-            Address mail1 = strMail1.isEmpty() ? null : new InternetAddress(tEmailaddress_1.getText(), true);
-            Address mail2 = strMail2.isEmpty() ? null : new InternetAddress(tEmailaddress_2.getText(), true);
-
-            if (mail1 == null && mail2 != null) {
-                mail1 = mail2;
-                mail2 = null;
-            }
-
-            if (mail1 == null && tForename.getText().trim().isEmpty() && tSurname.getText().trim().isEmpty()
-                    && tDisplayname.getText().trim().isEmpty()) {
-                JOptionPane.showMessageDialog(this,
-                        "Sie müssen mindestens eine der folgenden Angaben machen:\n"
-                        + "E-Mail-Adresse, Vorname, Name, Anzeigename",
-                        "Informationen fehlen", JOptionPane.WARNING_MESSAGE);
-                return;
-            }
-
-            if (mContact == null) {
-                // Erstelle neuen Contact
-                mContact = new Contact(tSurname.getText(), tForename.getText(), tDisplayname.getText(),
-                        tNickname.getText(), mail1, mail2, tPrivatephone.getText(), tDutyphone.getText(), tMobilephone.getText());
-            } else {
-                // Bearbeite existierenden Contact
-                mContact.setForename(tForename.getText());
-                mContact.setSurname(tSurname.getText());
-                mContact.setDisplayname(tDisplayname.getText());
-                mContact.setNickname(tNickname.getText());
-                mContact.setAddress1(mail1);
-                mContact.setAddress2(mail2);
-                mContact.setDutyphone(tDutyphone.getText());
-                mContact.setPrivatephone(tPrivatephone.getText());
-                mContact.setMobilephone(tMobilephone.getText());
-            }
-
-            close();
+            mail1 = strMail1.isEmpty() ? null : new InternetAddress(tEmailaddress1.getText(), true);
+            mail2 = strMail2.isEmpty() ? null : new InternetAddress(tEmailaddress2.getText(), true);
         } catch (AddressException ex) {
+            LOGGER.error("Could not parse mail address", ex);
+
             JOptionPane.showMessageDialog(this,
                     "Es ist ein Fehler beim Parsen einer Mailadresse aufgetreten:\n" + ex.getMessage(), "Fehler",
                     JOptionPane.ERROR_MESSAGE);
+
+            return;
         }
+
+        if (mail1 == null && mail2 != null) {
+            mail1 = mail2;
+            mail2 = null;
+        }
+
+        if (mail1 == null && tForename.getText().trim().isEmpty() && tSurname.getText().trim().isEmpty()
+                && tDisplayname.getText().trim().isEmpty()) {
+            JOptionPane.showMessageDialog(this,
+                    "Sie müssen mindestens eine der folgenden Angaben machen:\n"
+                    + "E-Mail-Adresse, Vorname, Name, Anzeigename",
+                    "Informationen fehlen", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        if (mContact == null) {
+            // Erstelle neuen Contact
+            mContact = new Contact(tSurname.getText(), tForename.getText(), tDisplayname.getText(),
+                    tNickname.getText(), mail1, mail2, tPrivatephone.getText(), tDutyphone.getText(), tMobilephone.getText());
+        } else {
+            // Bearbeite existierenden Contact
+            mContact.setForename(tForename.getText());
+            mContact.setSurname(tSurname.getText());
+            mContact.setDisplayname(tDisplayname.getText());
+            mContact.setNickname(tNickname.getText());
+            mContact.setAddress1(mail1);
+            mContact.setAddress2(mail2);
+            mContact.setDutyphone(tDutyphone.getText());
+            mContact.setPrivatephone(tPrivatephone.getText());
+            mContact.setMobilephone(tMobilephone.getText());
+        }
+
+        close();
     }
 
     @Override

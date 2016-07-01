@@ -22,6 +22,8 @@ import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JSpinner;
 import javax.swing.JTextField;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * In diesem Frame können Daten für bestehende Mailkonten eingegeben, bzw.
@@ -32,6 +34,8 @@ import javax.swing.JTextField;
 public class AccountFrame extends ExtendedDialog<MailAccount> {
 
     private static final long serialVersionUID = -8114432074006047938L;
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(AccountFrame.class);
 
     private MailAccount mailAccount;
     private MailAccount tmpAccount;
@@ -301,6 +305,8 @@ public class AccountFrame extends ExtendedDialog<MailAccount> {
                         JOptionPane.OK_OPTION);
             }
         } catch (IOException e) {
+            LOGGER.error("Could not create account", e);
+
             JOptionPane.showMessageDialog(this, e.getLocalizedMessage(), "Fehler", JOptionPane.OK_OPTION);
         }
     }

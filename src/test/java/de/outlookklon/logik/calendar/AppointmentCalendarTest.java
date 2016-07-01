@@ -12,8 +12,6 @@ import static org.mockito.Mockito.when;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(User.class)
@@ -35,10 +33,10 @@ public class AppointmentCalendarTest {
 
     @Test
     public void shouldFindOverlappingAppointments() {
-        Appointment appointmentA = new Appointment(null, null, new DateTime(2014, 10, 5, 20, 15, 00).toDate(),
-                new DateTime(2014, 10, 10, 20, 15, 00).toDate(), null, null, null);
-        Appointment appointmentB = new Appointment(null, null, new DateTime(2014, 10, 4, 10, 00, 00).toDate(),
-                new DateTime(2014, 10, 6, 10, 00, 00).toDate(), null, null, null);
+        Appointment appointmentA = new Appointment(null, null, new DateTime(2014, 10, 5, 20, 15, 00),
+                new DateTime(2014, 10, 10, 20, 15, 00), null, null, null);
+        Appointment appointmentB = new Appointment(null, null, new DateTime(2014, 10, 4, 10, 00, 00),
+                new DateTime(2014, 10, 6, 10, 00, 00), null, null, null);
 
         calendar.addAppointment(appointmentA);
         assertThat(calendar.isOverlapping(appointmentB), is(true));
@@ -47,12 +45,12 @@ public class AppointmentCalendarTest {
     @Test
     public void shouldGetOldestAppointment() {
 
-        Appointment appointmentA = new Appointment(null, null, new DateTime(2014, 10, 4, 20, 15, 00).toDate(),
-                new DateTime(2014, 10, 10, 20, 15, 00).toDate(), null, null, null);
-        Appointment appointmentB = new Appointment(null, null, new DateTime(2014, 10, 5, 10, 00, 00).toDate(),
-                new DateTime(2014, 10, 10, 10, 00, 00).toDate(), null, null, null);
-        Appointment appointmentC = new Appointment(null, null, new DateTime(2014, 10, 6, 20, 15, 00).toDate(),
-                new DateTime(2014, 10, 10, 20, 15, 00).toDate(), null, null, null);
+        Appointment appointmentA = new Appointment(null, null, new DateTime(2014, 10, 4, 20, 15, 00),
+                new DateTime(2014, 10, 10, 20, 15, 00), null, null, null);
+        Appointment appointmentB = new Appointment(null, null, new DateTime(2014, 10, 5, 10, 00, 00),
+                new DateTime(2014, 10, 10, 10, 00, 00), null, null, null);
+        Appointment appointmentC = new Appointment(null, null, new DateTime(2014, 10, 6, 20, 15, 00),
+                new DateTime(2014, 10, 10, 20, 15, 00), null, null, null);
 
         calendar.addAppointment(appointmentC);
         calendar.addAppointment(appointmentA);
@@ -63,18 +61,18 @@ public class AppointmentCalendarTest {
 
     @Test
     public void shouldGetAppointments() {
-        Appointment appointmentA = new Appointment(null, null, new DateTime(2014, 10, 4, 20, 15, 00).toDate(),
-                new DateTime(2014, 10, 10, 20, 15, 00).toDate(), null, null, null);
-        Appointment appointmentB = new Appointment(null, null, new DateTime(2014, 10, 5, 10, 00, 00).toDate(),
-                new DateTime(2014, 10, 10, 10, 00, 00).toDate(), null, null, null);
-        Appointment appointmentC = new Appointment(null, null, new DateTime(2014, 10, 6, 20, 15, 00).toDate(),
-                new DateTime(2014, 10, 10, 20, 15, 00).toDate(), null, null, null);
-        Appointment appointmentD = new Appointment(null, null, new DateTime(2014, 10, 7, 20, 15, 00).toDate(),
-                new DateTime(2014, 10, 10, 20, 15, 00).toDate(), null, null, null);
-        Appointment appointmentE = new Appointment(null, null, new DateTime(2014, 10, 8, 10, 00, 00).toDate(),
-                new DateTime(2014, 10, 10, 10, 00, 00).toDate(), null, null, null);
-        Appointment appointmentF = new Appointment(null, null, new DateTime(2014, 10, 9, 20, 15, 00).toDate(),
-                new DateTime(2014, 10, 10, 20, 15, 00).toDate(), null, null, null);
+        Appointment appointmentA = new Appointment(null, null, new DateTime(2014, 10, 4, 20, 15, 00),
+                new DateTime(2014, 10, 10, 20, 15, 00), null, null, null);
+        Appointment appointmentB = new Appointment(null, null, new DateTime(2014, 10, 5, 10, 00, 00),
+                new DateTime(2014, 10, 10, 10, 00, 00), null, null, null);
+        Appointment appointmentC = new Appointment(null, null, new DateTime(2014, 10, 6, 20, 15, 00),
+                new DateTime(2014, 10, 10, 20, 15, 00), null, null, null);
+        Appointment appointmentD = new Appointment(null, null, new DateTime(2014, 10, 7, 20, 15, 00),
+                new DateTime(2014, 10, 10, 20, 15, 00), null, null, null);
+        Appointment appointmentE = new Appointment(null, null, new DateTime(2014, 10, 8, 10, 00, 00),
+                new DateTime(2014, 10, 10, 10, 00, 00), null, null, null);
+        Appointment appointmentF = new Appointment(null, null, new DateTime(2014, 10, 9, 20, 15, 00),
+                new DateTime(2014, 10, 10, 20, 15, 00), null, null, null);
 
         calendar.addAppointment(appointmentA);
         calendar.addAppointment(appointmentB);
@@ -84,8 +82,8 @@ public class AppointmentCalendarTest {
         calendar.addAppointment(appointmentF);
 
         Appointment[] expected = new Appointment[]{appointmentB, appointmentC, appointmentD};
-        Appointment[] actual = calendar.getAppointments(new DateTime(2014, 10, 5, 1, 00, 00).toDate(),
-                new DateTime(2014, 10, 7, 23, 59, 59).toDate());
+        Appointment[] actual = calendar.getAppointments(new DateTime(2014, 10, 5, 1, 00, 00),
+                new DateTime(2014, 10, 7, 23, 59, 59));
 
         assertThat(actual, is(expected));
     }

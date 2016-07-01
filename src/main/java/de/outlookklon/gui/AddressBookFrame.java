@@ -30,6 +30,8 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 import lombok.NonNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * In diesem Frame werden alle Kontaktlisten der Verwaltung und deren Kontakte
@@ -41,6 +43,8 @@ import lombok.NonNull;
 public class AddressBookFrame extends ExtendedFrame {
 
     private static final long serialVersionUID = 2142631007771154882L;
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(AddressBookFrame.class);
 
     private JPopupMenu tablePopup;
     private JMenuItem tablePopupOpen;
@@ -65,94 +69,26 @@ public class AddressBookFrame extends ExtendedFrame {
     private ContactManagement management;
 
     /**
-     * Dialogfenster zum Erstellen und Bearbeiten von Kontaktlisten
+     * Erstellt eine neue AdressbuchFrame-Instanz
+     *
+     * @param parent Referenz auf das Vater-Fenster, um darauf ggf. die
+     * newMail-Methode aufzurufen
+     * @param contacts Die Referenz auf die ContactManagement
+     * @param newContact Wenn true, wird sofort ein neues ContactFrame geöffnet;
+     * sonst nicht
      */
-    private final class ListDialog extends ExtendedDialog<String> {
+    public AddressBookFrame(@NonNull MainFrame parent, @NonNull ContactManagement contacts, boolean newContact) {
+        setTitle("Adressbuch");
+        this.parent = parent;
+        this.management = contacts;
 
-        private static final long serialVersionUID = 1L;
+        initGUI();
 
-        private String mList;
-        private JTextField txtList;
+        refreshContactLists();
+        lstLists.setSelectedIndex(0);
 
-        /**
-         * Erzeugt eine neue Instanz des Dialogs zum Erstellen einer Liste
-         */
-        public ListDialog() {
-            super(355, 130);
-
-            initGUI();
-
-            setTitle("Neue Liste erstellen");
-        }
-
-        /**
-         * Erzeugt eine neue Instanz des Dialogs zum Bearbeiten einer Liste
-         *
-         * @param list
-         */
-        public ListDialog(String list) {
-            super(355, 130);
-
-            initGUI();
-
-            txtList.setText(list);
-            setTitle("Liste bearbeiten");
-        }
-
-        /**
-         * Initalisiert die Komponenten des Dialogs
-         */
-        private void initGUI() {
-            txtList = new JTextField();
-            txtList.setColumns(10);
-
-            JButton btnOK = new JButton("OK");
-            btnOK.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent arg0) {
-                    mList = txtList.getText();
-                    close();
-                }
-            });
-
-            JButton btnAbort = new JButton("Abbruch");
-            btnAbort.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    close();
-                }
-            });
-
-            JLabel lblNameOfList = new JLabel("Name der Liste:");
-            GroupLayout groupLayout = new GroupLayout(getContentPane());
-            groupLayout.setHorizontalGroup(groupLayout.createParallelGroup(Alignment.LEADING)
-                    .addGroup(groupLayout.createSequentialGroup().addContainerGap()
-                            .addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
-                                    .addGroup(groupLayout.createSequentialGroup()
-                                            .addComponent(btnOK, GroupLayout.PREFERRED_SIZE,
-                                                    72, GroupLayout.PREFERRED_SIZE)
-                                            .addPreferredGap(ComponentPlacement.RELATED).addComponent(btnAbort))
-                                    .addComponent(lblNameOfList)
-                                    .addComponent(txtList, GroupLayout.DEFAULT_SIZE, 322, Short.MAX_VALUE))
-                            .addContainerGap()));
-            groupLayout
-                    .setVerticalGroup(
-                            groupLayout.createParallelGroup(Alignment.LEADING)
-                            .addGroup(
-                                    groupLayout.createSequentialGroup().addGap(10).addComponent(lblNameOfList)
-                                    .addPreferredGap(ComponentPlacement.RELATED)
-                                    .addComponent(txtList, GroupLayout.PREFERRED_SIZE,
-                                            GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                                    .addGap(18)
-                                    .addGroup(groupLayout.createParallelGroup(Alignment.BASELINE)
-                                            .addComponent(btnOK).addComponent(btnAbort))
-                                    .addContainerGap()));
-            getContentPane().setLayout(groupLayout);
-        }
-
-        @Override
-        protected String getDialogResult() {
-            return mList;
+        if (newContact) {
+            newContact();
         }
     }
 
@@ -433,30 +369,6 @@ public class AddressBookFrame extends ExtendedFrame {
     }
 
     /**
-     * Erstellt eine neue AdressbuchFrame-Instanz
-     *
-     * @param parent Referenz auf das Vater-Fenster, um darauf ggf. die
-     * newMail-Methode aufzurufen
-     * @param contacts Die Referenz auf die ContactManagement
-     * @param newContact Wenn true, wird sofort ein neues ContactFrame geöffnet;
-     * sonst nicht
-     */
-    public AddressBookFrame(@NonNull MainFrame parent, @NonNull ContactManagement contacts, boolean newContact) {
-        setTitle("Adressbuch");
-        this.parent = parent;
-        this.management = contacts;
-
-        initGUI();
-
-        refreshContactLists();
-        lstLists.setSelectedIndex(0);
-
-        if (newContact) {
-            newContact();
-        }
-    }
-
-    /**
      * Aktualisiert die JList mit den aktuellen Kontaktlisten.
      */
     private void refreshContactLists() {
@@ -603,6 +515,8 @@ public class AddressBookFrame extends ExtendedFrame {
                 refreshContactLists();
                 lstLists.setSelectedValue(newName, true);
             } catch (IllegalArgumentException ex) {
+                LOGGER.warn("Could not rename list", ex);
+
                 JOptionPane.showMessageDialog(this, ex.getMessage(), "Fehler", JOptionPane.ERROR_MESSAGE);
             }
         }
@@ -719,7 +633,100 @@ public class AddressBookFrame extends ExtendedFrame {
                 management.addToContactList(k, list);
             } catch (IllegalArgumentException ex) {
                 // Ignoriere Fehler
+                LOGGER.warn("Could not add contact to list", ex);
             }
+        }
+    }
+
+    /**
+     * Dialogfenster zum Erstellen und Bearbeiten von Kontaktlisten
+     */
+    private final class ListDialog extends ExtendedDialog<String> {
+
+        private static final long serialVersionUID = 1L;
+
+        private String mList;
+        private JTextField txtList;
+
+        /**
+         * Erzeugt eine neue Instanz des Dialogs zum Erstellen einer Liste
+         */
+        public ListDialog() {
+            super(355, 130);
+
+            initGUI();
+
+            setTitle("Neue Liste erstellen");
+        }
+
+        /**
+         * Erzeugt eine neue Instanz des Dialogs zum Bearbeiten einer Liste
+         *
+         * @param list
+         */
+        public ListDialog(String list) {
+            super(355, 130);
+
+            initGUI();
+
+            txtList.setText(list);
+            setTitle("Liste bearbeiten");
+        }
+
+        /**
+         * Initalisiert die Komponenten des Dialogs
+         */
+        private void initGUI() {
+            txtList = new JTextField();
+            txtList.setColumns(10);
+
+            JButton btnOK = new JButton("OK");
+            btnOK.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent arg0) {
+                    mList = txtList.getText();
+                    close();
+                }
+            });
+
+            JButton btnAbort = new JButton("Abbruch");
+            btnAbort.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    close();
+                }
+            });
+
+            JLabel lblNameOfList = new JLabel("Name der Liste:");
+            GroupLayout groupLayout = new GroupLayout(getContentPane());
+            groupLayout.setHorizontalGroup(groupLayout.createParallelGroup(Alignment.LEADING)
+                    .addGroup(groupLayout.createSequentialGroup().addContainerGap()
+                            .addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
+                                    .addGroup(groupLayout.createSequentialGroup()
+                                            .addComponent(btnOK, GroupLayout.PREFERRED_SIZE,
+                                                    72, GroupLayout.PREFERRED_SIZE)
+                                            .addPreferredGap(ComponentPlacement.RELATED).addComponent(btnAbort))
+                                    .addComponent(lblNameOfList)
+                                    .addComponent(txtList, GroupLayout.DEFAULT_SIZE, 322, Short.MAX_VALUE))
+                            .addContainerGap()));
+            groupLayout
+                    .setVerticalGroup(
+                            groupLayout.createParallelGroup(Alignment.LEADING)
+                            .addGroup(
+                                    groupLayout.createSequentialGroup().addGap(10).addComponent(lblNameOfList)
+                                    .addPreferredGap(ComponentPlacement.RELATED)
+                                    .addComponent(txtList, GroupLayout.PREFERRED_SIZE,
+                                            GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                                    .addGap(18)
+                                    .addGroup(groupLayout.createParallelGroup(Alignment.BASELINE)
+                                            .addComponent(btnOK).addComponent(btnAbort))
+                                    .addContainerGap()));
+            getContentPane().setLayout(groupLayout);
+        }
+
+        @Override
+        protected String getDialogResult() {
+            return mList;
         }
     }
 }

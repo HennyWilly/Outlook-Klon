@@ -387,14 +387,14 @@ public class MailFrame extends ExtendedFrame {
 
         JSplitPane splitHead = new JSplitPane();
 
-        final GroupLayout gl_panel = new GroupLayout(panel);
-        gl_panel.setHorizontalGroup(gl_panel.createParallelGroup(Alignment.LEADING).addComponent(splitHead,
+        final GroupLayout glPanel = new GroupLayout(panel);
+        glPanel.setHorizontalGroup(glPanel.createParallelGroup(Alignment.LEADING).addComponent(splitHead,
                 Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 508, Short.MAX_VALUE));
-        gl_panel.setVerticalGroup(gl_panel.createParallelGroup(Alignment.LEADING).addComponent(splitHead,
+        glPanel.setVerticalGroup(glPanel.createParallelGroup(Alignment.LEADING).addComponent(splitHead,
                 GroupLayout.DEFAULT_SIZE, 119, Short.MAX_VALUE));
 
-        final JPanel panel_1 = new JPanel();
-        splitHead.setLeftComponent(panel_1);
+        final JPanel panel1 = new JPanel();
+        splitHead.setLeftComponent(panel1);
 
         JLabel lSender = new JLabel("Von:");
         JLabel lTo = new JLabel("An:");
@@ -429,12 +429,12 @@ public class MailFrame extends ExtendedFrame {
         cBSender = new JComboBox<>();
         tSender = new JTextField();
 
-        final GroupLayout gl_panel_1 = new GroupLayout(panel_1);
-        gl_panel_1
+        final GroupLayout glPanel1 = new GroupLayout(panel1);
+        glPanel1
                 .setHorizontalGroup(
-                        gl_panel_1.createParallelGroup(Alignment.LEADING).addGroup(gl_panel_1.createSequentialGroup()
+                        glPanel1.createParallelGroup(Alignment.LEADING).addGroup(glPanel1.createSequentialGroup()
                         .addContainerGap()
-                        .addGroup(gl_panel_1.createParallelGroup(Alignment.LEADING)
+                        .addGroup(glPanel1.createParallelGroup(Alignment.LEADING)
                                 .addComponent(lSender, GroupLayout.PREFERRED_SIZE, 46,
                                         GroupLayout.PREFERRED_SIZE)
                                 .addComponent(lTo, GroupLayout.PREFERRED_SIZE, 46, GroupLayout.PREFERRED_SIZE)
@@ -442,7 +442,7 @@ public class MailFrame extends ExtendedFrame {
                                 .addComponent(lSubject, GroupLayout.PREFERRED_SIZE, 46,
                                         GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(ComponentPlacement.RELATED)
-                        .addGroup(gl_panel_1.createParallelGroup(Alignment.LEADING)
+                        .addGroup(glPanel1.createParallelGroup(Alignment.LEADING)
                                 .addComponent(mailMode != MailMode.OPEN ? cBSender : tSender,
                                         GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                 .addComponent(tTo, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 6,
@@ -451,26 +451,26 @@ public class MailFrame extends ExtendedFrame {
                                         Short.MAX_VALUE)
                                 .addComponent(tSubject, GroupLayout.DEFAULT_SIZE, 6, Short.MAX_VALUE))
                         .addContainerGap()));
-        gl_panel_1.setVerticalGroup(gl_panel_1.createParallelGroup(Alignment.LEADING).addGroup(gl_panel_1
+        glPanel1.setVerticalGroup(glPanel1.createParallelGroup(Alignment.LEADING).addGroup(glPanel1
                 .createSequentialGroup().addContainerGap()
-                .addGroup(gl_panel_1.createParallelGroup(Alignment.BASELINE).addComponent(lSender).addComponent(
+                .addGroup(glPanel1.createParallelGroup(Alignment.BASELINE).addComponent(lSender).addComponent(
                         mailMode != MailMode.OPEN ? cBSender : tSender, GroupLayout.PREFERRED_SIZE,
                         GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(ComponentPlacement.RELATED)
-                .addGroup(gl_panel_1.createParallelGroup(Alignment.BASELINE).addComponent(lTo).addComponent(tTo,
+                .addGroup(glPanel1.createParallelGroup(Alignment.BASELINE).addComponent(lTo).addComponent(tTo,
                         GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
                 .addGap(5)
-                .addGroup(gl_panel_1.createParallelGroup(Alignment.BASELINE).addComponent(lCC).addComponent(tCC,
+                .addGroup(glPanel1.createParallelGroup(Alignment.BASELINE).addComponent(lCC).addComponent(tCC,
                         GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
                 .addGap(3)
-                .addGroup(gl_panel_1.createParallelGroup(Alignment.BASELINE).addComponent(lSubject).addComponent(
+                .addGroup(glPanel1.createParallelGroup(Alignment.BASELINE).addComponent(lSubject).addComponent(
                         tSubject, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
                 .addContainerGap()));
-        panel_1.setLayout(gl_panel_1);
+        panel1.setLayout(glPanel1);
 
         initList(splitHead);
 
-        panel.setLayout(gl_panel);
+        panel.setLayout(glPanel);
 
         tpMailtext = new HtmlEditorPane();
 
@@ -635,6 +635,8 @@ public class MailFrame extends ExtendedFrame {
             acc.sendMail(mailToSend);
             close();
         } catch (MessagingException ex) {
+            LOGGER.error("Could not send mail", ex);
+
             JOptionPane.showMessageDialog(this,
                     "Es ist ein Fehler beim Senden der Mail aufgetreten:\n" + ex.getMessage(), "Fehler",
                     JOptionPane.OK_OPTION);
@@ -678,6 +680,8 @@ public class MailFrame extends ExtendedFrame {
                 // Führt das eigentliche Abspeichern aus
                 acc.saveAttachment(mailInfo, relPath, name, path);
             } catch (IOException | MessagingException ex) {
+                LOGGER.error("Could not save attachment", ex);
+
                 JOptionPane.showMessageDialog(this,
                         "Es ist ein Fehler beim Speichern des Anhangs aufgetreten: \n" + ex.getMessage(), "Fehler",
                         JOptionPane.OK_OPTION);

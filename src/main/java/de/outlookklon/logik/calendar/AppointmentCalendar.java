@@ -4,12 +4,11 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.Iterator;
 import java.util.List;
 import lombok.NonNull;
+import org.joda.time.DateTime;
 
 /**
  * Diese Klasse stellt die Verwaltung für die Termine des Benutzers dar
@@ -66,15 +65,15 @@ public class AppointmentCalendar implements Iterable<Appointment> {
      * false
      */
     public boolean isOverlapping(@NonNull Appointment a) {
-        Date startA = a.getStart();
-        Date endA = a.getEnd();
+        DateTime startA = a.getStart();
+        DateTime endA = a.getEnd();
 
         for (Appointment b : mAppointments) {
-            Date startB = b.getStart();
-            Date endB = b.getEnd();
+            DateTime startB = b.getStart();
+            DateTime endB = b.getEnd();
             // IF-Abfrage des Todes
-            if ((startA.before(startB) && endA.after(startB)) || (startA.before(endB) && endA.after(endB))
-                    || (startB.before(startA) && endB.after(startA)) || (startB.before(endA) && endB.after(endA))) {
+            if ((startA.isBefore(startB) && endA.isAfter(startB)) || (startA.isBefore(endB) && endA.isAfter(endB))
+                    || (startB.isBefore(startA) && endB.isAfter(startA)) || (startB.isBefore(endA) && endB.isAfter(endA))) {
                 return true;
             }
         }
@@ -95,7 +94,7 @@ public class AppointmentCalendar implements Iterable<Appointment> {
         Appointment oldest = mAppointments.get(0);
 
         for (Appointment appointment : mAppointments) {
-            if (appointment.getStart().before(oldest.getStart())) {
+            if (appointment.getStart().isBefore(oldest.getStart())) {
                 oldest = appointment;
             }
         }
@@ -119,16 +118,16 @@ public class AppointmentCalendar implements Iterable<Appointment> {
      * @param end Endzeit der Auswertung
      * @return Termine innerhalb des intervalls
      */
-    public Appointment[] getAppointments(@NonNull Date start, @NonNull Date end) {
-        if (end.before(start)) {
+    public Appointment[] getAppointments(@NonNull DateTime start, @NonNull DateTime end) {
+        if (end.isBefore(start)) {
             throw new IllegalArgumentException("Der Startzeitpunkt darf nicht hinter dem Endzeitpunkt liegen");
         }
 
         List<Appointment> list = new ArrayList<>();
         for (Appointment appointment : mAppointments) {
-            Date startZeit = appointment.getStart();
+            DateTime startZeit = appointment.getStart();
             if (appointment.getState() != AppointmentState.REJECTED
-                    && (start.equals(startZeit) || (startZeit.after(start) && startZeit.before(end)))) {
+                    && (start.equals(startZeit) || (startZeit.isAfter(start) && startZeit.isBefore(end)))) {
                 list.add(appointment);
             }
         }
@@ -142,27 +141,11 @@ public class AppointmentCalendar implements Iterable<Appointment> {
      */
     @JsonIgnore
     public Appointment[] getAppointments() {
-        Date now = new Date();
+        DateTime now = new DateTime(new Date());
+        DateTime start = now.withTimeAtStartOfDay();
+        DateTime end = start.plusDays(1);
 
-        GregorianCalendar c = new GregorianCalendar();
-
-        c.setTime(now);
-
-        // Setzt den Eintrag der Stunden auf 0
-        c.set(Calendar.HOUR, 0);
-
-        // Setzt den Eintrag der Minuten auf 0
-        c.set(Calendar.MINUTE, 0);
-
-        // Setzt den Eintrag der Sekunden auf 0
-        c.set(Calendar.SECOND, 0);
-
-        // Übergebener Tag mit der Uhrzeit 00:00:00
-        Date start = c.getTime();
-        c.add(Calendar.DAY_OF_YEAR, 1);
-        Date end = c.getTime(); // Tag um 1 höher als time1
-
-        return AppointmentCalendar.this.getAppointments(start, end);
+        return getAppointments(start, end);
     }
 
     /**

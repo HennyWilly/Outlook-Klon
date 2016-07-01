@@ -5,10 +5,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import de.outlookklon.logik.User;
 import de.outlookklon.logik.contacts.Contact;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import javax.mail.Address;
 import javax.mail.internet.InternetAddress;
+import org.joda.time.DateTime;
 
 /**
  * Dies ist eine Datenklasse, die die Daten von einem Appointment des Benutzers
@@ -25,10 +25,10 @@ public class Appointment implements Comparable<Appointment> {
     private String location;
 
     @JsonProperty("start")
-    private Date start;
+    private DateTime start;
 
     @JsonProperty("end")
-    private Date end;
+    private DateTime end;
 
     @JsonProperty("text")
     private String text;
@@ -56,7 +56,7 @@ public class Appointment implements Comparable<Appointment> {
      * @param user Name des Benutzers
      * @param contact Name des Kontakts
      */
-    public Appointment(String subject, String location, Date start, Date end, String text, String user, String contact) {
+    public Appointment(String subject, String location, DateTime start, DateTime end, String text, String user, String contact) {
         setSubject(subject);
         setLocation(location);
         setTimes(start, end);
@@ -97,8 +97,8 @@ public class Appointment implements Comparable<Appointment> {
     public Appointment(
             @JsonProperty("subject") String subject,
             @JsonProperty("location") String location,
-            @JsonProperty("start") Date start,
-            @JsonProperty("end") Date end,
+            @JsonProperty("start") DateTime start,
+            @JsonProperty("end") DateTime end,
             @JsonProperty("text") String text,
             @JsonProperty("user") String user,
             @JsonProperty("contact") String contact,
@@ -156,12 +156,12 @@ public class Appointment implements Comparable<Appointment> {
      * @param start Zu setzender Startzeitpunkt
      * @param end Zu setzender Endzeitpunkt
      */
-    public void setTimes(Date start, Date end) {
-        if (start.after(end)) {
+    public void setTimes(DateTime start, DateTime end) {
+        if (start.isAfter(end)) {
             throw new IllegalArgumentException("Der Startzeitpunkt darf nicht hinter dem Endzeitpunkt liegen");
         }
-        this.start = new Date(start.getTime());
-        this.end = new Date(end.getTime());
+        this.start = start;
+        this.end = end;
     }
 
     /**
@@ -169,7 +169,7 @@ public class Appointment implements Comparable<Appointment> {
      *
      * @return Startzeitpunkt
      */
-    public Date getStart() {
+    public DateTime getStart() {
         return start;
     }
 
@@ -178,7 +178,7 @@ public class Appointment implements Comparable<Appointment> {
      *
      * @return Endzeitpunkt
      */
-    public Date getEnd() {
+    public DateTime getEnd() {
         return end;
     }
 

@@ -22,6 +22,9 @@ import javax.swing.JSpinner;
 import javax.swing.JTextField;
 import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.SpinnerDateModel;
+import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Dieses Fenster dient der Eingabe und Anzeige von Terminen.
@@ -31,6 +34,8 @@ import javax.swing.SpinnerDateModel;
 public class AppointmentFrame extends ExtendedDialog<Appointment> {
 
     private static final long serialVersionUID = 8451017422297429822L;
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(AppointmentFrame.class);
 
     private JTextField textSubject;
     private JTextField textDescription;
@@ -123,17 +128,19 @@ public class AppointmentFrame extends ExtendedDialog<Appointment> {
                 SpinnerDateModel model1 = (SpinnerDateModel) dateStart.getModel();
                 SpinnerDateModel model2 = (SpinnerDateModel) dateEnd.getModel();
 
+                DateTime startDate = new DateTime(model1.getDate());
+                DateTime endDate = new DateTime(model2.getDate());
                 try {
                     if (mAppointment == null) {
-                        mAppointment = new Appointment(textSubject.getText(), textLocation.getText(), model1.getDate(),
-                                model2.getDate(), textDescription.getText(), comboAccount.getSelectedItem().toString(),
+                        mAppointment = new Appointment(textSubject.getText(), textLocation.getText(), startDate,
+                                endDate, textDescription.getText(), comboAccount.getSelectedItem().toString(),
                                 comboContact.getSelectedItem().toString());
                     } else {
 
                         mAppointment.setSubject(textSubject.getText());
                         mAppointment.setLocation(textLocation.getText());
                         mAppointment.setText(textDescription.getText());
-                        mAppointment.setTimes(model1.getDate(), model2.getDate());
+                        mAppointment.setTimes(startDate, endDate);
                         mAppointment.setUser(comboAccount.getSelectedItem().toString());
                         mAppointment.setContact(comboContact.getSelectedItem().toString());
 
@@ -141,6 +148,8 @@ public class AppointmentFrame extends ExtendedDialog<Appointment> {
 
                     close();
                 } catch (RuntimeException ex) {
+                    LOGGER.error("Error while creating appointment", ex);
+
                     JOptionPane.showMessageDialog(null, "Es ist ein Fehler aufgetreten:\n" + ex.getMessage(), "Fehler",
                             JOptionPane.ERROR_MESSAGE);
                 }

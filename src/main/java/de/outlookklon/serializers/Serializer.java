@@ -7,6 +7,7 @@ import de.outlookklon.serializers.mixins.AddressMixIn;
 import de.outlookklon.serializers.mixins.InternetAddressMixIn;
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import javax.mail.Address;
 import javax.mail.internet.InternetAddress;
 import org.apache.commons.io.FileUtils;
@@ -18,6 +19,8 @@ import org.apache.commons.io.FileUtils;
  * @author Hendrik Karwanni
  */
 public final class Serializer {
+
+    private static final Charset CHARSET = Charset.forName("UTF-8");
 
     private static final ObjectMapper MAPPER;
 
@@ -68,7 +71,7 @@ public final class Serializer {
      * @throws IOException if deserialization fails
      */
     public static String deserializePlainText(File target) throws IOException {
-        return FileUtils.readFileToString(target);
+        return FileUtils.readFileToString(target, CHARSET);
     }
 
     /**
@@ -103,6 +106,6 @@ public final class Serializer {
      * @throws IOException if serialization fails
      */
     public static void serializeStringToPlainText(File target, String value) throws IOException {
-        FileUtils.writeStringToFile(target, value);
+        FileUtils.writeStringToFile(target, value, CHARSET);
     }
 }

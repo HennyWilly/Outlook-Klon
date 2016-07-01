@@ -29,6 +29,7 @@ import javax.mail.internet.MimeMessage;
 import javax.mail.search.MessageIDTerm;
 import javax.mail.search.StringTerm;
 import lombok.NonNull;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -672,11 +673,10 @@ public class MailAccount {
                     final String disposition = part.getDisposition();
                     final String fileName = part.getFileName();
 
-                    if (Part.ATTACHMENT.equalsIgnoreCase(disposition)
-                            || (fileName != null && !fileName.trim().isEmpty())) {
-                        if (attachmentName.equals(fileName)) {
-                            part.saveFile(targetPath);
-                        }
+                    if ((Part.ATTACHMENT.equalsIgnoreCase(disposition)
+                            || StringUtils.isBlank(fileName))
+                            && attachmentName.equals(fileName)) {
+                        part.saveFile(targetPath);
                     }
                 }
             }
