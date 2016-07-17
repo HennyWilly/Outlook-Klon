@@ -1,7 +1,8 @@
 package de.outlookklon.gui;
 
-import de.outlookklon.Program;
 import de.outlookklon.dao.DAOException;
+import de.outlookklon.gui.helpers.TaggedJRadioButtonMenuItem;
+import de.outlookklon.localization.Localization;
 import de.outlookklon.logik.User;
 import de.outlookklon.logik.UserException;
 import de.outlookklon.logik.contacts.Contact;
@@ -16,6 +17,8 @@ import java.awt.Component;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
@@ -87,30 +90,37 @@ public class MainFrame extends ExtendedFrame {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MainFrame.class);
 
-    private static final DateFormat DATEFORMAT = DateFormat.getDateTimeInstance(DateFormat.FULL, DateFormat.MEDIUM,
-            Locale.getDefault());
-
     private JPopupMenu tablePopup;
-    private JMenuItem popupOpen;
-    private JMenuItem popupDelete;
-    private JMenuItem popupAnswer;
-    private JMenuItem popupForward;
+    private final JMenuItem popupOpen;
+    private final JMenuItem popupDelete;
+    private final JMenuItem popupAnswer;
+    private final JMenuItem popupForward;
+
     private JMenu popupCopy;
     private JMenu popupMove;
 
-    private JTable tblMails;
-    private JMenuItem mntmEmail;
-    private JMenuItem mntmContact;
-    private JMenuItem mntmAppointment;
-    private JMenuItem mntmClose;
-    private JButton btnPoll;
-    private JTree tree;
-    private HtmlEditorPane tpPreview;
+    private final JTable tblMails;
+    private final JMenu mnFile;
+    private final JMenu mnNewMenu;
+    private final JMenuItem mntmEmail;
+    private final JMenuItem mntmContact;
+    private final JMenuItem mntmAppointment;
+    private final JMenuItem mntmClose;
+    private final JMenu mnMessages;
+    private final JMenuItem mntFileNewSickNote;
+    private final JMenuItem mntFileNewAbsenceMessage;
+    private final JCheckBoxMenuItem mnEnableAbsenceMessage;
+    private final JMenu mnExtras;
+    private final JMenuItem mntmAddressBook;
+    private final JMenuItem mntmCalendar;
+    private final JMenu mnLanguages;
+    private final JMenuItem mntmAccountSettings;
+
+    private final JButton btnPoll;
+    private final JTree tree;
+    private final HtmlEditorPane tpPreview;
 
     private User user;
-    private JMenuItem mntmAccountSettings;
-    private JMenuItem mntmAddressBook;
-    private JMenuItem mntmCalendar;
 
     private boolean load;
 
@@ -118,10 +128,154 @@ public class MainFrame extends ExtendedFrame {
      * Erstellt eine neue Instanz des Hauptfensters
      */
     public MainFrame() throws UserException {
-        setTitle(Program.STRINGS.getString("MainFrame_Title"));
-
         user = User.getInstance();
 
+        btnPoll = new JButton();
+        mnFile = new JMenu();
+        mnNewMenu = new JMenu();
+        mntmEmail = new JMenuItem();
+        mntmContact = new JMenuItem();
+        mntmAppointment = new JMenuItem();
+        mntmClose = new JMenuItem();
+        mnMessages = new JMenu();
+        mntFileNewSickNote = new JMenuItem();
+        mntFileNewAbsenceMessage = new JMenuItem();
+        mnEnableAbsenceMessage = new JCheckBoxMenuItem();
+        mnExtras = new JMenu();
+        mntmAccountSettings = new JMenuItem();
+        mntmAddressBook = new JMenuItem();
+        mntmCalendar = new JMenuItem();
+        mnLanguages = new JMenu();
+
+        popupOpen = new JMenuItem();
+        popupDelete = new JMenuItem();
+        popupAnswer = new JMenuItem();
+        popupForward = new JMenuItem();
+        popupCopy = new JMenu();
+        popupMove = new JMenu();
+
+        tpPreview = new HtmlEditorPane();
+
+        tblMails = new JTable() {
+            private static final long serialVersionUID = 1L;
+
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
+
+        tree = new JTree() {
+            private static final long serialVersionUID = 1L;
+
+            @Override
+            public boolean isEditable() {
+                return false;
+            }
+        };
+
+        initGui();
+        updateTexts();
+
+        this.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent windowEvent) {
+                try {
+                    user.save();
+                } catch (IOException e) {
+                    LOGGER.error(Localization.getString("MainFrame_SaveSettingsError"), e);
+
+                    Component component = windowEvent.getComponent();
+                    JOptionPane.showMessageDialog(component,
+                            Localization.getString("MainFrame_SaveSettingsError"),
+                            Localization.getString("Dialog_Error"),
+                            JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        });
+
+        load = false;
+    }
+
+    @Override
+    public void updateTexts() {
+        setTitle(Localization.getString("MainFrame_Title"));
+
+        btnPoll.setText(Localization.getString("MainFrame_Receive"));
+        mnFile.setText(Localization.getString("Menu_File"));
+        mnNewMenu.setText(Localization.getString("Menu_New"));
+        mntmEmail.setText(Localization.getString("MainFrame_EMail"));
+        mntmContact.setText(Localization.getString("Contact"));
+        mntmAppointment.setText(Localization.getString("Appointment"));
+        mntmClose.setText(Localization.getString("Menu_Close"));
+        mnMessages.setText(Localization.getString("MainFrame_Messanges"));
+        mntFileNewSickNote.setText(Localization.getString("Message_SickNote"));
+        mntFileNewAbsenceMessage.setText(Localization.getString("Message_AbsenceMessage"));
+        mnEnableAbsenceMessage.setText(Localization.getString("MainFrame_Absend"));
+        mnExtras.setText(Localization.getString("Menu_Extras"));
+        mntmAccountSettings.setText(Localization.getString("AccountManagementFrame_Title"));
+        mntmAddressBook.setText(Localization.getString("AddressBookFrame_Title"));
+        mntmCalendar.setText(Localization.getString("Calendar"));
+        mnLanguages.setText(Localization.getString("Languages"));
+
+        popupOpen.setText(Localization.getString("Menu_Open"));
+        popupDelete.setText(Localization.getString("Menu_Delete"));
+        popupAnswer.setText(Localization.getString("Answer"));
+        popupForward.setText(Localization.getString("Forward"));
+        popupCopy.setText(Localization.getString("Menu_Copy"));
+        popupMove.setText(Localization.getString("Menu_Move"));
+
+        // TODO Copy Data
+        tblMails.setModel(getTableModel());
+        tblMails.removeColumn(tblMails.getColumn("MailInfo"));
+
+        updateLanguageMenu();
+    }
+
+    private void updateLanguageMenu() {
+        mnLanguages.removeAll();
+
+        Locale currentLocale = Localization.getLocale();
+        for (Locale locale : Localization.getLocalizedLocales()) {
+            TaggedJRadioButtonMenuItem languageMenuItem = new TaggedJRadioButtonMenuItem(locale.getDisplayLanguage(), locale.equals(currentLocale));
+            languageMenuItem.setTag(locale);
+            languageMenuItem.addItemListener(new ItemListener() {
+                @Override
+                public void itemStateChanged(ItemEvent e) {
+                    TaggedJRadioButtonMenuItem sender = (TaggedJRadioButtonMenuItem) e.getSource();
+
+                    if (sender.isSelected()) {
+                        Locale locale = (Locale) sender.getTag();
+                        Localization.setLocale(locale);
+                    }
+                }
+            });
+            mnLanguages.add(languageMenuItem);
+        }
+    }
+
+    private TableModel getTableModel() {
+        return new DefaultTableModel(
+                new Object[][]{},
+                new String[]{
+                    "MailInfo",
+                    Localization.getString("MailFrame_Subject"),
+                    Localization.getString("MailFrame_From"),
+                    Localization.getString("Appointment_Date")
+                }
+        ) {
+            private static final long serialVersionUID = 1L;
+            Class<?>[] columnTypes = new Class<?>[]{StoredMailInfo.class, String.class, InternetAddress.class,
+                Date.class};
+
+            @Override
+            public Class<?> getColumnClass(int columnIndex) {
+                return columnTypes[columnIndex];
+            }
+        };
+    }
+
+    private void initGui() {
         JSplitPane horizontalSplitPane = new JSplitPane();
 
         initTablePopup();
@@ -134,7 +288,6 @@ public class MainFrame extends ExtendedFrame {
 
         initTable(verticalSplitPane);
 
-        tpPreview = new HtmlEditorPane();
         tpPreview.setEditable(false);
 
         JScrollPane previewScroller = new JScrollPane(tpPreview);
@@ -142,7 +295,6 @@ public class MainFrame extends ExtendedFrame {
 
         JToolBar toolBar = new JToolBar();
 
-        btnPoll = new JButton(Program.STRINGS.getString("MainFrame_Receive"));
         btnPoll.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -178,25 +330,6 @@ public class MainFrame extends ExtendedFrame {
         getContentPane().setLayout(groupLayout);
 
         initMenu();
-
-        this.addWindowListener(new WindowAdapter() {
-            @Override
-            public void windowClosing(WindowEvent windowEvent) {
-                try {
-                    user.save();
-                } catch (IOException e) {
-                    LOGGER.error(Program.STRINGS.getString("MainFrame_SaveSettingsError"), e);
-
-                    Component component = windowEvent.getComponent();
-                    JOptionPane.showMessageDialog(component,
-                            Program.STRINGS.getString("MainFrame_SaveSettingsError"),
-                            Program.STRINGS.getString("Dialog_Error"),
-                            JOptionPane.ERROR_MESSAGE);
-                }
-            }
-        });
-
-        load = false;
     }
 
     /**
@@ -205,14 +338,9 @@ public class MainFrame extends ExtendedFrame {
     private void initMenu() {
         JMenuBar menuBar = new JMenuBar();
         setJMenuBar(menuBar);
-
-        JMenu mnFile = new JMenu(Program.STRINGS.getString("Menu_File"));
         menuBar.add(mnFile);
-
-        JMenu mnNewMenu = new JMenu(Program.STRINGS.getString("Menu_New"));
         mnFile.add(mnNewMenu);
 
-        mntmEmail = new JMenuItem(Program.STRINGS.getString("MainFrame_EMail"));
         mntmEmail.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -221,7 +349,6 @@ public class MainFrame extends ExtendedFrame {
         });
         mnNewMenu.add(mntmEmail);
 
-        mntmContact = new JMenuItem(Program.STRINGS.getString("Contact"));
         mntmContact.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -230,7 +357,6 @@ public class MainFrame extends ExtendedFrame {
         });
         mnNewMenu.add(mntmContact);
 
-        mntmAppointment = new JMenuItem(Program.STRINGS.getString("Appointment"));
         mntmAppointment.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -239,7 +365,6 @@ public class MainFrame extends ExtendedFrame {
         });
         mnNewMenu.add(mntmAppointment);
 
-        mntmClose = new JMenuItem(Program.STRINGS.getString("Menu_Close"));
         mntmClose.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -248,10 +373,8 @@ public class MainFrame extends ExtendedFrame {
         });
         mnFile.add(mntmClose);
 
-        JMenu mnMessages = new JMenu(Program.STRINGS.getString("MainFrame_Messanges"));
         menuBar.add(mnMessages);
 
-        JMenuItem mntFileNewSickNote = new JMenuItem(Program.STRINGS.getString("Message_SickNote"));
         mntFileNewSickNote.addActionListener(new ActionListener() {
 
             @Override
@@ -261,7 +384,6 @@ public class MainFrame extends ExtendedFrame {
         });
         mnMessages.add(mntFileNewSickNote);
 
-        JMenuItem mntFileNewAbsenceMessage = new JMenuItem(Program.STRINGS.getString("Message_AbsenceMessage"));
         mntFileNewAbsenceMessage.addActionListener(new ActionListener() {
 
             @Override
@@ -273,7 +395,6 @@ public class MainFrame extends ExtendedFrame {
 
         mnMessages.add(new JSeparator());
 
-        JCheckBoxMenuItem mnEnableAbsenceMessage = new JCheckBoxMenuItem(Program.STRINGS.getString("MainFrame_Absend"));
         mnEnableAbsenceMessage.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -285,10 +406,8 @@ public class MainFrame extends ExtendedFrame {
         });
         mnMessages.add(mnEnableAbsenceMessage);
 
-        JMenu mnExtras = new JMenu(Program.STRINGS.getString("Menu_Extras"));
         menuBar.add(mnExtras);
 
-        mntmAccountSettings = new JMenuItem(Program.STRINGS.getString("AccountManagementFrame_Title"));
         mntmAccountSettings.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -296,7 +415,6 @@ public class MainFrame extends ExtendedFrame {
             }
         });
 
-        mntmAddressBook = new JMenuItem(Program.STRINGS.getString("AddressBookFrame_Title"));
         mntmAddressBook.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -305,7 +423,6 @@ public class MainFrame extends ExtendedFrame {
         });
         mnExtras.add(mntmAddressBook);
 
-        mntmCalendar = new JMenuItem(Program.STRINGS.getString("Calendar"));
         mntmCalendar.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -315,6 +432,8 @@ public class MainFrame extends ExtendedFrame {
         mnExtras.add(mntmCalendar);
 
         mnExtras.add(new JSeparator());
+        mnExtras.add(mnLanguages);
+        mnExtras.add(new JSeparator());
         mnExtras.add(mntmAccountSettings);
     }
 
@@ -322,7 +441,6 @@ public class MainFrame extends ExtendedFrame {
      * Initialisiert das Popup-Menü der Mailtabelle
      */
     private void initTablePopup() {
-        popupOpen = new JMenuItem(Program.STRINGS.getString("Menu_Open"));
         popupOpen.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -340,7 +458,6 @@ public class MainFrame extends ExtendedFrame {
             }
         });
 
-        popupDelete = new JMenuItem(Program.STRINGS.getString("Menu_Delete"));
         popupDelete.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -348,7 +465,6 @@ public class MainFrame extends ExtendedFrame {
             }
         });
 
-        popupAnswer = new JMenuItem(Program.STRINGS.getString("Answer"));
         popupAnswer.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -366,7 +482,6 @@ public class MainFrame extends ExtendedFrame {
             }
         });
 
-        popupForward = new JMenuItem(Program.STRINGS.getString("Forward"));
         popupForward.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -384,9 +499,6 @@ public class MainFrame extends ExtendedFrame {
             }
         });
 
-        popupCopy = new JMenu(Program.STRINGS.getString("Menu_Copy"));
-        popupMove = new JMenu(Program.STRINGS.getString("Menu_Move"));
-
         tablePopup = new JPopupMenu();
         tablePopup.add(popupOpen);
         tablePopup.add(popupDelete);
@@ -403,33 +515,7 @@ public class MainFrame extends ExtendedFrame {
      * soll
      */
     private void initTable(JSplitPane verticalSplitPane) {
-        tblMails = new JTable() {
-            private static final long serialVersionUID = 1L;
-
-            @Override
-            public boolean isCellEditable(int row, int column) {
-                return false;
-            }
-        };
-        tblMails.setModel(
-                new DefaultTableModel(
-                        new Object[][]{},
-                        new String[]{
-                            "MailInfo",
-                            Program.STRINGS.getString("MailFrame_Subject"),
-                            Program.STRINGS.getString("MailFrame_From"),
-                            Program.STRINGS.getString("Appointment_Date")
-                        }
-                ) {
-            private static final long serialVersionUID = 1L;
-            Class<?>[] columnTypes = new Class<?>[]{StoredMailInfo.class, String.class, InternetAddress.class,
-                Date.class};
-
-            @Override
-            public Class<?> getColumnClass(int columnIndex) {
-                return columnTypes[columnIndex];
-            }
-        });
+        tblMails.setModel(getTableModel());
 
         DefaultTableCellRenderer cellRenderer = new DefaultTableCellRenderer() {
             private static final long serialVersionUID = 6837957351164997131L;
@@ -440,7 +526,9 @@ public class MainFrame extends ExtendedFrame {
 
                 Object cellValue;
                 if (value instanceof Date) {
-                    cellValue = DATEFORMAT.format(value);
+                    DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.FULL, DateFormat.MEDIUM,
+                            Localization.getLocale());
+                    cellValue = dateFormat.format(value);
                 } else if (value instanceof InternetAddress) {
                     InternetAddress data = (InternetAddress) value;
                     String personal = data.getPersonal();
@@ -540,15 +628,6 @@ public class MainFrame extends ExtendedFrame {
      * @param splitPane JSplitPane, in die der Baum eingefügt werden soll
      */
     private void initTree(JSplitPane splitPane) {
-        DefaultMutableTreeNode root = new DefaultMutableTreeNode("[root]");
-        tree = new JTree() {
-            private static final long serialVersionUID = 1L;
-
-            @Override
-            public boolean isEditable() {
-                return false;
-            }
-        };
         tree.setCellRenderer(new DefaultTreeCellRenderer() {
             private static final long serialVersionUID = 3057355870823054419L;
 
@@ -610,6 +689,9 @@ public class MainFrame extends ExtendedFrame {
                 }
             }
         });
+
+        DefaultMutableTreeNode root = new DefaultMutableTreeNode("[root]");
+
         tree.setRootVisible(false);
         tree.setEditable(true);
         tree.setModel(new DefaultTreeModel(root));
@@ -664,11 +746,11 @@ public class MainFrame extends ExtendedFrame {
             mf.setExtendedState(this.getExtendedState());
             mf.setVisible(true);
         } catch (MessagingException | DAOException e) {
-            LOGGER.error(Program.STRINGS.getString("MainFrame_CouldNotAnswerMail"), e);
+            LOGGER.error(Localization.getString("MainFrame_CouldNotAnswerMail"), e);
 
             JOptionPane.showMessageDialog(this,
-                    Program.STRINGS.getString("MainFrame_CouldNotAnswerMail") + ": \n" + e.getMessage(),
-                    Program.STRINGS.getString("Dialog_Error"),
+                    Localization.getString("MainFrame_CouldNotAnswerMail") + ": \n" + e.getMessage(),
+                    Localization.getString("Dialog_Error"),
                     JOptionPane.ERROR_MESSAGE);
         }
     }
@@ -690,11 +772,11 @@ public class MainFrame extends ExtendedFrame {
             mf.setExtendedState(this.getExtendedState());
             mf.setVisible(true);
         } catch (MessagingException | DAOException e) {
-            LOGGER.error(Program.STRINGS.getString("MainFrame_CouldNotForwarMail"), e);
+            LOGGER.error(Localization.getString("MainFrame_CouldNotForwarMail"), e);
 
             JOptionPane.showMessageDialog(this,
-                    Program.STRINGS.getString("MainFrame_CouldNotForwarMail") + ": \n" + e.getMessage(),
-                    Program.STRINGS.getString("Dialog_Error"),
+                    Localization.getString("MainFrame_CouldNotForwarMail") + ": \n" + e.getMessage(),
+                    Localization.getString("Dialog_Error"),
                     JOptionPane.ERROR_MESSAGE);
         }
     }
@@ -818,11 +900,11 @@ public class MainFrame extends ExtendedFrame {
                 try {
                     user.removeMailAccount(acc, true);
                 } catch (IOException e) {
-                    LOGGER.error(Program.STRINGS.getString("MainFrame_CouldNotDeleteAccountSettings"), e);
+                    LOGGER.error(Localization.getString("MainFrame_CouldNotDeleteAccountSettings"), e);
 
                     JOptionPane.showMessageDialog(this,
-                            Program.STRINGS.getString("MainFrame_CouldNotDeleteAccountSettings"),
-                            Program.STRINGS.getString("Dialog_Error"),
+                            Localization.getString("MainFrame_CouldNotDeleteAccountSettings"),
+                            Localization.getString("Dialog_Error"),
                             JOptionPane.ERROR_MESSAGE);
                 }
             }
@@ -931,7 +1013,7 @@ public class MainFrame extends ExtendedFrame {
             try {
                 folders = checker.getAccount().getFolderStructure();
             } catch (MessagingException ex) {
-                LOGGER.error(Program.STRINGS.getString("MainFrame_CouldNotGetFolders"), ex);
+                LOGGER.error(Localization.getString("MainFrame_CouldNotGetFolders"), ex);
                 folders = new FolderInfo[0];
             }
 
@@ -1011,9 +1093,9 @@ public class MainFrame extends ExtendedFrame {
                 DefaultTreeModel treeModel = (DefaultTreeModel) tree.getModel();
                 treeModel.removeNodeFromParent(node);
 
-                LOGGER.warn(Program.STRINGS.getString("MainFrame_CouldNotFindMailFolder"), e);
+                LOGGER.warn(Localization.getString("MainFrame_CouldNotFindMailFolder"), e);
             } catch (MessagingException | DAOException ex) {
-                LOGGER.error(Program.STRINGS.getString("MainFrame_CouldNotGetMessage"), ex);
+                LOGGER.error(Localization.getString("MainFrame_CouldNotGetMessage"), ex);
             }
 
             load = false;
@@ -1100,11 +1182,11 @@ public class MainFrame extends ExtendedFrame {
             mailFrame.setExtendedState(this.getExtendedState());
             mailFrame.setVisible(true);
         } catch (MessagingException | DAOException e) {
-            LOGGER.error(Program.STRINGS.getString("MainFrame_CouldNotOpenMail"), e);
+            LOGGER.error(Localization.getString("MainFrame_CouldNotOpenMail"), e);
 
             JOptionPane.showMessageDialog(this,
-                    Program.STRINGS.getString("MainFrame_CouldNotOpenMail") + ":\n" + e.getMessage(),
-                    Program.STRINGS.getString("Dialog_Error"),
+                    Localization.getString("MainFrame_CouldNotOpenMail") + ":\n" + e.getMessage(),
+                    Localization.getString("Dialog_Error"),
                     JOptionPane.ERROR_MESSAGE);
         }
     }
@@ -1124,11 +1206,11 @@ public class MainFrame extends ExtendedFrame {
                 tblMails.setRowSelectionInterval(row, row);
 
                 tablePopup.remove(popupCopy);
-                popupCopy = generateFolderMenu(popupCopy.getText(), Program.STRINGS.getString("MainFrame_CopyToFolder"));
+                popupCopy = generateFolderMenu(popupCopy.getText(), Localization.getString("MainFrame_CopyToFolder"));
                 tablePopup.add(popupCopy);
 
                 tablePopup.remove(popupMove);
-                popupMove = generateFolderMenu(popupMove.getText(), Program.STRINGS.getString("MainFrame_MoveToFolder"));
+                popupMove = generateFolderMenu(popupMove.getText(), Localization.getString("MainFrame_MoveToFolder"));
                 tablePopup.add(popupMove);
 
                 // Öffnet das Popup an der Mausposition relativ zur Tabelle
@@ -1161,13 +1243,13 @@ public class MainFrame extends ExtendedFrame {
                 String path = (String) item.getClientProperty("PFAD");
                 String type = (String) item.getClientProperty("TYP");
 
-                if (type.equals(Program.STRINGS.getString("Menu_Copy"))) {
+                if (type.equals(Localization.getString("Menu_Copy"))) {
                     copyMail(path);
-                } else if (type.equals(Program.STRINGS.getString("Menu_Move"))) {
+                } else if (type.equals(Localization.getString("Menu_Move"))) {
                     moveMail(path);
                 } else {
                     throw new IllegalArgumentException(
-                            String.format(Program.STRINGS.getString("MainFrame_InvalidTypeFormat"), type));
+                            String.format(Localization.getString("MainFrame_InvalidTypeFormat"), type));
                 }
             }
         };
@@ -1273,11 +1355,11 @@ public class MainFrame extends ExtendedFrame {
             // Das eigendliche Kopieren der Mails
             acc.copyMails(infos, source.getPath(), target);
         } catch (MessagingException | DAOException e) {
-            LOGGER.error(Program.STRINGS.getString("MainFrame_CouldNotCopyMail"), e);
+            LOGGER.error(Localization.getString("MainFrame_CouldNotCopyMail"), e);
 
             JOptionPane.showMessageDialog(this,
-                    Program.STRINGS.getString("MainFrame_CouldNotCopyMail") + ": \n" + e.getMessage(),
-                    Program.STRINGS.getString("Dialog_Error"),
+                    Localization.getString("MainFrame_CouldNotCopyMail") + ": \n" + e.getMessage(),
+                    Localization.getString("Dialog_Error"),
                     JOptionPane.ERROR_MESSAGE);
         }
     }
@@ -1308,11 +1390,11 @@ public class MainFrame extends ExtendedFrame {
                 row = tblMails.getSelectedRow();
             }
         } catch (MessagingException | DAOException e) {
-            LOGGER.error(Program.STRINGS.getString("MainFrame_CouldNotMoveMail"), e);
+            LOGGER.error(Localization.getString("MainFrame_CouldNotMoveMail"), e);
 
             JOptionPane.showMessageDialog(this,
-                    Program.STRINGS.getString("MainFrame_CouldNotMoveMail") + ": \n" + e.getMessage(),
-                    Program.STRINGS.getString("Dialog_Error"),
+                    Localization.getString("MainFrame_CouldNotMoveMail") + ": \n" + e.getMessage(),
+                    Localization.getString("Dialog_Error"),
                     JOptionPane.ERROR_MESSAGE);
         }
     }
@@ -1341,11 +1423,11 @@ public class MainFrame extends ExtendedFrame {
                 row = tblMails.getSelectedRow();
             }
         } catch (MessagingException | DAOException e) {
-            LOGGER.error(Program.STRINGS.getString("MainFrame_CouldNotDeleteMail"), e);
+            LOGGER.error(Localization.getString("MainFrame_CouldNotDeleteMail"), e);
 
             JOptionPane.showMessageDialog(this,
-                    Program.STRINGS.getString("MainFrame_CouldNotDeleteMail") + ": \n" + e.getMessage(),
-                    Program.STRINGS.getString("Dialog_Error"),
+                    Localization.getString("MainFrame_CouldNotDeleteMail") + ": \n" + e.getMessage(),
+                    Localization.getString("Dialog_Error"),
                     JOptionPane.ERROR_MESSAGE);
         }
     }
@@ -1387,11 +1469,11 @@ public class MainFrame extends ExtendedFrame {
             }
 
         } catch (MessagingException | DAOException ex) {
-            LOGGER.error(Program.STRINGS.getString("MainFrame_CouldNotLoadMailText"), ex);
+            LOGGER.error(Localization.getString("MainFrame_CouldNotLoadMailText"), ex);
 
             JOptionPane.showMessageDialog(this,
-                    Program.STRINGS.getString("MainFrame_CouldNotLoadMailText") + ":\n" + ex.getMessage(),
-                    Program.STRINGS.getString("Dialog_Error"),
+                    Localization.getString("MainFrame_CouldNotLoadMailText") + ":\n" + ex.getMessage(),
+                    Localization.getString("Dialog_Error"),
                     JOptionPane.ERROR_MESSAGE);
         }
 
@@ -1411,8 +1493,8 @@ public class MainFrame extends ExtendedFrame {
      */
     private void noMailAccount() {
         JOptionPane.showMessageDialog(this,
-                Program.STRINGS.getString("MainFrame_NoMailAccount"),
-                Program.STRINGS.getString("Dialog_Error"),
+                Localization.getString("MainFrame_NoMailAccount"),
+                Localization.getString("Dialog_Error"),
                 JOptionPane.ERROR_MESSAGE);
     }
 
@@ -1431,7 +1513,7 @@ public class MainFrame extends ExtendedFrame {
      */
     private void editAbsenceMessage() {
         MessageFrame messageFrame = new MessageFrame(user.getAbsenceMessage(),
-                Program.STRINGS.getString("Message_AbsenceMessage"));
+                Localization.getString("Message_AbsenceMessage"));
         String message = messageFrame.showDialog();
 
         if (message != null) {
@@ -1444,7 +1526,7 @@ public class MainFrame extends ExtendedFrame {
      */
     private void editSickNote() {
         MessageFrame messageFrame = new MessageFrame(user.getSickNote(),
-                Program.STRINGS.getString("Message_SickNote"));
+                Localization.getString("Message_SickNote"));
         String message = messageFrame.showDialog();
 
         if (message != null) {
@@ -1488,7 +1570,7 @@ public class MainFrame extends ExtendedFrame {
 
             DefaultMutableTreeNode checkerNode = getMailCheckerNode(root, sender);
             if (checkerNode == null) {
-                LOGGER.warn(Program.STRINGS.getString("MainFrame_NoNodeForMail"));
+                LOGGER.warn(Localization.getString("MainFrame_NoNodeForMail"));
                 return;
             }
 

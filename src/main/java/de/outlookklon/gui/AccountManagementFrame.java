@@ -1,7 +1,6 @@
 package de.outlookklon.gui;
 
-import de.outlookklon.Program;
-import de.outlookklon.gui.helpers.Buttons;
+import de.outlookklon.localization.Localization;
 import de.outlookklon.logik.User;
 import de.outlookklon.logik.mailclient.InboxServer;
 import de.outlookklon.logik.mailclient.MailAccount;
@@ -46,20 +45,29 @@ public class AccountManagementFrame extends ExtendedDialog<MailAccount[]> {
     private final JButton btnOK;
     private final JButton btnRemoveAccount;
 
+    private final JLabel lblInboxUsername;
     private final JTextField txtUser;
+    private final JLabel lblEmailaddress;
     private final JTextField txtMail;
+    private final JLabel lblName;
     private final JTextField txtName;
 
+    private final JLabel lblServerType;
     private final JTextField txtInboxTyp;
     private final JTextField txtInboxServer;
     private final JTextField txtInboxPort;
+    private final JLabel lblInboxConnectionSecurity;
     private final JTextField txtInboxConnectionSecurity;
+    private final JLabel lblInboxAuthentificationType;
     private final JTextField txtInboxAuthentification;
 
-    private final JTextField txtOutboxTyp;
+    private final JLabel lblOutboxType;
+    private final JTextField txtOutboxType;
     private final JTextField txtOutboxServer;
     private final JTextField txtOutboxPort;
+    private final JLabel lblOutboxConnectionSecurity;
     private final JTextField txtOutboxConnectionSecurity;
+    private final JLabel lblOutboxAuthentificationType;
     private final JTextField txtOutboxAuthentification;
 
     /**
@@ -71,7 +79,6 @@ public class AccountManagementFrame extends ExtendedDialog<MailAccount[]> {
 
         myAccounts = null;
 
-        setTitle(Program.STRINGS.getString("AccountManagementFrame_Title"));
         getContentPane().setLayout(null);
 
         DefaultListModel<MailAccount> listModel = new DefaultListModel<>();
@@ -124,7 +131,7 @@ public class AccountManagementFrame extends ExtendedDialog<MailAccount[]> {
         accountScroller.setBounds(lstAccounts.getBounds());
         getContentPane().add(accountScroller);
 
-        btnNewAccount = new JButton(Program.STRINGS.getString("AccountManagementFrame_NewAccount"));
+        btnNewAccount = new JButton();
         btnNewAccount.setBounds(10, 592, 106, 23);
         btnNewAccount.addActionListener(new ActionListener() {
             @Override
@@ -134,7 +141,7 @@ public class AccountManagementFrame extends ExtendedDialog<MailAccount[]> {
         });
         getContentPane().add(btnNewAccount);
 
-        btnAbort = Buttons.getAbortButton();
+        btnAbort = new JButton();
         btnAbort.setBounds(583, 633, 112, 23);
         btnAbort.addActionListener(new ActionListener() {
             @Override
@@ -145,7 +152,7 @@ public class AccountManagementFrame extends ExtendedDialog<MailAccount[]> {
         });
         getContentPane().add(btnAbort);
 
-        btnOK = Buttons.getOkButton();
+        btnOK = new JButton();
         btnOK.setBounds(484, 633, 89, 23);
         btnOK.addActionListener(new ActionListener() {
             @Override
@@ -160,7 +167,7 @@ public class AccountManagementFrame extends ExtendedDialog<MailAccount[]> {
         });
         getContentPane().add(btnOK);
 
-        btnRemoveAccount = new JButton(Program.STRINGS.getString("AccountManagementFrame_DeleteAccount"));
+        btnRemoveAccount = new JButton();
         btnRemoveAccount.setEnabled(false);
         btnRemoveAccount.addActionListener(new ActionListener() {
             @Override
@@ -178,21 +185,23 @@ public class AccountManagementFrame extends ExtendedDialog<MailAccount[]> {
         btnRemoveAccount.setBounds(123, 592, 126, 23);
         getContentPane().add(btnRemoveAccount);
 
-        JLabel lblName = new JLabel(Program.STRINGS.getString("AccountManagementFrame_Name"));
+        lblName = new JLabel();
         lblName.setBounds(259, 13, 99, 14);
         getContentPane().add(lblName);
 
-        JLabel lblEmailaddress = new JLabel(Program.STRINGS.getString("Account_MailAddress"));
+        lblEmailaddress = new JLabel();
         lblEmailaddress.setBounds(259, 38, 99, 14);
         getContentPane().add(lblEmailaddress);
 
-        JLabel lblInboxUsername = new JLabel(Program.STRINGS.getString("Account_Username"));
+        lblInboxUsername = new JLabel();
         lblInboxUsername.setBounds(259, 63, 99, 14);
         getContentPane().add(lblInboxUsername);
 
         JPanel panelInbox = new JPanel();
         panelInbox.setBounds(259, 88, 436, 126);
-        panelInbox.setBorder(BorderFactory.createTitledBorder(Program.STRINGS.getString("Account_Inbox")));
+
+        // TODO Adjust for dynamic localized text
+        panelInbox.setBorder(BorderFactory.createTitledBorder(Localization.getString("Account_Inbox")));
         getContentPane().add(panelInbox);
         panelInbox.setLayout(null);
 
@@ -204,15 +213,15 @@ public class AccountManagementFrame extends ExtendedDialog<MailAccount[]> {
         lblInboxPort.setBounds(285, 52, 46, 14);
         panelInbox.add(lblInboxPort);
 
-        JLabel lblInboxConnectionSecurity = new JLabel(Program.STRINGS.getString("Account_ConnectionSecurity"));
+        lblInboxConnectionSecurity = new JLabel();
         lblInboxConnectionSecurity.setBounds(10, 77, 143, 14);
         panelInbox.add(lblInboxConnectionSecurity);
 
-        JLabel lblInboxAuthentificationType = new JLabel(Program.STRINGS.getString("Account_Authentification"));
+        lblInboxAuthentificationType = new JLabel();
         lblInboxAuthentificationType.setBounds(10, 102, 143, 14);
         panelInbox.add(lblInboxAuthentificationType);
 
-        JLabel lblServerType = new JLabel(Program.STRINGS.getString("Account_ServerType"));
+        lblServerType = new JLabel();
         lblServerType.setBounds(10, 27, 67, 14);
         panelInbox.add(lblServerType);
 
@@ -253,7 +262,9 @@ public class AccountManagementFrame extends ExtendedDialog<MailAccount[]> {
 
         JPanel panelOutbox = new JPanel();
         panelOutbox.setLayout(null);
-        panelOutbox.setBorder(BorderFactory.createTitledBorder(Program.STRINGS.getString("Account_Outbox")));
+
+        // TODO Adjust for dynamic localized text
+        panelOutbox.setBorder(BorderFactory.createTitledBorder(Localization.getString("Account_Outbox")));
         panelOutbox.setBounds(259, 225, 436, 126);
         getContentPane().add(panelOutbox);
 
@@ -265,11 +276,11 @@ public class AccountManagementFrame extends ExtendedDialog<MailAccount[]> {
         lblOutboxPort.setBounds(285, 48, 46, 14);
         panelOutbox.add(lblOutboxPort);
 
-        JLabel lblOutboxConnectionSecurity = new JLabel(Program.STRINGS.getString("Account_ConnectionSecurity"));
+        lblOutboxConnectionSecurity = new JLabel();
         lblOutboxConnectionSecurity.setBounds(10, 73, 143, 14);
         panelOutbox.add(lblOutboxConnectionSecurity);
 
-        JLabel lblOutboxAuthentificationType = new JLabel(Program.STRINGS.getString("Account_Authentification"));
+        lblOutboxAuthentificationType = new JLabel();
         lblOutboxAuthentificationType.setBounds(10, 98, 143, 14);
         panelOutbox.add(lblOutboxAuthentificationType);
 
@@ -301,16 +312,16 @@ public class AccountManagementFrame extends ExtendedDialog<MailAccount[]> {
         txtOutboxAuthentification.setBounds(153, 95, 273, 20);
         panelOutbox.add(txtOutboxAuthentification);
 
-        JLabel label = new JLabel(Program.STRINGS.getString("Account_ServerType"));
-        label.setBounds(10, 23, 65, 14);
-        panelOutbox.add(label);
+        lblOutboxType = new JLabel();
+        lblOutboxType.setBounds(10, 23, 65, 14);
+        panelOutbox.add(lblOutboxType);
 
-        txtOutboxTyp = new JTextField();
-        txtOutboxTyp.setBackground(Color.WHITE);
-        txtOutboxTyp.setEditable(false);
-        txtOutboxTyp.setColumns(10);
-        txtOutboxTyp.setBounds(75, 20, 351, 20);
-        panelOutbox.add(txtOutboxTyp);
+        txtOutboxType = new JTextField();
+        txtOutboxType.setBackground(Color.WHITE);
+        txtOutboxType.setEditable(false);
+        txtOutboxType.setColumns(10);
+        txtOutboxType.setBounds(75, 20, 351, 20);
+        panelOutbox.add(txtOutboxType);
 
         txtUser = new JTextField();
         txtUser.setEditable(false);
@@ -332,6 +343,27 @@ public class AccountManagementFrame extends ExtendedDialog<MailAccount[]> {
         txtName.setColumns(10);
         txtName.setBounds(357, 10, 338, 20);
         getContentPane().add(txtName);
+
+        updateTexts();
+    }
+
+    @Override
+    public void updateTexts() {
+        setTitle(Localization.getString("AccountManagementFrame_Title"));
+
+        btnNewAccount.setText(Localization.getString("AccountManagementFrame_NewAccount"));
+        btnAbort.setText(Localization.getString("Button_Abort"));
+        btnOK.setText(Localization.getString("Button_Ok"));
+        btnRemoveAccount.setText(Localization.getString("AccountManagementFrame_DeleteAccount"));
+        lblName.setText(Localization.getString("AccountManagementFrame_Name"));
+        lblEmailaddress.setText(Localization.getString("Account_MailAddress"));
+        lblInboxUsername.setText(Localization.getString("Account_Username"));
+        lblInboxConnectionSecurity.setText(Localization.getString("Account_ConnectionSecurity"));
+        lblInboxAuthentificationType.setText(Localization.getString("Account_Authentification"));
+        lblServerType.setText(Localization.getString("Account_ServerType"));
+        lblOutboxConnectionSecurity.setText(Localization.getString("Account_ConnectionSecurity"));
+        lblOutboxAuthentificationType.setText(Localization.getString("Account_Authentification"));
+        lblOutboxType.setText(Localization.getString("Account_ServerType"));
     }
 
     /**
@@ -350,7 +382,7 @@ public class AccountManagementFrame extends ExtendedDialog<MailAccount[]> {
             txtInboxPort.setText(null);
             txtInboxConnectionSecurity.setText(null);
             txtInboxAuthentification.setText(null);
-            txtOutboxTyp.setText(null);
+            txtOutboxType.setText(null);
             txtOutboxServer.setText(null);
             txtOutboxPort.setText(null);
             txtOutboxConnectionSecurity.setText(null);
@@ -372,7 +404,7 @@ public class AccountManagementFrame extends ExtendedDialog<MailAccount[]> {
             OutboxServer outboxServer = acc.getOutboxMailServer();
             ServerSettings outboxSettings = outboxServer.getSettings();
 
-            txtOutboxTyp.setText(outboxServer.getServerType());
+            txtOutboxType.setText(outboxServer.getServerType());
             txtOutboxServer.setText(outboxSettings.getHost());
             txtOutboxPort.setText(Integer.toString(outboxSettings.getPort()));
             txtOutboxConnectionSecurity.setText(outboxSettings.getConnectionSecurity().toString());
@@ -428,11 +460,11 @@ public class AccountManagementFrame extends ExtendedDialog<MailAccount[]> {
     private void deleteAccount(MailAccount acc) {
         if (acc != null) {
             String message = String.format(
-                    Program.STRINGS.getString("AccountManagementFrame_DeletionMessageFormat"),
+                    Localization.getString("AccountManagementFrame_DeletionMessageFormat"),
                     acc.getAddress().getAddress());
 
             int result = JOptionPane.showConfirmDialog(this, message,
-                    Program.STRINGS.getString("AccountManagementFrame_DeletionConfirmation"),
+                    Localization.getString("AccountManagementFrame_DeletionConfirmation"),
                     JOptionPane.YES_NO_OPTION);
 
             if (result == JOptionPane.YES_OPTION) {

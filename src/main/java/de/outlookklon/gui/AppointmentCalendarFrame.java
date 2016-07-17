@@ -1,6 +1,6 @@
 package de.outlookklon.gui;
 
-import de.outlookklon.Program;
+import de.outlookklon.localization.Localization;
 import de.outlookklon.logik.User;
 import de.outlookklon.logik.calendar.Appointment;
 import de.outlookklon.logik.calendar.AppointmentCalendar;
@@ -32,6 +32,7 @@ import javax.swing.JTextPane;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
 
 /**
  * Dieses Fenster zeigt den AppointmentCalendar des Benutzers an.
@@ -42,19 +43,49 @@ public class AppointmentCalendarFrame extends ExtendedFrame {
 
     private static final long serialVersionUID = 1L;
 
-    private JTable tblAppointments;
-    private JTextPane textDetails;
-    private AppointmentCalendar calendar;
+    private final JTable tblAppointments;
+    private final JTextPane textDetails;
+    private final AppointmentCalendar calendar;
 
-    private JPopupMenu appointmentPopup;
-    private JMenuItem popupAppointmentOpen;
-    private JMenuItem popupAppointmentDelete;
-    private JMenuItem popupAppointmentNew;
+    private final JPopupMenu appointmentPopup;
+    private final JMenu mnFile;
+    private final JMenuItem mntmAppointmentAdd;
+    private final JMenuItem mntmClose;
+    private final JMenuItem popupAppointmentOpen;
+    private final JMenuItem popupAppointmentDelete;
+    private final JMenuItem popupAppointmentNew;
 
-    private List<Appointment> hiddenAppointments;
-    private List<Appointment> allAppointments;
+    private final List<Appointment> hiddenAppointments;
+    private final List<Appointment> allAppointments;
 
-    private JPanel panel;
+    private final JPanel panel;
+
+    private AppointmentCalendarFrame() {
+        calendar = User.getInstance().getAppointments();
+
+        tblAppointments = new JTable() {
+            private static final long serialVersionUID = 1L;
+
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
+        textDetails = new JTextPane();
+
+        appointmentPopup = new JPopupMenu();
+        popupAppointmentOpen = new JMenuItem();
+        popupAppointmentNew = new JMenuItem();
+        popupAppointmentDelete = new JMenuItem();
+        mnFile = new JMenu();
+        mntmAppointmentAdd = new JMenuItem();
+        mntmClose = new JMenuItem();
+
+        hiddenAppointments = new ArrayList<>();
+        allAppointments = new ArrayList<>();
+
+        panel = new JPanel();
+    }
 
     /**
      * Erstellt ein neues Fenster.
@@ -63,7 +94,10 @@ public class AppointmentCalendarFrame extends ExtendedFrame {
      * eines neuen Termins mitgestartet
      */
     public AppointmentCalendarFrame(boolean newAppointment) {
+        this();
+
         initGui();
+        updateTexts();
 
         if (newAppointment) {
             newAppointment();
@@ -77,15 +111,56 @@ public class AppointmentCalendarFrame extends ExtendedFrame {
      * Erstellen eines neuen Termins angezeigt wird
      */
     public AppointmentCalendarFrame(Date start) {
-        this(false);
+        this();
+
+        initGui();
+        updateTexts();
+
         newAppointment(start);
     }
 
-    private void initGui() {
-        setTitle(Program.STRINGS.getString("AppointmentCalendarFrame_Title"));
-        appointmentPopup = new JPopupMenu();
+    @Override
+    public void updateTexts() {
+        setTitle(Localization.getString("AppointmentCalendarFrame_Title"));
 
-        popupAppointmentOpen = new JMenuItem(Program.STRINGS.getString("Menu_Open"));
+        popupAppointmentOpen.setText(Localization.getString("Menu_Open"));
+        popupAppointmentNew.setText(Localization.getString("AddressBookFrame_Menu_Create"));
+        popupAppointmentDelete.setText(Localization.getString("Menu_Delete"));
+        mnFile.setText(Localization.getString("Menu_File"));
+        mntmAppointmentAdd.setText(Localization.getString("AppointmentCalendarFrame_AddAppointment"));
+        mntmClose.setText(Localization.getString("Menu_Close"));
+
+        // TODO Copy Entries
+        String refName = Localization.getString("Table_Ref");
+        tblAppointments.setModel(getTableModel(refName));
+        tblAppointments.removeColumn(tblAppointments.getColumn(refName));
+
+        int row = tblAppointments.getSelectionModel().getMinSelectionIndex();
+        if (row >= 0) {
+            DefaultTableModel model = (DefaultTableModel) tblAppointments.getModel();
+            int length = model.getDataVector().size();
+
+            if (length > 0) {
+                int rowModel = tblAppointments.convertRowIndexToModel(row);
+
+                Appointment reference = (Appointment) model.getValueAt(rowModel, 0);
+                updateDetails(reference);
+            }
+        }
+    }
+
+    private TableModel getTableModel(String refKeyName) {
+        return new DefaultTableModel(new Object[][]{},
+                new String[]{
+                    refKeyName,
+                    Localization.getString("Appointment_Subject"),
+                    Localization.getString("Appointment_Description"),
+                    Localization.getString("Appointment_Date")
+                }
+        );
+    }
+
+    private void initGui() {
         popupAppointmentOpen.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -104,7 +179,6 @@ public class AppointmentCalendarFrame extends ExtendedFrame {
         });
         appointmentPopup.add(popupAppointmentOpen);
 
-        popupAppointmentNew = new JMenuItem(Program.STRINGS.getString("AddressBookFrame_Menu_Create"));
         popupAppointmentNew.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -113,7 +187,6 @@ public class AppointmentCalendarFrame extends ExtendedFrame {
         });
         appointmentPopup.add(popupAppointmentNew);
 
-        popupAppointmentDelete = new JMenuItem(Program.STRINGS.getString("Menu_Delete"));
         popupAppointmentDelete.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -129,14 +202,10 @@ public class AppointmentCalendarFrame extends ExtendedFrame {
 
         appointmentPopup.add(popupAppointmentDelete);
 
-        calendar = User.getInstance().getAppointments();
-
         JMenuBar menuBar = new JMenuBar();
         setJMenuBar(menuBar);
-        JMenu mnFile = new JMenu(Program.STRINGS.getString("Menu_File"));
         menuBar.add(mnFile);
 
-        JMenuItem mntmAppointmentAdd = new JMenuItem(Program.STRINGS.getString("AppointmentCalendarFrame_AddAppointment"));
         mntmAppointmentAdd.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -145,7 +214,6 @@ public class AppointmentCalendarFrame extends ExtendedFrame {
         });
         mnFile.add(mntmAppointmentAdd);
 
-        JMenuItem mntmClose = new JMenuItem(Program.STRINGS.getString("Menu_Close"));
         mntmClose.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -158,7 +226,6 @@ public class AppointmentCalendarFrame extends ExtendedFrame {
 
         JSplitPane splitPane = new JSplitPane();
 
-        panel = new JPanel();
         JScrollPane scrollPane = new JScrollPane(panel);
         panel.setLayout(new GridLayout(0, 1, 0, 0));
         splitPane.setLeftComponent(scrollPane);
@@ -167,23 +234,8 @@ public class AppointmentCalendarFrame extends ExtendedFrame {
         splitPane1.setOrientation(JSplitPane.VERTICAL_SPLIT);
         splitPane.setRightComponent(splitPane1);
 
-        tblAppointments = new JTable() {
-            private static final long serialVersionUID = 1L;
-
-            @Override
-            public boolean isCellEditable(int row, int column) {
-                return false;
-            }
-        };
-
-        String refName = Program.STRINGS.getString("Table_Ref");
-        tblAppointments.setModel(new DefaultTableModel(new Object[][]{},
-                new String[]{
-                    refName,
-                    Program.STRINGS.getString("Appointment_Subject"),
-                    Program.STRINGS.getString("Appointment_Description"),
-                    Program.STRINGS.getString("Appointment_Date")}));
-
+        String refName = Localization.getString("Table_Ref");
+        tblAppointments.setModel(getTableModel(refName));
         tblAppointments.removeColumn(tblAppointments.getColumn(refName));
         tblAppointments.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 
@@ -243,9 +295,6 @@ public class AppointmentCalendarFrame extends ExtendedFrame {
 
         });
 
-        hiddenAppointments = new ArrayList<>();
-        allAppointments = new ArrayList<>();
-
         // speichert alle existierenden Termine in mango ab
         for (Appointment appointment : User.getInstance().getAppointments()) {
             allAppointments.add(appointment);
@@ -254,7 +303,6 @@ public class AppointmentCalendarFrame extends ExtendedFrame {
         final JScrollPane scrollPane1 = new JScrollPane(tblAppointments);
         splitPane1.setLeftComponent(scrollPane1);
 
-        textDetails = new JTextPane();
         splitPane1.setRightComponent(textDetails);
         getContentPane().add(splitPane);
 
@@ -292,19 +340,19 @@ public class AppointmentCalendarFrame extends ExtendedFrame {
         if (appointment != null) {
 
             if (!appointment.getSubject().trim().isEmpty()) {
-                sb.append(Program.STRINGS.getString("Appointment_Subject")).append(": ").append(appointment.getSubject()).append('\n');
+                sb.append(Localization.getString("Appointment_Subject")).append(": ").append(appointment.getSubject()).append('\n');
             }
             if (!appointment.getLocation().trim().isEmpty()) {
-                sb.append(Program.STRINGS.getString("Appointment_Location")).append(": ").append(appointment.getLocation()).append('\n');
+                sb.append(Localization.getString("Appointment_Location")).append(": ").append(appointment.getLocation()).append('\n');
             }
             if (!appointment.getStart().toString().trim().isEmpty()) {
-                sb.append(Program.STRINGS.getString("Appointment_Start")).append(": ").append(appointment.getStart().toString()).append('\n');
+                sb.append(Localization.getString("Appointment_Start")).append(": ").append(appointment.getStart().toString()).append('\n');
             }
             if (!appointment.getEnd().toString().trim().isEmpty()) {
-                sb.append(Program.STRINGS.getString("Appointment_End")).append(": ").append(appointment.getEnd().toString()).append('\n');
+                sb.append(Localization.getString("Appointment_End")).append(": ").append(appointment.getEnd().toString()).append('\n');
             }
             if (!appointment.getText().trim().isEmpty()) {
-                sb.append(Program.STRINGS.getString("Appointment_Info")).append(": ").append(appointment.getText()).append('\n');
+                sb.append(Localization.getString("Appointment_Info")).append(": ").append(appointment.getText()).append('\n');
             }
         }
 
@@ -322,8 +370,8 @@ public class AppointmentCalendarFrame extends ExtendedFrame {
             allAppointments.add(dummy);
             if (calendar.isOverlapping(dummy)) {
                 JOptionPane.showMessageDialog(this,
-                        Program.STRINGS.getString("AppointmentCalendarFrame_OverlappingWarning"),
-                        Program.STRINGS.getString("Dialog_Warning"), JOptionPane.WARNING_MESSAGE);
+                        Localization.getString("AppointmentCalendarFrame_OverlappingWarning"),
+                        Localization.getString("Dialog_Warning"), JOptionPane.WARNING_MESSAGE);
             }
             updateTable();
         }
@@ -338,8 +386,8 @@ public class AppointmentCalendarFrame extends ExtendedFrame {
             allAppointments.add(dummy);
             if (calendar.isOverlapping(dummy)) {
                 JOptionPane.showMessageDialog(this,
-                        Program.STRINGS.getString("AppointmentCalendarFrame_OverlappingWarning"),
-                        Program.STRINGS.getString("Dialog_Warning"), JOptionPane.WARNING_MESSAGE);
+                        Localization.getString("AppointmentCalendarFrame_OverlappingWarning"),
+                        Localization.getString("Dialog_Warning"), JOptionPane.WARNING_MESSAGE);
             }
             updateTable();
         }

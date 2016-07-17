@@ -1,6 +1,6 @@
 package de.outlookklon.gui;
 
-import de.outlookklon.Program;
+import de.outlookklon.localization.Localization;
 import de.outlookklon.logik.User;
 import de.outlookklon.logik.calendar.Appointment;
 import de.outlookklon.logik.calendar.AppointmentCalendar;
@@ -251,7 +251,7 @@ public class HtmlEditorPane extends JEditorPane {
                         try {
                             date = DATEFORMAT1.parse(strDate);
                         } catch (ParseException ex) {
-                            LOGGER.info(Program.STRINGS.getString("HtmlEditorPane_ErrorFirstParser"), ex);
+                            LOGGER.info(Localization.getString("HtmlEditorPane_ErrorFirstParser"), ex);
                             date = DATEFORMAT2.parse(strDate);
                         }
 
@@ -264,10 +264,10 @@ public class HtmlEditorPane extends JEditorPane {
                         }
 
                     } catch (ParseException ex) {
-                        LOGGER.info(Program.STRINGS.getString("HtmlEditorPane_ErrorSecondParser"), ex);
+                        LOGGER.info(Localization.getString("HtmlEditorPane_ErrorSecondParser"), ex);
                         JOptionPane.showMessageDialog(null,
-                                Program.STRINGS.getString("HtmlEditorPane_InvalidDate"),
-                                Program.STRINGS.getString("Dialog_Error"),
+                                Localization.getString("HtmlEditorPane_InvalidDate"),
+                                Localization.getString("Dialog_Error"),
                                 JOptionPane.ERROR_MESSAGE);
                     }
 
@@ -280,7 +280,7 @@ public class HtmlEditorPane extends JEditorPane {
                     try {
                         myDesktop.browse(new URI(url));
                     } catch (UnsupportedOperationException | URISyntaxException | IOException ex) {
-                        LOGGER.error(Program.STRINGS.getString("HtmlEditorPane_CouldNotLaunchUrl"), ex);
+                        LOGGER.error(Localization.getString("HtmlEditorPane_CouldNotLaunchUrl"), ex);
                     }
                 } else {
                     Runtime myRuntime = Runtime.getRuntime();
@@ -288,7 +288,7 @@ public class HtmlEditorPane extends JEditorPane {
                         // Sollte bei OS mit X-Server funktionieren
                         myRuntime.exec("xdg-open " + url);
                     } catch (IOException ex) {
-                        LOGGER.error(Program.STRINGS.getString("HtmlEditorPane_CouldNotLaunchUrl"), ex);
+                        LOGGER.error(Localization.getString("HtmlEditorPane_CouldNotLaunchUrl"), ex);
                     }
                 }
             }

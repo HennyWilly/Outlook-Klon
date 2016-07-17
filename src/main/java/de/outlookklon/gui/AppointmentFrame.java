@@ -1,7 +1,6 @@
 package de.outlookklon.gui;
 
-import de.outlookklon.Program;
-import de.outlookklon.gui.helpers.Buttons;
+import de.outlookklon.localization.Localization;
 import de.outlookklon.logik.User;
 import de.outlookklon.logik.calendar.Appointment;
 import de.outlookklon.logik.contacts.Contact;
@@ -39,26 +38,64 @@ public class AppointmentFrame extends ExtendedDialog<Appointment> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AppointmentFrame.class);
 
-    private JTextField textSubject;
-    private JTextField textDescription;
-    private JTextField textLocation;
+    private final String captionKey;
 
-    private JSpinner dateStart;
-    private JSpinner dateEnd;
+    private final JLabel lblSubject;
+    private final JTextField textSubject;
+    private final JLabel lblDescription;
+    private final JTextField textDescription;
+    private final JLabel lblLocation;
+    private final JTextField textLocation;
 
-    private JComboBox<String> comboAccount;
-    private JComboBox<String> comboContact;
+    private final JLabel lblStart;
+    private final JSpinner dateStart;
+    private final JLabel lblEnd;
+    private final JSpinner dateEnd;
+
+    private final JButton btnOk;
+    private final JButton btnAbort;
+
+    private final JLabel lblAccount;
+    private final JComboBox<String> comboAccount;
+    private final JLabel lblContact;
+    private final JComboBox<String> comboContact;
+
     private Appointment mAppointment;
+
+    private AppointmentFrame(String captionKey, Appointment appointment) {
+        super(485, 344);
+
+        this.captionKey = captionKey;
+        this.mAppointment = appointment;
+
+        lblSubject = new JLabel();
+        lblLocation = new JLabel();
+        lblStart = new JLabel();
+        lblEnd = new JLabel();
+        lblDescription = new JLabel();
+        lblAccount = new JLabel();
+        lblContact = new JLabel();
+
+        textSubject = new JTextField();
+        textDescription = new JTextField();
+        textLocation = new JTextField();
+        dateStart = new JSpinner();
+        dateEnd = new JSpinner();
+        comboAccount = new JComboBox<>();
+        comboContact = new JComboBox<>();
+
+        btnOk = new JButton();
+        btnAbort = new JButton();
+    }
 
     /**
      * Erstellt ein neues leeres Fenster.
      */
     public AppointmentFrame() {
-        super(485, 344);
+        this("AppointmentFrame_DefaultTitle", null);
 
-        mAppointment = null;
         initFrame();
-        this.setTitle(Program.STRINGS.getString("AppointmentFrame_DefaultTitle"));
+        updateTexts();
     }
 
     /**
@@ -68,11 +105,11 @@ public class AppointmentFrame extends ExtendedDialog<Appointment> {
      * @param appointment anzuzeigender Appointment
      */
     public AppointmentFrame(Appointment appointment) {
-        super(485, 344);
+        this("AppointmentFrame_EditTitle", appointment);
 
-        mAppointment = appointment;
         initFrame();
-        this.setTitle(Program.STRINGS.getString("AppointmentFrame_EditTitle"));
+        updateTexts();
+
         textSubject.setText(appointment.getSubject());
         textLocation.setText(appointment.getLocation());
         textDescription.setText(appointment.getText());
@@ -97,31 +134,29 @@ public class AppointmentFrame extends ExtendedDialog<Appointment> {
         m2.setValue(date);
     }
 
+    @Override
+    public void updateTexts() {
+        this.setTitle(Localization.getString(captionKey));
+
+        lblSubject.setText(Localization.getString("Appointment_Subject") + ":");
+        lblLocation.setText(Localization.getString("Appointment_Location") + ":");
+        lblStart.setText(Localization.getString("Appointment_Start") + ":");
+        lblEnd.setText(Localization.getString("Appointment_End") + ":");
+        lblDescription.setText(Localization.getString("Appointment_Description") + ":");
+        lblAccount.setText(Localization.getString("Account") + ":");
+        lblContact.setText(Localization.getString("Contact") + ":");
+
+        btnOk.setText(Localization.getString("Button_Ok"));
+        btnAbort.setText(Localization.getString("Button_Abort"));
+    }
+
     private void initFrame() {
-        JLabel lblSubject = new JLabel(Program.STRINGS.getString("Appointment_Subject") + ":");
-        JLabel lblPlace = new JLabel(Program.STRINGS.getString("Appointment_Location") + ":");
-        JLabel lblStart = new JLabel(Program.STRINGS.getString("Appointment_Start") + ":");
-        JLabel lblEnd = new JLabel(Program.STRINGS.getString("Appointment_End") + ":");
-        JLabel lblDescription = new JLabel(Program.STRINGS.getString("Appointment_Description") + ":");
-        JLabel lblAccount = new JLabel(Program.STRINGS.getString("Account") + ":");
-        JLabel lblContact = new JLabel(Program.STRINGS.getString("Contact") + ":");
-
-        textSubject = new JTextField();
         textSubject.setColumns(10);
-
-        textDescription = new JTextField();
         textDescription.setColumns(10);
-
-        textLocation = new JTextField();
         textLocation.setColumns(10);
-
-        dateStart = new JSpinner();
         dateStart.setModel(new SpinnerDateModel(new Date(), null, null, Calendar.DAY_OF_YEAR));
-
-        dateEnd = new JSpinner();
         dateEnd.setModel(new SpinnerDateModel(new Date(), null, null, Calendar.DAY_OF_YEAR));
 
-        JButton btnOk = Buttons.getOkButton();
         btnOk.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent arg0) {
@@ -148,16 +183,15 @@ public class AppointmentFrame extends ExtendedDialog<Appointment> {
 
                     close();
                 } catch (RuntimeException ex) {
-                    LOGGER.error(Program.STRINGS.getString("AppointmentFrame_ErrorCreatingAppointment"), ex);
+                    LOGGER.error(Localization.getString("AppointmentFrame_ErrorCreatingAppointment"), ex);
 
-                    JOptionPane.showMessageDialog(null, Program.STRINGS.getString("Dialog_ErrorText") + ex.getMessage(),
-                            Program.STRINGS.getString("Dialog_Error"),
+                    JOptionPane.showMessageDialog(null, Localization.getString("Dialog_ErrorText") + ex.getMessage(),
+                            Localization.getString("Dialog_Error"),
                             JOptionPane.ERROR_MESSAGE);
                 }
             }
         });
 
-        JButton btnAbort = Buttons.getAbortButton();
         btnAbort.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -190,10 +224,7 @@ public class AppointmentFrame extends ExtendedDialog<Appointment> {
             selectableContact[i] = allContacts.get(i - 1);
         }
 
-        comboAccount = new JComboBox<>();
         comboAccount.setModel(new DefaultComboBoxModel<>(selectableAccounts));
-
-        comboContact = new JComboBox<>();
         comboContact.setModel(new DefaultComboBoxModel<>(selectableContact));
 
         GroupLayout groupLayout = new GroupLayout(getContentPane());
@@ -220,7 +251,7 @@ public class AppointmentFrame extends ExtendedDialog<Appointment> {
                                                                                 GroupLayout.PREFERRED_SIZE,
                                                                                 45,
                                                                                 GroupLayout.PREFERRED_SIZE)
-                                                                        .addComponent(lblPlace,
+                                                                        .addComponent(lblLocation,
                                                                                 GroupLayout.PREFERRED_SIZE,
                                                                                 53,
                                                                                 GroupLayout.PREFERRED_SIZE)
@@ -272,7 +303,7 @@ public class AppointmentFrame extends ExtendedDialog<Appointment> {
                         textSubject, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(ComponentPlacement.UNRELATED)
                 .addGroup(groupLayout.createParallelGroup(Alignment.BASELINE)
-                        .addComponent(lblPlace, GroupLayout.PREFERRED_SIZE, 16, GroupLayout.PREFERRED_SIZE)
+                        .addComponent(lblLocation, GroupLayout.PREFERRED_SIZE, 16, GroupLayout.PREFERRED_SIZE)
                         .addComponent(textLocation, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE,
                                 GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(ComponentPlacement.UNRELATED)

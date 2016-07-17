@@ -1,7 +1,7 @@
 package de.outlookklon.gui;
 
-import de.outlookklon.Program;
 import de.outlookklon.dao.DAOException;
+import de.outlookklon.localization.Localization;
 import de.outlookklon.logik.User;
 import de.outlookklon.logik.contacts.Contact;
 import de.outlookklon.logik.mailclient.MailAccount;
@@ -62,8 +62,6 @@ public class MailFrame extends ExtendedFrame {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MailFrame.class);
 
-    private static final String DEFAULT_EMPTY_SUBJECT = "<" + Program.STRINGS.getString("MailFrame_EmptySubject") + ">";
-
     /**
      * Interne Aufzählung, welche die verschiedenen Arten definiert, in welchem
      * Kontext das Frame geöffnet werden kann
@@ -87,40 +85,77 @@ public class MailFrame extends ExtendedFrame {
         FORWARD
     }
 
-    private MailMode mailMode;
+    private final MailMode mailMode;
     private StoredMailInfo mailInfo;
     private String relPath;
 
-    private JComboBox<MailAccount> cBSender;
-    private JTextField tSender;
+    private final JLabel lSender;
+    private final JComboBox<MailAccount> cBSender;
+    private final JTextField tSender;
+    private final JLabel lTo;
+    private final JTextField tTo;
+    private final JLabel lCC;
+    private final JTextField tCC;
+    private final JLabel lSubject;
+    private final JTextField tSubject;
+    private final HtmlEditorPane tpMailtext;
 
-    private JTextField tTo;
-    private JTextField tCC;
-    private JTextField tSubject;
-    private HtmlEditorPane tpMailtext;
+    private final JButton btnSend;
+    private final JButton btnAttachment;
 
-    private JButton btnSend;
-    private JButton btnAttachment;
+    private final JMenu mnFile;
+    private final JMenu mnAttach;
+    private final JMenuItem mntmFileAttach;
+    private final JMenuItem mntmFileClose;
+    private final JMenu mnOptions;
+    private final JMenu mnEmailFormat;
 
-    private JMenuItem mntmFileAttach;
-    private JMenuItem mntmFileClose;
+    private final JRadioButtonMenuItem rdBtnMntmPlaintext;
+    private final JRadioButtonMenuItem rdBtnMntmHtml;
 
-    private JRadioButtonMenuItem rdBtnMntmPlaintext;
-    private JRadioButtonMenuItem rdBtnMntmHtml;
-
-    private JList<String> lstAttachment;
+    private final JList<String> lstAttachment;
 
     private String charset;
+
+    private MailFrame(MailMode mailMode) {
+        this.mailMode = mailMode;
+
+        mnFile = new JMenu();
+        mnAttach = new JMenu();
+        mntmFileAttach = new JMenuItem();
+        mntmFileClose = new JMenuItem();
+        mnOptions = new JMenu();
+        mnEmailFormat = new JMenu();
+
+        rdBtnMntmPlaintext = new JRadioButtonMenuItem();
+        rdBtnMntmHtml = new JRadioButtonMenuItem("Html");
+        lstAttachment = new JList<>(new DefaultListModel<String>());
+
+        lSender = new JLabel();
+        lTo = new JLabel();
+        lCC = new JLabel();
+        lSubject = new JLabel();
+
+        tTo = new JTextField();
+        tCC = new JTextField();
+        tSubject = new JTextField();
+        cBSender = new JComboBox<>();
+        tSender = new JTextField();
+
+        tpMailtext = new HtmlEditorPane();
+        btnSend = new JButton();
+        btnAttachment = new JButton();
+    }
 
     /**
      * Erstellt eine neue Instanz der Klasse zum Schreiben einer neuen Mail
      */
     public MailFrame() {
-        mailMode = MailMode.NEW;
+        this(MailMode.NEW);
         charset = "";
 
-        setTitle(DEFAULT_EMPTY_SUBJECT);
         initGui();
+        updateTexts();
 
         addMailAccounts();
     }
@@ -133,11 +168,11 @@ public class MailFrame extends ExtendedFrame {
      * eingetragen werden.
      */
     public MailFrame(Contact[] contacts) {
-        mailMode = MailMode.NEW;
+        this(MailMode.NEW);
         charset = "";
 
-        setTitle(DEFAULT_EMPTY_SUBJECT);
         initGui();
+        updateTexts();
 
         addMailAccounts();
 
@@ -167,9 +202,10 @@ public class MailFrame extends ExtendedFrame {
      */
     public MailFrame(StoredMailInfo mail, String path, MailAccount parent)
             throws MessagingException, DAOException {
-        mailMode = MailMode.OPEN;
+        this(MailMode.OPEN);
 
         initGui();
+        updateTexts();
 
         mailInfo = mail;
         relPath = path;
@@ -236,9 +272,10 @@ public class MailFrame extends ExtendedFrame {
      */
     public MailFrame(StoredMailInfo mail, String path, MailAccount parent, boolean forward)
             throws MessagingException, DAOException {
-        mailMode = forward ? MailMode.FORWARD : MailMode.ANSWER;
+        this(forward ? MailMode.FORWARD : MailMode.ANSWER);
 
         initGui();
+        updateTexts();
 
         addMailAccounts();
         cBSender.setSelectedItem(parent);
@@ -250,8 +287,8 @@ public class MailFrame extends ExtendedFrame {
         charset = mail.getContentType().split("; ")[1];
 
         String subject = (forward
-                ? Program.STRINGS.getString("MailFrame_ShortForward")
-                : Program.STRINGS.getString("MailFrame_ShortAnswer"))
+                ? Localization.getString("MailFrame_ShortForward")
+                : Localization.getString("MailFrame_ShortAnswer"))
                 + ": " + mail.getSubject();
 
         tSubject.setText(subject);
@@ -277,21 +314,42 @@ public class MailFrame extends ExtendedFrame {
         }
     }
 
+    @Override
+    public void updateTexts() {
+        updateCaption();
+
+        mnFile.setText(Localization.getString("Menu_File"));
+        mnAttach.setText(Localization.getString("MailFrame_Attach"));
+        mntmFileAttach.setText(Localization.getString("MailFrame_AttachFile"));
+        mntmFileClose.setText(Localization.getString("Menu_Close"));
+        mnOptions.setText(Localization.getString("Menu_Options"));
+        mnEmailFormat.setText(Localization.getString("MailFrame_MailFormat"));
+        rdBtnMntmPlaintext.setText(Localization.getString("MailFrame_PlainText"));
+
+        lSender.setText(Localization.getString("MailFrame_From"));
+        lTo.setText(Localization.getString("MailFrame_To"));
+        lCC.setText(Localization.getString("MailFrame_Cc"));
+        lSubject.setText(Localization.getString("MailFrame_Subject"));
+
+        btnSend.setText(Localization.getString("MailFrame_Send"));
+        btnAttachment.setText(Localization.getString("MailFrame_Attachment"));
+    }
+
+    private String getEmptySubjectString() {
+        return "<" + Localization.getString("MailFrame_EmptySubject") + ">";
+    }
+
     /**
      * Initialisiert das Menü des Frames
      */
     private void initMenu() {
         JMenuBar menuBar = new JMenuBar();
         setJMenuBar(menuBar);
-
-        JMenu mnFile = new JMenu(Program.STRINGS.getString("Menu_File"));
         menuBar.add(mnFile);
 
-        JMenu mnAttach = new JMenu(Program.STRINGS.getString("MailFrame_Attach"));
         mnAttach.setVisible(mailMode == MailMode.NEW);
         mnFile.add(mnAttach);
 
-        mntmFileAttach = new JMenuItem(Program.STRINGS.getString("MailFrame_AttachFile"));
         mntmFileAttach.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -300,7 +358,6 @@ public class MailFrame extends ExtendedFrame {
         });
         mnAttach.add(mntmFileAttach);
 
-        mntmFileClose = new JMenuItem(Program.STRINGS.getString("Menu_Close"));
         mntmFileClose.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -308,11 +365,7 @@ public class MailFrame extends ExtendedFrame {
             }
         });
         mnFile.add(mntmFileClose);
-
-        JMenu mnOptions = new JMenu(Program.STRINGS.getString("Menu_Options"));
         menuBar.add(mnOptions);
-
-        JMenu mnEmailFormat = new JMenu(Program.STRINGS.getString("MailFrame_MailFormat"));
         mnOptions.add(mnEmailFormat);
 
         ItemListener radioMenu = new ItemListener() {
@@ -339,12 +392,10 @@ public class MailFrame extends ExtendedFrame {
             }
         };
 
-        rdBtnMntmPlaintext = new JRadioButtonMenuItem(Program.STRINGS.getString("MailFrame_PlainText"));
         rdBtnMntmPlaintext.setSelected(true);
         rdBtnMntmPlaintext.addItemListener(radioMenu);
         mnEmailFormat.add(rdBtnMntmPlaintext);
 
-        rdBtnMntmHtml = new JRadioButtonMenuItem("Html");
         rdBtnMntmHtml.addItemListener(radioMenu);
         mnEmailFormat.add(rdBtnMntmHtml);
 
@@ -359,8 +410,6 @@ public class MailFrame extends ExtendedFrame {
      * @param splitHead JSplitPane in die die Liste eingefügt werden soll
      */
     private void initList(JSplitPane splitHead) {
-        lstAttachment = new JList<>(new DefaultListModel<String>());
-
         JScrollPane attachmentScroller = new JScrollPane(lstAttachment);
         splitHead.setRightComponent(attachmentScroller);
 
@@ -400,18 +449,8 @@ public class MailFrame extends ExtendedFrame {
         final JPanel panel1 = new JPanel();
         splitHead.setLeftComponent(panel1);
 
-        JLabel lSender = new JLabel(Program.STRINGS.getString("MailFrame_From"));
-        JLabel lTo = new JLabel(Program.STRINGS.getString("MailFrame_To"));
-        JLabel lCC = new JLabel(Program.STRINGS.getString("MailFrame_Cc"));
-        JLabel lSubject = new JLabel(Program.STRINGS.getString("MailFrame_Subject"));
-
-        tTo = new JTextField();
         tTo.setColumns(10);
-
-        tCC = new JTextField();
         tCC.setColumns(10);
-
-        tSubject = new JTextField();
         tSubject.setColumns(10);
         tSubject.getDocument().addDocumentListener(new DocumentListener() {
             @Override
@@ -429,9 +468,6 @@ public class MailFrame extends ExtendedFrame {
                 updateCaption();
             }
         });
-
-        cBSender = new JComboBox<>();
-        tSender = new JTextField();
 
         final GroupLayout glPanel1 = new GroupLayout(panel1);
         glPanel1
@@ -476,8 +512,6 @@ public class MailFrame extends ExtendedFrame {
 
         panel.setLayout(glPanel);
 
-        tpMailtext = new HtmlEditorPane();
-
         JScrollPane textScroller = new JScrollPane(tpMailtext);
         splitPane.setRightComponent(textScroller);
 
@@ -497,7 +531,6 @@ public class MailFrame extends ExtendedFrame {
                         .addPreferredGap(ComponentPlacement.RELATED)
                         .addComponent(splitPane, GroupLayout.DEFAULT_SIZE, 332, Short.MAX_VALUE)));
 
-        btnSend = new JButton(Program.STRINGS.getString("MailFrame_Send"));
         toolBar.add(btnSend);
         btnSend.addActionListener(new ActionListener() {
             @Override
@@ -506,7 +539,6 @@ public class MailFrame extends ExtendedFrame {
             }
         });
 
-        btnAttachment = new JButton(Program.STRINGS.getString("MailFrame_Attachment"));
         btnAttachment.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -593,7 +625,7 @@ public class MailFrame extends ExtendedFrame {
             try {
                 recips[i] = new InternetAddress(recips[i].getAddress(), recips[i].getPersonal(), "utf-8");
             } catch (UnsupportedEncodingException uee) {
-                LOGGER.error(Program.STRINGS.getString("ContactFrame_ParseMailAddressError"), uee);
+                LOGGER.error(Localization.getString("ContactFrame_ParseMailAddressError"), uee);
             }
         }
 
@@ -610,8 +642,8 @@ public class MailFrame extends ExtendedFrame {
 
         if (acc == null) {
             JOptionPane.showMessageDialog(this,
-                    Program.STRINGS.getString("MailFrame_NoAddressPassed"),
-                    Program.STRINGS.getString("Dialog_Error"),
+                    Localization.getString("MailFrame_NoAddressPassed"),
+                    Localization.getString("Dialog_Error"),
                     JOptionPane.OK_OPTION
             );
             return;
@@ -625,7 +657,7 @@ public class MailFrame extends ExtendedFrame {
             cc = unicodifyAddresses(tCC.getText());
         } catch (ParseException e) {
             JOptionPane.showMessageDialog(this, e.getMessage(),
-                    Program.STRINGS.getString("Dialog_Error"),
+                    Localization.getString("Dialog_Error"),
                     JOptionPane.ERROR_MESSAGE);
             return;
         }
@@ -643,11 +675,11 @@ public class MailFrame extends ExtendedFrame {
             acc.sendMail(mailToSend);
             close();
         } catch (MessagingException ex) {
-            LOGGER.error(Program.STRINGS.getString("MailFrame_MailSendError"), ex);
+            LOGGER.error(Localization.getString("MailFrame_MailSendError"), ex);
 
             JOptionPane.showMessageDialog(this,
-                    Program.STRINGS.getString("MailFrame_MailSendError") + ":\n" + ex.getMessage(),
-                    Program.STRINGS.getString("Dialog_Error"),
+                    Localization.getString("MailFrame_MailSendError") + ":\n" + ex.getMessage(),
+                    Localization.getString("Dialog_Error"),
                     JOptionPane.OK_OPTION);
         }
     }
@@ -689,11 +721,11 @@ public class MailFrame extends ExtendedFrame {
                 // Führt das eigentliche Abspeichern aus
                 acc.saveAttachment(mailInfo, relPath, name, path);
             } catch (IOException | MessagingException ex) {
-                LOGGER.error(Program.STRINGS.getString("MailFrame_SaveAttachmentError"), ex);
+                LOGGER.error(Localization.getString("MailFrame_SaveAttachmentError"), ex);
 
                 JOptionPane.showMessageDialog(this,
-                        Program.STRINGS.getString("MailFrame_SaveAttachmentError") + "\n" + ex.getMessage(),
-                        Program.STRINGS.getString("Dialog_Error"),
+                        Localization.getString("MailFrame_SaveAttachmentError") + "\n" + ex.getMessage(),
+                        Localization.getString("Dialog_Error"),
                         JOptionPane.OK_OPTION);
             }
         }
@@ -706,7 +738,7 @@ public class MailFrame extends ExtendedFrame {
         String text = tSubject.getText();
 
         if (text.trim().isEmpty()) {
-            this.setTitle(DEFAULT_EMPTY_SUBJECT);
+            this.setTitle(getEmptySubjectString());
         } else {
             this.setTitle(text);
         }

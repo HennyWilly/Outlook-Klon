@@ -1,6 +1,7 @@
 package de.outlookklon.gui;
 
 import de.outlookklon.gui.helpers.Buttons;
+import de.outlookklon.localization.Localization;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.JButton;
@@ -16,9 +17,10 @@ public class MessageFrame extends ExtendedDialog<String> {
 
     private static final long serialVersionUID = -426579552451278615L;
 
-    private JTextPane textMessage;
-    private JButton btnOk;
-    private JButton btnAbort;
+    private final JTextPane textMessage;
+    private final JButton btnOk;
+    private final JButton btnAbort;
+
     private String info;
 
     /**
@@ -30,21 +32,28 @@ public class MessageFrame extends ExtendedDialog<String> {
     public MessageFrame(String text, String title) {
         super(400, 365);
 
+        textMessage = new JTextPane();
+        btnOk = Buttons.getOkButton();
+        btnAbort = Buttons.getAbortButton();
+
         initGui(text, title);
+    }
+
+    @Override
+    public void updateTexts() {
+        btnOk.setText(Localization.getString("Button_Ok"));
+        btnAbort.setText(Localization.getString("Button_Abort"));
     }
 
     private void initGui(String text, String title) {
         setTitle(title);
         getContentPane().setLayout(null);
 
-        textMessage = new JTextPane();
         textMessage.setBounds(0, 0, 394, 292);
         textMessage.setText(text);
         getContentPane().add(textMessage);
 
-        btnOk = Buttons.getOkButton();
         btnOk.addActionListener(new ActionListener() {
-
             @Override
             public void actionPerformed(ActionEvent e) {
                 info = textMessage.getText();
@@ -54,7 +63,6 @@ public class MessageFrame extends ExtendedDialog<String> {
         btnOk.setBounds(10, 303, 100, 23);
         getContentPane().add(btnOk);
 
-        btnAbort = Buttons.getAbortButton();
         btnAbort.addActionListener(new ActionListener() {
 
             @Override

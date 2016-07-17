@@ -1,6 +1,6 @@
 package de.outlookklon.dao.impl;
 
-import de.outlookklon.Program;
+import de.outlookklon.localization.Localization;
 import de.outlookklon.dao.DAOException;
 import de.outlookklon.dao.StoredMailInfoDAO;
 import de.outlookklon.logik.mailclient.StoredMailInfo;
@@ -23,7 +23,7 @@ public class StoredMailInfoDAOFilePersistence implements StoredMailInfoDAO {
 
     public StoredMailInfoDAOFilePersistence(@NonNull File folder) throws IOException {
         if (folder.isFile()) {
-            throw new IllegalArgumentException(Program.STRINGS.getString("StoredMailInfoDAO_NotAFolder"));
+            throw new IllegalArgumentException(Localization.getString("StoredMailInfoDAO_NotAFolder"));
         }
         if (!folder.exists()) {
             Files.createDirectories(folder.toPath());
@@ -54,7 +54,7 @@ public class StoredMailInfoDAOFilePersistence implements StoredMailInfoDAO {
             try {
                 geladen = Serializer.deserializeJson(filePath, StoredMailInfo.class);
             } catch (IOException ex) {
-                throw new DAOException(Program.STRINGS.getString("StoredMailInfoDAO_CouldNotLoadMailInfo"), ex);
+                throw new DAOException(Localization.getString("StoredMailInfoDAO_CouldNotLoadMailInfo"), ex);
             }
         }
 
@@ -69,7 +69,7 @@ public class StoredMailInfoDAOFilePersistence implements StoredMailInfoDAO {
         try {
             Serializer.serializeObjectToJson(filePath, info);
         } catch (IOException ex) {
-            throw new DAOException(Program.STRINGS.getString("StoredMailInfoDAO_CouldNotSaveMailInfo"), ex);
+            throw new DAOException(Localization.getString("StoredMailInfoDAO_CouldNotSaveMailInfo"), ex);
         }
     }
 
@@ -81,7 +81,7 @@ public class StoredMailInfoDAOFilePersistence implements StoredMailInfoDAO {
         try {
             Files.delete(filePath.toPath());
         } catch (IOException ex) {
-            throw new DAOException(Program.STRINGS.getString("StoredMailInfoDAO_CouldNotDeleteMailInfo"), ex);
+            throw new DAOException(Localization.getString("StoredMailInfoDAO_CouldNotDeleteMailInfo"), ex);
         }
     }
 

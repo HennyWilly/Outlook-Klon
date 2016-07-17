@@ -1,6 +1,6 @@
 package de.outlookklon.gui.helpers;
 
-import de.outlookklon.Program;
+import de.outlookklon.localization.Localization;
 import javax.swing.JButton;
 
 /**
@@ -16,14 +16,14 @@ public abstract class Buttons {
     }
 
     public static JButton getDoneButton() {
-        return getButton(Program.STRINGS.getString("Button_Done"));
+        return getButton(Localization.getString("Button_Done"));
     }
 
     public static JButton getAbortButton() {
-        return getButton(Program.STRINGS.getString("Button_Abort"));
+        return getButton(Localization.getString("Button_Abort"));
     }
 
     public static JButton getOkButton() {
-        return getButton(Program.STRINGS.getString("Button_Ok"));
+        return getButton(Localization.getString("Button_Ok"));
     }
 }

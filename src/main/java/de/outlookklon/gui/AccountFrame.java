@@ -1,7 +1,6 @@
 package de.outlookklon.gui;
 
-import de.outlookklon.Program;
-import de.outlookklon.gui.helpers.Buttons;
+import de.outlookklon.localization.Localization;
 import de.outlookklon.logik.mailclient.AuthentificationType;
 import de.outlookklon.logik.mailclient.ConnectionSecurity;
 import de.outlookklon.logik.mailclient.ImapServer;
@@ -39,39 +38,79 @@ public class AccountFrame extends ExtendedDialog<MailAccount> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AccountFrame.class);
 
+    private final String titleLocalizationKey;
+
     private MailAccount mailAccount;
     private MailAccount tmpAccount;
 
-    private JTextField txtDisplayname;
-    private JTextField txtMail;
-    private JPasswordField passwordField;
-    private JTextField txtInServer;
-    private JTextField txtOutServer;
-    private JTextField txtUsername;
+    private final JLabel lblDisplayname;
+    private final JTextField txtDisplayname;
+    private final JLabel lblMail;
+    private final JTextField txtMail;
+    private final JLabel lblPassword;
+    private final JPasswordField passwordField;
+    private final JLabel lblInboxServer;
+    private final JTextField txtInServer;
+    private final JLabel lblOutboxServer;
+    private final JTextField txtOutServer;
+    private final JLabel lblUsername;
+    private final JTextField txtUsername;
 
-    private JComboBox<String> cbInProtocoll;
-    private JSpinner spInPort;
-    private JComboBox<ConnectionSecurity> cBInConnectionSecurity;
-    private JComboBox<AuthentificationType> cBInAuthentificationType;
+    private final JLabel lblServerAddress;
+    private final JLabel lblAuthentification;
 
-    private JSpinner spOutPort;
-    private JComboBox<ConnectionSecurity> cBOutConnectionSecurity;
-    private JComboBox<AuthentificationType> cBOutAuthentificationType;
+    private final JComboBox<String> cbInProtocoll;
+    private final JSpinner spInPort;
+    private final JComboBox<ConnectionSecurity> cBInConnectionSecurity;
+    private final JComboBox<AuthentificationType> cBInAuthentificationType;
 
-    private JButton btnTest;
-    private JButton btnAbort;
-    private JButton btnFinish;
+    private final JSpinner spOutPort;
+    private final JComboBox<ConnectionSecurity> cBOutConnectionSecurity;
+    private final JComboBox<AuthentificationType> cBOutAuthentificationType;
+
+    private final JButton btnTest;
+    private final JButton btnAbort;
+    private final JButton btnFinish;
+
+    private AccountFrame(String titleKey) {
+        super(750, 350);
+        titleLocalizationKey = titleKey;
+
+        txtMail = new JTextField();
+        lblMail = new JLabel();
+        lblPassword = new JLabel();
+        passwordField = new JPasswordField();
+        lblInboxServer = new JLabel();
+        cbInProtocoll = new JComboBox<>();
+        txtInServer = new JTextField();
+        spInPort = new JSpinner();
+        cBInConnectionSecurity = new JComboBox<>();
+        cBInAuthentificationType = new JComboBox<>();
+        lblOutboxServer = new JLabel();
+        txtOutServer = new JTextField();
+        spOutPort = new JSpinner();
+        cBOutConnectionSecurity = new JComboBox<>();
+        cBOutAuthentificationType = new JComboBox<>();
+        lblUsername = new JLabel();
+        txtUsername = new JTextField();
+        lblServerAddress = new JLabel();
+        lblAuthentification = new JLabel();
+        btnAbort = new JButton();
+        btnTest = new JButton();
+        btnFinish = new JButton();
+        lblDisplayname = new JLabel();
+        txtDisplayname = new JTextField();
+
+        initFrame();
+        updateTexts();
+    }
 
     /**
      * Erstellt eine neue Instanz der Klasse zum Erstellen eines neuen
      * MailAccount-Objekts
      */
     public AccountFrame() {
-        super(750, 350);
-
-        setTitle(Program.STRINGS.getString("AccountFrame_DefaultTitle"));
-
-        initFrame();
+        this("AccountFrame_DefaultTitle");
     }
 
     /**
@@ -81,9 +120,7 @@ public class AccountFrame extends ExtendedDialog<MailAccount> {
      * @param account Zu bearbeitender Account
      */
     public AccountFrame(MailAccount account) {
-        super(750, 350);
-
-        setTitle(Program.STRINGS.getString("AccountFrame_EditTitle"));
+        this("AccountFrame_EditTitle");
 
         initFrame();
 
@@ -113,65 +150,67 @@ public class AccountFrame extends ExtendedDialog<MailAccount> {
         }
     }
 
+    @Override
+    public void updateTexts() {
+        setTitle(Localization.getString(titleLocalizationKey));
+
+        lblMail.setText(Localization.getString("Account_MailAddress"));
+        lblPassword.setText(Localization.getString("Account_Password"));
+        lblInboxServer.setText(Localization.getString("Account_Inbox"));
+        lblOutboxServer.setText(Localization.getString("Account_Outbox"));
+        lblUsername.setText(Localization.getString("Account_Username"));
+        lblServerAddress.setText(Localization.getString("Account_ServerAddress"));
+        lblAuthentification.setText(Localization.getString("Account_Authentification"));
+        btnAbort.setText(Localization.getString("Button_Abort"));
+        btnTest.setText(Localization.getString("Button_Test"));
+        btnFinish.setText(Localization.getString("Button_Done"));
+        lblDisplayname.setText(Localization.getString("Account_DisplayName"));
+    }
+
     /**
      * Initialisiert die GUI-Elemente des Frames
      */
     private void initFrame() {
-        txtMail = new JTextField();
         txtMail.setBounds(140, 58, 315, 20);
         txtMail.setColumns(10);
 
-        JLabel lblMail = new JLabel(Program.STRINGS.getString("Account_MailAddress"));
         lblMail.setBounds(10, 61, 120, 14);
 
-        JLabel lblPassword = new JLabel(Program.STRINGS.getString("Account_Password"));
         lblPassword.setBounds(37, 92, 93, 14);
 
-        passwordField = new JPasswordField();
         passwordField.setBounds(140, 89, 315, 20);
 
         JPanel groupBox = new JPanel();
         groupBox.setBounds(10, 120, 724, 137);
 
-        JLabel lblInboxServer = new JLabel(Program.STRINGS.getString("Account_Inbox"));
         lblInboxServer.setBounds(10, 37, 138, 14);
 
-        cbInProtocoll = new JComboBox<>();
         cbInProtocoll.setBounds(158, 34, 57, 20);
         cbInProtocoll.setModel(new DefaultComboBoxModel<>(new String[]{"POP3", "IMAP"}));
 
-        txtInServer = new JTextField();
         txtInServer.setBounds(226, 34, 162, 20);
         txtInServer.setColumns(10);
 
-        spInPort = new JSpinner();
         spInPort.setBounds(394, 34, 54, 20);
 
-        cBInConnectionSecurity = new JComboBox<>();
         cBInConnectionSecurity.setBounds(454, 34, 127, 20);
         cBInConnectionSecurity
                 .setModel(new DefaultComboBoxModel<>(ConnectionSecurity.values()));
 
-        cBInAuthentificationType = new JComboBox<>();
         cBInAuthentificationType.setBounds(587, 34, 127, 20);
         cBInAuthentificationType.setModel(new DefaultComboBoxModel<>(AuthentificationType.values()));
 
-        JLabel lblOutboxServer = new JLabel(Program.STRINGS.getString("Account_Outbox"));
         lblOutboxServer.setBounds(10, 65, 138, 14);
 
-        txtOutServer = new JTextField();
         txtOutServer.setBounds(226, 65, 162, 20);
         txtOutServer.setColumns(10);
 
-        spOutPort = new JSpinner();
         spOutPort.setBounds(394, 65, 54, 20);
 
-        cBOutConnectionSecurity = new JComboBox<>();
         cBOutConnectionSecurity.setBounds(454, 65, 127, 20);
         cBOutConnectionSecurity
                 .setModel(new DefaultComboBoxModel<>(ConnectionSecurity.values()));
 
-        cBOutAuthentificationType = new JComboBox<>();
         cBOutAuthentificationType.setBounds(587, 64, 127, 20);
         cBOutAuthentificationType
                 .setModel(new DefaultComboBoxModel<>(AuthentificationType.values()));
@@ -179,10 +218,8 @@ public class AccountFrame extends ExtendedDialog<MailAccount> {
         JLabel lblSmtp = new JLabel("SMTP");
         lblSmtp.setBounds(160, 65, 55, 14);
 
-        JLabel lblUsername = new JLabel(Program.STRINGS.getString("Account_Username"));
         lblUsername.setBounds(10, 106, 138, 14);
 
-        txtUsername = new JTextField();
         txtUsername.setBounds(226, 103, 162, 20);
         txtUsername.setColumns(10);
         getContentPane().setLayout(null);
@@ -207,7 +244,6 @@ public class AccountFrame extends ExtendedDialog<MailAccount> {
         groupBox.add(cBOutAuthentificationType);
         groupBox.add(txtUsername);
 
-        JLabel lblServerAddress = new JLabel(Program.STRINGS.getString("Account_ServerAddress"));
         lblServerAddress.setBounds(226, 11, 162, 14);
         groupBox.add(lblServerAddress);
 
@@ -219,11 +255,9 @@ public class AccountFrame extends ExtendedDialog<MailAccount> {
         lblSsl.setBounds(454, 11, 123, 14);
         groupBox.add(lblSsl);
 
-        JLabel lblAuthentification = new JLabel(Program.STRINGS.getString("Account_Authentification"));
         lblAuthentification.setBounds(587, 11, 127, 14);
         groupBox.add(lblAuthentification);
 
-        btnAbort = Buttons.getAbortButton();
         btnAbort.setBounds(649, 288, 85, 23);
         btnAbort.addActionListener(new ActionListener() {
             @Override
@@ -234,7 +268,6 @@ public class AccountFrame extends ExtendedDialog<MailAccount> {
         });
         getContentPane().add(btnAbort);
 
-        btnTest = new JButton(Program.STRINGS.getString("Button_Test"));
         btnTest.setBounds(459, 288, 85, 23);
         btnTest.addActionListener(new ActionListener() {
             @Override
@@ -244,7 +277,6 @@ public class AccountFrame extends ExtendedDialog<MailAccount> {
         });
         getContentPane().add(btnTest);
 
-        btnFinish = Buttons.getDoneButton();
         btnFinish.setEnabled(false);
         btnFinish.setBounds(554, 288, 85, 23);
         btnFinish.addActionListener(new ActionListener() {
@@ -256,11 +288,9 @@ public class AccountFrame extends ExtendedDialog<MailAccount> {
         });
         getContentPane().add(btnFinish);
 
-        JLabel lblDisplayname = new JLabel(Program.STRINGS.getString("Account_DisplayName"));
         lblDisplayname.setBounds(10, 14, 120, 14);
         getContentPane().add(lblDisplayname);
 
-        txtDisplayname = new JTextField();
         txtDisplayname.setColumns(10);
         txtDisplayname.setBounds(140, 11, 315, 20);
         getContentPane().add(txtDisplayname);
@@ -283,7 +313,7 @@ public class AccountFrame extends ExtendedDialog<MailAccount> {
         } else if ("POP3".equals(cbInProtocoll.getSelectedItem())) {
             inbox = new Pop3Server(inboxSettings);
         } else {
-            throw new UnsupportedOperationException(Program.STRINGS.getString("AccountFrame_UnknownProtocol"));
+            throw new UnsupportedOperationException(Localization.getString("AccountFrame_UnknownProtocol"));
         }
 
         // Settings-Instanz für den Mailversandt erstellen
@@ -305,14 +335,14 @@ public class AccountFrame extends ExtendedDialog<MailAccount> {
 
             btnFinish.setEnabled(valid);
             if (!valid) {
-                JOptionPane.showMessageDialog(this, Program.STRINGS.getString("AccountFrame_InvalidData"),
-                        Program.STRINGS.getString("Dialog_Error"), JOptionPane.OK_OPTION);
+                JOptionPane.showMessageDialog(this, Localization.getString("AccountFrame_InvalidData"),
+                        Localization.getString("Dialog_Error"), JOptionPane.OK_OPTION);
             }
         } catch (IOException e) {
-            LOGGER.error(Program.STRINGS.getString("AccountFrame_CouldNotCreateAccount"), e);
+            LOGGER.error(Localization.getString("AccountFrame_CouldNotCreateAccount"), e);
 
             JOptionPane.showMessageDialog(this, e.getLocalizedMessage(),
-                    Program.STRINGS.getString("Dialog_Error"), JOptionPane.OK_OPTION);
+                    Localization.getString("Dialog_Error"), JOptionPane.OK_OPTION);
         }
     }
 

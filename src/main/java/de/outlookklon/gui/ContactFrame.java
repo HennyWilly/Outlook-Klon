@@ -1,8 +1,7 @@
 package de.outlookklon.gui;
 
-import de.outlookklon.Program;
-import de.outlookklon.gui.helpers.Buttons;
 import de.outlookklon.gui.helpers.ListFocusTraversalPolicy;
+import de.outlookklon.localization.Localization;
 import de.outlookklon.logik.contacts.Contact;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
@@ -36,51 +35,83 @@ public class ContactFrame extends ExtendedDialog<Contact> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ContactFrame.class);
 
-    private static final String FORMAT_STRING_CREATE1 = Program.STRINGS.getString("AddressBookFrame_Menu_NewContact");
-    private static final String FORMAT_STRING_CREATE2 = Program.STRINGS.getString("ContactFrame_NewContactFormat");
-    private static final String FORMAT_STRING_EDIT1 = Program.STRINGS.getString("ContactFrame_EditContact");
-    private static final String FORMAT_STRING_EDIT2 = Program.STRINGS.getString("ContactFrame_EditContactFormat");
-
+    // TODO Remove if title works correct
+    private final String captionKey;
     private Contact mContact;
 
-    private JTextField tForename;
-    private JTextField tSurname;
-    private JTextField tDisplayname;
-    private JTextField tNickname;
-    private JTextField tEmailaddress1;
-    private JTextField tEmailaddress2;
-    private JTextField tDutyphone;
-    private JTextField tPrivatephone;
-    private JTextField tMobilephone;
+    private final JLabel lblForename;
+    private final JTextField tForename;
+    private final JLabel lblSurname;
+    private final JTextField tSurname;
+    private final JLabel lblDisplayname;
+    private final JTextField tDisplayname;
+    private final JLabel lblNickname;
+    private final JTextField tNickname;
+    private final JLabel lblEmailaddress1;
+    private final JTextField tEmailaddress1;
+    private final JLabel lblEmailaddress2;
+    private final JTextField tEmailaddress2;
+    private final JLabel lblDutyphone;
+    private final JTextField tDutyphone;
+    private final JLabel lblPrivatephone;
+    private final JTextField tPrivatephone;
+    private final JLabel lblMobilephone;
+    private final JTextField tMobilephone;
 
-    private JButton btnOK;
-    private JButton btnAbort;
+    private final JButton btnOK;
+    private final JButton btnAbort;
+
+    private ContactFrame(String caption, Contact contact) {
+        super(685, 285);
+
+        this.captionKey = caption;
+        this.mContact = contact;
+
+        lblForename = new JLabel();
+        lblSurname = new JLabel();
+        lblDisplayname = new JLabel();
+        lblNickname = new JLabel();
+        lblEmailaddress1 = new JLabel();
+        lblEmailaddress2 = new JLabel();
+        lblDutyphone = new JLabel();
+        lblPrivatephone = new JLabel();
+        lblMobilephone = new JLabel();
+
+        tForename = new JTextField();
+        tSurname = new JTextField();
+        tDisplayname = new JTextField();
+        tNickname = new JTextField();
+        tEmailaddress1 = new JTextField();
+        tEmailaddress2 = new JTextField();
+        tDutyphone = new JTextField();
+        tPrivatephone = new JTextField();
+        tMobilephone = new JTextField();
+
+        btnOK = new JButton();
+        btnAbort = new JButton();
+    }
 
     /**
      * Erstellt eine neue Instanz der Klasse zum Erstellen eines Kontakts
      */
     public ContactFrame() {
-        super(685, 285);
-
-        mContact = null;
-        this.setTitle(FORMAT_STRING_CREATE1);
+        this("AddressBookFrame_Menu_NewContact", null);
 
         initFrame();
+        updateTexts();
     }
 
     /**
      * Erstellt eine neue Instanz der Klasse zum Bearbeiten des übergebenen
      * Kontakts
      *
-     * @param k Contact-Instanz, die in dem Frame bearbeitet werden soll
+     * @param contact Contact-Instanz, die in dem Frame bearbeitet werden soll
      */
-    public ContactFrame(Contact k) {
-        super(685, 285);
-
-        mContact = k;
-        this.setTitle(String.format(FORMAT_STRING_EDIT2, mContact));
+    public ContactFrame(Contact contact) {
+        this("ContactFrame_EditContactFormat", contact);
 
         initFrame();
+        updateTexts();
 
         String mail1 = mContact.getAddress1AsString();
         String mail2 = mContact.getAddress2AsString();
@@ -96,20 +127,28 @@ public class ContactFrame extends ExtendedDialog<Contact> {
         tMobilephone.setText(mContact.getMobilephone());
     }
 
+    @Override
+    public void updateTexts() {
+        refreshTitle();
+
+        lblForename.setText(Localization.getString("Contact_Forename"));
+        lblSurname.setText(Localization.getString("Contact_Surname"));
+        lblDisplayname.setText(Localization.getString("Account_DisplayName"));
+        lblNickname.setText(Localization.getString("Contact_Nickname"));
+        lblEmailaddress1.setText(Localization.getString("Account_MailAddress"));
+        lblEmailaddress2.setText(Localization.getString("Contact_MailAddress2"));
+        lblDutyphone.setText(Localization.getString("Contact_DutyPhone"));
+        lblPrivatephone.setText(Localization.getString("Contact_PrivatePhone"));
+        lblMobilephone.setText(Localization.getString("Contact_MobilePhone"));
+
+        btnOK.setText(Localization.getString("Button_Ok"));
+        btnAbort.setText(Localization.getString("Button_Abort"));
+    }
+
     /**
      * Initialisiert die Komponenten der GUI
      */
     private void initFrame() {
-        final JLabel lblForename = new JLabel(Program.STRINGS.getString("Contact_Forename"));
-        final JLabel lblSurname = new JLabel(Program.STRINGS.getString("Contact_Surname"));
-        final JLabel lblDisplayname = new JLabel(Program.STRINGS.getString("Account_DisplayName"));
-        final JLabel lblNickname = new JLabel(Program.STRINGS.getString("Contact_Nickname"));
-        final JLabel lblEmailaddress1 = new JLabel(Program.STRINGS.getString("Account_MailAddress"));
-        final JLabel lblEmailaddress2 = new JLabel(Program.STRINGS.getString("Contact_MailAddress2"));
-        final JLabel lblDutyphone = new JLabel(Program.STRINGS.getString("Contact_DutyPhone"));
-        final JLabel lblPrivatephone = new JLabel(Program.STRINGS.getString("Contact_PrivatePhone"));
-        final JLabel lblMobilephone = new JLabel(Program.STRINGS.getString("Contact_MobilePhone"));
-
         final DocumentListener nameDocListener = new DocumentListener() {
             @Override
             public void removeUpdate(DocumentEvent arg0) {
@@ -130,15 +169,12 @@ public class ContactFrame extends ExtendedDialog<Contact> {
             }
         };
 
-        tForename = new JTextField();
         tForename.setColumns(10);
         tForename.getDocument().addDocumentListener(nameDocListener);
 
-        tSurname = new JTextField();
         tSurname.setColumns(10);
         tSurname.getDocument().addDocumentListener(nameDocListener);
 
-        tDisplayname = new JTextField();
         tDisplayname.setColumns(10);
         tDisplayname.getDocument().addDocumentListener(new DocumentListener() {
             @Override
@@ -160,25 +196,13 @@ public class ContactFrame extends ExtendedDialog<Contact> {
             }
         });
 
-        tNickname = new JTextField();
         tNickname.setColumns(10);
-
-        tEmailaddress1 = new JTextField();
         tEmailaddress1.setColumns(10);
-
-        tEmailaddress2 = new JTextField();
         tEmailaddress2.setColumns(10);
-
-        tDutyphone = new JTextField();
         tDutyphone.setColumns(10);
-
-        tPrivatephone = new JTextField();
         tPrivatephone.setColumns(10);
-
-        tMobilephone = new JTextField();
         tMobilephone.setColumns(10);
 
-        btnOK = Buttons.getOkButton();
         btnOK.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent arg0) {
@@ -186,7 +210,6 @@ public class ContactFrame extends ExtendedDialog<Contact> {
             }
         });
 
-        btnAbort = Buttons.getAbortButton();
         btnAbort.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -303,14 +326,14 @@ public class ContactFrame extends ExtendedDialog<Contact> {
         String title;
         if (mContact == null) {
             if (name != null & !name.trim().isEmpty()) {
-                title = String.format(FORMAT_STRING_CREATE2, name);
+                title = String.format(Localization.getString("ContactFrame_NewContactFormat"), name);
             } else {
-                title = FORMAT_STRING_CREATE1;
+                title = Localization.getString("AddressBookFrame_Menu_NewContact");
             }
         } else if (name != null & !name.trim().isEmpty()) {
-            title = String.format(FORMAT_STRING_EDIT2, name);
+            title = String.format(Localization.getString("ContactFrame_EditContactFormat"), name);
         } else {
-            title = FORMAT_STRING_EDIT1;
+            title = Localization.getString("ContactFrame_EditContact");
         }
 
         setTitle(title);
@@ -330,11 +353,11 @@ public class ContactFrame extends ExtendedDialog<Contact> {
             mail1 = strMail1.isEmpty() ? null : new InternetAddress(tEmailaddress1.getText(), true);
             mail2 = strMail2.isEmpty() ? null : new InternetAddress(tEmailaddress2.getText(), true);
         } catch (AddressException ex) {
-            LOGGER.error(Program.STRINGS.getString("ContactFrame_ParseMailAddressError"), ex);
+            LOGGER.error(Localization.getString("ContactFrame_ParseMailAddressError"), ex);
 
             JOptionPane.showMessageDialog(this,
-                    Program.STRINGS.getString("ContactFrame_ParseMailAddressError") + "\n" + ex.getMessage(),
-                    Program.STRINGS.getString("Dialog_Error"),
+                    Localization.getString("ContactFrame_ParseMailAddressError") + "\n" + ex.getMessage(),
+                    Localization.getString("Dialog_Error"),
                     JOptionPane.ERROR_MESSAGE);
 
             return;
@@ -348,8 +371,8 @@ public class ContactFrame extends ExtendedDialog<Contact> {
         if (mail1 == null && tForename.getText().trim().isEmpty() && tSurname.getText().trim().isEmpty()
                 && tDisplayname.getText().trim().isEmpty()) {
             JOptionPane.showMessageDialog(this,
-                    Program.STRINGS.getString("ContactFrame_NotEnoughInformation"),
-                    Program.STRINGS.getString("ContactFrame_MissingInfomation"),
+                    Localization.getString("ContactFrame_NotEnoughInformation"),
+                    Localization.getString("ContactFrame_MissingInfomation"),
                     JOptionPane.WARNING_MESSAGE);
             return;
         }

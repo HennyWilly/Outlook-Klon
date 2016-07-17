@@ -1,8 +1,11 @@
 package de.outlookklon.gui;
 
+import de.outlookklon.localization.ILocalizable;
+import de.outlookklon.localization.WindowLocalizer;
 import java.awt.Dialog;
 import java.awt.event.WindowEvent;
 import javax.swing.JDialog;
+import javax.swing.JFrame;
 
 /**
  * Diese abstrakte Klasse stellt Methoden bereit, die bei JDialogs häufig
@@ -11,7 +14,7 @@ import javax.swing.JDialog;
  * @author Hendrik Karwanni
  * @param <T> Datentyp, der vom Dialog zurückgegeben werden soll
  */
-public abstract class ExtendedDialog<T> extends JDialog {
+public abstract class ExtendedDialog<T> extends JDialog implements ILocalizable {
 
     private static final long serialVersionUID = -8078692720731679550L;
 
@@ -24,10 +27,14 @@ public abstract class ExtendedDialog<T> extends JDialog {
      */
     protected ExtendedDialog(int width, int height) {
         this.setSize(width, height);
+
         // Fenster in der Mitte des Bildschirms
         this.setLocationRelativeTo(null);
         this.setModalityType(Dialog.DEFAULT_MODALITY_TYPE);
         this.setResizable(false);
+
+        this.addWindowListener(new WindowLocalizer());
+        this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
     }
 
     /**

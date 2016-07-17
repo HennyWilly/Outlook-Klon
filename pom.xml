@@ -167,7 +167,7 @@
         <version>${jar-plugin.version}</version>
 
         <configuration>
-          <!-- DO NOT include log4j.properties file in your Jar -->
+          <!-- DO NOT include log4j.properties file in Jar -->
           <excludes>
             <exclude>**/log4j.properties</exclude>
           </excludes>
