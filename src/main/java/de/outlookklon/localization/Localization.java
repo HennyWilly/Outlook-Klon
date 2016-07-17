@@ -2,7 +2,6 @@ package de.outlookklon.localization;
 
 import java.util.HashSet;
 import java.util.Locale;
-import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.Set;
 import lombok.NonNull;
@@ -18,6 +17,9 @@ public class Localization {
     private static final Locale DEFAULT_LOCALE = Locale.ENGLISH;
 
     private static final Set<ILocalizable> LOCALIZABLES = new HashSet<>();
+
+    private Localization() {
+    }
 
     /**
      * Fügt das übergebene lokalisierbare Objekt dem Localizer hinzu.
@@ -86,18 +88,14 @@ public class Localization {
         Set<Locale> resourceLocales = new HashSet<>();
 
         for (Locale locale : Locale.getAvailableLocales()) {
-            try {
-                ResourceBundle bundle = ResourceBundle.getBundle(BUNDLE_NAME, locale);
-                if (bundle.getLocale().equals(locale)) {
-                    if (locale.getLanguage().isEmpty()) {
-                        resourceLocales.add(DEFAULT_LOCALE);
-                    } else {
-                        resourceLocales.add(locale);
-                    }
-
+            ResourceBundle bundle = ResourceBundle.getBundle(BUNDLE_NAME, locale);
+            if (bundle.getLocale().equals(locale)) {
+                if (locale.getLanguage().isEmpty()) {
+                    resourceLocales.add(DEFAULT_LOCALE);
+                } else {
+                    resourceLocales.add(locale);
                 }
-            } catch (MissingResourceException ex) {
-                // Ignore
+
             }
         }
 

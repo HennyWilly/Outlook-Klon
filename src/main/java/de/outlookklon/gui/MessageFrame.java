@@ -1,6 +1,5 @@
 package de.outlookklon.gui;
 
-import de.outlookklon.gui.helpers.Buttons;
 import de.outlookklon.localization.Localization;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -33,10 +32,11 @@ public class MessageFrame extends ExtendedDialog<String> {
         super(400, 365);
 
         textMessage = new JTextPane();
-        btnOk = Buttons.getOkButton();
-        btnAbort = Buttons.getAbortButton();
+        btnOk = new JButton();
+        btnAbort = new JButton();
 
         initGui(text, title);
+        updateTexts();
     }
 
     @Override

@@ -35,8 +35,6 @@ public class ContactFrame extends ExtendedDialog<Contact> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ContactFrame.class);
 
-    // TODO Remove if title works correct
-    private final String captionKey;
     private Contact mContact;
 
     private final JLabel lblForename;
@@ -61,10 +59,22 @@ public class ContactFrame extends ExtendedDialog<Contact> {
     private final JButton btnOK;
     private final JButton btnAbort;
 
-    private ContactFrame(String caption, Contact contact) {
+    /**
+     * Erstellt eine neue Instanz der Klasse zum Erstellen eines Kontakts
+     */
+    public ContactFrame() {
+        this(null);
+    }
+
+    /**
+     * Erstellt eine neue Instanz der Klasse zum Bearbeiten des übergebenen
+     * Kontakts
+     *
+     * @param contact Contact-Instanz, die in dem Frame bearbeitet werden soll
+     */
+    public ContactFrame(Contact contact) {
         super(685, 285);
 
-        this.captionKey = caption;
         this.mContact = contact;
 
         lblForename = new JLabel();
@@ -89,42 +99,24 @@ public class ContactFrame extends ExtendedDialog<Contact> {
 
         btnOK = new JButton();
         btnAbort = new JButton();
-    }
-
-    /**
-     * Erstellt eine neue Instanz der Klasse zum Erstellen eines Kontakts
-     */
-    public ContactFrame() {
-        this("AddressBookFrame_Menu_NewContact", null);
-
-        initFrame();
-        updateTexts();
-    }
-
-    /**
-     * Erstellt eine neue Instanz der Klasse zum Bearbeiten des übergebenen
-     * Kontakts
-     *
-     * @param contact Contact-Instanz, die in dem Frame bearbeitet werden soll
-     */
-    public ContactFrame(Contact contact) {
-        this("ContactFrame_EditContactFormat", contact);
 
         initFrame();
         updateTexts();
 
-        String mail1 = mContact.getAddress1AsString();
-        String mail2 = mContact.getAddress2AsString();
+        if (mContact != null) {
+            String mail1 = mContact.getAddress1AsString();
+            String mail2 = mContact.getAddress2AsString();
 
-        tForename.setText(mContact.getForename());
-        tSurname.setText(mContact.getSurname());
-        tDisplayname.setText(mContact.getDisplayname());
-        tNickname.setText(mContact.getNickname());
-        tEmailaddress1.setText(mail1);
-        tEmailaddress2.setText(mail2);
-        tDutyphone.setText(mContact.getDutyphone());
-        tPrivatephone.setText(mContact.getPrivatephone());
-        tMobilephone.setText(mContact.getMobilephone());
+            tForename.setText(mContact.getForename());
+            tSurname.setText(mContact.getSurname());
+            tDisplayname.setText(mContact.getDisplayname());
+            tNickname.setText(mContact.getNickname());
+            tEmailaddress1.setText(mail1);
+            tEmailaddress2.setText(mail2);
+            tDutyphone.setText(mContact.getDutyphone());
+            tPrivatephone.setText(mContact.getPrivatephone());
+            tMobilephone.setText(mContact.getMobilephone());
+        }
     }
 
     @Override

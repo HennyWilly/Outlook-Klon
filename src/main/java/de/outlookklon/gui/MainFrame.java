@@ -90,6 +90,8 @@ public class MainFrame extends ExtendedFrame {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MainFrame.class);
 
+    private static final String MAIL_TABLE_REF_COLUMN_NAME = "MailInfo";
+
     private JPopupMenu tablePopup;
     private final JMenuItem popupOpen;
     private final JMenuItem popupDelete;
@@ -227,7 +229,7 @@ public class MainFrame extends ExtendedFrame {
 
         // TODO Copy Data
         tblMails.setModel(getTableModel());
-        tblMails.removeColumn(tblMails.getColumn("MailInfo"));
+        tblMails.removeColumn(tblMails.getColumn(MAIL_TABLE_REF_COLUMN_NAME));
 
         updateLanguageMenu();
     }
@@ -258,7 +260,7 @@ public class MainFrame extends ExtendedFrame {
         return new DefaultTableModel(
                 new Object[][]{},
                 new String[]{
-                    "MailInfo",
+                    MAIL_TABLE_REF_COLUMN_NAME,
                     Localization.getString("MailFrame_Subject"),
                     Localization.getString("MailFrame_From"),
                     Localization.getString("Appointment_Date")
@@ -569,7 +571,7 @@ public class MainFrame extends ExtendedFrame {
         myRowSorter.setSortsOnUpdates(true);
         tblMails.setRowSorter(myRowSorter);
 
-        tblMails.removeColumn(tblMails.getColumn("MailInfo"));
+        tblMails.removeColumn(tblMails.getColumn(MAIL_TABLE_REF_COLUMN_NAME));
         tblMails.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
             @Override
             public void valueChanged(ListSelectionEvent e) {
@@ -1381,14 +1383,7 @@ public class MainFrame extends ExtendedFrame {
             checker.removeMailInfos(infos);
 
             // Entferne alle ausgewählten Mails aus der Tabelle
-            DefaultTableModel model = (DefaultTableModel) tblMails.getModel();
-            int row = tblMails.getSelectedRow();
-            while (row != -1) {
-                int mapped = tblMails.convertRowIndexToModel(row);
-                model.removeRow(mapped);
-
-                row = tblMails.getSelectedRow();
-            }
+            removeSelectedMailEntries();
         } catch (MessagingException | DAOException e) {
             LOGGER.error(Localization.getString("MainFrame_CouldNotMoveMail"), e);
 
@@ -1414,14 +1409,7 @@ public class MainFrame extends ExtendedFrame {
             checker.removeMailInfos(infos);
 
             // Entferne bei Erfolg alle ausgewählten Mails aus der Tabelle
-            DefaultTableModel model = (DefaultTableModel) tblMails.getModel();
-            int row = tblMails.getSelectedRow();
-            while (row != -1) {
-                int mapped = tblMails.convertRowIndexToModel(row);
-                model.removeRow(mapped);
-
-                row = tblMails.getSelectedRow();
-            }
+            removeSelectedMailEntries();
         } catch (MessagingException | DAOException e) {
             LOGGER.error(Localization.getString("MainFrame_CouldNotDeleteMail"), e);
 
@@ -1429,6 +1417,17 @@ public class MainFrame extends ExtendedFrame {
                     Localization.getString("MainFrame_CouldNotDeleteMail") + ": \n" + e.getMessage(),
                     Localization.getString("Dialog_Error"),
                     JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void removeSelectedMailEntries() {
+        DefaultTableModel model = (DefaultTableModel) tblMails.getModel();
+        int row = tblMails.getSelectedRow();
+        while (row != -1) {
+            int mapped = tblMails.convertRowIndexToModel(row);
+            model.removeRow(mapped);
+
+            row = tblMails.getSelectedRow();
         }
     }
 
