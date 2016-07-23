@@ -5,8 +5,6 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import org.junit.Before;
 import org.junit.Test;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
 
 public class ContactManagementTest {
 
@@ -238,7 +236,7 @@ public class ContactManagementTest {
         management.deleteList(ContactManagement.DEFAULT);
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void shouldNotDeleteList_ListNameDoesNotExist() {
         String list1 = "test";
         String list2 = "NonExistent";

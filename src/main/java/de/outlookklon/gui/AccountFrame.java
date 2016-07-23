@@ -1,5 +1,6 @@
 package de.outlookklon.gui;
 
+import de.outlookklon.gui.helpers.Dialogs;
 import de.outlookklon.localization.Localization;
 import de.outlookklon.logik.mailclient.AuthentificationType;
 import de.outlookklon.logik.mailclient.ConnectionSecurity;
@@ -18,7 +19,6 @@ import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JSpinner;
@@ -335,14 +335,11 @@ public class AccountFrame extends ExtendedDialog<MailAccount> {
 
             btnFinish.setEnabled(valid);
             if (!valid) {
-                JOptionPane.showMessageDialog(this, Localization.getString("AccountFrame_InvalidData"),
-                        Localization.getString("Dialog_Error"), JOptionPane.OK_OPTION);
+                Dialogs.showErrorDialog(this, Localization.getString("AccountFrame_InvalidData"));
             }
         } catch (IOException e) {
             LOGGER.error(Localization.getString("AccountFrame_CouldNotCreateAccount"), e);
-
-            JOptionPane.showMessageDialog(this, e.getLocalizedMessage(),
-                    Localization.getString("Dialog_Error"), JOptionPane.OK_OPTION);
+            Dialogs.showErrorDialog(this, e.getLocalizedMessage());
         }
     }
 

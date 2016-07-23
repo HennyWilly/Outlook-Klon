@@ -32,7 +32,11 @@ import javax.swing.JTextPane;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
+import org.apache.commons.lang3.StringUtils;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 
 /**
  * Dieses Fenster zeigt den AppointmentCalendar des Benutzers an.
@@ -42,6 +46,13 @@ import javax.swing.table.TableModel;
 public class AppointmentCalendarFrame extends ExtendedFrame {
 
     private static final long serialVersionUID = 1L;
+
+    private static final String APPOINTMENT_TABLE_REF_COLUMN_NAME = "Reference";
+    private static final int TABLE_COLUMN_INDEX_SUBJECT = 0;
+    private static final int TABLE_COLUMN_INDEX_DESCRIPTION = 1;
+    private static final int TABLE_COLUMN_INDEX_DATE = 2;
+
+    private static final DateTimeFormatter DATETIMEFORMAT = DateTimeFormat.mediumDateTime();
 
     private final JTable tblAppointments;
     private final JTextPane textDetails;
@@ -130,32 +141,25 @@ public class AppointmentCalendarFrame extends ExtendedFrame {
         mntmAppointmentAdd.setText(Localization.getString("AppointmentCalendarFrame_AddAppointment"));
         mntmClose.setText(Localization.getString("Menu_Close"));
 
-        // TODO Copy Entries
-        String refName = Localization.getString("Table_Ref");
-        tblAppointments.setModel(getTableModel(refName));
-        tblAppointments.removeColumn(tblAppointments.getColumn(refName));
+        TableColumnModel tableColumnModel = tblAppointments.getColumnModel();
+        tableColumnModel.getColumn(TABLE_COLUMN_INDEX_SUBJECT).setHeaderValue(Localization.getString("Appointment_Subject"));
+        tableColumnModel.getColumn(TABLE_COLUMN_INDEX_DESCRIPTION).setHeaderValue(Localization.getString("Appointment_Description"));
+        tableColumnModel.getColumn(TABLE_COLUMN_INDEX_DATE).setHeaderValue(Localization.getString("Appointment_Date"));
 
         int row = tblAppointments.getSelectionModel().getMinSelectionIndex();
-        if (row >= 0) {
-            DefaultTableModel model = (DefaultTableModel) tblAppointments.getModel();
-            int length = model.getDataVector().size();
+        updateTable();
+        tblAppointments.getSelectionModel().setSelectionInterval(row, row);
 
-            if (length > 0) {
-                int rowModel = tblAppointments.convertRowIndexToModel(row);
-
-                Appointment reference = (Appointment) model.getValueAt(rowModel, 0);
-                updateDetails(reference);
-            }
-        }
+        repaint();
     }
 
-    private TableModel getTableModel(String refKeyName) {
+    private TableModel getTableModel() {
         return new DefaultTableModel(new Object[][]{},
                 new String[]{
-                    refKeyName,
-                    Localization.getString("Appointment_Subject"),
-                    Localization.getString("Appointment_Description"),
-                    Localization.getString("Appointment_Date")
+                    APPOINTMENT_TABLE_REF_COLUMN_NAME,
+                    StringUtils.EMPTY,
+                    StringUtils.EMPTY,
+                    StringUtils.EMPTY
                 }
         );
     }
@@ -234,9 +238,8 @@ public class AppointmentCalendarFrame extends ExtendedFrame {
         splitPane1.setOrientation(JSplitPane.VERTICAL_SPLIT);
         splitPane.setRightComponent(splitPane1);
 
-        String refName = Localization.getString("Table_Ref");
-        tblAppointments.setModel(getTableModel(refName));
-        tblAppointments.removeColumn(tblAppointments.getColumn(refName));
+        tblAppointments.setModel(getTableModel());
+        tblAppointments.removeColumn(tblAppointments.getColumn(APPOINTMENT_TABLE_REF_COLUMN_NAME));
         tblAppointments.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 
             @Override
@@ -306,7 +309,6 @@ public class AppointmentCalendarFrame extends ExtendedFrame {
         splitPane1.setRightComponent(textDetails);
         getContentPane().add(splitPane);
 
-        updateTable();
         loadUser();
     }
 
@@ -327,17 +329,24 @@ public class AppointmentCalendarFrame extends ExtendedFrame {
         }
 
         int count = onewayCalendar.getSize();
+
+        DateTimeFormatter localizedFormatter = getLocalizedFormatter();
         for (int i = 0; i < count; i++) {
             Appointment a = onewayCalendar.getOldest();
-            model.addRow(new Object[]{a, a.getSubject(), a.getText(), a.getStart().toString()});
+            model.addRow(new Object[]{a, a.getSubject(), a.getText(), localizedFormatter.print(a.getStart())});
             onewayCalendar.deleteAppointment(a);
         }
+    }
+
+    private DateTimeFormatter getLocalizedFormatter() {
+        return DATETIMEFORMAT.withLocale(Localization.getLocale());
     }
 
     private void updateDetails(Appointment appointment) {
         StringBuilder sb = new StringBuilder();
 
         if (appointment != null) {
+            DateTimeFormatter localizedFormatter = getLocalizedFormatter();
 
             if (!appointment.getSubject().trim().isEmpty()) {
                 sb.append(Localization.getString("Appointment_Subject")).append(": ").append(appointment.getSubject()).append('\n');
@@ -346,10 +355,10 @@ public class AppointmentCalendarFrame extends ExtendedFrame {
                 sb.append(Localization.getString("Appointment_Location")).append(": ").append(appointment.getLocation()).append('\n');
             }
             if (!appointment.getStart().toString().trim().isEmpty()) {
-                sb.append(Localization.getString("Appointment_Start")).append(": ").append(appointment.getStart().toString()).append('\n');
+                sb.append(Localization.getString("Appointment_Start")).append(": ").append(localizedFormatter.print(appointment.getStart())).append('\n');
             }
             if (!appointment.getEnd().toString().trim().isEmpty()) {
-                sb.append(Localization.getString("Appointment_End")).append(": ").append(appointment.getEnd().toString()).append('\n');
+                sb.append(Localization.getString("Appointment_End")).append(": ").append(localizedFormatter.print(appointment.getEnd())).append('\n');
             }
             if (!appointment.getText().trim().isEmpty()) {
                 sb.append(Localization.getString("Appointment_Info")).append(": ").append(appointment.getText()).append('\n');

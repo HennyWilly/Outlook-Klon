@@ -1,6 +1,7 @@
 package de.outlookklon.gui;
 
 import de.outlookklon.dao.DAOException;
+import de.outlookklon.gui.helpers.Dialogs;
 import de.outlookklon.gui.helpers.TaggedJRadioButtonMenuItem;
 import de.outlookklon.localization.Localization;
 import de.outlookklon.logik.User;
@@ -45,7 +46,6 @@ import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
@@ -66,6 +66,7 @@ import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -91,6 +92,9 @@ public class MainFrame extends ExtendedFrame {
     private static final Logger LOGGER = LoggerFactory.getLogger(MainFrame.class);
 
     private static final String MAIL_TABLE_REF_COLUMN_NAME = "MailInfo";
+    private static final int MAIL_TABLE_COLUMN_INDEX_SUBJECT = 0;
+    private static final int MAIL_TABLE_COLUMN_INDEX_FROM = 1;
+    private static final int MAIL_TABLE_COLUMN_INDEX_DATE = 2;
 
     private JPopupMenu tablePopup;
     private final JMenuItem popupOpen;
@@ -188,10 +192,7 @@ public class MainFrame extends ExtendedFrame {
                     LOGGER.error(Localization.getString("MainFrame_SaveSettingsError"), e);
 
                     Component component = windowEvent.getComponent();
-                    JOptionPane.showMessageDialog(component,
-                            Localization.getString("MainFrame_SaveSettingsError"),
-                            Localization.getString("Dialog_Error"),
-                            JOptionPane.ERROR_MESSAGE);
+                    Dialogs.showErrorDialog(component, Localization.getString("MainFrame_SaveSettingsError"));
                 }
             }
         });
@@ -227,11 +228,14 @@ public class MainFrame extends ExtendedFrame {
         popupCopy.setText(Localization.getString("Menu_Copy"));
         popupMove.setText(Localization.getString("Menu_Move"));
 
-        // TODO Copy Data
-        tblMails.setModel(getTableModel());
-        tblMails.removeColumn(tblMails.getColumn(MAIL_TABLE_REF_COLUMN_NAME));
+        TableColumnModel columnModel = tblMails.getColumnModel();
+        columnModel.getColumn(MAIL_TABLE_COLUMN_INDEX_SUBJECT).setHeaderValue(Localization.getString("MailFrame_Subject"));
+        columnModel.getColumn(MAIL_TABLE_COLUMN_INDEX_FROM).setHeaderValue(Localization.getString("MailFrame_From"));
+        columnModel.getColumn(MAIL_TABLE_COLUMN_INDEX_DATE).setHeaderValue(Localization.getString("Appointment_Date"));
 
         updateLanguageMenu();
+
+        repaint();
     }
 
     private void updateLanguageMenu() {
@@ -261,9 +265,9 @@ public class MainFrame extends ExtendedFrame {
                 new Object[][]{},
                 new String[]{
                     MAIL_TABLE_REF_COLUMN_NAME,
-                    Localization.getString("MailFrame_Subject"),
-                    Localization.getString("MailFrame_From"),
-                    Localization.getString("Appointment_Date")
+                    StringUtils.EMPTY,
+                    StringUtils.EMPTY,
+                    StringUtils.EMPTY
                 }
         ) {
             private static final long serialVersionUID = 1L;
@@ -750,10 +754,7 @@ public class MainFrame extends ExtendedFrame {
         } catch (MessagingException | DAOException e) {
             LOGGER.error(Localization.getString("MainFrame_CouldNotAnswerMail"), e);
 
-            JOptionPane.showMessageDialog(this,
-                    Localization.getString("MainFrame_CouldNotAnswerMail") + ": \n" + e.getMessage(),
-                    Localization.getString("Dialog_Error"),
-                    JOptionPane.ERROR_MESSAGE);
+            Dialogs.showErrorDialog(this, Localization.getString("MainFrame_CouldNotAnswerMail") + ": \n" + e.getMessage());
         }
     }
 
@@ -775,11 +776,7 @@ public class MainFrame extends ExtendedFrame {
             mf.setVisible(true);
         } catch (MessagingException | DAOException e) {
             LOGGER.error(Localization.getString("MainFrame_CouldNotForwarMail"), e);
-
-            JOptionPane.showMessageDialog(this,
-                    Localization.getString("MainFrame_CouldNotForwarMail") + ": \n" + e.getMessage(),
-                    Localization.getString("Dialog_Error"),
-                    JOptionPane.ERROR_MESSAGE);
+            Dialogs.showErrorDialog(this, Localization.getString("MainFrame_CouldNotForwarMail") + ": \n" + e.getMessage());
         }
     }
 
@@ -903,11 +900,7 @@ public class MainFrame extends ExtendedFrame {
                     user.removeMailAccount(acc, true);
                 } catch (IOException e) {
                     LOGGER.error(Localization.getString("MainFrame_CouldNotDeleteAccountSettings"), e);
-
-                    JOptionPane.showMessageDialog(this,
-                            Localization.getString("MainFrame_CouldNotDeleteAccountSettings"),
-                            Localization.getString("Dialog_Error"),
-                            JOptionPane.ERROR_MESSAGE);
+                    Dialogs.showErrorDialog(this, Localization.getString("MainFrame_CouldNotDeleteAccountSettings"));
                 }
             }
 
@@ -1185,11 +1178,7 @@ public class MainFrame extends ExtendedFrame {
             mailFrame.setVisible(true);
         } catch (MessagingException | DAOException e) {
             LOGGER.error(Localization.getString("MainFrame_CouldNotOpenMail"), e);
-
-            JOptionPane.showMessageDialog(this,
-                    Localization.getString("MainFrame_CouldNotOpenMail") + ":\n" + e.getMessage(),
-                    Localization.getString("Dialog_Error"),
-                    JOptionPane.ERROR_MESSAGE);
+            Dialogs.showErrorDialog(this, Localization.getString("MainFrame_CouldNotOpenMail") + ":\n" + e.getMessage());
         }
     }
 
@@ -1358,11 +1347,7 @@ public class MainFrame extends ExtendedFrame {
             acc.copyMails(infos, source.getPath(), target);
         } catch (MessagingException | DAOException e) {
             LOGGER.error(Localization.getString("MainFrame_CouldNotCopyMail"), e);
-
-            JOptionPane.showMessageDialog(this,
-                    Localization.getString("MainFrame_CouldNotCopyMail") + ": \n" + e.getMessage(),
-                    Localization.getString("Dialog_Error"),
-                    JOptionPane.ERROR_MESSAGE);
+            Dialogs.showErrorDialog(this, Localization.getString("MainFrame_CouldNotCopyMail") + ": \n" + e.getMessage());
         }
     }
 
@@ -1386,11 +1371,7 @@ public class MainFrame extends ExtendedFrame {
             removeSelectedMailEntries();
         } catch (MessagingException | DAOException e) {
             LOGGER.error(Localization.getString("MainFrame_CouldNotMoveMail"), e);
-
-            JOptionPane.showMessageDialog(this,
-                    Localization.getString("MainFrame_CouldNotMoveMail") + ": \n" + e.getMessage(),
-                    Localization.getString("Dialog_Error"),
-                    JOptionPane.ERROR_MESSAGE);
+            Dialogs.showErrorDialog(this, Localization.getString("MainFrame_CouldNotMoveMail") + ": \n" + e.getMessage());
         }
     }
 
@@ -1412,11 +1393,7 @@ public class MainFrame extends ExtendedFrame {
             removeSelectedMailEntries();
         } catch (MessagingException | DAOException e) {
             LOGGER.error(Localization.getString("MainFrame_CouldNotDeleteMail"), e);
-
-            JOptionPane.showMessageDialog(this,
-                    Localization.getString("MainFrame_CouldNotDeleteMail") + ": \n" + e.getMessage(),
-                    Localization.getString("Dialog_Error"),
-                    JOptionPane.ERROR_MESSAGE);
+            Dialogs.showErrorDialog(this, Localization.getString("MainFrame_CouldNotDeleteMail") + ": \n" + e.getMessage());
         }
     }
 
@@ -1469,11 +1446,7 @@ public class MainFrame extends ExtendedFrame {
 
         } catch (MessagingException | DAOException ex) {
             LOGGER.error(Localization.getString("MainFrame_CouldNotLoadMailText"), ex);
-
-            JOptionPane.showMessageDialog(this,
-                    Localization.getString("MainFrame_CouldNotLoadMailText") + ":\n" + ex.getMessage(),
-                    Localization.getString("Dialog_Error"),
-                    JOptionPane.ERROR_MESSAGE);
+            Dialogs.showErrorDialog(this, Localization.getString("MainFrame_CouldNotLoadMailText") + ":\n" + ex.getMessage());
         }
 
         String text = info.getText();
@@ -1491,10 +1464,7 @@ public class MainFrame extends ExtendedFrame {
      * Zeigt eine Fehlermeldung für das Nichtvorhandensein eines MailAccounts an
      */
     private void noMailAccount() {
-        JOptionPane.showMessageDialog(this,
-                Localization.getString("MainFrame_NoMailAccount"),
-                Localization.getString("Dialog_Error"),
-                JOptionPane.ERROR_MESSAGE);
+        Dialogs.showErrorDialog(this, Localization.getString("MainFrame_NoMailAccount"));
     }
 
     /**

@@ -1,6 +1,7 @@
 package de.outlookklon.gui;
 
 import de.outlookklon.dao.DAOException;
+import de.outlookklon.gui.helpers.Dialogs;
 import de.outlookklon.localization.Localization;
 import de.outlookklon.logik.User;
 import de.outlookklon.logik.contacts.Contact;
@@ -38,7 +39,6 @@ import javax.swing.JList;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JScrollPane;
@@ -641,11 +641,7 @@ public class MailFrame extends ExtendedFrame {
         MailAccount acc = (MailAccount) cBSender.getSelectedItem();
 
         if (acc == null) {
-            JOptionPane.showMessageDialog(this,
-                    Localization.getString("MailFrame_NoAddressPassed"),
-                    Localization.getString("Dialog_Error"),
-                    JOptionPane.OK_OPTION
-            );
+            Dialogs.showErrorDialog(this, Localization.getString("MailFrame_NoAddressPassed"));
             return;
         }
 
@@ -656,9 +652,7 @@ public class MailFrame extends ExtendedFrame {
             to = unicodifyAddresses(tTo.getText());
             cc = unicodifyAddresses(tCC.getText());
         } catch (ParseException e) {
-            JOptionPane.showMessageDialog(this, e.getMessage(),
-                    Localization.getString("Dialog_Error"),
-                    JOptionPane.ERROR_MESSAGE);
+            Dialogs.showErrorDialog(this, e.getMessage());
             return;
         }
 
@@ -676,11 +670,7 @@ public class MailFrame extends ExtendedFrame {
             close();
         } catch (MessagingException ex) {
             LOGGER.error(Localization.getString("MailFrame_MailSendError"), ex);
-
-            JOptionPane.showMessageDialog(this,
-                    Localization.getString("MailFrame_MailSendError") + ":\n" + ex.getMessage(),
-                    Localization.getString("Dialog_Error"),
-                    JOptionPane.OK_OPTION);
+            Dialogs.showErrorDialog(this, Localization.getString("MailFrame_MailSendError") + ":\n" + ex.getMessage());
         }
     }
 
@@ -722,11 +712,7 @@ public class MailFrame extends ExtendedFrame {
                 acc.saveAttachment(mailInfo, relPath, name, path);
             } catch (IOException | MessagingException ex) {
                 LOGGER.error(Localization.getString("MailFrame_SaveAttachmentError"), ex);
-
-                JOptionPane.showMessageDialog(this,
-                        Localization.getString("MailFrame_SaveAttachmentError") + "\n" + ex.getMessage(),
-                        Localization.getString("Dialog_Error"),
-                        JOptionPane.OK_OPTION);
+                Dialogs.showErrorDialog(this, Localization.getString("MailFrame_SaveAttachmentError") + "\n" + ex.getMessage());
             }
         }
     }

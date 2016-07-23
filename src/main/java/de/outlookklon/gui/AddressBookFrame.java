@@ -1,5 +1,6 @@
 package de.outlookklon.gui;
 
+import de.outlookklon.gui.helpers.Dialogs;
 import de.outlookklon.localization.Localization;
 import de.outlookklon.logik.contacts.Contact;
 import de.outlookklon.logik.contacts.ContactManagement;
@@ -18,7 +19,6 @@ import javax.swing.JList;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
@@ -30,8 +30,10 @@ import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
 import lombok.NonNull;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,6 +49,11 @@ public class AddressBookFrame extends ExtendedFrame {
     private static final long serialVersionUID = 2142631007771154882L;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AddressBookFrame.class);
+
+    private static final String CONTACT_TABLE_REF_COLUMN_NAME = "Reference";
+    private static final int TABLE_COLUMN_INDEX_NAME = 0;
+    private static final int TABLE_COLUMN_INDEX_MAIL = 1;
+    private static final int TABLE_COLUMN_INDEX_DUTYPHONE = 2;
 
     private JPopupMenu tablePopup;
     private final JMenuItem tablePopupOpen;
@@ -115,10 +122,10 @@ public class AddressBookFrame extends ExtendedFrame {
         tablePopupCreate.setText(Localization.getString("AddressBookFrame_Menu_Create"));
         tablePopupDelete.setText(Localization.getString("Menu_Delete"));
 
-        // TODO Copy old entries
-        String refName = Localization.getString("Table_Ref");
-        tableContacts.setModel(getTableModel(refName));
-        tableContacts.removeColumn(tableContacts.getColumn(refName));
+        TableColumnModel tableColumnModel = tableContacts.getColumnModel();
+        tableColumnModel.getColumn(TABLE_COLUMN_INDEX_NAME).setHeaderValue(Localization.getString("AddressBookFrame_Table_Name"));
+        tableColumnModel.getColumn(TABLE_COLUMN_INDEX_MAIL).setHeaderValue(Localization.getString("AddressBookFrame_Table_Mail"));
+        tableColumnModel.getColumn(TABLE_COLUMN_INDEX_DUTYPHONE).setHeaderValue(Localization.getString("AddressBookFrame_Table_DutyPhone"));
 
         listPopupRename.setText(Localization.getString("Menu_Rename"));
         listPopupCreate.setText(Localization.getString("AddressBookFrame_Menu_Create"));
@@ -134,28 +141,31 @@ public class AddressBookFrame extends ExtendedFrame {
         DefaultTableModel model = (DefaultTableModel) tableContacts.getModel();
         int length = model.getDataVector().size();
 
+        int lstIndex = lstLists.getSelectedIndex();
+        refreshContactLists();
+        lstLists.setSelectedIndex(lstIndex == -1 ? 0 : lstIndex);
+
         if (row >= 0 && length > 0) {
             int rowModel = tableContacts.convertRowIndexToModel(row);
 
             Contact reference = (Contact) model.getValueAt(rowModel, 0);
             refreshDetails(reference);
+            tableContacts.setRowSelectionInterval(row, row);
         }
 
-        int lstIndex = lstLists.getSelectedIndex();
-        refreshContactLists();
-        lstLists.setSelectedIndex(lstIndex == -1 ? 0 : lstIndex);
+        repaint();
     }
 
-    private TableModel getTableModel(String refColumnKey) {
+    private TableModel getTableModel() {
         return new DefaultTableModel(
                 new Object[][]{
                     {
                         null, null, null
                     },}, new String[]{
-                    refColumnKey,
-                    Localization.getString("AddressBookFrame_Table_Name"),
-                    Localization.getString("AddressBookFrame_Table_Mail"),
-                    Localization.getString("AddressBookFrame_Table_DutyPhone")
+                    CONTACT_TABLE_REF_COLUMN_NAME,
+                    StringUtils.EMPTY,
+                    StringUtils.EMPTY,
+                    StringUtils.EMPTY
                 }) {
             private static final long serialVersionUID = 1L;
             Class<?>[] columnTypes = new Class<?>[]{Contact.class, String.class, String.class, String.class};
@@ -228,9 +238,8 @@ public class AddressBookFrame extends ExtendedFrame {
             }
         };
 
-        String refName = Localization.getString("Table_Ref");
-        tableContacts.setModel(getTableModel(refName));
-        tableContacts.removeColumn(tableContacts.getColumn(refName));
+        tableContacts.setModel(getTableModel());
+        tableContacts.removeColumn(tableContacts.getColumn(CONTACT_TABLE_REF_COLUMN_NAME));
 
         tableContacts.getColumnModel().getColumn(1).setPreferredWidth(91);
         tableContacts.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -571,9 +580,7 @@ public class AddressBookFrame extends ExtendedFrame {
                 lstLists.setSelectedValue(newName, true);
             } catch (IllegalArgumentException ex) {
                 LOGGER.warn(Localization.getString("AddressBookFrame_CouldNotRenameList"), ex);
-
-                JOptionPane.showMessageDialog(this, ex.getMessage(),
-                        Localization.getString("Dialog_Error"), JOptionPane.ERROR_MESSAGE);
+                Dialogs.showErrorDialog(this, ex.getLocalizedMessage());
             }
         }
     }

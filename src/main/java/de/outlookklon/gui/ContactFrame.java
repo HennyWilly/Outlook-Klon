@@ -1,5 +1,6 @@
 package de.outlookklon.gui;
 
+import de.outlookklon.gui.helpers.Dialogs;
 import de.outlookklon.gui.helpers.ListFocusTraversalPolicy;
 import de.outlookklon.localization.Localization;
 import de.outlookklon.logik.contacts.Contact;
@@ -346,11 +347,7 @@ public class ContactFrame extends ExtendedDialog<Contact> {
             mail2 = strMail2.isEmpty() ? null : new InternetAddress(tEmailaddress2.getText(), true);
         } catch (AddressException ex) {
             LOGGER.error(Localization.getString("ContactFrame_ParseMailAddressError"), ex);
-
-            JOptionPane.showMessageDialog(this,
-                    Localization.getString("ContactFrame_ParseMailAddressError") + "\n" + ex.getMessage(),
-                    Localization.getString("Dialog_Error"),
-                    JOptionPane.ERROR_MESSAGE);
+            Dialogs.showErrorDialog(this, Localization.getString("ContactFrame_ParseMailAddressError") + "\n" + ex.getMessage());
 
             return;
         }

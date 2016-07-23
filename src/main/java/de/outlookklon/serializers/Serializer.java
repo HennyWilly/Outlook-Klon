@@ -3,6 +3,7 @@ package de.outlookklon.serializers;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.joda.JodaModule;
 import de.outlookklon.serializers.mixins.AddressMixIn;
 import de.outlookklon.serializers.mixins.InternetAddressMixIn;
 import java.io.File;
@@ -31,6 +32,10 @@ public final class Serializer {
 
         MAPPER.addMixIn(Address.class, AddressMixIn.class);
         MAPPER.addMixIn(InternetAddress.class, InternetAddressMixIn.class);
+
+        MAPPER.registerModule(new JodaModule());
+        MAPPER.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        MAPPER.enable(SerializationFeature.WRITE_DATES_WITH_ZONE_ID);
     }
 
     private Serializer() {

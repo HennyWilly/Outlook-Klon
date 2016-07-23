@@ -3,6 +3,7 @@ package de.outlookklon.logik.contacts;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import de.outlookklon.localization.Localization;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -61,19 +62,28 @@ public class ContactManagement implements Iterable<Contact> {
      * @param list Listen, in die eingefügt werden soll
      */
     public void addToContactList(@NonNull final Contact contact, @NonNull final String list) {
-        if (list.trim().isEmpty()) {
-            throw new NullPointerException("Der Name der Liste darf nicht leer sein.");
-        }
+        ensureListNameNotEmpty(list);
 
-        final Set<Contact> contactList = mContacts.get(list);
-        if (contactList == null) {
-            throw new IllegalArgumentException("Der Listenname existiert nicht");
-        }
+        final Set<Contact> contactList = getContactList(list);
         if (!contactList.add(contact)) {
-            throw new IllegalArgumentException("Die Liste enthält den Kontakt bereits");
+            throw new IllegalArgumentException(Localization.getString("ContactManagement_ContactAlreadyInList"));
         }
 
         addContact(contact);
+    }
+
+    private void ensureListNameNotEmpty(@NonNull String list) {
+        if (list.trim().isEmpty()) {
+            throw new NullPointerException(Localization.getString("ContactManagement_EmptyListName"));
+        }
+    }
+
+    private Set<Contact> getContactList(String listName) {
+        final Set<Contact> contactList = mContacts.get(listName);
+        if (contactList == null) {
+            throw new IllegalArgumentException(Localization.getString("ContactManagement_ListNameDoesNotExist"));
+        }
+        return contactList;
     }
 
     /**
@@ -82,12 +92,10 @@ public class ContactManagement implements Iterable<Contact> {
      * @param list Die hinzuzufügende Liste
      */
     public void addList(@NonNull final String list) {
-        if (list.trim().isEmpty()) {
-            throw new NullPointerException("Der Name der Liste darf nicht leer sein.");
-        }
+        ensureListNameNotEmpty(list);
 
         if (mContacts.containsKey(list)) {
-            throw new IllegalArgumentException("Der Listenname ist bereits vorhanden!");
+            throw new IllegalArgumentException(Localization.getString("ContactManagement_ListNameAlreadyExists"));
         }
 
         mContacts.put(list, new HashSet<Contact>());
@@ -111,19 +119,12 @@ public class ContactManagement implements Iterable<Contact> {
      * @param list Liste, aus der der Contact gelöscht werden soll
      */
     public void deleteContact(@NonNull final Contact contact, @NonNull final String list) {
-        if (list.trim().isEmpty()) {
-            throw new NullPointerException("Der Name der Liste darf nicht leer sein.");
-        }
+        ensureListNameNotEmpty(list);
 
         if (DEFAULT.equals(list)) {
             ContactManagement.this.deleteContact(contact);
         } else {
-            final Set<Contact> targetList = mContacts.get(list);
-
-            if (targetList == null) {
-                throw new IllegalArgumentException("Der Listenname existiert nicht");
-            }
-
+            final Set<Contact> targetList = getContactList(list);
             targetList.remove(contact);
         }
     }
@@ -134,16 +135,15 @@ public class ContactManagement implements Iterable<Contact> {
      * @param list Liste, die gelöscht werden soll
      */
     public void deleteList(@NonNull final String list) {
-        if (list.trim().isEmpty()) {
-            throw new NullPointerException("Der Name der Liste darf nicht leer sein.");
-        }
+        ensureListNameNotEmpty(list);
+
         if (DEFAULT.equals(list)) {
-            throw new IllegalArgumentException("Das Standardadressbuch darf nicht entfernt werden");
+            throw new IllegalArgumentException(Localization.getString("ContactManagement_MustNotDeleteDefaultAddressbook"));
         }
 
         final Set<Contact> listArray = mContacts.remove(list);
         if (listArray == null) {
-            throw new NullPointerException("Der Listenname existiert nicht");
+            throw new IllegalArgumentException(Localization.getString("ContactManagement_ListNameDoesNotExist"));
         }
     }
 
@@ -155,19 +155,19 @@ public class ContactManagement implements Iterable<Contact> {
      */
     public void renameList(@NonNull final String oldName, @NonNull final String newName) {
         if (oldName.trim().isEmpty() || newName.trim().isEmpty()) {
-            throw new NullPointerException("Die Listennamen dürfen nicht leer sein!");
+            throw new NullPointerException(Localization.getString("ContactManagement_EmptyListNames"));
         }
 
         if (DEFAULT.equals(oldName)) {
-            throw new IllegalArgumentException("Das Standardadressbuch darf nicht umbenannt werden");
+            throw new IllegalArgumentException(Localization.getString("ContactManagement_MustNotRenameDefaultAddressbook"));
         }
 
         final Set<Contact> list = mContacts.remove(oldName);
         if (list == null) {
-            throw new IllegalArgumentException("Der alte Listenname existiert nicht");
+            throw new IllegalArgumentException(Localization.getString("ContactManagement_OldListNameDoesNotExist"));
         }
         if (mContacts.get(newName) != null) {
-            throw new IllegalArgumentException("Der neue Listenname existiert bereits");
+            throw new IllegalArgumentException(Localization.getString("ContactManagement_NewListNameAlreadyExists"));
         }
 
         mContacts.put(newName, list);
@@ -225,15 +225,9 @@ public class ContactManagement implements Iterable<Contact> {
      * @return Kontakte der übergebenen Liste
      */
     public Contact[] getContacts(@NonNull final String list) {
-        if (list.trim().isEmpty()) {
-            throw new NullPointerException("Der Name der Liste darf nicht leer sein.");
-        }
+        ensureListNameNotEmpty(list);
 
-        final Set<Contact> set = mContacts.get(list);
-        if (set == null) {
-            throw new IllegalArgumentException("Der Listenname existiert nicht");
-        }
-
+        final Set<Contact> set = getContactList(list);
         return set.toArray(new Contact[set.size()]);
     }
 

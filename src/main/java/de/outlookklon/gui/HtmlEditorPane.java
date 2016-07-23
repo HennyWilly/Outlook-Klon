@@ -1,5 +1,6 @@
 package de.outlookklon.gui;
 
+import de.outlookklon.gui.helpers.Dialogs;
 import de.outlookklon.localization.Localization;
 import de.outlookklon.logik.User;
 import de.outlookklon.logik.calendar.Appointment;
@@ -16,7 +17,6 @@ import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.swing.JEditorPane;
-import javax.swing.JOptionPane;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkEvent.EventType;
 import javax.swing.event.HyperlinkListener;
@@ -265,10 +265,7 @@ public class HtmlEditorPane extends JEditorPane {
 
                     } catch (ParseException ex) {
                         LOGGER.info(Localization.getString("HtmlEditorPane_ErrorSecondParser"), ex);
-                        JOptionPane.showMessageDialog(null,
-                                Localization.getString("HtmlEditorPane_InvalidDate"),
-                                Localization.getString("Dialog_Error"),
-                                JOptionPane.ERROR_MESSAGE);
+                        Dialogs.showErrorDialog(HtmlEditorPane.this, Localization.getString("HtmlEditorPane_InvalidDate"));
                     }
 
                     return;

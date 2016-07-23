@@ -1,5 +1,6 @@
 package de.outlookklon.gui;
 
+import de.outlookklon.gui.helpers.Dialogs;
 import de.outlookklon.localization.Localization;
 import de.outlookklon.logik.User;
 import de.outlookklon.logik.calendar.Appointment;
@@ -18,7 +19,6 @@ import javax.swing.GroupLayout.Alignment;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JSpinner;
 import javax.swing.JTextField;
 import javax.swing.LayoutStyle.ComponentPlacement;
@@ -184,10 +184,7 @@ public class AppointmentFrame extends ExtendedDialog<Appointment> {
                     close();
                 } catch (RuntimeException ex) {
                     LOGGER.error(Localization.getString("AppointmentFrame_ErrorCreatingAppointment"), ex);
-
-                    JOptionPane.showMessageDialog(null, Localization.getString("Dialog_ErrorText") + ex.getMessage(),
-                            Localization.getString("Dialog_Error"),
-                            JOptionPane.ERROR_MESSAGE);
+                    Dialogs.showErrorDialog(AppointmentFrame.this, Localization.getString("Dialog_ErrorText") + ex.getMessage());
                 }
             }
         });
