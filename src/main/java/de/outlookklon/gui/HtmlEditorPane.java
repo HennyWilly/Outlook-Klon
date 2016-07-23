@@ -113,7 +113,7 @@ public class HtmlEditorPane extends JEditorPane {
      * @param text Zu prüfender Text
      * @return true, wenn der Text ein Html-Code ist; sonst false
      */
-    public static boolean istHtml(String text) {
+    public static boolean isHtml(String text) {
         Matcher matcher = HTMLPATTERN.matcher(text);
 
         return matcher.find();
@@ -138,7 +138,7 @@ public class HtmlEditorPane extends JEditorPane {
      */
     public void setText(String text, String contentType, boolean autoChange) {
         String newContentType;
-        if (autoChange && !contentType.startsWith(HTML) && istHtml(text)) {
+        if (autoChange && !contentType.startsWith(HTML) && isHtml(text)) {
             newContentType = contentType.replaceAll("(?i)" + PLAIN, HTML);
         } else {
             newContentType = contentType;
@@ -212,29 +212,32 @@ public class HtmlEditorPane extends JEditorPane {
                 }
             }
 
-            try {
-                try {
-                    // Versuche mit Zeitangabe zu parsen
-                    DATEFORMAT1.parse(match);
-                } catch (ParseException ex) {
-                    // Versuche ohne Zeitangabe zu parsen
-                    DATEFORMAT2.parse(match);
-
-                    // Entferne eine eventuelle falsche Uhrzeit
-                    match = match.replaceAll(" \\d{1,2}:\\d{1,2}", "");
-                    end = start + match.length();
+            if (tryParseDate(match, DATEFORMAT1) == null) {
+                if (tryParseDate(match, DATEFORMAT2) == null) {
+                    continue;
                 }
 
-                // Bilde Hyperlink und ersetze im Sting mit ebenjenem
-                String replacement = String.format(REPLACE_PATTERN, match, match);
-                sb.replace(start, end, replacement);
-                rematch = true;
-            } catch (ParseException e) {
-                // Überspringe, wenn kein Dateparser den String parsen kann
+                // Entferne eine eventuelle falsche Uhrzeit
+                match = match.replaceAll(" \\d{1,2}:\\d{1,2}", "");
+                end = start + match.length();
             }
+
+            // Bilde Hyperlink und ersetze im Sting mit ebenjenem
+            String replacement = String.format(REPLACE_PATTERN, match, match);
+            sb.replace(start, end, replacement);
+            rematch = true;
         }
 
         return sb.toString();
+    }
+
+    private Date tryParseDate(String text, DateFormat parser) {
+        try {
+            return parser.parse(text);
+        } catch (ParseException ex) {
+            LOGGER.debug("Could not parse date to string", ex);
+            return null;
+        }
     }
 
     private class HtmlHyperlinkListener implements HyperlinkListener {

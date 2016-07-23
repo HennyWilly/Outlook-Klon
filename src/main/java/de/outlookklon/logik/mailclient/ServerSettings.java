@@ -20,6 +20,9 @@ public class ServerSettings implements Serializable {
 
     private static final long serialVersionUID = -2113634498937441789L;
 
+    private static final int MIN_PORT = 1;
+    private static final int MAX_PORT = 65535;
+
     @JsonProperty("host")
     private String host;
 
@@ -52,7 +55,7 @@ public class ServerSettings implements Serializable {
             @JsonProperty("port") int port,
             @JsonProperty("connectionSecurity") ConnectionSecurity connectionSecurity,
             @JsonProperty("authentificationType") AuthentificationType authentificationType) {
-        if (port < 0 || port > 49151) {
+        if (port < MIN_PORT || port > MAX_PORT) {
             throw new IllegalArgumentException(
                     "Der übergebene Wert ist kein zulässiger Port");
         }

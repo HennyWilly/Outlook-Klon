@@ -2,6 +2,7 @@ package de.outlookklon.gui;
 
 import de.outlookklon.dao.DAOException;
 import de.outlookklon.gui.helpers.Dialogs;
+import de.outlookklon.gui.helpers.Events;
 import de.outlookklon.gui.helpers.TaggedJRadioButtonMenuItem;
 import de.outlookklon.localization.Localization;
 import de.outlookklon.logik.User;
@@ -598,7 +599,7 @@ public class MainFrame extends ExtendedFrame {
         tblMails.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                if (e.getClickCount() == 2) {
+                if (Events.isDoubleClick(e)) {
                     DefaultTableModel model = (DefaultTableModel) tblMails.getModel();
 
                     int viewRow = tblMails.getSelectedRow();
@@ -897,7 +898,7 @@ public class MainFrame extends ExtendedFrame {
 
             for (MailAccount acc : deleteable) {
                 try {
-                    user.removeMailAccount(acc, true);
+                    user.removeMailAccount(acc);
                 } catch (IOException e) {
                     LOGGER.error(Localization.getString("MainFrame_CouldNotDeleteAccountSettings"), e);
                     Dialogs.showErrorDialog(this, Localization.getString("MainFrame_CouldNotDeleteAccountSettings"));

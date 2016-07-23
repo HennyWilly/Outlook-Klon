@@ -1,5 +1,6 @@
 package de.outlookklon.gui;
 
+import de.outlookklon.gui.helpers.Events;
 import de.outlookklon.localization.Localization;
 import de.outlookklon.logik.User;
 import de.outlookklon.logik.mailclient.InboxServer;
@@ -154,7 +155,7 @@ public class AccountManagementFrame extends ExtendedDialog<MailAccount[]> {
         lstAccounts.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                if (e.getClickCount() == 2) {
+                if (Events.isDoubleClick(e)) {
                     MailAccount acc = lstAccounts.getSelectedValue();
                     MailAccount edit = editAccount(acc);
 
@@ -459,7 +460,7 @@ public class AccountManagementFrame extends ExtendedDialog<MailAccount[]> {
             // Füge die neue Instanz der JList hinzu
             model.add(index, result);
 
-            acc = result;
+            return result;
         }
 
         return acc;

@@ -2,6 +2,7 @@ package de.outlookklon.gui;
 
 import de.outlookklon.dao.DAOException;
 import de.outlookklon.gui.helpers.Dialogs;
+import de.outlookklon.gui.helpers.Events;
 import de.outlookklon.localization.Localization;
 import de.outlookklon.logik.User;
 import de.outlookklon.logik.contacts.Contact;
@@ -232,7 +233,7 @@ public class MailFrame extends ExtendedFrame {
         String contentType = mailInfo.getContentType();
 
         // Automatisches Umstellen des Anzeigetyps
-        if (HtmlEditorPane.istHtml(text)) {
+        if (HtmlEditorPane.isHtml(text)) {
             contentType = contentType.replace("plain", "html");
         }
 
@@ -301,7 +302,7 @@ public class MailFrame extends ExtendedFrame {
         String text = mailInfo.getText();
         String contentType = mailInfo.getContentType();
 
-        if (HtmlEditorPane.istHtml(text)) {
+        if (HtmlEditorPane.isHtml(text)) {
             contentType = contentType.replace("plain", "html");
         }
 
@@ -417,7 +418,7 @@ public class MailFrame extends ExtendedFrame {
             lstAttachment.addMouseListener(new MouseAdapter() {
                 @Override
                 public void mouseClicked(MouseEvent e) {
-                    if (e.getClickCount() == 2) {
+                    if (Events.isDoubleClick(e)) {
                         String selected = lstAttachment.getSelectedValue();
                         saveAttachment(new File(selected).getName());
                     }
@@ -617,9 +618,8 @@ public class MailFrame extends ExtendedFrame {
      * konnten.
      */
     private static Address[] unicodifyAddresses(String addresses) throws ParseException {
-        addresses = addresses.replace(';', ',');
-
-        InternetAddress[] recips = InternetAddress.parse(addresses, true);
+        String csAddresses = addresses.replace(';', ',');
+        InternetAddress[] recips = InternetAddress.parse(csAddresses, true);
 
         for (int i = 0; i < recips.length; i++) {
             try {

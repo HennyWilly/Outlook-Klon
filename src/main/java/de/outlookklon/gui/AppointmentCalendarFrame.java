@@ -1,5 +1,6 @@
 package de.outlookklon.gui;
 
+import de.outlookklon.gui.helpers.Events;
 import de.outlookklon.localization.Localization;
 import de.outlookklon.logik.User;
 import de.outlookklon.logik.calendar.Appointment;
@@ -165,6 +166,95 @@ public class AppointmentCalendarFrame extends ExtendedFrame {
     }
 
     private void initGui() {
+        initMenus();
+
+        getContentPane().setLayout(new BorderLayout(0, 0));
+
+        JSplitPane splitPane = new JSplitPane();
+
+        JScrollPane scrollPane = new JScrollPane(panel);
+        panel.setLayout(new GridLayout(0, 1, 0, 0));
+        splitPane.setLeftComponent(scrollPane);
+
+        final JSplitPane splitPane1 = new JSplitPane();
+        splitPane1.setOrientation(JSplitPane.VERTICAL_SPLIT);
+        splitPane.setRightComponent(splitPane1);
+
+        tblAppointments.setModel(getTableModel());
+        tblAppointments.removeColumn(tblAppointments.getColumn(APPOINTMENT_TABLE_REF_COLUMN_NAME));
+        tblAppointments.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+
+            @Override
+            public void valueChanged(ListSelectionEvent e) {
+                if (!e.getValueIsAdjusting()) {
+                    DefaultListSelectionModel sender = (DefaultListSelectionModel) e.getSource();
+                    int row = sender.getMinSelectionIndex();
+                    if (row == -1) {
+                        return;
+                    }
+
+                    DefaultTableModel model = (DefaultTableModel) tblAppointments.getModel();
+                    int length = model.getDataVector().size();
+
+                    if (length > 0) {
+                        int rowModel = tblAppointments.convertRowIndexToModel(row);
+
+                        Appointment reference = (Appointment) model.getValueAt(rowModel, 0);
+                        updateDetails(reference);
+                    } else {
+                        textDetails.setEditable(true);
+                        textDetails.setText(null);
+                        textDetails.setEditable(false);
+                    }
+                }
+            }
+        });
+
+        tblAppointments.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (Events.isDoubleClick(e)) {
+                    DefaultTableModel model = (DefaultTableModel) tblAppointments.getModel();
+
+                    int viewRow = tblAppointments.getSelectedRow();
+                    if (viewRow < 0) {
+                        return;
+                    }
+
+                    int row = tblAppointments.convertRowIndexToModel(viewRow);
+                    Appointment reference = (Appointment) model.getValueAt(row, 0);
+
+                    editAppointment(reference);
+                }
+            }
+
+            @Override
+            public void mousePressed(MouseEvent e) {
+                openAppointmentPopup(e);
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                openAppointmentPopup(e);
+            }
+
+        });
+
+        // speichert alle existierenden Termine in mango ab
+        for (Appointment appointment : User.getInstance().getAppointments()) {
+            allAppointments.add(appointment);
+        }
+
+        final JScrollPane scrollPane1 = new JScrollPane(tblAppointments);
+        splitPane1.setLeftComponent(scrollPane1);
+
+        splitPane1.setRightComponent(textDetails);
+        getContentPane().add(splitPane);
+
+        loadUser();
+    }
+
+    private void initMenus() {
         popupAppointmentOpen.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -226,90 +316,6 @@ public class AppointmentCalendarFrame extends ExtendedFrame {
         });
 
         mnFile.add(mntmClose);
-        getContentPane().setLayout(new BorderLayout(0, 0));
-
-        JSplitPane splitPane = new JSplitPane();
-
-        JScrollPane scrollPane = new JScrollPane(panel);
-        panel.setLayout(new GridLayout(0, 1, 0, 0));
-        splitPane.setLeftComponent(scrollPane);
-
-        final JSplitPane splitPane1 = new JSplitPane();
-        splitPane1.setOrientation(JSplitPane.VERTICAL_SPLIT);
-        splitPane.setRightComponent(splitPane1);
-
-        tblAppointments.setModel(getTableModel());
-        tblAppointments.removeColumn(tblAppointments.getColumn(APPOINTMENT_TABLE_REF_COLUMN_NAME));
-        tblAppointments.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
-
-            @Override
-            public void valueChanged(ListSelectionEvent e) {
-                if (!e.getValueIsAdjusting()) {
-                    DefaultListSelectionModel sender = (DefaultListSelectionModel) e.getSource();
-                    int row = sender.getMinSelectionIndex();
-                    if (row == -1) {
-                        return;
-                    }
-
-                    DefaultTableModel model = (DefaultTableModel) tblAppointments.getModel();
-                    int length = model.getDataVector().size();
-
-                    if (length > 0) {
-                        int rowModel = tblAppointments.convertRowIndexToModel(row);
-
-                        Appointment reference = (Appointment) model.getValueAt(rowModel, 0);
-                        updateDetails(reference);
-                    } else {
-                        textDetails.setEditable(true);
-                        textDetails.setText(null);
-                        textDetails.setEditable(false);
-                    }
-                }
-            }
-        });
-
-        tblAppointments.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                if (e.getClickCount() == 2) {
-                    DefaultTableModel model = (DefaultTableModel) tblAppointments.getModel();
-
-                    int viewRow = tblAppointments.getSelectedRow();
-                    if (viewRow < 0) {
-                        return;
-                    }
-
-                    int row = tblAppointments.convertRowIndexToModel(viewRow);
-                    Appointment reference = (Appointment) model.getValueAt(row, 0);
-
-                    editAppointment(reference);
-                }
-            }
-
-            @Override
-            public void mousePressed(MouseEvent e) {
-                openAppointmentPopup(e);
-            }
-
-            @Override
-            public void mouseReleased(MouseEvent e) {
-                openAppointmentPopup(e);
-            }
-
-        });
-
-        // speichert alle existierenden Termine in mango ab
-        for (Appointment appointment : User.getInstance().getAppointments()) {
-            allAppointments.add(appointment);
-        }
-
-        final JScrollPane scrollPane1 = new JScrollPane(tblAppointments);
-        splitPane1.setLeftComponent(scrollPane1);
-
-        splitPane1.setRightComponent(textDetails);
-        getContentPane().add(splitPane);
-
-        loadUser();
     }
 
     private void updateTable() {

@@ -234,6 +234,10 @@ public final class User implements Iterable<MailAccountChecker> {
      * werden konnte
      */
     private void deleteRecursive(File file) throws IOException {
+        if (!file.exists()) {
+            return;
+        }
+
         if (file.isDirectory()) {
             File[] files = file.listFiles();
             for (File subfile : files) {
@@ -253,13 +257,11 @@ public final class User implements Iterable<MailAccountChecker> {
      * Entfernt den übergebenen Account aus der Verwaltung
      *
      * @param account Zu löschender Account
-     * @param delete Gibt an, ob die gespeicherten Mails des MailAccounts auch
-     * entfernt werden sollen
      * @return true, wenn das löschen erfolgreich war; sonst false
      * @throws IOException Tritt auf, wenn einer der gespeicherten Dateien nicht
      * gelöscht werden konnte
      */
-    public boolean removeMailAccount(MailAccount account, boolean delete) throws IOException {
+    public boolean removeMailAccount(MailAccount account) throws IOException {
         int index = accounts.indexOf(account);
         if (index != -1) {
             MailAccountChecker checker = accounts.get(index);
@@ -270,18 +272,13 @@ public final class User implements Iterable<MailAccountChecker> {
                 String settings = String.format(ACCOUNTSETTINGS_PATTERN, address);
                 deleteRecursive(new File(settings));
 
-                if (delete) {
-                    String path = String.format(ACCOUNT_PATTERN, address);
-                    File folder = new File(path);
-                    if (folder.exists()) {
-                        try {
-                            deleteRecursive(folder);
-                            return true;
-                        } catch (IOException e) {
-                            addMailAccount(account);
-                            throw e;
-                        }
-                    }
+                String path = String.format(ACCOUNT_PATTERN, address);
+                try {
+                    deleteRecursive(new File(path));
+                    return true;
+                } catch (IOException e) {
+                    addMailAccount(account);
+                    throw e;
                 }
             }
         }
@@ -489,11 +486,7 @@ public final class User implements Iterable<MailAccountChecker> {
      * @param absenceMessage Abwesenheitsmeldung des Benutzers
      */
     public void setAbsenceMessage(String absenceMessage) {
-        if (absenceMessage == null) {
-            absenceMessage = "";
-        }
-
-        this.absenceMessage = absenceMessage;
+        this.absenceMessage = absenceMessage == null ? "" : absenceMessage;
     }
 
     /**
@@ -511,10 +504,6 @@ public final class User implements Iterable<MailAccountChecker> {
      * @param sickNote Krankmeldung des Benutzers
      */
     public void setSickNote(String sickNote) {
-        if (sickNote == null) {
-            sickNote = "";
-        }
-
-        this.sickNote = sickNote;
+        this.sickNote = sickNote == null ? "" : sickNote;
     }
 }

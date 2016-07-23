@@ -1,6 +1,7 @@
 package de.outlookklon.gui;
 
 import de.outlookklon.gui.helpers.Dialogs;
+import de.outlookklon.gui.helpers.Events;
 import de.outlookklon.localization.Localization;
 import de.outlookklon.logik.contacts.Contact;
 import de.outlookklon.logik.contacts.ContactManagement;
@@ -273,7 +274,7 @@ public class AddressBookFrame extends ExtendedFrame {
         tableContacts.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                if (e.getClickCount() == 2) {
+                if (Events.isDoubleClick(e)) {
                     DefaultTableModel model = (DefaultTableModel) tableContacts.getModel();
 
                     int viewRow = tableContacts.getSelectedRow();
@@ -353,7 +354,7 @@ public class AddressBookFrame extends ExtendedFrame {
         lstLists.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                if (e.getClickCount() == 2) {
+                if (Events.isDoubleClick(e)) {
                     String list = currentList();
 
                     if (!ContactManagement.DEFAULT.equals(list)) {
