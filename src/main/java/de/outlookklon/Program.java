@@ -7,7 +7,7 @@ import javax.swing.JFrame;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class Program {
+public final class Program {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Program.class);
 
