@@ -72,12 +72,16 @@ public class AppointmentCalendar implements Iterable<Appointment> {
             DateTime startB = b.getStart();
             DateTime endB = b.getEnd();
             // IF-Abfrage des Todes
-            if ((startA.isBefore(startB) && endA.isAfter(startB)) || (startA.isBefore(endB) && endA.isAfter(endB))
-                    || (startB.isBefore(startA) && endB.isAfter(startA)) || (startB.isBefore(endA) && endB.isAfter(endA))) {
+            if (isDateBetween(startB, startA, endA) || isDateBetween(endB, startA, endA)
+                    || isDateBetween(startA, startB, endB) || isDateBetween(endA, startB, endB)) {
                 return true;
             }
         }
         return false;
+    }
+
+    private boolean isDateBetween(DateTime toTest, DateTime start, DateTime end) {
+        return start.isBefore(toTest) && end.isAfter(toTest);
     }
 
     /**

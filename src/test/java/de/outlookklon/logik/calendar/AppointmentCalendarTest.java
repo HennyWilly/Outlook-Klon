@@ -2,7 +2,9 @@ package de.outlookklon.logik.calendar;
 
 import de.outlookklon.logik.User;
 import de.outlookklon.logik.contacts.ContactManagement;
+import java.util.Iterator;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import org.joda.time.DateTime;
 import org.junit.Before;
@@ -32,14 +34,99 @@ public class AppointmentCalendarTest {
     }
 
     @Test
-    public void shouldFindOverlappingAppointments() {
-        Appointment appointmentA = new Appointment(null, null, new DateTime(2014, 10, 5, 20, 15, 00),
-                new DateTime(2014, 10, 10, 20, 15, 00), null, null, null);
-        Appointment appointmentB = new Appointment(null, null, new DateTime(2014, 10, 4, 10, 00, 00),
-                new DateTime(2014, 10, 6, 10, 00, 00), null, null, null);
+    public void shouldFindOverlappingAppointments_EndABetweenB() {
+        DateTime startA = new DateTime();
+        DateTime endA = startA.plusHours(2);
+        DateTime startB = startA.plusHours(1);
+        DateTime endB = startA.plusHours(3);
+
+        Appointment appointmentA = new Appointment(null, null, startA,
+                endA, null, null, null);
+        Appointment appointmentB = new Appointment(null, null, startB,
+                endB, null, null, null);
 
         calendar.addAppointment(appointmentA);
         assertThat(calendar.isOverlapping(appointmentB), is(true));
+    }
+
+    @Test
+    public void shouldFindOverlappingAppointments_StartABetweenB() {
+        DateTime startA = new DateTime();
+        DateTime endA = startA.plusHours(2);
+        DateTime startB = startA.minusHours(1);
+        DateTime endB = startA.plusHours(1);
+
+        Appointment appointmentA = new Appointment(null, null, startA,
+                endA, null, null, null);
+        Appointment appointmentB = new Appointment(null, null, startB,
+                endB, null, null, null);
+
+        calendar.addAppointment(appointmentA);
+        assertThat(calendar.isOverlapping(appointmentB), is(true));
+    }
+
+    @Test
+    public void shouldFindOverlappingAppointments_EndBBetweenA() {
+        DateTime startB = new DateTime();
+        DateTime endB = startB.plusHours(2);
+        DateTime startA = startB.plusHours(1);
+        DateTime endA = startB.plusHours(3);
+
+        Appointment appointmentA = new Appointment(null, null, startA,
+                endA, null, null, null);
+        Appointment appointmentB = new Appointment(null, null, startB,
+                endB, null, null, null);
+
+        calendar.addAppointment(appointmentA);
+        assertThat(calendar.isOverlapping(appointmentB), is(true));
+    }
+
+    @Test
+    public void shouldFindOverlappingAppointments_StartBBetweenA() {
+        DateTime startB = new DateTime();
+        DateTime endB = startB.plusHours(2);
+        DateTime startA = startB.minusHours(1);
+        DateTime endA = startB.plusHours(1);
+
+        Appointment appointmentA = new Appointment(null, null, startA,
+                endA, null, null, null);
+        Appointment appointmentB = new Appointment(null, null, startB,
+                endB, null, null, null);
+
+        calendar.addAppointment(appointmentA);
+        assertThat(calendar.isOverlapping(appointmentB), is(true));
+    }
+
+    @Test
+    public void shouldNotFindOverlappingAppointments_ABeforeB() {
+        DateTime startA = new DateTime();
+        DateTime endA = startA.plusHours(1);
+        DateTime startB = startA.plusHours(2);
+        DateTime endB = startA.plusHours(3);
+
+        Appointment appointmentA = new Appointment(null, null, startA,
+                endA, null, null, null);
+        Appointment appointmentB = new Appointment(null, null, startB,
+                endB, null, null, null);
+
+        calendar.addAppointment(appointmentA);
+        assertThat(calendar.isOverlapping(appointmentB), is(false));
+    }
+
+    @Test
+    public void shouldNotFindOverlappingAppointments_AAfterB() {
+        DateTime startB = new DateTime();
+        DateTime endB = startB.plusHours(1);
+        DateTime startA = startB.plusHours(2);
+        DateTime endA = startB.plusHours(3);
+
+        Appointment appointmentA = new Appointment(null, null, startA,
+                endA, null, null, null);
+        Appointment appointmentB = new Appointment(null, null, startB,
+                endB, null, null, null);
+
+        calendar.addAppointment(appointmentA);
+        assertThat(calendar.isOverlapping(appointmentB), is(false));
     }
 
     @Test
@@ -57,6 +144,11 @@ public class AppointmentCalendarTest {
         calendar.addAppointment(appointmentB);
 
         assertThat(calendar.getOldest(), is(appointmentA));
+    }
+
+    @Test
+    public void shouldNotGetOldestAppointment_NoAppointments() {
+        assertThat(calendar.getOldest(), is(nullValue()));
     }
 
     @Test
@@ -88,4 +180,81 @@ public class AppointmentCalendarTest {
         assertThat(actual, is(expected));
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void shouldNotGetAppointments_StartAfterEnd() {
+        calendar.getAppointments(new DateTime(2014, 10, 7, 23, 59, 59), new DateTime(2014, 10, 5, 1, 00, 00));
+    }
+
+    @Test
+    public void shouldIterateAppointments() {
+        Appointment appointmentA = new Appointment(null, null, new DateTime(2014, 10, 4, 20, 15, 00),
+                new DateTime(2014, 10, 10, 20, 15, 00), null, null, null);
+        Appointment appointmentB = new Appointment(null, null, new DateTime(2014, 10, 5, 10, 00, 00),
+                new DateTime(2014, 10, 10, 10, 00, 00), null, null, null);
+        Appointment appointmentC = new Appointment(null, null, new DateTime(2014, 10, 6, 20, 15, 00),
+                new DateTime(2014, 10, 10, 20, 15, 00), null, null, null);
+
+        calendar.addAppointment(appointmentA);
+        calendar.addAppointment(appointmentB);
+        calendar.addAppointment(appointmentC);
+
+        assertThat(calendar.getSize(), is(3));
+
+        Iterator<Appointment> iterator = calendar.iterator();
+        assertThat(iterator.hasNext(), is(true));
+        assertThat(iterator.next(), is(appointmentA));
+        assertThat(iterator.hasNext(), is(true));
+        assertThat(iterator.next(), is(appointmentB));
+        assertThat(iterator.hasNext(), is(true));
+        assertThat(iterator.next(), is(appointmentC));
+        assertThat(iterator.hasNext(), is(false));
+    }
+
+    @Test
+    public void shouldDeleteAppointment() {
+        Appointment appointmentA = new Appointment(null, null, new DateTime(2014, 10, 4, 20, 15, 00),
+                new DateTime(2014, 10, 10, 20, 15, 00), null, null, null);
+        Appointment appointmentB = new Appointment(null, null, new DateTime(2014, 10, 5, 10, 00, 00),
+                new DateTime(2014, 10, 10, 10, 00, 00), null, null, null);
+        Appointment appointmentC = new Appointment(null, null, new DateTime(2014, 10, 6, 20, 15, 00),
+                new DateTime(2014, 10, 10, 20, 15, 00), null, null, null);
+
+        calendar.addAppointment(appointmentA);
+        calendar.addAppointment(appointmentB);
+        calendar.addAppointment(appointmentC);
+
+        assertThat(calendar.getSize(), is(3));
+        calendar.deleteAppointment(appointmentB);
+        assertThat(calendar.getSize(), is(2));
+
+        Appointment[] expected = new Appointment[]{appointmentA, appointmentC};
+        Appointment[] actual = calendar.getAppointments(new DateTime(2014, 10, 4, 20, 15, 00),
+                new DateTime(2014, 10, 10, 20, 15, 00));
+
+        assertThat(actual, is(expected));
+    }
+
+    @Test
+    public void shouldCancelAppointments() {
+        DateTime today = new DateTime();
+        Appointment appointmentA = new Appointment(null, null, new DateTime(2014, 10, 4, 20, 15, 00),
+                new DateTime(2014, 10, 10, 20, 15, 00), null, null, null);
+        Appointment appointmentB = new Appointment(null, null, today, today, null, null, null);
+        Appointment appointmentC = new Appointment(null, null, today, today, null, null, null);
+        Appointment appointmentD = new Appointment(null, null, new DateTime(2014, 10, 7, 20, 15, 00),
+                new DateTime(2014, 10, 10, 20, 15, 00), null, null, null);
+
+        calendar.addAppointment(appointmentA);
+        calendar.addAppointment(appointmentB);
+        calendar.addAppointment(appointmentC);
+        calendar.addAppointment(appointmentD);
+
+        calendar.cancel();
+
+        Appointment[] expected = new Appointment[]{appointmentA, appointmentD};
+        Appointment[] actual = calendar.getAppointments(new DateTime(2014, 10, 4, 20, 15, 00),
+                today);
+
+        assertThat(actual, is(expected));
+    }
 }
