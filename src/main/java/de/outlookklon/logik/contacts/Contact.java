@@ -5,10 +5,12 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import javax.mail.Address;
 import javax.mail.internet.InternetAddress;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 /**
  * Dies ist eine Datenklasse, die die Daten von einem Contact des Benutzers
- speichert.
+ * speichert.
  *
  * @author Hendrik Karwanni
  */
@@ -250,15 +252,7 @@ public class Contact {
      */
     @JsonIgnore
     public String getAddress1AsString() {
-        if (address1 == null) {
-            return "";
-        }
-
-        if (InternetAddress.class.isInstance(address1)) {
-            return ((InternetAddress) address1).toUnicodeString();
-        }
-
-        return address1.toString();
+        return getAddressAsString(address1);
     }
 
     /**
@@ -268,14 +262,61 @@ public class Contact {
      */
     @JsonIgnore
     public String getAddress2AsString() {
-        if (address2 == null) {
+        return getAddressAsString(address2);
+    }
+
+    private static String getAddressAsString(Address address) {
+        if (address == null) {
             return "";
         }
 
-        if (InternetAddress.class.isInstance(address2)) {
-            return ((InternetAddress) address2).toUnicodeString();
+        if (InternetAddress.class.isInstance(address)) {
+            return ((InternetAddress) address).toUnicodeString();
         }
 
-        return address2.toString();
+        return address.toString();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+
+        if (!this.getClass().equals(obj.getClass())) {
+            return false;
+        }
+
+        if (this == obj) {
+            return true;
+        }
+
+        Contact other = (Contact) obj;
+        return new EqualsBuilder()
+                .append(getAddress1(), other.getAddress1())
+                .append(getAddress2(), other.getAddress2())
+                .append(getDisplayname(), other.getDisplayname())
+                .append(getDutyphone(), other.getDutyphone())
+                .append(getForename(), other.getForename())
+                .append(getMobilephone(), other.getMobilephone())
+                .append(getNickname(), other.getNickname())
+                .append(getPrivatephone(), other.getPrivatephone())
+                .append(getSurname(), other.getSurname())
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder()
+                .append(surname)
+                .append(this.forename)
+                .append(this.displayname)
+                .append(this.nickname)
+                .append(this.address1)
+                .append(this.address2)
+                .append(this.dutyphone)
+                .append(this.mobilephone)
+                .append(this.privatephone)
+                .toHashCode();
     }
 }

@@ -23,6 +23,7 @@ import javax.mail.Address;
 import javax.mail.MessagingException;
 import javax.mail.internet.InternetAddress;
 import lombok.NonNull;
+import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,7 +36,7 @@ import org.slf4j.LoggerFactory;
  */
 public final class User implements Iterable<MailAccountChecker> {
 
-    private static final String DATA_FOLDER = "Mail";
+    private static final String DATA_FOLDER = FilenameUtils.concat(System.getProperty("user.home"), ".outlookklon");
     private static final String ACCOUNT_PATTERN = DATA_FOLDER + "/%s";
     private static final String ACCOUNTSETTINGS_PATTERN = ACCOUNT_PATTERN + "/settings.json";
     private static final String CONTACT_PATH = DATA_FOLDER + "/Kontakte.json";
@@ -62,7 +63,10 @@ public final class User implements Iterable<MailAccountChecker> {
      * @throws IOException
      */
     private User() throws IOException {
-        setAbsent(true);
+        File dataFolder = new File(DATA_FOLDER).getAbsoluteFile();
+        if (!dataFolder.exists()) {
+            dataFolder.mkdirs();
+        }
 
         File sickNoteFile = new File(SICKNOTE_PATH);
         try {
@@ -83,26 +87,21 @@ public final class User implements Iterable<MailAccountChecker> {
         try {
             contacts = Serializer.deserializeJson(new File(CONTACT_PATH), ContactManagement.class);
         } catch (IOException ex) {
-            LOGGER.warn("Could not create contact manager", ex);
+            LOGGER.warn("Could not load contacts", ex);
             contacts = new ContactManagement();
         }
 
         try {
             appointments = Serializer.deserializeJson(new File(APPOINTMENT_PATH), AppointmentCalendar.class);
         } catch (IOException ex) {
-            LOGGER.warn("Could not create appointments manager", ex);
+            LOGGER.warn("Could not load appointments", ex);
             appointments = new AppointmentCalendar();
         }
 
         accounts = new ArrayList<>();
 
-        File file = new File(DATA_FOLDER).getAbsoluteFile();
-        if (!file.exists()) {
-            file.mkdirs();
-        }
-
         // Filter, der nur Pfade von direkten Unterordnern zurückgibt
-        String[] directories = file.list(new FilenameFilter() {
+        String[] directories = dataFolder.list(new FilenameFilter() {
             @Override
             public boolean accept(File dir, String name) {
                 return new File(dir, name).isDirectory();

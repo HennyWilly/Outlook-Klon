@@ -2,8 +2,8 @@ package de.outlookklon;
 
 import de.outlookklon.gui.MainFrame;
 import de.outlookklon.logik.UserException;
-import java.awt.Frame;
 import javax.swing.JFrame;
+import javax.swing.SwingUtilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,14 +20,20 @@ public final class Program {
      * @param args Komandozeilenparamenter
      */
     public static void main(final String[] args) {
-        try {
-            JFrame mainFrame = new MainFrame();
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    JFrame mainFrame = new MainFrame();
 
-            mainFrame.setExtendedState(Frame.MAXIMIZED_BOTH);
-            mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            mainFrame.setVisible(true);
-        } catch (UserException ex) {
-            LOGGER.error("Could not start MainFrame", ex);
-        }
+                    mainFrame.setExtendedState(JFrame.MAXIMIZED_BOTH);
+                    mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+                    mainFrame.setVisible(true);
+                } catch (UserException ex) {
+                    // Konnte das MainFrame nicht gestartet werden, wird der Swing-Thread auch beendet
+                    LOGGER.error("Could not start MainFrame", ex);
+                }
+            }
+        });
     }
 }

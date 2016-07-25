@@ -3,10 +3,10 @@ package de.outlookklon.dao.impl;
 import de.outlookklon.dao.DAOException;
 import de.outlookklon.dao.StoredMailInfoDAO;
 import de.outlookklon.logik.mailclient.StoredMailInfo;
+import de.outlookklon.serializers.Serializer;
 import java.io.File;
-import java.io.RandomAccessFile;
-import java.nio.channels.FileChannel;
-import java.nio.channels.FileLock;
+import java.io.IOException;
+import java.nio.charset.Charset;
 import org.apache.commons.io.FileUtils;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
@@ -18,10 +18,14 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.junit.runner.RunWith;
+import static org.mockito.Matchers.any;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
-/**
- * @author Hendrik Karwanni
- */
+@RunWith(PowerMockRunner.class)
+@PrepareForTest(Serializer.class)
 public class StoredMailInfoDAOFilePersistenceTest {
 
     private static final String ID = "abcd1234";
@@ -86,7 +90,7 @@ public class StoredMailInfoDAOFilePersistenceTest {
         tmpFolder.mkdirs();
 
         File file = new File(tmpFolder, fileName);
-        FileUtils.writeStringToFile(file, "Invalid data for a StoredMailInfo");
+        FileUtils.writeStringToFile(file, "Invalid data for a StoredMailInfo", Charset.defaultCharset());
 
         dao.loadStoredMailInfo(id, path);
     }
@@ -100,25 +104,19 @@ public class StoredMailInfoDAOFilePersistenceTest {
 
     @Test(expected = DAOException.class)
     public void shouldNotSaveStoredMailInfo_FileInUse() throws Exception {
+
+        PowerMockito.mockStatic(Serializer.class);
+        PowerMockito.when(Serializer.class, "serializeObjectToJson", any(File.class), any(Object.class))
+                .thenThrow(new IOException());
+
         String id = "anID";
-        String fileName = id + ".json";
         String path = "aPath";
 
         File tmpFolder = new File(folder.getRoot(), path);
         tmpFolder.mkdirs();
 
-        File file = new File(tmpFolder, fileName);
-        FileUtils.writeStringToFile(file, "Invalid data for a StoredMailInfo");
-
-        FileChannel channel = new RandomAccessFile(file, "rw").getChannel();
-        FileLock lock = channel.lock();
-
         StoredMailInfo info = new StoredMailInfo(id);
-        try {
-            dao.saveStoredMailInfo(info, path);
-        } finally {
-            lock.release();
-        }
+        dao.saveStoredMailInfo(info, path);
     }
 
     @Test
