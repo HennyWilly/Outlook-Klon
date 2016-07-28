@@ -7,6 +7,8 @@ import javax.mail.Authenticator;
 import javax.mail.PasswordAuthentication;
 import javax.mail.Session;
 import lombok.NonNull;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 /**
  * Abstrakte Basisklasse für alle Mailserver. Stellt grundlegende Funktionen für
@@ -65,6 +67,10 @@ public abstract class MailServer implements Serializable {
      * @param serverType Beschreibender String zum Servertyp
      */
     protected MailServer(@NonNull final ServerSettings settings, @NonNull final String serverType) {
+        if (serverType.trim().isEmpty()) {
+            throw new NullPointerException("Server type is empty");
+        }
+
         this.settings = settings;
         this.serverType = serverType;
     }
@@ -122,5 +128,29 @@ public abstract class MailServer implements Serializable {
     @Override
     public String toString() {
         return String.format("%s:%d", settings.getHost(), settings.getPort());
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null || !(obj.getClass().equals(getClass()))) {
+            return false;
+        }
+        if (this == obj) {
+            return true;
+        }
+
+        MailServer other = (MailServer) obj;
+        return new EqualsBuilder()
+                .append(getServerType(), other.getServerType())
+                .append(getSettings(), other.getSettings())
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder()
+                .append(getServerType())
+                .append(getSettings())
+                .toHashCode();
     }
 }

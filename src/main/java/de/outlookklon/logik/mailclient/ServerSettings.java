@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.io.Serializable;
 import lombok.NonNull;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 /*
  * SMTP 587
@@ -105,5 +107,33 @@ public class ServerSettings implements Serializable {
     @Override
     public String toString() {
         return String.format("%s:%d", host, port);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null || !(obj instanceof ServerSettings)) {
+            return false;
+        }
+        if (this == obj) {
+            return true;
+        }
+
+        ServerSettings other = (ServerSettings) obj;
+        return new EqualsBuilder()
+                .append(getHost(), other.getHost())
+                .append(getPort(), other.getPort())
+                .append(getConnectionSecurity(), other.getConnectionSecurity())
+                .append(getAuthentificationType(), other.getAuthentificationType())
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder()
+                .append(getHost())
+                .append(getPort())
+                .append(getConnectionSecurity())
+                .append(getAuthentificationType())
+                .toHashCode();
     }
 }

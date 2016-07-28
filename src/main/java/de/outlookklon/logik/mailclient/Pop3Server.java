@@ -33,11 +33,11 @@ public class Pop3Server extends InboxServer {
         final Properties props = new Properties();
 
         props.put("mail.pop3.host", settings.getHost());
-        props.put("mail.pop3.port", settings.getPort());
-        props.put("mail.pop3.auth", true);
+        props.put("mail.pop3.port", Integer.toString(settings.getPort()));
+        props.put("mail.pop3.auth", Boolean.toString(true));
 
         if (settings.getConnectionSecurity() == ConnectionSecurity.SSL_TLS) {
-            props.put("mail.pop3.ssl.enable", true);
+            props.put("mail.pop3.ssl.enable", Boolean.toString(true));
         }
 
         return props;

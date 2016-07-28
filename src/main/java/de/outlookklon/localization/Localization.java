@@ -9,14 +9,13 @@ import lombok.NonNull;
 /**
  * Diese statische Klasse dient dem Zugriff auf lokalisierte Strings.
  */
-public class Localization {
+public final class Localization {
 
     private static final String BUNDLE_NAME = "OutlookKlon";
-    private static ResourceBundle BUNDLE = ResourceBundle.getBundle(BUNDLE_NAME);
-
     private static final Locale DEFAULT_LOCALE = Locale.ENGLISH;
-
     private static final Set<ILocalizable> LOCALIZABLES = new HashSet<>();
+
+    private static ResourceBundle bundle = ResourceBundle.getBundle(BUNDLE_NAME);
 
     private Localization() {
     }
@@ -46,7 +45,7 @@ public class Localization {
      * @return Der lokalisierte String
      */
     public static String getString(String key) {
-        return BUNDLE.getString(key);
+        return bundle.getString(key);
     }
 
     /**
@@ -55,9 +54,9 @@ public class Localization {
      * @param locale Locale für die Sprache der Klasse.
      */
     public static void setLocale(Locale locale) {
-        if (!BUNDLE.getLocale().equals(locale)) {
+        if (!bundle.getLocale().equals(locale)) {
             ResourceBundle.clearCache();
-            BUNDLE = ResourceBundle.getBundle(BUNDLE_NAME, locale,
+            bundle = ResourceBundle.getBundle(BUNDLE_NAME, locale,
                     ResourceBundle.Control.getNoFallbackControl(ResourceBundle.Control.FORMAT_PROPERTIES));
 
             for (ILocalizable localizable : LOCALIZABLES) {
@@ -72,11 +71,11 @@ public class Localization {
      * @return Aktuell gesetzte Sprache der Klasse
      */
     public static Locale getLocale() {
-        Locale bundleLocale = BUNDLE.getLocale();
+        Locale bundleLocale = bundle.getLocale();
         if (bundleLocale.getLanguage().isEmpty()) {
             return DEFAULT_LOCALE;
         }
-        return BUNDLE.getLocale();
+        return bundle.getLocale();
     }
 
     /**
@@ -88,8 +87,8 @@ public class Localization {
         Set<Locale> resourceLocales = new HashSet<>();
 
         for (Locale locale : Locale.getAvailableLocales()) {
-            ResourceBundle bundle = ResourceBundle.getBundle(BUNDLE_NAME, locale);
-            if (bundle.getLocale().equals(locale)) {
+            ResourceBundle bundleForLocale = ResourceBundle.getBundle(BUNDLE_NAME, locale);
+            if (bundleForLocale.getLocale().equals(locale)) {
                 if (locale.getLanguage().isEmpty()) {
                     resourceLocales.add(DEFAULT_LOCALE);
                 } else {

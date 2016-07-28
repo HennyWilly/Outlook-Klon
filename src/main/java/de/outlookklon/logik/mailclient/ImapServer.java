@@ -33,11 +33,11 @@ public class ImapServer extends InboxServer {
         final Properties props = new Properties();
 
         props.put("mail.imap.host", settings.getHost());
-        props.put("mail.imap.port", settings.getPort());
-        props.put("mail.imap.auth", true);
+        props.put("mail.imap.port", Integer.toString(settings.getPort()));
+        props.put("mail.imap.auth", Boolean.toString(true));
 
         if (settings.getConnectionSecurity() == ConnectionSecurity.SSL_TLS) {
-            props.put("mail.imap.ssl.enable", true);
+            props.put("mail.imap.ssl.enable", Boolean.toString(true));
         }
 
         return props;
