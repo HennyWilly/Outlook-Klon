@@ -11,7 +11,7 @@ import lombok.NonNull;
 import org.joda.time.DateTime;
 
 /**
- * Diese Klasse stellt die Verwaltung für die Termine des Benutzers dar
+ * Diese Klasse stellt die Verwaltung fÃ¼r die Termine des Benutzers dar
  *
  * @author Hendrik Karwanni
  */
@@ -39,29 +39,29 @@ public class AppointmentCalendar implements Iterable<Appointment> {
     }
 
     /**
-     * Fügt den übergebenen Appointment der Verwaltung hinzu
+     * FÃ¼gt den Ã¼bergebenen Appointment der Verwaltung hinzu
      *
-     * @param appointment Der hinzuzufügende Appointment
+     * @param appointment Der hinzuzufÃ¼gende Appointment
      */
     public void addAppointment(@NonNull Appointment appointment) {
         mAppointments.add(appointment);
     }
 
     /**
-     * Löscht den übergebenen Appointment aus der Verwaltung
+     * LÃ¶scht den Ã¼bergebenen Appointment aus der Verwaltung
      *
-     * @param appointment Zu löschender Appointment
+     * @param appointment Zu lÃ¶schender Appointment
      */
     public void deleteAppointment(@NonNull Appointment appointment) {
         mAppointments.remove(appointment);
     }
 
     /**
-     * Gibt zurück, ob sich die Termine der Verwaltung mit dem übergebenen
-     * Appointment überschneiden
+     * Gibt zurÃ¼ck, ob sich die Termine der Verwaltung mit dem Ã¼bergebenen
+     * Appointment Ã¼berschneiden
      *
      * @param a Zu vergleichender Appointment
-     * @return true, wenn sich mindestens ein Appointment überschneidet; sonst
+     * @return true, wenn sich mindestens ein Appointment Ã¼berschneidet; sonst
      * false
      */
     public boolean isOverlapping(@NonNull Appointment a) {
@@ -85,7 +85,7 @@ public class AppointmentCalendar implements Iterable<Appointment> {
     }
 
     /**
-     * Gibt den Appointment zurück, der am ehesten beginnt
+     * Gibt den Appointment zurÃ¼ck, der am ehesten beginnt
      *
      * @return Appointment-Objekt, das zeitlich am ehesten beginnt
      */
@@ -106,7 +106,7 @@ public class AppointmentCalendar implements Iterable<Appointment> {
     }
 
     /**
-     * Gibt die Anzahl der Termine der Verwaltung zurück
+     * Gibt die Anzahl der Termine der Verwaltung zurÃ¼ck
      *
      * @return Anzahl der Termine
      */
@@ -116,7 +116,7 @@ public class AppointmentCalendar implements Iterable<Appointment> {
     }
 
     /**
-     * Gibt alle Termine in der übergebenen Zeitspanne zurück
+     * Gibt alle Termine in der Ã¼bergebenen Zeitspanne zurÃ¼ck
      *
      * @param start Startzeit der Auswertung
      * @param end Endzeit der Auswertung
@@ -139,7 +139,7 @@ public class AppointmentCalendar implements Iterable<Appointment> {
     }
 
     /**
-     * Gibt alle Termine des aktuellen Tages zurück
+     * Gibt alle Termine des aktuellen Tages zurÃ¼ck
      *
      * @return Termine des aktuellen Tages
      */

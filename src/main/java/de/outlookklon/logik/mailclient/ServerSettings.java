@@ -36,11 +36,11 @@ public class ServerSettings implements Serializable {
     private AuthentificationType authentificationType;
 
     /**
-     * Erstellt eine neue Instanz der Klasse mit den übergebenen Werten
+     * Erstellt eine neue Instanz der Klasse mit den Ã¼bergebenen Werten
      *
      * @param host Hostname/Ip der Zielservers
      * @param port Zielport des Servers
-     * @param connectionSecurity Art der unterstützten Verschlüsselung des
+     * @param connectionSecurity Art der unterstÃ¼tzten VerschlÃ¼sselung des
      * Servers
      * @param authentificationType Art der Authentifizierung an dem Server
      *
@@ -57,7 +57,7 @@ public class ServerSettings implements Serializable {
             @JsonProperty("authentificationType") AuthentificationType authentificationType) {
         if (port < MIN_PORT || port > MAX_PORT) {
             throw new IllegalArgumentException(
-                    "Der übergebene Wert ist kein zulässiger Port");
+                    "Der Ã¼bergebene Wert ist kein zulÃ¤ssiger Port");
         }
 
         this.host = host;
@@ -67,7 +67,7 @@ public class ServerSettings implements Serializable {
     }
 
     /**
-     * Getter für den Hostnamen bzw. die IP des Zielservers
+     * Getter fÃ¼r den Hostnamen bzw. die IP des Zielservers
      *
      * @return Hostnamen bzw. IP
      */
@@ -76,7 +76,7 @@ public class ServerSettings implements Serializable {
     }
 
     /**
-     * Getter für den Zielport des Servers
+     * Getter fÃ¼r den Zielport des Servers
      *
      * @return Port
      */
@@ -85,16 +85,16 @@ public class ServerSettings implements Serializable {
     }
 
     /**
-     * Getter für die Art der ConnectionSecurity zum Server
+     * Getter fÃ¼r die Art der ConnectionSecurity zum Server
      *
-     * @return Verschlüsselungsart
+     * @return VerschlÃ¼sselungsart
      */
     public ConnectionSecurity getConnectionSecurity() {
         return connectionSecurity;
     }
 
     /**
-     * Getter für die Art der Authentifizierung am Server
+     * Getter fÃ¼r die Art der Authentifizierung am Server
      *
      * @return AuthentificationType
      */

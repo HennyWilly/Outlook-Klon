@@ -82,7 +82,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Diese Klasse stellt das Hauptfenster der Anwendung dar. Hier werden die
  * Ordnerstrukturen der Mailkonten und deren Mails angezeigt. Von hier aus
- * können alle anderen Fenster der Anwendung aufgerufen werden.
+ * kÃ¶nnen alle anderen Fenster der Anwendung aufgerufen werden.
  *
  * @author Hendrik Karwanni
  */
@@ -340,7 +340,7 @@ public class MainFrame extends ExtendedFrame {
     }
 
     /**
-     * Initialisiert das Menü des Frames
+     * Initialisiert das MenÃ¼ des Frames
      */
     private void initMenu() {
         JMenuBar menuBar = new JMenuBar();
@@ -445,7 +445,7 @@ public class MainFrame extends ExtendedFrame {
     }
 
     /**
-     * Initialisiert das Popup-Menü der Mailtabelle
+     * Initialisiert das Popup-MenÃ¼ der Mailtabelle
      */
     private void initTablePopup() {
         popupOpen.addActionListener(new ActionListener() {
@@ -518,7 +518,7 @@ public class MainFrame extends ExtendedFrame {
     /**
      * Initialisiert die Mailtabelle
      *
-     * @param verticalSplitPane JSplitPane, in die die Tabelle eingefügt werden
+     * @param verticalSplitPane JSplitPane, in die die Tabelle eingefÃ¼gt werden
      * soll
      */
     private void initTable(JSplitPane verticalSplitPane) {
@@ -632,7 +632,7 @@ public class MainFrame extends ExtendedFrame {
     /**
      * Initialisiert den Ordnerbaum
      *
-     * @param splitPane JSplitPane, in die der Baum eingefügt werden soll
+     * @param splitPane JSplitPane, in die der Baum eingefÃ¼gt werden soll
      */
     private void initTree(JSplitPane splitPane) {
         tree.setCellRenderer(new DefaultTreeCellRenderer() {
@@ -737,7 +737,7 @@ public class MainFrame extends ExtendedFrame {
     }
 
     /**
-     * Öffnet ein MailFrame zum Antworten auf die übergebene StoredMailInfo
+     * Ã–ffnet ein MailFrame zum Antworten auf die Ã¼bergebene StoredMailInfo
      *
      * @param info Info-Objekt der Mail, auf die geantwortet werden soll
      */
@@ -760,7 +760,7 @@ public class MainFrame extends ExtendedFrame {
     }
 
     /**
-     * Öffnet ein MailFrame zum Weiterleiten der übergebenen Mail
+     * Ã–ffnet ein MailFrame zum Weiterleiten der Ã¼bergebenen Mail
      *
      * @param info Info-Objekt der Mail, die weitergeleitet werden soll
      */
@@ -782,7 +782,7 @@ public class MainFrame extends ExtendedFrame {
     }
 
     /**
-     * Öffnet ein MailFrame zum Schreiben einer neuen Mail
+     * Ã–ffnet ein MailFrame zum Schreiben einer neuen Mail
      */
     private void newMail() {
         if (user.getAccountCount() == 0) {
@@ -798,10 +798,10 @@ public class MainFrame extends ExtendedFrame {
     }
 
     /**
-     * Öffnet ein MailFrame zum Schreiben einer neuen Mail an die übergebenen
+     * Ã–ffnet ein MailFrame zum Schreiben einer neuen Mail an die Ã¼bergebenen
      * Kontakte
      *
-     * @param contacts Kontakte, für die die Mail verfasst werden soll
+     * @param contacts Kontakte, fÃ¼r die die Mail verfasst werden soll
      */
     public void newMail(Contact[] contacts) {
         if (user.getAccountCount() == 0) {
@@ -817,10 +817,10 @@ public class MainFrame extends ExtendedFrame {
     }
 
     /**
-     * Öffnet den Kalender zum Verwanten der Termine
+     * Ã–ffnet den Kalender zum Verwanten der Termine
      *
-     * @param newAppointment Wenn true, wird vor dem Öffnen ein neues
-     * TerminFrame geöffnet. Wenn false dann nicht.
+     * @param newAppointment Wenn true, wird vor dem Ã–ffnen ein neues
+     * TerminFrame geÃ¶ffnet. Wenn false dann nicht.
      */
     private void openCalendarFrame(boolean newAppointment) {
         AppointmentCalendarFrame tkf = new AppointmentCalendarFrame(newAppointment);
@@ -831,10 +831,10 @@ public class MainFrame extends ExtendedFrame {
     }
 
     /**
-     * Öffnet das Adressbuch zum Verwanten der Kontakte
+     * Ã–ffnet das Adressbuch zum Verwanten der Kontakte
      *
-     * @param newContact Wenn true, wird vor dem Öffnen ein neues KontaktFrame
-     * geöffnet. Wenn false dann nicht.
+     * @param newContact Wenn true, wird vor dem Ã–ffnen ein neues KontaktFrame
+     * geÃ¶ffnet. Wenn false dann nicht.
      */
     private void openAddressBookFrame(boolean newContact) {
         AddressBookFrame af = new AddressBookFrame(this, user.getContacts(), newContact);
@@ -845,7 +845,7 @@ public class MainFrame extends ExtendedFrame {
     }
 
     /**
-     * Öffnet die Kontenverwaltung zum Erstellen, Entfernen und Ändern von
+     * Ã–ffnet die Kontenverwaltung zum Erstellen, Entfernen und Ã„ndern von
      * MailAccount-Instanzen
      */
     private void openAccountManagementFrame() {
@@ -861,7 +861,7 @@ public class MainFrame extends ExtendedFrame {
 
             List<MailAccount> deleteable = new ArrayList<>();
 
-            // Entfernt nicht mehr verwendete Knoten für MailAccounts aus dem
+            // Entfernt nicht mehr verwendete Knoten fÃ¼r MailAccounts aus dem
             // Baum
             for (int i = 0; i < rootNode.getChildCount(); i++) {
                 DefaultMutableTreeNode node = (DefaultMutableTreeNode) rootNode.getChildAt(i);
@@ -878,7 +878,7 @@ public class MainFrame extends ExtendedFrame {
                 refresh = true;
             }
 
-            // Füge neue MailAccounts dem Baum hinzu
+            // FÃ¼ge neue MailAccounts dem Baum hinzu
             for (MailAccount acc : accounts) {
                 Iterator<MailAccount> iterator = deleteable.iterator();
 
@@ -925,11 +925,11 @@ public class MainFrame extends ExtendedFrame {
     }
 
     /**
-     * Extrahiert das FolderInfo-Objekt aus dem übergebenen Knoten
+     * Extrahiert das FolderInfo-Objekt aus dem Ã¼bergebenen Knoten
      *
      * @param node Knoten, aus dem das FolderInfo-Objekt ausgelesen werden soll
      * @return FolderInfo-Instanz, wenn der Knoten aus UserObject eine
-     * FolderInfo enthält, sonst null
+     * FolderInfo enthÃ¤lt, sonst null
      */
     private FolderInfo nodeToFolder(DefaultMutableTreeNode node) {
         FolderInfo ret = null;
@@ -943,7 +943,7 @@ public class MainFrame extends ExtendedFrame {
     }
 
     /**
-     * Erstellt rekursiv aus dem Pfad des übergebenen FolderInfo-Objekts die
+     * Erstellt rekursiv aus dem Pfad des Ã¼bergebenen FolderInfo-Objekts die
      * Struktur der Baumknoten.
      *
      * @param folder FolderInfo-Objekt zu dem die Baumstruktur erstellt werden
@@ -960,7 +960,7 @@ public class MainFrame extends ExtendedFrame {
             DefaultMutableTreeNode pathKnoten = null;
             String pathParent = parts[depth];
 
-            // Sucht, ob bereits ein Knoten im Vaterknoten mit dem Pfad für
+            // Sucht, ob bereits ein Knoten im Vaterknoten mit dem Pfad fÃ¼r
             // tiefe-1 existiert
             for (int j = 0; j < parent.getChildCount(); j++) {
 
@@ -982,13 +982,13 @@ public class MainFrame extends ExtendedFrame {
 
             folderToNode(folder, pathKnoten, depth + 1);
         } else {
-            // Fügt dem Vaterknoten den neuen Knoten mit dem Ordner-Objekt ein
+            // FÃ¼gt dem Vaterknoten den neuen Knoten mit dem Ordner-Objekt ein
             parent.add(new DefaultMutableTreeNode(folder));
         }
     }
 
     /**
-     * Lädt alle Ordner der MailAccounts in die neue Baumstruktur
+     * LÃ¤dt alle Ordner der MailAccounts in die neue Baumstruktur
      */
     private void loadFolder() {
         DefaultTreeModel treeModel = (DefaultTreeModel) tree.getModel();
@@ -1013,12 +1013,12 @@ public class MainFrame extends ExtendedFrame {
                 folders = new FolderInfo[0];
             }
 
-            // Erstelle für jeden Ordner die passende Baumstruktur
+            // Erstelle fÃ¼r jeden Ordner die passende Baumstruktur
             for (FolderInfo folder : folders) {
                 folderToNode(folder, accNode, 0);
             }
 
-            // Füge den neuen Knoten in den Baum ein
+            // FÃ¼ge den neuen Knoten in den Baum ein
             treeModel.insertNodeInto(accNode, rootNode, i);
             i++;
         }
@@ -1037,10 +1037,10 @@ public class MainFrame extends ExtendedFrame {
         while (e.hasMoreElements()) {
             node = (DefaultMutableTreeNode) e.nextElement();
 
-            // Prüfe, ob sich der Checker des MailAccounts bereits im Baum
+            // PrÃ¼fe, ob sich der Checker des MailAccounts bereits im Baum
             // befindet
             if (checker.equals(node.getUserObject())) {
-                // Wenn ja wird der Checker übersprungen
+                // Wenn ja wird der Checker Ã¼bersprungen
                 return true;
             }
         }
@@ -1048,10 +1048,10 @@ public class MainFrame extends ExtendedFrame {
     }
 
     /**
-     * Lädt die Mails des übergebenen Knotens in die Mailtabelle
+     * LÃ¤dt die Mails des Ã¼bergebenen Knotens in die Mailtabelle
      *
-     * @param checker Checker-Objekt über das die Mails abgefragt werden sollen
-     * @param node Baumknoten der den auszulesenden Ordner enthält
+     * @param checker Checker-Objekt Ã¼ber das die Mails abgefragt werden sollen
+     * @param node Baumknoten der den auszulesenden Ordner enthÃ¤lt
      */
     private void loadMails(MailAccountChecker checker, DefaultMutableTreeNode node) {
         DefaultTableModel model = (DefaultTableModel) tblMails.getModel();
@@ -1067,7 +1067,7 @@ public class MainFrame extends ExtendedFrame {
                 StoredMailInfo[] messages = checker.getMessages(folder.getPath());
                 int unread = 0;
 
-                // Füge jede Mail der Tabelle hinzu
+                // FÃ¼ge jede Mail der Tabelle hinzu
                 for (StoredMailInfo info : messages) {
                     if (!info.isRead()) {
                         unread++;
@@ -1077,7 +1077,7 @@ public class MainFrame extends ExtendedFrame {
                 }
 
                 if (folder.getNumberUnread() != unread) {
-                    // Aktualisiere den Zähler für ungelesene Nachrichten
+                    // Aktualisiere den ZÃ¤hler fÃ¼r ungelesene Nachrichten
                     folder.setNumberUnread(unread);
                     refreshNodeView(node);
                 }
@@ -1099,16 +1099,16 @@ public class MainFrame extends ExtendedFrame {
     }
 
     /**
-     * Gibt die ausgewählten StoredMailInfo-Objekte der Tabelle zurück.
+     * Gibt die ausgewÃ¤hlten StoredMailInfo-Objekte der Tabelle zurÃ¼ck.
      *
-     * @return Ausgewählte MailInfos
+     * @return AusgewÃ¤hlte MailInfos
      */
     private StoredMailInfo[] selectedMailInfos() {
         DefaultTableModel model = (DefaultTableModel) tblMails.getModel();
 
         StoredMailInfo[] infos = new StoredMailInfo[tblMails.getSelectedRowCount()];
 
-        // Lese Index der ausgewählten Spalten der View aus
+        // Lese Index der ausgewÃ¤hlten Spalten der View aus
         int[] indices = tblMails.getSelectedRows();
 
         for (int i = 0; i < infos.length; i++) {
@@ -1122,10 +1122,10 @@ public class MainFrame extends ExtendedFrame {
     }
 
     /**
-     * Gibt den MailAccount zurück, dessen Knoten, bzw. dessen Ordnerknoten
-     * momentan im Baum ausgewählt sind.
+     * Gibt den MailAccount zurÃ¼ck, dessen Knoten, bzw. dessen Ordnerknoten
+     * momentan im Baum ausgewÃ¤hlt sind.
      *
-     * @return Ausgewählter MailAccount; oder null, falls nicht selektiert wurde
+     * @return AusgewÃ¤hlter MailAccount; oder null, falls nicht selektiert wurde
      */
     private MailAccount selectedAccount() {
         MailAccountChecker checker = selectedChecker();
@@ -1137,10 +1137,10 @@ public class MainFrame extends ExtendedFrame {
     }
 
     /**
-     * Gibt den MailChecker zurück, dessen Knoten, bzw. dessen Ordnerknoten
-     * momentan im Baum ausgewählt sind.
+     * Gibt den MailChecker zurÃ¼ck, dessen Knoten, bzw. dessen Ordnerknoten
+     * momentan im Baum ausgewÃ¤hlt sind.
      *
-     * @return Ausgewählter MailChecker; oder null, falls nicht selektiert wurde
+     * @return AusgewÃ¤hlter MailChecker; oder null, falls nicht selektiert wurde
      */
     private MailAccountChecker selectedChecker() {
         DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
@@ -1161,7 +1161,7 @@ public class MainFrame extends ExtendedFrame {
     }
 
     /**
-     * Öffnet ein neues MailFrame für die übergebene StoredMailInfo
+     * Ã–ffnet ein neues MailFrame fÃ¼r die Ã¼bergebene StoredMailInfo
      *
      * @param info Die im MailFrame anzuzeigende Mail
      */
@@ -1184,16 +1184,16 @@ public class MainFrame extends ExtendedFrame {
     }
 
     /**
-     * Öffnet das Popup-Menü der Mailtabelle
+     * Ã–ffnet das Popup-MenÃ¼ der Mailtabelle
      *
-     * @param e Daten zur ausgeführen Aktion mit der Maus
+     * @param e Daten zur ausgefÃ¼hren Aktion mit der Maus
      */
     private void openPopupTable(MouseEvent e) {
         if (e != null && e.isPopupTrigger()) {
             int row = tblMails.rowAtPoint(e.getPoint());
             int column = tblMails.columnAtPoint(e.getPoint());
 
-            // Öffnet das Popup, wenn mindestens ein Eintrag gewählt wurde
+            // Ã–ffnet das Popup, wenn mindestens ein Eintrag gewÃ¤hlt wurde
             if (row >= 0 && column >= 0) {
                 tblMails.setRowSelectionInterval(row, row);
 
@@ -1205,23 +1205,23 @@ public class MainFrame extends ExtendedFrame {
                 popupMove = generateFolderMenu(popupMove.getText(), Localization.getString("MainFrame_MoveToFolder"));
                 tablePopup.add(popupMove);
 
-                // Öffnet das Popup an der Mausposition relativ zur Tabelle
+                // Ã–ffnet das Popup an der Mausposition relativ zur Tabelle
                 tablePopup.show(tblMails, e.getX(), e.getY());
             }
         }
     }
 
     /**
-     * Gibt ein MenüItem/Menü zurück, das die Ordner und eventuellen Unterordner
-     * des übergebenen Knotens darstellt.
+     * Gibt ein MenÃ¼Item/MenÃ¼ zurÃ¼ck, das die Ordner und eventuellen Unterordner
+     * des Ã¼bergebenen Knotens darstellt.
      *
      * @param path Startpfad der Auswertung. Ist der Pfad leer, wird der Knoten
      * vom Beginn an ausgewertet
-     * @param operation Name des Obermenüs(Kopieren oder Verschieben)
-     * @param node Knoten, dessen Daten in das Menü eingefügt werden sollen
-     * @param itemTitle Titel der Menüitems, die den aktuell im Menü angezeigten
+     * @param operation Name des ObermenÃ¼s(Kopieren oder Verschieben)
+     * @param node Knoten, dessen Daten in das MenÃ¼ eingefÃ¼gt werden sollen
+     * @param itemTitle Titel der MenÃ¼items, die den aktuell im MenÃ¼ angezeigten
      * Ordner selektieren
-     * @return MenüItem/Menü, das den übergebenen Knoten darstellt
+     * @return MenÃ¼Item/MenÃ¼, das den Ã¼bergebenen Knoten darstellt
      */
     private JMenuItem generateFolderMenu(String path, String operation, DefaultMutableTreeNode node,
             String itemTitle) {
@@ -1230,7 +1230,7 @@ public class MainFrame extends ExtendedFrame {
             public void actionPerformed(ActionEvent e) {
                 JMenuItem item = (JMenuItem) e.getSource();
 
-                // Lese die gespeicherten Properties über den Pfad und Typ des
+                // Lese die gespeicherten Properties Ã¼ber den Pfad und Typ des
                 // Eintrags aus
                 String path = (String) item.getClientProperty("PFAD");
                 String type = (String) item.getClientProperty("TYP");
@@ -1261,16 +1261,16 @@ public class MainFrame extends ExtendedFrame {
         // Pfad des aktuellen Knotens
         String currentNodePath = path + menuTitle;
 
-        // Zurückzugebendes neues MenüItem
+        // ZurÃ¼ckzugebendes neues MenÃ¼Item
         int childCount = node.getChildCount();
 
         JMenuItem subMenu;
         // Wenn Unterordner vorhanden sind
         if (childCount > 0) {
-            // "untermenu" ist ein Menü
+            // "untermenu" ist ein MenÃ¼
             subMenu = new JMenu(menuTitle);
 
-            // MenuItem, das den aktuell ausgewählten Ordner selektiert
+            // MenuItem, das den aktuell ausgewÃ¤hlten Ordner selektiert
             JMenuItem item = new JMenuItem(itemTitle);
             item.putClientProperty("TYP", operation);
             item.putClientProperty("PFAD", currentNodePath);
@@ -1296,12 +1296,12 @@ public class MainFrame extends ExtendedFrame {
     }
 
     /**
-     * Erstellt ein JMenu der Ordner des ausgewählten MailAccounts
+     * Erstellt ein JMenu der Ordner des ausgewÃ¤hlten MailAccounts
      *
-     * @param title Titel des Menüs
-     * @param itemTitle Titel der Menüitems, die den aktuell im Menü angezeigten
+     * @param title Titel des MenÃ¼s
+     * @param itemTitle Titel der MenÃ¼items, die den aktuell im MenÃ¼ angezeigten
      * Ordner selektieren
-     * @return Vollständiges Menü der Ordner des ausgewählten MailAccounts
+     * @return VollstÃ¤ndiges MenÃ¼ der Ordner des ausgewÃ¤hlten MailAccounts
      */
     private JMenu generateFolderMenu(String title, String itemTitle) {
         DefaultTreeModel treeModel = (DefaultTreeModel) tree.getModel();
@@ -1309,20 +1309,20 @@ public class MainFrame extends ExtendedFrame {
 
         MailAccountChecker selectedChecker = selectedChecker();
 
-        // Iteriere über alle Knoten, die MailChecker enthalten
+        // Iteriere Ã¼ber alle Knoten, die MailChecker enthalten
         for (int i = 0; i < rootNode.getChildCount(); i++) {
             DefaultMutableTreeNode child = (DefaultMutableTreeNode) rootNode.getChildAt(i);
 
-            // Prüfe, ob der Checker des Knotens der ausgewählte Checker ist
+            // PrÃ¼fe, ob der Checker des Knotens der ausgewÃ¤hlte Checker ist
             if (child.getUserObject() == selectedChecker) {
-                // Zurückzugebendes Menü
+                // ZurÃ¼ckzugebendes MenÃ¼
                 JMenu newMenu = new JMenu(title);
 
-                // Iteriere über die Kind-Knoten des Checker-Knotens
+                // Iteriere Ã¼ber die Kind-Knoten des Checker-Knotens
                 for (int j = 0; j < child.getChildCount(); j++) {
                     DefaultMutableTreeNode subchild = (DefaultMutableTreeNode) child.getChildAt(j);
 
-                    // Füge ein neues Menü für den Knoten ein
+                    // FÃ¼ge ein neues MenÃ¼ fÃ¼r den Knoten ein
                     newMenu.add(generateFolderMenu("", title, subchild, itemTitle));
                 }
 
@@ -1334,7 +1334,7 @@ public class MainFrame extends ExtendedFrame {
     }
 
     /**
-     * Kopiere die ausgewählten Mails in den übergebenen Pfad
+     * Kopiere die ausgewÃ¤hlten Mails in den Ã¼bergebenen Pfad
      *
      * @param target Pfad zum Zielordner
      */
@@ -1353,7 +1353,7 @@ public class MainFrame extends ExtendedFrame {
     }
 
     /**
-     * Verschiebe die ausgewählten Mails in den übergebenen Pfad
+     * Verschiebe die ausgewÃ¤hlten Mails in den Ã¼bergebenen Pfad
      *
      * @param target Pfad zum Zielordner
      */
@@ -1368,7 +1368,7 @@ public class MainFrame extends ExtendedFrame {
             acc.moveMails(infos, source.getPath(), target);
             checker.removeMailInfos(infos);
 
-            // Entferne alle ausgewählten Mails aus der Tabelle
+            // Entferne alle ausgewÃ¤hlten Mails aus der Tabelle
             removeSelectedMailEntries();
         } catch (MessagingException | DAOException e) {
             LOGGER.error(Localization.getString("MainFrame_CouldNotMoveMail"), e);
@@ -1377,7 +1377,7 @@ public class MainFrame extends ExtendedFrame {
     }
 
     /**
-     * Lösche die ausgewählten Mails
+     * LÃ¶sche die ausgewÃ¤hlten Mails
      */
     private void deleteMail() {
         StoredMailInfo[] infos = selectedMailInfos();
@@ -1386,11 +1386,11 @@ public class MainFrame extends ExtendedFrame {
         MailAccount acc = checker.getAccount();
 
         try {
-            // Das eigendliche Löschen der Mails
+            // Das eigendliche LÃ¶schen der Mails
             acc.deleteMails(infos, path.getPath());
             checker.removeMailInfos(infos);
 
-            // Entferne bei Erfolg alle ausgewählten Mails aus der Tabelle
+            // Entferne bei Erfolg alle ausgewÃ¤hlten Mails aus der Tabelle
             removeSelectedMailEntries();
         } catch (MessagingException | DAOException e) {
             LOGGER.error(Localization.getString("MainFrame_CouldNotDeleteMail"), e);
@@ -1410,7 +1410,7 @@ public class MainFrame extends ExtendedFrame {
     }
 
     /**
-     * Zeige die übergebene StoredMailInfo in dem Vorschau-Feld an
+     * Zeige die Ã¼bergebene StoredMailInfo in dem Vorschau-Feld an
      *
      * @param info Info-Objekt, das angezeigt werden soll
      */
@@ -1438,7 +1438,7 @@ public class MainFrame extends ExtendedFrame {
             account.loadMessageData(path.getPath(), info, mailContents);
 
             if (!read) {
-                // Dekrementiere den Zähler des Ordners für ungelesene Mails
+                // Dekrementiere den ZÃ¤hler des Ordners fÃ¼r ungelesene Mails
                 FolderInfo folder = (FolderInfo) selectedNode.getUserObject();
                 folder.setNumberUnread(folder.getNumberUnread() - 1);
 
@@ -1462,14 +1462,14 @@ public class MainFrame extends ExtendedFrame {
     }
 
     /**
-     * Zeigt eine Fehlermeldung für das Nichtvorhandensein eines MailAccounts an
+     * Zeigt eine Fehlermeldung fÃ¼r das Nichtvorhandensein eines MailAccounts an
      */
     private void noMailAccount() {
         Dialogs.showErrorDialog(this, Localization.getString("MainFrame_NoMailAccount"));
     }
 
     /**
-     * Aktualisiert die Ansicht des übergebenen Knotens
+     * Aktualisiert die Ansicht des Ã¼bergebenen Knotens
      *
      * @param node Zu aktualisierender Knoten
      */
@@ -1479,7 +1479,7 @@ public class MainFrame extends ExtendedFrame {
     }
 
     /**
-     * Öffnet ein Fenster zum Bearbeiten der Abwesenheitmeldung des Benutzers
+     * Ã–ffnet ein Fenster zum Bearbeiten der Abwesenheitmeldung des Benutzers
      */
     private void editAbsenceMessage() {
         MessageFrame messageFrame = new MessageFrame(user.getAbsenceMessage(),
@@ -1492,7 +1492,7 @@ public class MainFrame extends ExtendedFrame {
     }
 
     /**
-     * Öffnet ein Fenster zum Bearbeiten der Krankmeldung des Benutzers
+     * Ã–ffnet ein Fenster zum Bearbeiten der Krankmeldung des Benutzers
      */
     private void editSickNote() {
         MessageFrame messageFrame = new MessageFrame(user.getSickNote(),
@@ -1509,7 +1509,7 @@ public class MainFrame extends ExtendedFrame {
         @Override
         public void newMessage(final NewMailEvent e) {
             // Falls der Aufruf aus einem anderen als dem Thread kommt, in
-            // dem die GUI ausgeführt wird
+            // dem die GUI ausgefÃ¼hrt wird
             if (!SwingUtilities.isEventDispatchThread()) {
                 if (e.getSource() == selectedChecker()) {
                     synchronized (MailListener.class) {
@@ -1532,7 +1532,7 @@ public class MainFrame extends ExtendedFrame {
         }
 
         private void processMessage(NewMailEvent e) {
-            // Spätestens hier ist der ausführende Thread der GUI-Thread
+            // SpÃ¤testens hier ist der ausfÃ¼hrende Thread der GUI-Thread
             MailAccountChecker sender = (MailAccountChecker) e.getSource();
 
             DefaultTreeModel model = (DefaultTreeModel) tree.getModel();
@@ -1544,7 +1544,7 @@ public class MainFrame extends ExtendedFrame {
                 return;
             }
 
-            // Iteriere über alle direkten Kind-Knoten des
+            // Iteriere Ã¼ber alle direkten Kind-Knoten des
             // MailChecker-Knotens
             for (int j = 0; j < checkerNode.getChildCount(); j++) {
                 DefaultMutableTreeNode folderNode = (DefaultMutableTreeNode) checkerNode.getChildAt(j);
@@ -1560,9 +1560,9 @@ public class MainFrame extends ExtendedFrame {
                     DefaultMutableTreeNode selected = (DefaultMutableTreeNode) tree
                             .getLastSelectedPathComponent();
                     // Wenn der aktualisierte Knoten der momentan
-                    // ausgewählte Knoten ist
+                    // ausgewÃ¤hlte Knoten ist
                     if (selected == folderNode) {
-                        // Füge Zeile für die neue Mail in die
+                        // FÃ¼ge Zeile fÃ¼r die neue Mail in die
                         // Tabelle ein
 
                         StoredMailInfo info = e.getInfo();
@@ -1580,7 +1580,7 @@ public class MainFrame extends ExtendedFrame {
             for (int i = 0; i < root.getChildCount(); i++) {
                 DefaultMutableTreeNode child = (DefaultMutableTreeNode) root.getChildAt(i);
                 // Wenn der Sender des Events dem UserObject des
-                // ausgewählten Knotens entspricht
+                // ausgewÃ¤hlten Knotens entspricht
                 if (checker == child.getUserObject()) {
                     return child;
                 }

@@ -46,7 +46,7 @@ public class Appointment implements Comparable<Appointment> {
     private Address[] addresses;
 
     /**
-     * Erstellt eine neue Instanz der Klasse mit den übergebenen Werten
+     * Erstellt eine neue Instanz der Klasse mit den Ã¼bergebenen Werten
      *
      * @param subject Betreff des Termins
      * @param location Ort des Termins
@@ -81,7 +81,7 @@ public class Appointment implements Comparable<Appointment> {
     }
 
     /**
-     * Erstellt eine neue Instanz der Klasse mit den übergebenen Werten
+     * Erstellt eine neue Instanz der Klasse mit den Ã¼bergebenen Werten
      *
      * @param subject Betreff des Termins
      * @param location Ort des Termins
@@ -91,7 +91,7 @@ public class Appointment implements Comparable<Appointment> {
      * @param user Name des Benutzers
      * @param contact Name des Kontakts
      * @param state Status des Termins
-     * @param addresses Verknüpfte Adressen des Termins
+     * @param addresses VerknÃ¼pfte Adressen des Termins
      */
     @JsonCreator
     public Appointment(
@@ -115,7 +115,7 @@ public class Appointment implements Comparable<Appointment> {
     }
 
     /**
-     * Setter für den Betreff des Termins
+     * Setter fÃ¼r den Betreff des Termins
      *
      * @param subject Zu setzender Betreff
      */
@@ -124,7 +124,7 @@ public class Appointment implements Comparable<Appointment> {
     }
 
     /**
-     * Getter für den Betreff des Termins
+     * Getter fÃ¼r den Betreff des Termins
      *
      * @return Betreff
      */
@@ -133,7 +133,7 @@ public class Appointment implements Comparable<Appointment> {
     }
 
     /**
-     * Setter für den Ort des Termins
+     * Setter fÃ¼r den Ort des Termins
      *
      * @param location Zu setzender Ort
      */
@@ -142,7 +142,7 @@ public class Appointment implements Comparable<Appointment> {
     }
 
     /**
-     * Getter für den Ort des Termins
+     * Getter fÃ¼r den Ort des Termins
      *
      * @return Ort
      */
@@ -151,7 +151,7 @@ public class Appointment implements Comparable<Appointment> {
     }
 
     /**
-     * Setter für den Start- und Endzeitpunkt des Termins
+     * Setter fÃ¼r den Start- und Endzeitpunkt des Termins
      *
      * @param start Zu setzender Startzeitpunkt
      * @param end Zu setzender Endzeitpunkt
@@ -165,7 +165,7 @@ public class Appointment implements Comparable<Appointment> {
     }
 
     /**
-     * Getter für den Startzeitpunkt des Termins
+     * Getter fÃ¼r den Startzeitpunkt des Termins
      *
      * @return Startzeitpunkt
      */
@@ -174,7 +174,7 @@ public class Appointment implements Comparable<Appointment> {
     }
 
     /**
-     * Getter für den Endzeitpunkt des Termins
+     * Getter fÃ¼r den Endzeitpunkt des Termins
      *
      * @return Endzeitpunkt
      */
@@ -183,7 +183,7 @@ public class Appointment implements Comparable<Appointment> {
     }
 
     /**
-     * Setter für die Beschreibung des Termins
+     * Setter fÃ¼r die Beschreibung des Termins
      *
      * @param text Zu setzende Beschreibung
      */
@@ -192,7 +192,7 @@ public class Appointment implements Comparable<Appointment> {
     }
 
     /**
-     * Getter für die Beschreibung des Termins
+     * Getter fÃ¼r die Beschreibung des Termins
      *
      * @return Beschreibung
      */
@@ -201,7 +201,7 @@ public class Appointment implements Comparable<Appointment> {
     }
 
     /**
-     * Setter für das zugeordnete Benutzerkonto des Termins
+     * Setter fÃ¼r das zugeordnete Benutzerkonto des Termins
      *
      * @param user Zu setzende Benutzerkonto
      */
@@ -210,7 +210,7 @@ public class Appointment implements Comparable<Appointment> {
     }
 
     /**
-     * Getter für das zugeordnete Benutzerkonto des Termins
+     * Getter fÃ¼r das zugeordnete Benutzerkonto des Termins
      *
      * @return Benutzerkonto
      */
@@ -219,7 +219,7 @@ public class Appointment implements Comparable<Appointment> {
     }
 
     /**
-     * Setter für den zugeordneten Contact des Termins
+     * Setter fÃ¼r den zugeordneten Contact des Termins
      *
      * @param contact Zu setzende Contact
      */
@@ -228,7 +228,7 @@ public class Appointment implements Comparable<Appointment> {
     }
 
     /**
-     * Getter für den zugeordneten Contact des Termins
+     * Getter fÃ¼r den zugeordneten Contact des Termins
      *
      * @return Contact
      */
@@ -246,7 +246,7 @@ public class Appointment implements Comparable<Appointment> {
     }
 
     /**
-     * Gibt den Status des Termins zurück
+     * Gibt den Status des Termins zurÃ¼ck
      *
      * @return Status des Termins
      */
@@ -255,7 +255,7 @@ public class Appointment implements Comparable<Appointment> {
     }
 
     /**
-     * Gibt die verknüpfen Adressen zum Appointment zurück
+     * Gibt die verknÃ¼pfen Adressen zum Appointment zurÃ¼ck
      *
      * @return Adressen zum Appointment
      */
@@ -264,7 +264,7 @@ public class Appointment implements Comparable<Appointment> {
     }
 
     /**
-     * Setzt die verknüpfen Adressen zum Appointment
+     * Setzt die verknÃ¼pfen Adressen zum Appointment
      *
      * @param addresses Adressen zum Appointment
      */

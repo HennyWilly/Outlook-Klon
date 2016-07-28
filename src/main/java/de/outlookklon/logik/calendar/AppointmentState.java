@@ -1,7 +1,7 @@
 package de.outlookklon.logik.calendar;
 
 /**
- * Diese Aufzählung stellt die möglichen Zustände eines Termins dar
+ * Diese AufzÃ¤hlung stellt die mÃ¶glichen ZustÃ¤nde eines Termins dar
  */
 public enum AppointmentState {
     /**

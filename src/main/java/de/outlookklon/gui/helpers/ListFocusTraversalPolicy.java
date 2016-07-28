@@ -8,7 +8,7 @@ import java.util.List;
 
 /**
  * Erweitert die FocusTraversalPolicy-Klasse zum einfachen Wandern per Tab-Taste
- * über alle Steuerelemente in der Reihenfolge, die in der Liste beschrieben
+ * Ã¼ber alle Steuerelemente in der Reihenfolge, die in der Liste beschrieben
  * ist.
  */
 public class ListFocusTraversalPolicy extends FocusTraversalPolicy {
@@ -16,7 +16,7 @@ public class ListFocusTraversalPolicy extends FocusTraversalPolicy {
     private final List<Component> order;
 
     /**
-     * Erstellt eine neue Instanz mit den übergebenen Komponenten.
+     * Erstellt eine neue Instanz mit den Ã¼bergebenen Komponenten.
      *
      * @param order Liste aller zu durchlaufenden Komponenten.
      */

@@ -12,7 +12,7 @@
     <name>Outlook-Klon</name>
 
     <properties>
-        <project.build.sourceEncoding>Cp1252</project.build.sourceEncoding>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <jdk.version>1.7</jdk.version>
         <junit.version>4.12</junit.version>
