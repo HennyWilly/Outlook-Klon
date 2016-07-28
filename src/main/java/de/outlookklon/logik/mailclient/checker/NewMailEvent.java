@@ -4,7 +4,7 @@ import de.outlookklon.logik.mailclient.StoredMailInfo;
 import java.util.EventObject;
 
 /**
- * Enth�lt alle relevanten Daten über eine neu erhaltene Mail
+ * Enthält alle relevanten Daten über eine neu erhaltene Mail
  *
  * @author Hendrik Karwanni
  */

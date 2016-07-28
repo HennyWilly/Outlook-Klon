@@ -39,7 +39,7 @@ public final class Localization {
     }
 
     /**
-     * Gibt den lokalisierten String mit dem übergebenen Schlüssel zur�ck.
+     * Gibt den lokalisierten String mit dem übergebenen Schlüssel zurück.
      *
      * @param key Schlüssel des lokalisierten Strings.
      * @return Der lokalisierte String

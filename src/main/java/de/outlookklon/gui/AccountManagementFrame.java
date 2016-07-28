@@ -381,7 +381,7 @@ public class AccountManagementFrame extends ExtendedDialog<MailAccount[]> {
     }
 
     /**
-     * Tr�gt die Daten der �bergebenen MailAccount-Instanz in die daf�r
+     * Trägt die Daten der übergebenen MailAccount-Instanz in die dafür
      * vorgesehenen Felder ein
      *
      * @param acc MailAccount-Instanz aus der die Daten ausgelesen werden sollen
@@ -427,7 +427,7 @@ public class AccountManagementFrame extends ExtendedDialog<MailAccount[]> {
     }
 
     /**
-     * �ffnet ein neues Konto-Frame zum Erstellen einer neuen
+     * Öffnet ein neues Konto-Frame zum Erstellen einer neuen
      * MailAccount-Instanz
      */
     private void createAccount() {
@@ -435,17 +435,17 @@ public class AccountManagementFrame extends ExtendedDialog<MailAccount[]> {
         MailAccount acc = accountFrame.showDialog();
         if (acc != null) {
             DefaultListModel<MailAccount> model = (DefaultListModel<MailAccount>) lstAccounts.getModel();
-            // F�ge die neue Instanz der JList hinzu
+            // Füge die neue Instanz der JList hinzu
             model.addElement(acc);
         }
     }
 
     /**
-     * �ffnet ein neues Konto-Frame zum Bearbeiten einer bestehenden
+     * Öffnet ein neues Konto-Frame zum Bearbeiten einer bestehenden
      * MailAccount-Instanz
      *
      * @param acc Zu bearbeitender MailAccount
-     * @return Instanz des ver�nderten MailAccounts
+     * @return Instanz des veränderten MailAccounts
      */
     private MailAccount editAccount(MailAccount acc) {
         AccountFrame accountFrame = new AccountFrame(acc);
@@ -457,7 +457,7 @@ public class AccountManagementFrame extends ExtendedDialog<MailAccount[]> {
 
             // Entfernt die alte Instanz aus der JList
             model.remove(index);
-            // F�ge die neue Instanz der JList hinzu
+            // Füge die neue Instanz der JList hinzu
             model.add(index, result);
 
             return result;
@@ -467,9 +467,9 @@ public class AccountManagementFrame extends ExtendedDialog<MailAccount[]> {
     }
 
     /**
-     * L�scht die �bergebene MailAccount-Instanz aus der Liste
+     * Löscht die übergebene MailAccount-Instanz aus der Liste
      *
-     * @param acc Zu l�schender MailAccount
+     * @param acc Zu löschender MailAccount
      */
     private void deleteAccount(MailAccount acc) {
         if (acc != null) {

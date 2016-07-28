@@ -307,7 +307,7 @@ public class AddressBookFrame extends ExtendedFrame {
     /**
      * Initialisiert die JList des Frames
      *
-     * @param horizontalSplit JSplitPane in die die JList eingef�gt werden soll
+     * @param horizontalSplit JSplitPane in die die JList eingefügt werden soll
      */
     private void initLists(JSplitPane horizontalSplit) {
         listPopup = new JPopupMenu();

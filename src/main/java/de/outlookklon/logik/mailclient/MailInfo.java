@@ -245,9 +245,9 @@ public class MailInfo {
     }
 
     /**
-     * Gibt die Namen der Anh�nge der Mail zurück
+     * Gibt die Namen der Anhänge der Mail zurück
      *
-     * @return Namen der Anh�nge der Mail
+     * @return Namen der Anhänge der Mail
      */
     public String[] getAttachment() {
         return attachment;
