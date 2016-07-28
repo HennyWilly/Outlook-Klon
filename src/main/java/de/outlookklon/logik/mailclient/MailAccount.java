@@ -34,7 +34,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Diese Klasse stellt ein Mailkonto dar. Hierüber können Mails gesendet und
+ * Diese Klasse stellt ein Mailkonto dar. HierÃ¼ber kÃ¶nnen Mails gesendet und
  * empfangen werden.
  *
  * @author Hendrik Karwanni
@@ -66,11 +66,11 @@ public class MailAccount {
 
     /**
      * Bei manchen Anbietern, z.B. Hotmail oder Yahoo, kann die MessageID nicht
-     * auf normalem Wege mit dem standardmäßigen <code>MessageIDTerm</code>
+     * auf normalem Wege mit dem standardmÃ¤ÃŸigen <code>MessageIDTerm</code>
      * abgerufen werden. Daher wird hier ein neuer <code>SeachTerm</code>
-     * implementiert, der die Mails zuerst öffnet und dann erst die ID ausliest.
+     * implementiert, der die Mails zuerst Ã¶ffnet und dann erst die ID ausliest.
      * Sollte nur verwendet werden, wenn keine Mail gefunden wurde, da dieses
-     * Suchverfahren langsamer ist, als der ursprüngliche
+     * Suchverfahren langsamer ist, als der ursprÃ¼ngliche
      * <code>MessageIDTerm</code>.
      *
      * @author Hendrik Karwanni
@@ -116,7 +116,7 @@ public class MailAccount {
     }
 
     /**
-     * Erstellt eine neue Instanz der Klasse Mailkonto mit den übergebenen
+     * Erstellt eine neue Instanz der Klasse Mailkonto mit den Ã¼bergebenen
      * Parametern
      *
      * @param inboxMailServer Server-Instanz, die zum Empfangen von Mails
@@ -128,8 +128,8 @@ public class MailAccount {
      * @param password Passwort, das zur Anmeldung verwendet werden soll
      * @throws NullPointerException Tritt auf, wenn mindestens eine der
      * Server-Instanzen null ist
-     * @throws IllegalArgumentException Tritt auf, wenn die übergebene
-     * Mailadresse ungültig ist
+     * @throws IllegalArgumentException Tritt auf, wenn die Ã¼bergebene
+     * Mailadresse ungÃ¼ltig ist
      * @throws java.io.IOException Tritt auf, wenn die StoredMailInfoDAO nicht
      * erstellt werden konnte.
      */
@@ -163,7 +163,7 @@ public class MailAccount {
     /**
      * Sendet eine Nachricht an einen Mailserver
      *
-     * @param mailToSend Objekt, das alle zu sendenden Daten enthält
+     * @param mailToSend Objekt, das alle zu sendenden Daten enthÃ¤lt
      * @throws MessagingException Tritt auf, wenn der Sendevorgang
      * fehlgeschlagen ist
      */
@@ -244,7 +244,7 @@ public class MailAccount {
     }
 
     /**
-     * Gibt die Pfade aller Ordner des Servers zum Mailempfang zurück
+     * Gibt die Pfade aller Ordner des Servers zum Mailempfang zurÃ¼ck
      *
      * @return Pfade aller Ordner des Servers zum Mailempfang
      * @throws MessagingException
@@ -283,9 +283,9 @@ public class MailAccount {
     }
 
     /**
-     * Gibt die ID zur übergebenen Mail zurück
+     * Gibt die ID zur Ã¼bergebenen Mail zurÃ¼ck
      *
-     * @param message Mail, für die die ID bestimmt werden soll
+     * @param message Mail, fÃ¼r die die ID bestimmt werden soll
      * @return ID der Mail, oder <code>null</code>, wenn nicht gefunden
      */
     private String getID(Message message) throws MessagingException {
@@ -308,7 +308,7 @@ public class MailAccount {
     }
 
     /**
-     * Gibt die MailInfos aller Messages in dem übergebenen Pfad zurück.
+     * Gibt die MailInfos aller Messages in dem Ã¼bergebenen Pfad zurÃ¼ck.
      *
      * @param path Pfad, in dem die Mails gesucht werden.
      * @return Array von MailInfos mit der ID, Betreff, Sender und SendDatum
@@ -378,12 +378,12 @@ public class MailAccount {
     }
 
     /**
-     * Liest die angegebenen Daten zur E-Mail in die übergebene
+     * Liest die angegebenen Daten zur E-Mail in die Ã¼bergebene
      * <code>StoredMailInfo</code> ein
      *
      * @param path Ordnerpfad innerhalb des MailServers
-     * @param mailInfo Zu füllende <code>StoredMailInfo</code>
-     * @param mailContent Eine Aufzählung der auszulesenden Daten
+     * @param mailInfo Zu fÃ¼llende <code>StoredMailInfo</code>
+     * @param mailContent Eine AufzÃ¤hlung der auszulesenden Daten
      * @throws javax.mail.MessagingException wenn die Nachrichten nicht geladen
      * werden konnten
      * @throws de.outlookklon.dao.DAOException wenn ein Fehler beim Zugriff auf
@@ -425,13 +425,13 @@ public class MailAccount {
     }
 
     /**
-     * Gibt das <code>Message</code>-Objekt zur ID in der übergebenen
-     * <code>StoredMailInfo</code> im übergebenen Ordner zurück.
+     * Gibt das <code>Message</code>-Objekt zur ID in der Ã¼bergebenen
+     * <code>StoredMailInfo</code> im Ã¼bergebenen Ordner zurÃ¼ck.
      *
      * @param mail <code>StoredMailInfo</code>-Objekt, das die ID zur suchenden
-     * Message enthällt
+     * Message enthÃ¤llt
      * @param folder Ordner, in dem gesucht werden soll
-     * @return <code>Message</code>-Objekt zur übergebenen ID
+     * @return <code>Message</code>-Objekt zur Ã¼bergebenen ID
      */
     private Message infoToMessage(final StoredMailInfo mail, final Folder folder)
             throws MessagingException {
@@ -441,13 +441,13 @@ public class MailAccount {
     }
 
     /**
-     * Gibt die <code>Message</code>-Objekte zu den IDs in den übergebenen
-     * MailInfos im übergebenen Ordner zurück.
+     * Gibt die <code>Message</code>-Objekte zu den IDs in den Ã¼bergebenen
+     * MailInfos im Ã¼bergebenen Ordner zurÃ¼ck.
      *
      * @param mail <code>StoredMailInfo</code>-Objekte, die die IDs zu den zu
      * suchenden Messages enthallten
      * @param folder Ordner, in dem gesucht werden soll
-     * @return <code>Message</code>-Objekte zu den übergebenen IDs
+     * @return <code>Message</code>-Objekte zu den Ã¼bergebenen IDs
      */
     private Message[] infoToMessage(final StoredMailInfo[] mails, final Folder folder)
             throws MessagingException {
@@ -473,13 +473,13 @@ public class MailAccount {
     }
 
     /**
-     * Kopiert die übergebenen Mails in den Zielordner
+     * Kopiert die Ã¼bergebenen Mails in den Zielordner
      *
      * @param mails MailInfos, die die IDs der zu kopierenden Messages enthalten
      * @param sourceFolder Quellordner
      * @param targetFolder Zielordner
      * @param delete Wert, der angibt, ob die Mails nach dem Kopieren im
-     * Quellordner gelöscht werden sollen
+     * Quellordner gelÃ¶scht werden sollen
      * @throws de.outlookklon.dao.DAOException wenn ein Fehler beim Zugriff auf
      * die StoredMailInfoDAO ein Fehler auftritt
      */
@@ -568,11 +568,11 @@ public class MailAccount {
     }
 
     /**
-     * Lösche die Mails aus dem übergebenen Ordner
+     * LÃ¶sche die Mails aus dem Ã¼bergebenen Ordner
      *
-     * @param mails MailInfos der zu löschenden Mails
+     * @param mails MailInfos der zu lÃ¶schenden Mails
      * @param path Pfad zum Ordner
-     * @return true, wenn das löschen erfolgreich war; sonst false
+     * @return true, wenn das lÃ¶schen erfolgreich war; sonst false
      * @throws javax.mail.MessagingException wenn ein Fehler seitens der
      * Mail-Library auftritt
      * @throws de.outlookklon.dao.DAOException wenn ein Fehler beim Zugriff auf
@@ -638,11 +638,11 @@ public class MailAccount {
         return "trash".equalsIgnoreCase(folderName)
                 || "deleted".equalsIgnoreCase(folderName)
                 || "papierkorb".equalsIgnoreCase(folderName)
-                || "gelöscht".equalsIgnoreCase(folderName);
+                || "gelÃ¶scht".equalsIgnoreCase(folderName);
     }
 
     /**
-     * Speichert den Anhang der übergebenen Mail am übergebenen Ort
+     * Speichert den Anhang der Ã¼bergebenen Mail am Ã¼bergebenen Ort
      *
      * @param mail <code>StoredMailInfo</code>-Objekt
      * @param path Ordnerpfad innerhalb des MailStores
@@ -650,7 +650,7 @@ public class MailAccount {
      * @param targetPath Zielpfad, an dem die Datei gespeichert werden soll
      * @throws IOException Tritt auf, wenn die Datei nicht gespeichert werden
      * konnte
-     * @throws MessagingException Triff auf, wenn es einen Fehler bezüglich der
+     * @throws MessagingException Triff auf, wenn es einen Fehler bezÃ¼glich der
      * Nachricht gab
      */
     public void saveAttachment(final StoredMailInfo mail, final String path,
@@ -687,7 +687,7 @@ public class MailAccount {
     }
 
     /**
-     * Prüft, ob mit den Daten der <code>MailAccount</code>-Instanz eine
+     * PrÃ¼ft, ob mit den Daten der <code>MailAccount</code>-Instanz eine
      * erfolgreiche Verbindung zum Empfangs- und zum Versandtserver hergestellt
      * werden konnte
      *
@@ -699,7 +699,7 @@ public class MailAccount {
     }
 
     /**
-     * Prüft, ob mit den übergebenen Daten eine erfolgreiche Verbindung zum
+     * PrÃ¼ft, ob mit den Ã¼bergebenen Daten eine erfolgreiche Verbindung zum
      * Empfangs- und zum Versandtserver hergestellt werden konnte
      *
      * @return <code>true</code>, wenn die Verbindungen erfolgreich waren; sonst
@@ -721,7 +721,7 @@ public class MailAccount {
     }
 
     /**
-     * Gibt die <code>MailServer</code>-Instanz zum Empfangen von Mails zurück
+     * Gibt die <code>MailServer</code>-Instanz zum Empfangen von Mails zurÃ¼ck
      *
      * @return <code>MailServer</code> zum Empfangen von Mails
      */
@@ -730,7 +730,7 @@ public class MailAccount {
     }
 
     /**
-     * Gibt die <code>MailServer</code>-Instanz zum Versandt von Mails zurück
+     * Gibt die <code>MailServer</code>-Instanz zum Versandt von Mails zurÃ¼ck
      *
      * @return <code>MailServer</code> zum Versandt von Mails
      */
@@ -739,7 +739,7 @@ public class MailAccount {
     }
 
     /**
-     * Gibt die Mailadresse des MailAccounts zurück
+     * Gibt die Mailadresse des MailAccounts zurÃ¼ck
      *
      * @return Mailadresse des MailAccounts
      */
@@ -748,9 +748,9 @@ public class MailAccount {
     }
 
     /**
-     * Gibt den Benutzernamen für den <code>MailAccount</code> zurück
+     * Gibt den Benutzernamen fÃ¼r den <code>MailAccount</code> zurÃ¼ck
      *
-     * @return Benutzername für den <code>MailAccount</code>
+     * @return Benutzername fÃ¼r den <code>MailAccount</code>
      */
     public String getUser() {
         return user;
@@ -765,7 +765,7 @@ public class MailAccount {
      */
     public void setPassword(String password) throws AuthenticationFailedException {
         if (!validate(user, password)) {
-            throw new AuthenticationFailedException("Das übergebene Passwort ist ungültig");
+            throw new AuthenticationFailedException("Das Ã¼bergebene Passwort ist ungÃ¼ltig");
         }
 
         this.password = password;
@@ -773,7 +773,7 @@ public class MailAccount {
 
     @Override
     public boolean equals(Object obj) {
-        // Es dürfen keine MailAccounts hinzugefügt werden, deren MailAdresse
+        // Es dÃ¼rfen keine MailAccounts hinzugefÃ¼gt werden, deren MailAdresse
         // bereit enthalten ist
 
         if (obj == null) {

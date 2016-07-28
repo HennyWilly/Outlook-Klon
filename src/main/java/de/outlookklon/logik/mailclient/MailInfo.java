@@ -41,6 +41,16 @@ public class MailInfo {
     @JsonProperty("attachment")
     private String[] attachment;
 
+    /**
+     * Erstellt eine neue MailInfo-Instanz mit den übergebenen Werten.
+     *
+     * @param subject Betreff der Mail
+     * @param text Text der Mail
+     * @param contentType Typ des Mailtextes
+     * @param to Primäre Empfänger der Mail
+     * @param cc Sekundäre Empfänger der Mail
+     * @param attachment Anhänge der Mail
+     */
     public MailInfo(String subject, String text, String contentType,
             Address[] to, Address[] cc, String[] attachment) {
         setSubject(subject);
@@ -51,6 +61,17 @@ public class MailInfo {
         setAttachment(attachment);
     }
 
+    /**
+     * Erstellt eine neue MailInfo-Instanz mit den übergebenen Werten.
+     *
+     * @param subject Betreff der Mail
+     * @param sender Sender der Mail
+     * @param text Text der Mail
+     * @param contentType Typ des Mailtextes
+     * @param to Primäre Empfänger der Mail
+     * @param cc Sekundäre Empfänger der Mail
+     * @param attachment Anhänge der Mail
+     */
     @JsonCreator
     public MailInfo(
             @JsonProperty("subject") String subject,

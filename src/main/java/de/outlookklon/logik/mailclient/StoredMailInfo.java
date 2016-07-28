@@ -342,7 +342,7 @@ public class StoredMailInfo extends MailInfo implements Comparable<StoredMailInf
 
     @Override
     public boolean equals(Object obj) {
-        if (obj != null && !(obj instanceof StoredMailInfo)) {
+        if (obj == null || !(obj instanceof StoredMailInfo)) {
             return false;
         }
         if (this == obj) {

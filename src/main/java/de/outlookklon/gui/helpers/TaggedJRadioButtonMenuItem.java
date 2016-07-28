@@ -16,7 +16,7 @@ public class TaggedJRadioButtonMenuItem extends JRadioButtonMenuItem {
     private Object tag;
 
     /**
-     * Erstellt ein neues TaggedJRadioButtonMenuItem mit dem übergebenen Text
+     * Erstellt ein neues TaggedJRadioButtonMenuItem mit dem Ã¼bergebenen Text
      * und Selektionsstatus.
      *
      * @param text der Text des TaggedJRadioButtonMenuItems

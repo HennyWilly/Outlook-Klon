@@ -11,10 +11,10 @@ import de.outlookklon.logik.mailclient.StoredMailInfo;
 public interface StoredMailInfoDAO {
 
     /**
-     * Lese das {@link StoredMailInfo}-Objekt aus der übergebenen Datei
+     * Lese das {@link StoredMailInfo}-Objekt aus der Ã¼bergebenen Datei
      *
      * @param id ID des Mail-Objekts
-     * @param path Enthällt den Pfad, in dem das Objekt liegt
+     * @param path EnthÃ¤llt den Pfad, in dem das Objekt liegt
      * @return Deserialisiertes {@link StoredMailInfo}-Objekt
      * @throws de.outlookklon.dao.DAOException wenn ein Fehler beim Laden der
  StoredMailInfo auftritt
@@ -22,7 +22,7 @@ public interface StoredMailInfoDAO {
     StoredMailInfo loadStoredMailInfo(String id, String path) throws DAOException;
 
     /**
-     * Speichert die übergebene {@link StoredMailInfo} am übergebenen Pfad
+     * Speichert die Ã¼bergebene {@link StoredMailInfo} am Ã¼bergebenen Pfad
      *
      * @param info Zu speichernde {@link StoredMailInfo}
      * @param path Pfad, in dem das Objekt gespeichert werden soll
@@ -32,11 +32,11 @@ public interface StoredMailInfoDAO {
     void saveStoredMailInfo(StoredMailInfo info, String path) throws DAOException;
 
     /**
-     * Löscht die gespeicherte Datei der übergebenen {@link StoredMailInfo}
+     * LÃ¶scht die gespeicherte Datei der Ã¼bergebenen {@link StoredMailInfo}
      *
-     * @param id ID der zu löschenden Nachricht
-     * @param path Pfad zur zu löschenden Datei
-     * @throws de.outlookklon.dao.DAOException wenn ein Fehler beim Löschen der
+     * @param id ID der zu lÃ¶schenden Nachricht
+     * @param path Pfad zur zu lÃ¶schenden Datei
+     * @throws de.outlookklon.dao.DAOException wenn ein Fehler beim LÃ¶schen der
  StoredMailInfo auftritt
      */
     void deleteStoredMailInfo(String id, String path) throws DAOException;

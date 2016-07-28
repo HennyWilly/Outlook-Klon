@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Diese Klasse stellt den User dar. Bietet Zugriff auf die Appointment- und
- * ContactManagement. Zudem ist es möglich, über die Mailkonten des Nutzers zu
+ * ContactManagement. Zudem ist es mÃ¶glich, Ã¼ber die Mailkonten des Nutzers zu
  * iterieren.
  *
  * @author Hendrik Karwanni
@@ -100,7 +100,7 @@ public final class User implements Iterable<MailAccountChecker> {
 
         accounts = new ArrayList<>();
 
-        // Filter, der nur Pfade von direkten Unterordnern zurückgibt
+        // Filter, der nur Pfade von direkten Unterordnern zurÃ¼ckgibt
         String[] directories = dataFolder.list(new FilenameFilter() {
             @Override
             public boolean accept(File dir, String name) {
@@ -122,7 +122,7 @@ public final class User implements Iterable<MailAccountChecker> {
     }
 
     /**
-     * Gibt die einzige Instanz der Klasse User zurück. Beim ersten Aufruf wird
+     * Gibt die einzige Instanz der Klasse User zurÃ¼ck. Beim ersten Aufruf wird
      * eine neue Instanz der Klasse erstellt.
      *
      * @return Einzige Instanz der Klasse
@@ -139,7 +139,7 @@ public final class User implements Iterable<MailAccountChecker> {
     }
 
     /**
-     * Gibt eine neue Instanz der Implementierung des NewMailListeners zurück
+     * Gibt eine neue Instanz der Implementierung des NewMailListeners zurÃ¼ck
      *
      * @return Neue Instanz der Implementierung des NewMailListeners
      */
@@ -181,7 +181,7 @@ public final class User implements Iterable<MailAccountChecker> {
     }
 
     /**
-     * Gibt die Instanz der ContactManagement zurück
+     * Gibt die Instanz der ContactManagement zurÃ¼ck
      *
      * @return ContactManagement des Benutzers
      */
@@ -190,7 +190,7 @@ public final class User implements Iterable<MailAccountChecker> {
     }
 
     /**
-     * Gibt die Instanz der Terminverwaltung zurück
+     * Gibt die Instanz der Terminverwaltung zurÃ¼ck
      *
      * @return Terminverwaltung des Benutzers
      */
@@ -199,10 +199,10 @@ public final class User implements Iterable<MailAccountChecker> {
     }
 
     /**
-     * Fügt die übergebene Instanz eines MailAccounts dem User hinzu
+     * FÃ¼gt die Ã¼bergebene Instanz eines MailAccounts dem User hinzu
      *
-     * @param account Hinzuzufügender MailAccount
-     * @return true, wenn der übergebene MailAccount nicht <code>null</code>
+     * @param account HinzuzufÃ¼gender MailAccount
+     * @return true, wenn der Ã¼bergebene MailAccount nicht <code>null</code>
      * ist; sonst false
      */
     public boolean addMailAccount(MailAccount account) {
@@ -225,11 +225,11 @@ public final class User implements Iterable<MailAccountChecker> {
     }
 
     /**
-     * Löscht rekursiv die Datei oder den Ordner mit allen Unterordnern und
+     * LÃ¶scht rekursiv die Datei oder den Ordner mit allen Unterordnern und
      * Dateien
      *
-     * @param file Verweis auf den zu löschenden Eintrag im Dateisystem
-     * @throws IOException Tritt auf, wenn eine der Dateien nicht gelöscht
+     * @param file Verweis auf den zu lÃ¶schenden Eintrag im Dateisystem
+     * @throws IOException Tritt auf, wenn eine der Dateien nicht gelÃ¶scht
      * werden konnte
      */
     private void deleteRecursive(File file) throws IOException {
@@ -245,20 +245,20 @@ public final class User implements Iterable<MailAccountChecker> {
             }
         }
 
-        // Eigentliches Löschen
+        // Eigentliches LÃ¶schen
         if (!file.delete()) {
-            // Löschen fehlgeschlagen
-            throw new IOException("Datei \'" + file.getPath() + "\' konnte nicht gelöscht werden");
+            // LÃ¶schen fehlgeschlagen
+            throw new IOException("Datei \'" + file.getPath() + "\' konnte nicht gelÃ¶scht werden");
         }
     }
 
     /**
-     * Entfernt den übergebenen Account aus der Verwaltung
+     * Entfernt den Ã¼bergebenen Account aus der Verwaltung
      *
-     * @param account Zu löschender Account
-     * @return true, wenn das löschen erfolgreich war; sonst false
+     * @param account Zu lÃ¶schender Account
+     * @return true, wenn das lÃ¶schen erfolgreich war; sonst false
      * @throws IOException Tritt auf, wenn einer der gespeicherten Dateien nicht
-     * gelöscht werden konnte
+     * gelÃ¶scht werden konnte
      */
     public boolean removeMailAccount(MailAccount account) throws IOException {
         int index = accounts.indexOf(account);
@@ -286,7 +286,7 @@ public final class User implements Iterable<MailAccountChecker> {
     }
 
     /**
-     * Gibt die Anzahl an MailAccounts zurück
+     * Gibt die Anzahl an MailAccounts zurÃ¼ck
      *
      * @return Anzahl der MailAccounts
      */
@@ -298,7 +298,7 @@ public final class User implements Iterable<MailAccountChecker> {
      * Speichert die Daten des Benutzers
      *
      * @throws java.io.IOException wenn das Speichern der Daten des Benutzers
-     * fehlschlägt
+     * fehlschlÃ¤gt
      */
     public void save() throws IOException {
         for (MailAccountChecker checker : accounts) {
@@ -322,7 +322,7 @@ public final class User implements Iterable<MailAccountChecker> {
     }
 
     /**
-     * Speichert den übergebenen MailAccount
+     * Speichert den Ã¼bergebenen MailAccount
      *
      * @param acc Zu speichernder MailAccount
      * @throws IOException Tritt auf, wenn der MailAccount nicht gespeichert
@@ -336,7 +336,7 @@ public final class User implements Iterable<MailAccountChecker> {
         File folder = path.getParentFile();
 
         if (!folder.exists()) {
-            // Erzeugt den geforderten Ordner und wenn nötig auch dessen
+            // Erzeugt den geforderten Ordner und wenn nÃ¶tig auch dessen
             // Unterordner
             folder.mkdirs();
         }
@@ -345,7 +345,7 @@ public final class User implements Iterable<MailAccountChecker> {
     }
 
     /**
-     * Gibt zurück, ob der User absent ist
+     * Gibt zurÃ¼ck, ob der User absent ist
      *
      * @return Status der Anwesenheit
      */
@@ -369,7 +369,7 @@ public final class User implements Iterable<MailAccountChecker> {
     /**
      * Sendet eine Abwesenheitsmail
      *
-     * @param sender MailAccount über den die Mail gesendet werden soll
+     * @param sender MailAccount Ã¼ber den die Mail gesendet werden soll
      * @param path Pfad der zu beantwortenden Mail
      * @param info StoredMailInfo der zu beantwortenden Mail
      */
@@ -411,7 +411,7 @@ public final class User implements Iterable<MailAccountChecker> {
     }
 
     /**
-     * Startet das intervallweise Abfragen der Maileingänge aller registrierten
+     * Startet das intervallweise Abfragen der MaileingÃ¤nge aller registrierten
      * Konten.
      *
      * @return {@code true} wenn die Threads gestartet wurden, {@code false}
@@ -433,7 +433,7 @@ public final class User implements Iterable<MailAccountChecker> {
     }
 
     /**
-     * Stoppt das intervallweise Abfragen der Maileingänge aller registrierten
+     * Stoppt das intervallweise Abfragen der MaileingÃ¤nge aller registrierten
      * Konten.
      *
      * @return {@code true} wenn die Threads gestoppt wurden, {@code false} wenn
@@ -461,7 +461,7 @@ public final class User implements Iterable<MailAccountChecker> {
         }
 
         for (MailAccount account : aloneAccounts) {
-            // Erstellt einen neuen Checker für die MailAccounts
+            // Erstellt einen neuen Checker fÃ¼r die MailAccounts
             MailAccountChecker newChecker = new MailAccountChecker(account);
             newChecker.addNewMessageListener(getListener());
             accounts.add(newChecker);
@@ -471,7 +471,7 @@ public final class User implements Iterable<MailAccountChecker> {
     }
 
     /**
-     * Gibt die Abwesenheitsmeldung des Benutzers zurück.
+     * Gibt die Abwesenheitsmeldung des Benutzers zurÃ¼ck.
      *
      * @return Abwesenheitsmeldung des Benutzers
      */
@@ -489,7 +489,7 @@ public final class User implements Iterable<MailAccountChecker> {
     }
 
     /**
-     * Gibt die Krankmeldung des Benutzers zurück.
+     * Gibt die Krankmeldung des Benutzers zurÃ¼ck.
      *
      * @return Krankmeldung des Benutzers
      */

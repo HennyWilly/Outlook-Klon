@@ -7,8 +7,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Abstrakte Basisklasse für alle Mailserver, über die Mails empfangen werden
- * können. Stellt grundlegende Funtionen zum Empfangen von Mails bereit.
+ * Abstrakte Basisklasse fÃ¼r alle Mailserver, Ã¼ber die Mails empfangen werden
+ * kÃ¶nnen. Stellt grundlegende Funtionen zum Empfangen von Mails bereit.
  *
  * @author Hendrik Karwanni
  */
@@ -29,12 +29,12 @@ public abstract class InboxServer extends MailServer {
     }
 
     /**
-     * Gibt den <code>Store</code> zurück, der die E-Mails des Anwenders
-     * enthällt
+     * Gibt den <code>Store</code> zurÃ¼ck, der die E-Mails des Anwenders
+     * enthÃ¤llt
      *
-     * @param user Benutzername des Empfängers
-     * @param password Passwort des Empfängers
-     * @return <code>Store</code>-Objekt, über welches man auf die Mails
+     * @param user Benutzername des EmpfÃ¤ngers
+     * @param password Passwort des EmpfÃ¤ngers
+     * @return <code>Store</code>-Objekt, Ã¼ber welches man auf die Mails
      * zugreifen kann
      * @throws javax.mail.NoSuchProviderException wenn der Provider des Stores
      * nicht gefunden wurde
@@ -43,9 +43,9 @@ public abstract class InboxServer extends MailServer {
             throws NoSuchProviderException;
 
     /**
-     * Gibt an, ob die Subclasse mehrerer Ordner (nicht nur INBOX) unterstützt.
+     * Gibt an, ob die Subclasse mehrerer Ordner (nicht nur INBOX) unterstÃ¼tzt.
      *
-     * @return {@code true}, wenn mehrere Ordner unterstützt werden; sonst
+     * @return {@code true}, wenn mehrere Ordner unterstÃ¼tzt werden; sonst
      * {@code false}.
      */
     public abstract boolean supportsMultipleFolders();
