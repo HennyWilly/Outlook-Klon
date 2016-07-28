@@ -17,7 +17,7 @@ public class ImapServer extends InboxServer {
     private static final long serialVersionUID = 3401491699856582843L;
 
     /**
-     * Erstellt eine neue Instanz eines IMAP-Servers mit den übergebenen
+     * Erstellt eine neue Instanz eines IMAP-Servers mit den Ã¼bergebenen
      * Einstellungen
      *
      * @param settings Einstellungen zur Serververbindung

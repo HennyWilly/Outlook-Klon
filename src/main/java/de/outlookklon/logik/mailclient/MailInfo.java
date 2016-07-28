@@ -42,14 +42,14 @@ public class MailInfo {
     private String[] attachment;
 
     /**
-     * Erstellt eine neue MailInfo-Instanz mit den übergebenen Werten.
+     * Erstellt eine neue MailInfo-Instanz mit den Ã¼bergebenen Werten.
      *
      * @param subject Betreff der Mail
      * @param text Text der Mail
      * @param contentType Typ des Mailtextes
-     * @param to Primäre Empfänger der Mail
-     * @param cc Sekundäre Empfänger der Mail
-     * @param attachment Anhänge der Mail
+     * @param to PrimÃ¤re EmpfÃ¤nger der Mail
+     * @param cc SekundÃ¤re EmpfÃ¤nger der Mail
+     * @param attachment AnhÃ¤nge der Mail
      */
     public MailInfo(String subject, String text, String contentType,
             Address[] to, Address[] cc, String[] attachment) {
@@ -62,15 +62,15 @@ public class MailInfo {
     }
 
     /**
-     * Erstellt eine neue MailInfo-Instanz mit den übergebenen Werten.
+     * Erstellt eine neue MailInfo-Instanz mit den Ã¼bergebenen Werten.
      *
      * @param subject Betreff der Mail
      * @param sender Sender der Mail
      * @param text Text der Mail
      * @param contentType Typ des Mailtextes
-     * @param to Primäre Empfänger der Mail
-     * @param cc Sekundäre Empfänger der Mail
-     * @param attachment Anhänge der Mail
+     * @param to PrimÃ¤re EmpfÃ¤nger der Mail
+     * @param cc SekundÃ¤re EmpfÃ¤nger der Mail
+     * @param attachment AnhÃ¤nge der Mail
      */
     @JsonCreator
     public MailInfo(
@@ -114,7 +114,7 @@ public class MailInfo {
         if (attachments != null) {
             try {
                 for (final String strAttachment : attachments) {
-                    // Fügt jeden Anhang der Mail hinzu
+                    // FÃ¼gt jeden Anhang der Mail hinzu
 
                     final MimeBodyPart attachmentPart = new MimeBodyPart();
                     attachmentPart.attachFile(strAttachment);
@@ -133,7 +133,7 @@ public class MailInfo {
     }
 
     /**
-     * Gibt den Betreff der Mail zurück
+     * Gibt den Betreff der Mail zurÃ¼ck
      *
      * @return Betreff der Mail
      */
@@ -151,7 +151,7 @@ public class MailInfo {
     }
 
     /**
-     * Gibt die Adresse des Senders der Mail zurück
+     * Gibt die Adresse des Senders der Mail zurÃ¼ck
      *
      * @return Adresse des Senders
      */
@@ -169,7 +169,7 @@ public class MailInfo {
     }
 
     /**
-     * Gibt den Text der Mail zurück
+     * Gibt den Text der Mail zurÃ¼ck
      *
      * @return Text der Mail
      */
@@ -187,7 +187,7 @@ public class MailInfo {
     }
 
     /**
-     * Gibt den Texttyp des Inhalts der Mail zurück
+     * Gibt den Texttyp des Inhalts der Mail zurÃ¼ck
      *
      * @return Texttyp des Inhalts der Mail
      */
@@ -209,7 +209,7 @@ public class MailInfo {
     }
 
     /**
-     * Gibt die Zieladressen der Mail zurück
+     * Gibt die Zieladressen der Mail zurÃ¼ck
      *
      * @return Zieladressen der Mail
      */
@@ -227,7 +227,7 @@ public class MailInfo {
     }
 
     /**
-     * Gibt die Copy-Adressen der Mail zurück
+     * Gibt die Copy-Adressen der Mail zurÃ¼ck
      *
      * @return Copy-Adressen der Mail
      */
@@ -245,18 +245,18 @@ public class MailInfo {
     }
 
     /**
-     * Gibt die Namen der Anhänge der Mail zurück
+     * Gibt die Namen der Anhï¿½nge der Mail zurÃ¼ck
      *
-     * @return Namen der Anhänge der Mail
+     * @return Namen der Anhï¿½nge der Mail
      */
     public String[] getAttachment() {
         return attachment;
     }
 
     /**
-     * Setzt die Namen der Anhänge der Mail
+     * Setzt die Namen der AnhÃ¤nge der Mail
      *
-     * @param attachment Namen der Anhänge der Mail
+     * @param attachment Namen der AnhÃ¤nge der Mail
      */
     public void setAttachment(final String[] attachment) {
         this.attachment = attachment;

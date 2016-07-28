@@ -40,8 +40,8 @@ import org.slf4j.LoggerFactory;
 
 /**
  * In diesem Frame werden alle Kontaktlisten der Verwaltung und deren Kontakte
- * angezeigt. Bietet zudem Funktionalitäten zum Erstellen, Bearbeiten und
- * Löschen von Listen und Kontakten an
+ * angezeigt. Bietet zudem FunktionalitÃ¤ten zum Erstellen, Bearbeiten und
+ * LÃ¶schen von Listen und Kontakten an
  *
  * @author Hendrik Karwanni
  */
@@ -86,7 +86,7 @@ public class AddressBookFrame extends ExtendedFrame {
      * @param parentFrame Referenz auf das Vater-Fenster, um darauf ggf. die
      * newMail-Methode aufzurufen
      * @param contacts Die Referenz auf die ContactManagement
-     * @param newContact Wenn true, wird sofort ein neues ContactFrame geöffnet;
+     * @param newContact Wenn true, wird sofort ein neues ContactFrame geÃ¶ffnet;
      * sonst nicht
      */
     public AddressBookFrame(@NonNull MainFrame parentFrame, @NonNull ContactManagement contacts, boolean newContact) {
@@ -181,7 +181,7 @@ public class AddressBookFrame extends ExtendedFrame {
     /**
      * Initialisiert die JTable des Frames
      *
-     * @param verticalSplit JSplitPane in die die JTable eingefügt werden soll
+     * @param verticalSplit JSplitPane in die die JTable eingefÃ¼gt werden soll
      */
     private void initTable(JSplitPane verticalSplit) {
         tablePopup = new JPopupMenu();
@@ -307,7 +307,7 @@ public class AddressBookFrame extends ExtendedFrame {
     /**
      * Initialisiert die JList des Frames
      *
-     * @param horizontalSplit JSplitPane in die die JList eingefügt werden soll
+     * @param horizontalSplit JSplitPane in die die JList eingefï¿½gt werden soll
      */
     private void initLists(JSplitPane horizontalSplit) {
         listPopup = new JPopupMenu();
@@ -456,7 +456,7 @@ public class AddressBookFrame extends ExtendedFrame {
     }
 
     /**
-     * Aktualisiert die JTable mit den Kontakten der übergebenen Kontaktliste.
+     * Aktualisiert die JTable mit den Kontakten der Ã¼bergebenen Kontaktliste.
      *
      * @param list Gibt an, aus welcher Liste der ContactManagement die Kontakte
      * geladen werden sollen.
@@ -482,19 +482,19 @@ public class AddressBookFrame extends ExtendedFrame {
     }
 
     /**
-     * Gibt den aktuell ausgewählten Listennamen der JList zurück
+     * Gibt den aktuell ausgewÃ¤hlten Listennamen der JList zurÃ¼ck
      *
-     * @return ausgewählter Listenname
+     * @return ausgewÃ¤hlter Listenname
      */
     private String currentList() {
         return lstLists.getSelectedValue();
     }
 
     /**
-     * Aktualisiert den Inhalt der JTextPane mit den Daten des übergebenen
+     * Aktualisiert den Inhalt der JTextPane mit den Daten des Ã¼bergebenen
      * Kontakts
      *
-     * @param contact Contact, dessen Daten zum Füllen der Details verwendet
+     * @param contact Contact, dessen Daten zum FÃ¼llen der Details verwendet
      * werden
      */
     private void refreshDetails(Contact contact) {
@@ -536,7 +536,7 @@ public class AddressBookFrame extends ExtendedFrame {
     }
 
     /**
-     * Öffnet ein neues ContactFrame zum Erstellen eines neuen Kontaks
+     * Ã–ffnet ein neues ContactFrame zum Erstellen eines neuen Kontaks
      */
     private void newContact() {
         ContactFrame kf = new ContactFrame();
@@ -549,7 +549,7 @@ public class AddressBookFrame extends ExtendedFrame {
     }
 
     /**
-     * Öffnet ein neues ContactFrame zum bearbeiten des übergebenen Kontaks
+     * Ã–ffnet ein neues ContactFrame zum bearbeiten des Ã¼bergebenen Kontaks
      *
      * @param k Contact-Objekt, das im ContactFrame bearbeitet werden soll.
      */
@@ -566,7 +566,7 @@ public class AddressBookFrame extends ExtendedFrame {
     }
 
     /**
-     * Öffnet einen neuen Listendialog zum Umbennen der übergebenen Liste
+     * Ã–ffnet einen neuen Listendialog zum Umbennen der Ã¼bergebenen Liste
      *
      * @param list Listenname, der umbenannt werden soll
      */
@@ -587,9 +587,9 @@ public class AddressBookFrame extends ExtendedFrame {
     }
 
     /**
-     * Gibt ein Array der im JTable ausgewählten Kontakte zurück
+     * Gibt ein Array der im JTable ausgewÃ¤hlten Kontakte zurÃ¼ck
      *
-     * @return Array der ausgewählten Kontakte
+     * @return Array der ausgewÃ¤hlten Kontakte
      */
     private Contact[] selectedContacts() {
         Contact[] contacts = new Contact[tableContacts.getSelectedRowCount()];
@@ -604,9 +604,9 @@ public class AddressBookFrame extends ExtendedFrame {
     }
 
     /**
-     * Öffnet ein neues MailFrame über die Instanz des Vaterfensters
+     * Ã–ffnet ein neues MailFrame Ã¼ber die Instanz des Vaterfensters
      *
-     * @param contacts Kontakte deren 1. Mailadresse automatisch als Empfänger
+     * @param contacts Kontakte deren 1. Mailadresse automatisch als EmpfÃ¤nger
      * eingetragen werden
      */
     private void writeMail(Contact[] contacts) {
@@ -614,9 +614,9 @@ public class AddressBookFrame extends ExtendedFrame {
     }
 
     /**
-     * Öffnet das Popup-Menü der JTable
+     * Ã–ffnet das Popup-MenÃ¼ der JTable
      *
-     * @param e Enthält Daten bezüglich des Klicks
+     * @param e EnthÃ¤lt Daten bezÃ¼glich des Klicks
      */
     private void openPopupTable(MouseEvent e) {
         if (e.isPopupTrigger()) {
@@ -624,7 +624,7 @@ public class AddressBookFrame extends ExtendedFrame {
             int column = tableContacts.columnAtPoint(e.getPoint());
 
             if (row >= 0 && column >= 0) {
-                // TODO Kontektmenü bei Mehrfachauswahl
+                // TODO KontektmenÃ¼ bei Mehrfachauswahl
 
                 tableContacts.setRowSelectionInterval(row, row);
 
@@ -634,9 +634,9 @@ public class AddressBookFrame extends ExtendedFrame {
     }
 
     /**
-     * Öffnet das Popup-Menü der JList
+     * Ã–ffnet das Popup-MenÃ¼ der JList
      *
-     * @param e Enthält Daten bezüglich des Klicks
+     * @param e EnthÃ¤lt Daten bezÃ¼glich des Klicks
      */
     private void openPopupLists(MouseEvent e) {
         if (e.isPopupTrigger()) {
@@ -657,8 +657,8 @@ public class AddressBookFrame extends ExtendedFrame {
     }
 
     /**
-     * Erstellt ein neues JMenu, das als Elemente die Namen aller Einträge der
-     * JList ausgenommen des Standardadressbuchs enthält
+     * Erstellt ein neues JMenu, das als Elemente die Namen aller EintrÃ¤ge der
+     * JList ausgenommen des Standardadressbuchs enthÃ¤lt
      *
      * @return Neues JMenu mit den Kontaktlisten
      */
@@ -686,11 +686,11 @@ public class AddressBookFrame extends ExtendedFrame {
     }
 
     /**
-     * Fügt die übergebenen Kontakte in die übergebene Liste der
-     * ContactManagement ein
+     * FÃ¼gt die Ã¼bergebenen Kontakte in die Ã¼bergebene Liste des
+     * Kontaktmanagements ein
      *
-     * @param contacts Einzufügende Kontakte
-     * @param list Liste, in die die Kontakte eingefügt werden sollen
+     * @param contacts EinzufÃ¼gende Kontakte
+     * @param list Liste, in die die Kontakte eingefÃ¼gt werden sollen
      */
     private void addList(Contact[] contacts, String list) {
         for (Contact k : contacts) {

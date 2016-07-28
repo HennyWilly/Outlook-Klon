@@ -11,7 +11,7 @@ import java.nio.file.Files;
 import lombok.NonNull;
 
 /**
- * Diese Klasse implementiert die {@link StoredMailInfoDAO}-Schnittstelle für
+ * Diese Klasse implementiert die {@link StoredMailInfoDAO}-Schnittstelle fÃ¼r
  * den Zugriff auf die persistierten {@link StoredMailInfo}-Objekte in
  * Dateiform.
  *

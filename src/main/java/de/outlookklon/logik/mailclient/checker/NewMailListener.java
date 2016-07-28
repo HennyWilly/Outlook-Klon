@@ -13,7 +13,7 @@ public interface NewMailListener extends EventListener {
     /**
      * Diese Methode wird aufgerufen, wenn eine neue Mail empfangen wurde
      *
-     * @param e Enthällt Informationen über die erhaltene Mail
+     * @param e EnthÃ¤llt Informationen Ã¼ber die erhaltene Mail
      */
     public void newMessage(NewMailEvent e);
 }

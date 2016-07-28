@@ -30,9 +30,9 @@ public class MailAccountChecker extends Thread {
     private final List<NewMailListener> listenerList;
 
     /**
-     * Erzeugt ein neues MailChecker-Objekt für den übergebenen Account
+     * Erzeugt ein neues MailChecker-Objekt fÃ¼r den Ã¼bergebenen Account
      *
-     * @param account MailAccount, der abgehört werden soll
+     * @param account MailAccount, der abgehÃ¶rt werden soll
      */
     public MailAccountChecker(@NonNull MailAccount account) {
         this.account = account;
@@ -41,7 +41,7 @@ public class MailAccountChecker extends Thread {
     }
 
     /**
-     * Registriert einen neuen NewMailListener für Events innerhalb der Klasse
+     * Registriert einen neuen NewMailListener fÃ¼r Events innerhalb der Klasse
      *
      * @param mcl Neuer NewMailListener
      */
@@ -52,7 +52,7 @@ public class MailAccountChecker extends Thread {
     }
 
     /**
-     * Feuert ein neues NewMessageEvent für die übergebene StoredMailInfo an
+     * Feuert ein neues NewMessageEvent fÃ¼r die Ã¼bergebene StoredMailInfo an
      * alle registrierten Listener
      *
      * @param info StoredMailInfo-Objekt, aus dem das Event erzeugt wird
@@ -68,7 +68,7 @@ public class MailAccountChecker extends Thread {
     }
 
     /**
-     * Gibt den internen MailAccount zurück
+     * Gibt den internen MailAccount zurÃ¼ck
      *
      * @return Interner MailAccount
      */
@@ -82,17 +82,17 @@ public class MailAccountChecker extends Thread {
 
         while (true) {
             try {
-                // Pausiere für eine gegebene Zeit
+                // Pausiere fÃ¼r eine gegebene Zeit
                 Thread.sleep(SLEEP_TIME);
 
                 // HashSet, da oft darin gesucht wird (s.u.)
                 Set<StoredMailInfo> tmpSet = new HashSet<>();
 
-                // Fülle mit abgefragten MailInfos
+                // FÃ¼lle mit abgefragten MailInfos
                 StoredMailInfo[] mailTmp = account.getMessages(FOLDER);
                 tmpSet.addAll(Arrays.asList(mailTmp));
 
-                // Prüfe, ob eine bekannte StoredMailInfo weggefallen ist
+                // PrÃ¼fe, ob eine bekannte StoredMailInfo weggefallen ist
                 Iterator<StoredMailInfo> iterator = mails.iterator();
                 while (iterator.hasNext()) {
                     StoredMailInfo current = iterator.next();
@@ -106,14 +106,14 @@ public class MailAccountChecker extends Thread {
                 synchronized (mails) {
                     for (StoredMailInfo info : mailTmp) {
                         if (mails.add(info)) {
-                            // Wird eine neue StoredMailInfo hinzugefügt, werden
+                            // Wird eine neue StoredMailInfo hinzugefÃ¼gt, werden
                             // die Listener benachrichtigt
                             fireNewMessageEvent(info);
                         }
                     }
                 }
             } catch (InterruptedException ex) {
-                // Bricht die Ausführung ab
+                // Bricht die AusfÃ¼hrung ab
                 LOGGER.error("Thread interrupted", ex);
                 break;
             } catch (FolderNotFoundException ex) {
@@ -148,7 +148,7 @@ public class MailAccountChecker extends Thread {
 
     /**
      * Wenn der Thread aktiv und der gesuchte Ordner "INBOX" ist, werden die
-     * MailInfos aus dem Speicher des MailCheckers zurückgegeben; sonst wird die
+     * MailInfos aus dem Speicher des MailCheckers zurÃ¼ckgegeben; sonst wird die
      * getMessages-Methode des internen MailAccount-Objekts aufgerufen
      *
      * @param path Zu durchsuchender Ordnerpfad
@@ -156,7 +156,7 @@ public class MailAccountChecker extends Thread {
      * @throws javax.mail.MessagingException wenn die Nachrichten nicht
      * abgerufen werden konnten
      * @throws de.outlookklon.dao.DAOException wenn das Laden der Nachrichten
-     * fehlschlägt
+     * fehlschlÃ¤gt
      */
     public StoredMailInfo[] getMessages(@NonNull String path)
             throws MessagingException, DAOException {
@@ -175,7 +175,7 @@ public class MailAccountChecker extends Thread {
     }
 
     /**
-     * Entfernt die übergebenen MailInfos aus dem Speicher
+     * Entfernt die Ã¼bergebenen MailInfos aus dem Speicher
      *
      * @param infos Zu entfernende MailInfos
      */

@@ -11,9 +11,9 @@ public final class Events {
     }
 
     /**
-     * Gibt zurück, ob das übergebene MouseEvent einen Doppelklick darstellt.
+     * Gibt zurÃ¼ck, ob das Ã¼bergebene MouseEvent einen Doppelklick darstellt.
      *
-     * @param event Das zu prüfende Events
+     * @param event Das zu prÃ¼fende Events
      * @return true, wenn das Event einen Doppelklick darstellt; sonst false
      */
     public static boolean isDoubleClick(MouseEvent event) {

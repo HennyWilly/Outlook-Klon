@@ -27,8 +27,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * In diesem Frame können Daten für bestehende Mailkonten eingegeben, bzw.
- * verändert werden.
+ * In diesem Frame kÃ¶nnen Daten fÃ¼r bestehende Mailkonten eingegeben, bzw.
+ * verÃ¤ndert werden.
  *
  * @author Hendrik Karwanni
  */
@@ -297,14 +297,14 @@ public class AccountFrame extends ExtendedDialog<MailAccount> {
     }
 
     /**
-     * Versucht aus den getätigten Eingaben ein neues MailAccount-Objekt zu
+     * Versucht aus den getÃ¤tigten Eingaben ein neues MailAccount-Objekt zu
      * erstellen
      */
     private void createAccountObject() {
-        // Instanz für den Mailempfang erstellen
+        // Instanz fÃ¼r den Mailempfang erstellen
         InboxServer inbox = getInboxServer();
 
-        // Instanz für den Mailversandt erstellen
+        // Instanz fÃ¼r den Mailversandt erstellen
         OutboxServer outbox = getOutboxServer();
 
         try {
@@ -313,7 +313,7 @@ public class AccountFrame extends ExtendedDialog<MailAccount> {
                     new InternetAddress(txtMail.getText(), txtDisplayname.getText()), txtUsername.getText(),
                     new String(passwordField.getPassword()));
 
-            // Prüfe, ob sich mit den beiden Servern verbunden werden kann
+            // PrÃ¼fe, ob sich mit den beiden Servern verbunden werden kann
             boolean valid = tmpAccount.validate();
 
             btnFinish.setEnabled(valid);
@@ -327,7 +327,7 @@ public class AccountFrame extends ExtendedDialog<MailAccount> {
     }
 
     private InboxServer getInboxServer() {
-        // Settings-Instanz für den Mailempfang erstellen
+        // Settings-Instanz fÃ¼r den Mailempfang erstellen
         ServerSettings inboxSettings = new ServerSettings(txtInServer.getText(), (Integer) spInPort.getValue(),
                 cBInConnectionSecurity.getItemAt(cBInConnectionSecurity.getSelectedIndex()),
                 cBInAuthentificationType.getItemAt(cBInAuthentificationType.getSelectedIndex()));
@@ -342,12 +342,12 @@ public class AccountFrame extends ExtendedDialog<MailAccount> {
     }
 
     private OutboxServer getOutboxServer() {
-        // Settings-Instanz für den Mailversandt erstellen
+        // Settings-Instanz fÃ¼r den Mailversandt erstellen
         ServerSettings outboxSettings = new ServerSettings(txtOutServer.getText(), (Integer) spOutPort.getValue(),
                 cBOutConnectionSecurity.getItemAt(cBOutConnectionSecurity.getSelectedIndex()),
                 cBOutAuthentificationType.getItemAt(cBOutAuthentificationType.getSelectedIndex()));
 
-        // Instanz für den Mailversandt erstellen
+        // Instanz fÃ¼r den Mailversandt erstellen
         return new SmtpServer(outboxSettings);
     }
 

@@ -8,22 +8,22 @@ import javax.swing.JDialog;
 import javax.swing.JFrame;
 
 /**
- * Diese abstrakte Klasse stellt Methoden bereit, die bei JDialogs h‰ufig
- * benˆtigt, aber leider nicht standardm‰ﬂig in Java implementiert wurden.
+ * Diese abstrakte Klasse stellt Methoden bereit, die bei JDialogs h√§ufig
+ * ben√∂tigt, aber leider nicht standardm√§√üig in Java implementiert wurden.
  *
  * @author Hendrik Karwanni
- * @param <T> Datentyp, der vom Dialog zur¸ckgegeben werden soll
+ * @param <T> Datentyp, der vom Dialog zur√ºckgegeben werden soll
  */
 public abstract class ExtendedDialog<T> extends JDialog implements ILocalizable {
 
     private static final long serialVersionUID = -8078692720731679550L;
 
     /**
-     * Wird von Subklassen aufgerufen, um einige h‰ufig in Dialogen verwendete
+     * Wird von Subklassen aufgerufen, um einige h√§ufig in Dialogen verwendete
      * Werte zu setzen.
      *
-     * @param width Erzwingt die ‹bergabe der initialen Breite des Dialogs
-     * @param height Erzwingt die ‹bergabe der initialen Hˆhe des Dialogs
+     * @param width Erzwingt die √ºbergabe der initialen Breite des Dialogs
+     * @param height Erzwingt die √ºbergabe der initialen H√∂he des Dialogs
      */
     protected ExtendedDialog(int width, int height) {
         this.setSize(width, height);
@@ -38,16 +38,16 @@ public abstract class ExtendedDialog<T> extends JDialog implements ILocalizable 
     }
 
     /**
-     * Muss implementiert werden, um den Wert, der beim Schlieﬂen des Dialogs
-     * zur¸ckgegeben wird, festzulegen
+     * Muss implementiert werden, um den Wert, der beim Schlie√üen des Dialogs
+     * zur√ºckgegeben wird, festzulegen
      *
-     * @return Wert, der beim Schlieﬂen des Dialogs zur¸ckgegeben wird
+     * @return Wert, der beim Schlie√üen des Dialogs zur√ºckgegeben wird
      */
     protected abstract T getDialogResult();
 
     /**
-     * ÷ffnet den Dialog und gibt nach dem Schlieﬂen das Ergebnis des Dialogs
-     * zur¸ck
+     * √ñffnet den Dialog und gibt nach dem Schlie√üen das Ergebnis des Dialogs
+     * zur√ºck
      *
      * @return Ergbnis des Dialogs
      */
@@ -60,8 +60,8 @@ public abstract class ExtendedDialog<T> extends JDialog implements ILocalizable 
     }
 
     /**
-     * Schlieﬂt den Dialog und gibt das entsprechende Event an alle
-     * hinzugef¸gten WindowListener weiter
+     * Schlie√üt den Dialog und gibt das entsprechende Event an alle
+     * hinzugef√ºgten WindowListener weiter
      */
     public void close() {
         this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));

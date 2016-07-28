@@ -17,7 +17,7 @@ public class Pop3Server extends InboxServer {
     private static final long serialVersionUID = 926746044207884587L;
 
     /**
-     * Erstellt eine neue Instanz eines Pop3-Servers mit den übergebenen
+     * Erstellt eine neue Instanz eines Pop3-Servers mit den Ã¼bergebenen
      * Einstellungen
      *
      * @param settings Einstellungen zur Serververbindung

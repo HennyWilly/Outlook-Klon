@@ -44,7 +44,7 @@ public class Contact {
     private String privatephone;
 
     /**
-     * Erstellt eine neue Instanz der Klasse mit den übergebenen Werten.
+     * Erstellt eine neue Instanz der Klasse mit den Ã¼bergebenen Werten.
      *
      * @param surname Nachname des Kontakts
      * @param forename Vorname des Kontakts
@@ -84,7 +84,7 @@ public class Contact {
     }
 
     /**
-     * Setter für den Nachnamen des Kontakts
+     * Setter fÃ¼r den Nachnamen des Kontakts
      *
      * @param surname Zu setzender Nachname
      */
@@ -93,7 +93,7 @@ public class Contact {
     }
 
     /**
-     * Getter für den Nachnamen des Kontakts
+     * Getter fÃ¼r den Nachnamen des Kontakts
      *
      * @return Nachname
      */
@@ -102,7 +102,7 @@ public class Contact {
     }
 
     /**
-     * Setter für den Vornamen des Kontakts
+     * Setter fÃ¼r den Vornamen des Kontakts
      *
      * @param forename Zu setzender Vorname
      */
@@ -111,7 +111,7 @@ public class Contact {
     }
 
     /**
-     * Getter für den Vornamen des Kontakts
+     * Getter fÃ¼r den Vornamen des Kontakts
      *
      * @return Vorname
      */
@@ -120,7 +120,7 @@ public class Contact {
     }
 
     /**
-     * Setter für den Anzeigenamen des Kontakts
+     * Setter fÃ¼r den Anzeigenamen des Kontakts
      *
      * @param displayname Zu setzender Anzeigename
      */
@@ -129,7 +129,7 @@ public class Contact {
     }
 
     /**
-     * Getter für den Anzeigenamen des Kontakts
+     * Getter fÃ¼r den Anzeigenamen des Kontakts
      *
      * @return Anzeigename
      */
@@ -138,7 +138,7 @@ public class Contact {
     }
 
     /**
-     * Setter für den Spitznamen des Kontakts
+     * Setter fÃ¼r den Spitznamen des Kontakts
      *
      * @param nickname Zu setzender Spitzname
      */
@@ -147,7 +147,7 @@ public class Contact {
     }
 
     /**
-     * Getter für den Spitznamen des Kontakts
+     * Getter fÃ¼r den Spitznamen des Kontakts
      *
      * @return Spitzname
      */
@@ -156,7 +156,7 @@ public class Contact {
     }
 
     /**
-     * Setter für die erste E-Mail-Adresse des Kontakts
+     * Setter fÃ¼r die erste E-Mail-Adresse des Kontakts
      *
      * @param address1 Zu setzende E-Mail-Adresse
      */
@@ -165,7 +165,7 @@ public class Contact {
     }
 
     /**
-     * Getter für die erste E-Mail-Adresse des Kontakts
+     * Getter fÃ¼r die erste E-Mail-Adresse des Kontakts
      *
      * @return Erste E-Mail-Adresse
      */
@@ -174,7 +174,7 @@ public class Contact {
     }
 
     /**
-     * Setter für die zweite E-Mail-Adresse des Kontaks
+     * Setter fÃ¼r die zweite E-Mail-Adresse des Kontaks
      *
      * @param address2 Zu setzende E-Mail-Adresse
      */
@@ -183,7 +183,7 @@ public class Contact {
     }
 
     /**
-     * Getter für die zweite E-Mail-Adresse des Kontakts
+     * Getter fÃ¼r die zweite E-Mail-Adresse des Kontakts
      *
      * @return Zweite E-Mail-Adresse
      */
@@ -192,7 +192,7 @@ public class Contact {
     }
 
     /**
-     * Setter für die private Telefonnummer des Kontakts
+     * Setter fÃ¼r die private Telefonnummer des Kontakts
      *
      * @param privatephone Zu setzende Telefonnummer
      */
@@ -201,7 +201,7 @@ public class Contact {
     }
 
     /**
-     * Getter für die private Telefonnummer des Kontakts
+     * Getter fÃ¼r die private Telefonnummer des Kontakts
      *
      * @return Private Telefonnummer
      */
@@ -210,7 +210,7 @@ public class Contact {
     }
 
     /**
-     * Setter für die dienstliche Telefonnummer des Kontakts
+     * Setter fÃ¼r die dienstliche Telefonnummer des Kontakts
      *
      * @param dutyphone Zu setzende Telefonnummer
      */
@@ -219,7 +219,7 @@ public class Contact {
     }
 
     /**
-     * Getter für die dienstliche Telefonnummer des Kontakts
+     * Getter fÃ¼r die dienstliche Telefonnummer des Kontakts
      *
      * @return Dienstliche Telefonnummer
      */
@@ -228,7 +228,7 @@ public class Contact {
     }
 
     /**
-     * Setter für die Mobiltelefonnummer des Kontakts
+     * Setter fÃ¼r die Mobiltelefonnummer des Kontakts
      *
      * @param mobilephone Zu setzende Telefonnummer
      */
@@ -237,7 +237,7 @@ public class Contact {
     }
 
     /**
-     * Getter für die Mobiltelefonnummer des Kontakts
+     * Getter fÃ¼r die Mobiltelefonnummer des Kontakts
      *
      * @return Mobiltelefonnummer
      */
@@ -246,7 +246,7 @@ public class Contact {
     }
 
     /**
-     * Getter für die erste E-Mail-Adresse des Kontakts als Unicode-String
+     * Getter fÃ¼r die erste E-Mail-Adresse des Kontakts als Unicode-String
      *
      * @return Erste E-Mail-Adresse als Unicode-String
      */
@@ -256,7 +256,7 @@ public class Contact {
     }
 
     /**
-     * Getter für die zweite E-Mail-Adresse des Kontakts als Unicode-String
+     * Getter fÃ¼r die zweite E-Mail-Adresse des Kontakts als Unicode-String
      *
      * @return Zweite E-Mail-Adresse als Unicode-String
      */

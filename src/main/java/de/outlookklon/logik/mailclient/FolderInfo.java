@@ -12,7 +12,7 @@ public class FolderInfo {
     private int numberUnread;
 
     /**
-     * Ertsellt eine neue Instanz der Klasse OrdnerInfo mit den übergebenen
+     * Ertsellt eine neue Instanz der Klasse OrdnerInfo mit den Ã¼bergebenen
      * Werten
      *
      * @param name Name des Ordners
@@ -26,7 +26,7 @@ public class FolderInfo {
     }
 
     /**
-     * Gibt den Namen des Ordners zurück
+     * Gibt den Namen des Ordners zurÃ¼ck
      *
      * @return Name des Ordners
      */
@@ -44,7 +44,7 @@ public class FolderInfo {
     }
 
     /**
-     * Gibt den Pfad des Ordners innerhalb des MailStores zurück
+     * Gibt den Pfad des Ordners innerhalb des MailStores zurÃ¼ck
      *
      * @return Pfad des Ordners
      */
@@ -62,7 +62,7 @@ public class FolderInfo {
     }
 
     /**
-     * Gibt die Anzahl an ungelesenen Mails innerhalb des Ordners zurück
+     * Gibt die Anzahl an ungelesenen Mails innerhalb des Ordners zurÃ¼ck
      *
      * @return Anzahl an ungelesenen Mails
      */

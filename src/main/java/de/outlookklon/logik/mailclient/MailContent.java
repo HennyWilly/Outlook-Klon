@@ -36,15 +36,15 @@ public enum MailContent {
      */
     CONTENTTYPE,
     /**
-     * Die Hauptempf‰nger einer Mail
+     * Die Hauptempf√§nger einer Mail
      */
     TO,
     /**
-     * Die Sekund‰rempf‰nger einer Mail
+     * Die Sekund√§rempf√§nger einer Mail
      */
     CC,
     /**
-     * Die Anh‰nge einer Mail
+     * Die Anh√§nge einer Mail
      */
     ATTACHMENT
 }

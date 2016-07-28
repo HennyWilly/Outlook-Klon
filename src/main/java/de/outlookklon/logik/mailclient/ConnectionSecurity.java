@@ -1,22 +1,22 @@
 package de.outlookklon.logik.mailclient;
 
 /**
- * Diese Aufzählung gibt die verschiedenen Arten der verschlüsselten
+ * Diese AufzÃ¤hlung gibt die verschiedenen Arten der verschlÃ¼sselten
  * Kommunikation an
  *
  * @author Hendrik Karwanni
  */
 public enum ConnectionSecurity {
     /**
-     * Verwende keine Verschlüsselung
+     * Verwende keine VerschlÃ¼sselung
      */
     NONE,
     /**
-     * Verwende SSL/TLS als Verschlüsselung
+     * Verwende SSL/TLS als VerschlÃ¼sselung
      */
     SSL_TLS,
     /**
-     * Verwende STARTTLS als Verschlüsselung
+     * Verwende STARTTLS als VerschlÃ¼sselung
      */
     STARTTLS
 }

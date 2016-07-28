@@ -99,7 +99,7 @@ public class AppointmentFrame extends ExtendedDialog<Appointment> {
     }
 
     /**
-     * Erstellt ein neues Fenster, das initial den übergebenen Appointment
+     * Erstellt ein neues Fenster, das initial den Ã¼bergebenen Appointment
      * anzeigt.
      *
      * @param appointment anzuzeigender Appointment
@@ -120,7 +120,7 @@ public class AppointmentFrame extends ExtendedDialog<Appointment> {
     }
 
     /**
-     * Erstellt ein neues Fenster, das initial das übergebe Datum anzeigt.
+     * Erstellt ein neues Fenster, das initial das Ã¼bergebe Datum anzeigt.
      *
      * @param date initiales Datum
      */

@@ -25,7 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Diese JEditorPane unterstützt das vollständige Umschalten des Textinhalts von
+ * Diese JEditorPane unterstÃ¼tzt das vollstÃ¤ndige Umschalten des Textinhalts von
  * Klartext zu HTML-Code.
  *
  * @author Hendrik Karwanni
@@ -71,7 +71,7 @@ public class HtmlEditorPane extends JEditorPane {
     }
 
     /**
-     * Erstellt ein neues HtmlEditorPane basierend den übergebenen
+     * Erstellt ein neues HtmlEditorPane basierend den Ã¼bergebenen
      * Url-Spzifikationen
      *
      * @param url URL der automatisch anzuzeigenden Seite
@@ -84,9 +84,9 @@ public class HtmlEditorPane extends JEditorPane {
     }
 
     /**
-     * Erstellt ein neues HtmlEditorPane mit den übergebenen Einstellungen
+     * Erstellt ein neues HtmlEditorPane mit den Ã¼bergebenen Einstellungen
      *
-     * @param type Typ des übergebenen Texts
+     * @param type Typ des Ã¼bergebenen Texts
      * @param text Anzuzeigender Text
      */
     public HtmlEditorPane(String type, String text) {
@@ -108,9 +108,9 @@ public class HtmlEditorPane extends JEditorPane {
     }
 
     /**
-     * Bestimmt, ob es sich beim übergebenen String um einen Html-Code handelt
+     * Bestimmt, ob es sich beim Ã¼bergebenen String um einen Html-Code handelt
      *
-     * @param text Zu prüfender Text
+     * @param text Zu prÃ¼fender Text
      * @return true, wenn der Text ein Html-Code ist; sonst false
      */
     public static boolean isHtml(String text) {
@@ -133,7 +133,7 @@ public class HtmlEditorPane extends JEditorPane {
      *
      * @param text Zu setzender Text
      * @param contentType Zu setzender ContentType
-     * @param autoChange Ist der Wert true, so wird aus dem übergebenen Text
+     * @param autoChange Ist der Wert true, so wird aus dem Ã¼bergebenen Text
      * bestimmt, um welchen ContentType es sich handelt
      */
     public void setText(String text, String contentType, boolean autoChange) {
@@ -167,7 +167,7 @@ public class HtmlEditorPane extends JEditorPane {
         } else {
             String finalText = text;
 
-            // In Plaintexte können keine Hyperlinks eingefügt werden
+            // In Plaintexte kÃ¶nnen keine Hyperlinks eingefÃ¼gt werden
             if ("text/html".equalsIgnoreCase(getContentType())) {
                 finalText = buildHyperlinkText(finalText);
             }
@@ -206,7 +206,7 @@ public class HtmlEditorPane extends JEditorPane {
                 String preText = sb.substring(index, start);
                 // Falls das Datum schon in einem Date-Hyperlink steht
                 if (preText.equalsIgnoreCase(PREFIX)) {
-                    // Überspringe den nächsten Fund
+                    // Ãœberspringe den nÃ¤chsten Fund
                     skip = true;
                     continue;
                 }

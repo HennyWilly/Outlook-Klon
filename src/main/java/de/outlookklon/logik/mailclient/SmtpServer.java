@@ -23,7 +23,7 @@ public class SmtpServer extends OutboxServer {
     private static final Logger LOGGER = LoggerFactory.getLogger(SmtpServer.class);
 
     /**
-     * Erstellt eine neue Instanz eines SMTP-Servers mit den übergebenen
+     * Erstellt eine neue Instanz eines SMTP-Servers mit den Ã¼bergebenen
      * Einstellungen
      *
      * @param settings Einstellungen zur Serververbindung

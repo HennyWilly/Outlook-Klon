@@ -34,7 +34,7 @@ public class StoredMailInfo extends MailInfo implements Comparable<StoredMailInf
     private Date date;
 
     /**
-     * Erstellt eine neue Instanz der Klasse mit der übergebenen ID
+     * Erstellt eine neue Instanz der Klasse mit der Ã¼bergebenen ID
      *
      * @param id ID der Mail
      */
@@ -64,7 +64,7 @@ public class StoredMailInfo extends MailInfo implements Comparable<StoredMailInf
     }
 
     /**
-     * Lädt den Inhalt der übergebenen Mail in die Klasse.
+     * LÃ¤dt den Inhalt der Ã¼bergebenen Mail in die Klasse.
      *
      * @param serverMessage Mail-Object, das abgefragt wird
      * @param contents Inhaltsarten, die gespeichert werden sollen
@@ -154,10 +154,10 @@ public class StoredMailInfo extends MailInfo implements Comparable<StoredMailInf
     }
 
     /**
-     * Gibt zurück, ob die angegebenen Inhaltstypen bereits in die
+     * Gibt zurÃ¼ck, ob die angegebenen Inhaltstypen bereits in die
      * StoredMailInfo-Instanz geladen wurden.
      *
-     * @param contents Inhaltsarten, die geprüft werden sollen
+     * @param contents Inhaltsarten, die geprÃ¼ft werden sollen
      * @return {@code true}, wenn alle Inhaltsarten bereits geladen wurden;
      * sonst {@code false}
      */
@@ -216,7 +216,7 @@ public class StoredMailInfo extends MailInfo implements Comparable<StoredMailInf
     }
 
     /**
-     * Durchsucht den übergebenen <code>Part</code> nach dem Text der E-Mail
+     * Durchsucht den Ã¼bergebenen <code>Part</code> nach dem Text der E-Mail
      *
      * @param p <code>Part</code>-Objekt, indem der Text gesucht werden soll
      * @return Text der E-Mail
@@ -259,7 +259,7 @@ public class StoredMailInfo extends MailInfo implements Comparable<StoredMailInf
     }
 
     /**
-     * Durchsucht den übergebenen <code>Part</code> nach dem ContentType der
+     * Durchsucht den Ã¼bergebenen <code>Part</code> nach dem ContentType der
      * E-Mail
      *
      * @param p <code>Part</code>-Objekt, indem der Text gesucht werden soll
@@ -287,7 +287,7 @@ public class StoredMailInfo extends MailInfo implements Comparable<StoredMailInf
     }
 
     /**
-     * Gibt die ID der Mail zurück
+     * Gibt die ID der Mail zurÃ¼ck
      *
      * @return (Eindeutige) ID
      */
@@ -300,7 +300,7 @@ public class StoredMailInfo extends MailInfo implements Comparable<StoredMailInf
     }
 
     /**
-     * Gibt zurück, ob die Mail gelesen wurde
+     * Gibt zurÃ¼ck, ob die Mail gelesen wurde
      *
      * @return true, wenn die Mail gelesen wurde; sonst false
      */
@@ -318,7 +318,7 @@ public class StoredMailInfo extends MailInfo implements Comparable<StoredMailInf
     }
 
     /**
-     * Gibt das Datum zurück, an dem die Mail gesendet wurde
+     * Gibt das Datum zurÃ¼ck, an dem die Mail gesendet wurde
      *
      * @return Versandtdatum der Mail
      */

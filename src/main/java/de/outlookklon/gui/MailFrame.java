@@ -64,8 +64,8 @@ public class MailFrame extends ExtendedFrame {
     private static final Logger LOGGER = LoggerFactory.getLogger(MailFrame.class);
 
     /**
-     * Interne Aufzählung, welche die verschiedenen Arten definiert, in welchem
-     * Kontext das Frame geöffnet werden kann
+     * Interne AufzÃ¤hlung, welche die verschiedenen Arten definiert, in welchem
+     * Kontext das Frame geÃ¶ffnet werden kann
      */
     private enum MailMode {
         /**
@@ -73,7 +73,7 @@ public class MailFrame extends ExtendedFrame {
          */
         NEW,
         /**
-         * Es wird eine existierende Mail geöffnet
+         * Es wird eine existierende Mail geÃ¶ffnet
          */
         OPEN,
         /**
@@ -163,9 +163,9 @@ public class MailFrame extends ExtendedFrame {
 
     /**
      * Erstellt eine neue Instanz der Klasse zum Schreiben einer neuen Mail an
-     * die übergebenen Kontakte.
+     * die Ã¼bergebenen Kontakte.
      *
-     * @param contacts Kontakte, deren Mailadressen standardmäßig als Empfänger
+     * @param contacts Kontakte, deren Mailadressen standardmÃ¤ÃŸig als EmpfÃ¤nger
      * eingetragen werden.
      */
     public MailFrame(Contact[] contacts) {
@@ -193,7 +193,7 @@ public class MailFrame extends ExtendedFrame {
      * Erstellt eine neue Instanz der Klasse zum Anzeigen einer Mail.
      *
      * @param mail Info-Objekt, das die Informationen zum Anzeigen der Mail
-     * enthält.
+     * enthÃ¤lt.
      * @param path Ordnerpfad, in dem die Mail liegt.
      * @param parent MailAccount, aus dem die Mail stammt.
      * @throws MessagingException Tritt auf, wenn die Daten der Mail nicht
@@ -249,7 +249,7 @@ public class MailFrame extends ExtendedFrame {
 
         DefaultListModel<String> model = (DefaultListModel<String>) lstAttachment.getModel();
 
-        // Füge Anhänge in die JList ein
+        // FÃ¼ge AnhÃ¤nge in die JList ein
         String[] attachments = mail.getAttachment();
         for (String attachment : attachments) {
             model.addElement(attachment);
@@ -261,7 +261,7 @@ public class MailFrame extends ExtendedFrame {
      * einer Mail.
      *
      * @param mail Info-Objekt, das die Informationen zum Anzeigen der Mail
-     * enthält.
+     * enthÃ¤lt.
      * @param path Ordnerpfad, in dem die Mail liegt.
      * @param parent MailAccount, aus dem die Mail stammt.
      * @param forward Wenn true soll die Mail weitergeleitet werden. Sonst wird
@@ -341,7 +341,7 @@ public class MailFrame extends ExtendedFrame {
     }
 
     /**
-     * Initialisiert das Menü des Frames
+     * Initialisiert das MenÃ¼ des Frames
      */
     private void initMenu() {
         JMenuBar menuBar = new JMenuBar();
@@ -406,9 +406,9 @@ public class MailFrame extends ExtendedFrame {
     }
 
     /**
-     * Initialisiert die Liste für die Anhänge
+     * Initialisiert die Liste fÃ¼r die AnhÃ¤nge
      *
-     * @param splitHead JSplitPane in die die Liste eingefügt werden soll
+     * @param splitHead JSplitPane in die die Liste eingefÃ¼gt werden soll
      */
     private void initList(JSplitPane splitHead) {
         JScrollPane attachmentScroller = new JScrollPane(lstAttachment);
@@ -555,11 +555,11 @@ public class MailFrame extends ExtendedFrame {
     }
 
     /**
-     * Fügt das übergebene Adress-Array zu einem String mit ';'-Seperator
+     * FÃ¼gt das Ã¼bergebene Adress-Array zu einem String mit ';'-Seperator
      * zusammen
      *
      * @param addresses Umzuwandelnde Adressen
-     * @return String, der die Aufzählung der übergebenen Adressen enthält
+     * @return String, der die AufzÃ¤hlung der Ã¼bergebenen Adressen enthÃ¤lt
      */
     private String appendAddresses(Address[] addresses) {
         if (addresses == null || addresses.length == 0) {
@@ -582,7 +582,7 @@ public class MailFrame extends ExtendedFrame {
     }
 
     /**
-     * Fügt alle registrierten MailAccounts der entsprechenden ComboBox hinzu
+     * FÃ¼gt alle registrierten MailAccounts der entsprechenden ComboBox hinzu
      */
     private void addMailAccounts() {
         for (MailAccountChecker checker : User.getInstance()) {
@@ -592,9 +592,9 @@ public class MailFrame extends ExtendedFrame {
     }
 
     /**
-     * Fügt den übergebenen MailAccount der entsprechenden ComboBox hinzu
+     * FÃ¼gt den Ã¼bergebenen MailAccount der entsprechenden ComboBox hinzu
      *
-     * @param ac Hinzuzufügender MailAccount
+     * @param ac HinzuzufÃ¼gender MailAccount
      */
     private void addMailAccount(MailAccount ac) {
         DefaultComboBoxModel<MailAccount> model = (DefaultComboBoxModel<MailAccount>) cBSender.getModel();
@@ -609,11 +609,11 @@ public class MailFrame extends ExtendedFrame {
     }
 
     /**
-     * Gibt den übergebenen Adress-String als Array von
-     * InternetAddress-Instanzen im Unicode-Format zurück.
+     * Gibt den Ã¼bergebenen Adress-String als Array von
+     * InternetAddress-Instanzen im Unicode-Format zurÃ¼ck.
      *
      * @param addresses Zu parsende Adressen.
-     * @return Entsprechende Adressen des übergebenen Strings.
+     * @return Entsprechende Adressen des Ã¼bergebenen Strings.
      * @throws ParseException Tritt auf, wenn die Adressen nicht geparst werden
      * konnten.
      */
@@ -675,7 +675,7 @@ public class MailFrame extends ExtendedFrame {
     }
 
     /**
-     * Fügt eine per JFileChooser ausgewählte Datei der JList hinzu
+     * FÃ¼gt eine per JFileChooser ausgewÃ¤hlte Datei der JList hinzu
      */
     private void addAttachment() {
         JFileChooser fileChooser = new JFileChooser();
@@ -693,14 +693,14 @@ public class MailFrame extends ExtendedFrame {
     }
 
     /**
-     * Speichert den Anhang mit dem übergebenen Namen in eine per JFileChooser
-     * ausgewählte Datei
+     * Speichert den Anhang mit dem Ã¼bergebenen Namen in eine per JFileChooser
+     * ausgewÃ¤hlte Datei
      *
      * @param name Name des zu speicherndern Anhangs
      */
     private void saveAttachment(String name) {
         JFileChooser fileChooser = new JFileChooser();
-        // Setzt den standardmäßig ausgewählten Dateinamen
+        // Setzt den standardmÃ¤ÃŸig ausgewÃ¤hlten Dateinamen
         fileChooser.setSelectedFile(new File(name));
 
         if (fileChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
@@ -708,7 +708,7 @@ public class MailFrame extends ExtendedFrame {
             MailAccount acc = (MailAccount) cBSender.getSelectedItem();
 
             try {
-                // Führt das eigentliche Abspeichern aus
+                // FÃ¼hrt das eigentliche Abspeichern aus
                 acc.saveAttachment(mailInfo, relPath, name, path);
             } catch (IOException | MessagingException ex) {
                 LOGGER.error(Localization.getString("MailFrame_SaveAttachmentError"), ex);
@@ -718,7 +718,7 @@ public class MailFrame extends ExtendedFrame {
     }
 
     /**
-     * Aktualisiert den Titel des Frames in Abhängigkeit des Betreffs der Mail
+     * Aktualisiert den Titel des Frames in AbhÃ¤ngigkeit des Betreffs der Mail
      */
     private void updateCaption() {
         String text = tSubject.getText();

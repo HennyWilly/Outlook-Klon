@@ -68,7 +68,7 @@ public class ContactFrame extends ExtendedDialog<Contact> {
     }
 
     /**
-     * Erstellt eine neue Instanz der Klasse zum Bearbeiten des übergebenen
+     * Erstellt eine neue Instanz der Klasse zum Bearbeiten des Ã¼bergebenen
      * Kontakts
      *
      * @param contact Contact-Instanz, die in dem Frame bearbeitet werden soll
@@ -151,13 +151,13 @@ public class ContactFrame extends ExtendedDialog<Contact> {
 
             @Override
             public void insertUpdate(DocumentEvent arg0) {
-                // Aktualisiere den Anzeigenamen beim Einfügen eines Zeichens
+                // Aktualisiere den Anzeigenamen beim EinfÃ¼gen eines Zeichens
                 refreshDisplayname();
             }
 
             @Override
             public void changedUpdate(DocumentEvent arg0) {
-                // Aktualisiere den Anzeigenamen beim Verändern eines Zeichens
+                // Aktualisiere den Anzeigenamen beim VerÃ¤ndern eines Zeichens
                 refreshDisplayname();
             }
         };
@@ -178,13 +178,13 @@ public class ContactFrame extends ExtendedDialog<Contact> {
 
             @Override
             public void insertUpdate(DocumentEvent arg0) {
-                // Aktualisiere den FrameTitel beim Einfügen eines Zeichens
+                // Aktualisiere den FrameTitel beim EinfÃ¼gen eines Zeichens
                 refreshTitle();
             }
 
             @Override
             public void changedUpdate(DocumentEvent arg0) {
-                // Aktualisiere den FrameTitel beim Verändern eines Zeichens
+                // Aktualisiere den FrameTitel beim VerÃ¤ndern eines Zeichens
                 refreshTitle();
             }
         });
@@ -334,7 +334,7 @@ public class ContactFrame extends ExtendedDialog<Contact> {
 
     /**
      * Wird beim Klick auf den OK-Buttom aufgerufen, um den Dialog auf die
-     * Rückgabe des finalen Contact-Objekts vorzubereiten.
+     * RÃ¼ckgabe des finalen Contact-Objekts vorzubereiten.
      */
     private void finalizeFrame() {
         String strMail1 = tEmailaddress1.getText().trim();

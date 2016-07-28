@@ -11,7 +11,7 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 /**
- * Abstrakte Basisklasse für alle Mailserver. Stellt grundlegende Funktionen für
+ * Abstrakte Basisklasse fÃ¼r alle Mailserver. Stellt grundlegende Funktionen fÃ¼r
  * alle Servertypen bereit.
  *
  * @author Hendrik Karwanni
@@ -22,13 +22,13 @@ public abstract class MailServer implements Serializable {
     private static final long serialVersionUID = -6369803776352038195L;
 
     /**
-     * Attribut, das die nötigen Einstellungen zum Aufbau einer Verbindung zu
-     * einem Mailserver enthällt
+     * Attribut, das die nÃ¶tigen Einstellungen zum Aufbau einer Verbindung zu
+     * einem Mailserver enthÃ¤llt
      */
     protected final ServerSettings settings;
 
     /**
-     * Attribut, das die Stringdarstellung des Servertyps enthällt
+     * Attribut, das die Stringdarstellung des Servertyps enthÃ¤llt
      */
     protected final String serverType;
 
@@ -76,7 +76,7 @@ public abstract class MailServer implements Serializable {
     }
 
     /**
-     * Prüft, ob man sich mit den übergebenen Login-Daten an dem bekannten
+     * PrÃ¼ft, ob man sich mit den Ã¼bergebenen Login-Daten an dem bekannten
      * Server anmelden kann.
      *
      * @param userName Anmeldename des Benutzers
@@ -86,7 +86,7 @@ public abstract class MailServer implements Serializable {
     public abstract boolean checkLogin(String userName, String password);
 
     /**
-     * Gibt das <code>Properties</code>-Objekt zurück, das für den Zugriff über
+     * Gibt das <code>Properties</code>-Objekt zurÃ¼ck, das fÃ¼r den Zugriff Ã¼ber
      * ein bestimmtes Protokoll konfiguriert ist
      *
      * @return <code>Properties</code>-Objekt
@@ -94,7 +94,7 @@ public abstract class MailServer implements Serializable {
     protected abstract Properties getProperties();
 
     /**
-     * Erstellt aus dem übergebenen <code>Authenticator</code> und den intern
+     * Erstellt aus dem Ã¼bergebenen <code>Authenticator</code> und den intern
      * erzeugten <code>Properties</code> ein <code>Session</code>-Objekt
      *
      * @param auth Zu verwendender <code>Authenticator</code>
@@ -107,7 +107,7 @@ public abstract class MailServer implements Serializable {
     }
 
     /**
-     * Gibt den beschreibenden String zum Servertyp zurück
+     * Gibt den beschreibenden String zum Servertyp zurÃ¼ck
      *
      * @return Beschreibender String zum Servertyp
      */
@@ -117,7 +117,7 @@ public abstract class MailServer implements Serializable {
 
     /**
      * Gibt die <code>ServerSettings</code>-Instanz zur Verbindung zum Server
-     * zurück
+     * zurÃ¼ck
      *
      * @return <code>ServerSettings</code>-Instanz zum Server
      */

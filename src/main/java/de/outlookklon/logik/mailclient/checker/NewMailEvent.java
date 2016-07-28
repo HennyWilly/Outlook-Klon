@@ -4,7 +4,7 @@ import de.outlookklon.logik.mailclient.StoredMailInfo;
 import java.util.EventObject;
 
 /**
- * Enthält alle relevanten Daten über eine neu erhaltene Mail
+ * Enthï¿½lt alle relevanten Daten Ã¼ber eine neu erhaltene Mail
  *
  * @author Hendrik Karwanni
  */
@@ -16,9 +16,9 @@ public class NewMailEvent extends EventObject {
     private final StoredMailInfo info;
 
     /**
-     * Erstellt eine neue Instanz der Klasse mit den übergebenen Werten
+     * Erstellt eine neue Instanz der Klasse mit den Ã¼bergebenen Werten
      *
-     * @param sender Objekt, das das Event ursprünglich ausgelöst hat
+     * @param sender Objekt, das das Event ursprÃ¼nglich ausgelÃ¶st hat
      * @param folder Pfad zu Ordner
      * @param info Infos zur Mail
      */
@@ -30,7 +30,7 @@ public class NewMailEvent extends EventObject {
     }
 
     /**
-     * Gibt den Ordnerpfad zurück, in dem die neue Mail gefunden wurde
+     * Gibt den Ordnerpfad zurÃ¼ck, in dem die neue Mail gefunden wurde
      *
      * @return Ordnerpfad der Mail
      */
@@ -39,7 +39,7 @@ public class NewMailEvent extends EventObject {
     }
 
     /**
-     * Gibt das Info-Objekt zur Mail zurück
+     * Gibt das Info-Objekt zur Mail zurÃ¼ck
      *
      * @return StoredMailInfo-Objekt
      */

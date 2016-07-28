@@ -4,8 +4,8 @@ import javax.mail.Message;
 import javax.mail.MessagingException;
 
 /**
- * Abstrakte Basisklasse für alle Mailserver, über die Mails gesendet werden
- * können. Stellt grundlegende Funtionen zum Versenden von Mails bereit.
+ * Abstrakte Basisklasse fÃ¼r alle Mailserver, Ã¼ber die Mails gesendet werden
+ * kÃ¶nnen. Stellt grundlegende Funtionen zum Versenden von Mails bereit.
  *
  * @author Hendrik Karwanni
  */
@@ -25,15 +25,15 @@ public abstract class OutboxServer extends MailServer {
     }
 
     /**
-     * Sendet eine E-Mail über den aktuellen Server. Die Implementierung des
-     * Vorgangs ist vom Serverprotokoll abhängig
+     * Sendet eine E-Mail Ã¼ber den aktuellen Server. Die Implementierung des
+     * Vorgangs ist vom Serverprotokoll abhÃ¤ngig
      *
      * @param user Benutzername des Senders
      * @param password Passwort des Senders
-     * @param mailToSend Objekt, das alle zu sendenden Daten enthält
-     * @return Gibt die gesendete Mail zurück
+     * @param mailToSend Objekt, das alle zu sendenden Daten enthÃ¤lt
+     * @return Gibt die gesendete Mail zurÃ¼ck
      * @throws MessagingException Tritt auf, wenn das Senden der Mail
-     * fehlschlägt oder einer der zu sendenden Anhänge nicht gefunden wurde
+     * fehlschlÃ¤gt oder einer der zu sendenden AnhÃ¤nge nicht gefunden wurde
      */
     public abstract Message sendMail(String user, String password, MailInfo mailToSend)
             throws MessagingException;

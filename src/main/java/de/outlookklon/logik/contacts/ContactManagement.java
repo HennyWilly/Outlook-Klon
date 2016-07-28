@@ -16,14 +16,14 @@ import java.util.Set;
 import lombok.NonNull;
 
 /**
- * Diese Klasse stellt die Verwaltung für die Kontakte des Benutzers dar
+ * Diese Klasse stellt die Verwaltung fÃ¼r die Kontakte des Benutzers dar
  *
  * @author Hendrik Karwanni
  */
 public class ContactManagement implements Iterable<Contact> {
 
     /**
-     * Standardmäßiges Adressbuch der ContactManagement
+     * StandardmÃ¤ÃŸiges Adressbuch der ContactManagement
      */
     public static final String DEFAULT = "Adressbuch";
 
@@ -45,9 +45,9 @@ public class ContactManagement implements Iterable<Contact> {
     }
 
     /**
-     * Fügt den übergebenen Contact der Verwaltung hinzu
+     * FÃ¼gt den Ã¼bergebenen Contact der Verwaltung hinzu
      *
-     * @param contact Der hinzuzufügende Contact
+     * @param contact Der hinzuzufÃ¼gende Contact
      */
     public void addContact(@NonNull final Contact contact) {
         final Set<Contact> contactList = mContacts.get(DEFAULT);
@@ -56,10 +56,10 @@ public class ContactManagement implements Iterable<Contact> {
     }
 
     /**
-     * Fügt den übergebenen Contact der übergebenen Liste der Verwaltung hinzu
+     * FÃ¼gt den Ã¼bergebenen Contact der Ã¼bergebenen Liste der Verwaltung hinzu
      *
-     * @param contact Der hinzuzufügende Contact
-     * @param list Listen, in die eingefügt werden soll
+     * @param contact Der hinzuzufÃ¼gende Contact
+     * @param list Listen, in die eingefÃ¼gt werden soll
      */
     public void addToContactList(@NonNull final Contact contact, @NonNull final String list) {
         ensureListNameNotEmpty(list);
@@ -87,9 +87,9 @@ public class ContactManagement implements Iterable<Contact> {
     }
 
     /**
-     * Fügt die übergebene Liste der Verwaltung hinzu
+     * FÃ¼gt die Ã¼bergebene Liste der Verwaltung hinzu
      *
-     * @param list Die hinzuzufügende Liste
+     * @param list Die hinzuzufÃ¼gende Liste
      */
     public void addList(@NonNull final String list) {
         ensureListNameNotEmpty(list);
@@ -102,9 +102,9 @@ public class ContactManagement implements Iterable<Contact> {
     }
 
     /**
-     * Löscht den übergebenen Contact aus der Verwaltung
+     * LÃ¶scht den Ã¼bergebenen Contact aus der Verwaltung
      *
-     * @param contact Zu löschender Contact
+     * @param contact Zu lÃ¶schender Contact
      */
     public void deleteContact(@NonNull final Contact contact) {
         for (final Set<Contact> list : mContacts.values()) {
@@ -113,10 +113,10 @@ public class ContactManagement implements Iterable<Contact> {
     }
 
     /**
-     * Löscht den übergebenen Contact aus der übergebenen Liste
+     * LÃ¶scht den Ã¼bergebenen Contact aus der Ã¼bergebenen Liste
      *
-     * @param contact Zu löschender Contact
-     * @param list Liste, aus der der Contact gelöscht werden soll
+     * @param contact Zu lÃ¶schender Contact
+     * @param list Liste, aus der der Contact gelÃ¶scht werden soll
      */
     public void deleteContact(@NonNull final Contact contact, @NonNull final String list) {
         ensureListNameNotEmpty(list);
@@ -130,9 +130,9 @@ public class ContactManagement implements Iterable<Contact> {
     }
 
     /**
-     * Löscht die übergebene Liste aus der Verwaltung
+     * LÃ¶scht die Ã¼bergebene Liste aus der Verwaltung
      *
-     * @param list Liste, die gelöscht werden soll
+     * @param list Liste, die gelÃ¶scht werden soll
      */
     public void deleteList(@NonNull final String list) {
         ensureListNameNotEmpty(list);
@@ -148,7 +148,7 @@ public class ContactManagement implements Iterable<Contact> {
     }
 
     /**
-     * Benennt die Liste mit dem übergebenen alten Namen zum neuen Namen um
+     * Benennt die Liste mit dem Ã¼bergebenen alten Namen zum neuen Namen um
      *
      * @param oldName Alter Name der Liste
      * @param newName Neuer Name der Liste
@@ -174,7 +174,7 @@ public class ContactManagement implements Iterable<Contact> {
     }
 
     /**
-     * Gibt die Namen aller Kontaktlisten der Verwaltung zurück
+     * Gibt die Namen aller Kontaktlisten der Verwaltung zurÃ¼ck
      *
      * @return Namen aller Kontaktlisten
      */
@@ -189,11 +189,11 @@ public class ContactManagement implements Iterable<Contact> {
     }
 
     /**
-     * Gibt die Namen aller Kontaktlisten zurück, in denen der übergebene
+     * Gibt die Namen aller Kontaktlisten zurÃ¼ck, in denen der Ã¼bergebene
      * Contact eingetragen ist
      *
      * @param contact Contact, zu dem die Listen bestimmt werden sollen
-     * @return String-Array, welches die Listennamen enthällt
+     * @return String-Array, welches die Listennamen enthÃ¤llt
      */
     public String[] getLists(@NonNull Contact contact) {
         List<String> lists = new ArrayList<>();
@@ -218,11 +218,11 @@ public class ContactManagement implements Iterable<Contact> {
     }
 
     /**
-     * Gibt die Kontakte der übergebenen Liste zurück
+     * Gibt die Kontakte der Ã¼bergebenen Liste zurÃ¼ck
      *
-     * @param list Name der Liste, von der die Kontakte zurückgegeben werden
+     * @param list Name der Liste, von der die Kontakte zurÃ¼ckgegeben werden
      * sollen
-     * @return Kontakte der übergebenen Liste
+     * @return Kontakte der Ã¼bergebenen Liste
      */
     public Contact[] getContacts(@NonNull final String list) {
         ensureListNameNotEmpty(list);

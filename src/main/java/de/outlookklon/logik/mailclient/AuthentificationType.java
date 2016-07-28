@@ -1,7 +1,7 @@
 package de.outlookklon.logik.mailclient;
 
 /**
- * Die Aufzählung gibt die unterstützten Arten der Authentifizierung an einem
+ * Die AufzÃ¤hlung gibt die unterstÃ¼tzten Arten der Authentifizierung an einem
  * Server an
  *
  * @author Hendrik Karwanni
@@ -9,16 +9,16 @@ package de.outlookklon.logik.mailclient;
 public enum AuthentificationType {
 
     /**
-     * Die Standard-Authentifizierungsmethode für Mail-Server.
+     * Die Standard-Authentifizierungsmethode fÃ¼r Mail-Server.
      */
     NORMAL,
     /**
-     * Ein verteilter Authentifizierungsdienst für offene und unsichere
+     * Ein verteilter Authentifizierungsdienst fÃ¼r offene und unsichere
      * Computernetze.
      */
     KERBEROS,
     /**
-     * Ein Authentifizierungsdienst, vornehmlich für Microsoft-Produkte.
+     * Ein Authentifizierungsdienst, vornehmlich fÃ¼r Microsoft-Produkte.
      */
     NTLM
 }

@@ -32,7 +32,7 @@ import javax.swing.event.ListSelectionListener;
 
 /**
  * In diesem Frame werden alle registrierten MailAccount-Instanzen verwaltet. Es
- * können neue Instanzen erstellt, bearbeitet und entfernt werden.
+ * kÃ¶nnen neue Instanzen erstellt, bearbeitet und entfernt werden.
  *
  * @author Hendrik Karwanni
  */
@@ -381,7 +381,7 @@ public class AccountManagementFrame extends ExtendedDialog<MailAccount[]> {
     }
 
     /**
-     * Trägt die Daten der übergebenen MailAccount-Instanz in die dafür
+     * Trï¿½gt die Daten der ï¿½bergebenen MailAccount-Instanz in die dafï¿½r
      * vorgesehenen Felder ein
      *
      * @param acc MailAccount-Instanz aus der die Daten ausgelesen werden sollen
@@ -427,7 +427,7 @@ public class AccountManagementFrame extends ExtendedDialog<MailAccount[]> {
     }
 
     /**
-     * Öffnet ein neues Konto-Frame zum Erstellen einer neuen
+     * ï¿½ffnet ein neues Konto-Frame zum Erstellen einer neuen
      * MailAccount-Instanz
      */
     private void createAccount() {
@@ -435,17 +435,17 @@ public class AccountManagementFrame extends ExtendedDialog<MailAccount[]> {
         MailAccount acc = accountFrame.showDialog();
         if (acc != null) {
             DefaultListModel<MailAccount> model = (DefaultListModel<MailAccount>) lstAccounts.getModel();
-            // Füge die neue Instanz der JList hinzu
+            // Fï¿½ge die neue Instanz der JList hinzu
             model.addElement(acc);
         }
     }
 
     /**
-     * Öffnet ein neues Konto-Frame zum Bearbeiten einer bestehenden
+     * ï¿½ffnet ein neues Konto-Frame zum Bearbeiten einer bestehenden
      * MailAccount-Instanz
      *
      * @param acc Zu bearbeitender MailAccount
-     * @return Instanz des veränderten MailAccounts
+     * @return Instanz des verï¿½nderten MailAccounts
      */
     private MailAccount editAccount(MailAccount acc) {
         AccountFrame accountFrame = new AccountFrame(acc);
@@ -457,7 +457,7 @@ public class AccountManagementFrame extends ExtendedDialog<MailAccount[]> {
 
             // Entfernt die alte Instanz aus der JList
             model.remove(index);
-            // Füge die neue Instanz der JList hinzu
+            // Fï¿½ge die neue Instanz der JList hinzu
             model.add(index, result);
 
             return result;
@@ -467,9 +467,9 @@ public class AccountManagementFrame extends ExtendedDialog<MailAccount[]> {
     }
 
     /**
-     * Löscht die übergebene MailAccount-Instanz aus der Liste
+     * Lï¿½scht die ï¿½bergebene MailAccount-Instanz aus der Liste
      *
-     * @param acc Zu löschender MailAccount
+     * @param acc Zu lï¿½schender MailAccount
      */
     private void deleteAccount(MailAccount acc) {
         if (acc != null) {

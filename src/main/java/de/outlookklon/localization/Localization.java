@@ -21,16 +21,16 @@ public final class Localization {
     }
 
     /**
-     * Fügt das übergebene lokalisierbare Objekt dem Localizer hinzu.
+     * FÃ¼gt das Ã¼bergebene lokalisierbare Objekt dem Localizer hinzu.
      *
-     * @param localizable Hinzuzufügendes lokalisierbares Objekt
+     * @param localizable HinzuzufÃ¼gendes lokalisierbares Objekt
      */
     public static void addLocalizable(@NonNull ILocalizable localizable) {
         LOCALIZABLES.add(localizable);
     }
 
     /**
-     * Entfernt das übergebene lokalisierbare Objekt aus dem Localizer.
+     * Entfernt das Ã¼bergebene lokalisierbare Objekt aus dem Localizer.
      *
      * @param localizable Zu entfernendes lokalisierbares Objekt
      */
@@ -39,9 +39,9 @@ public final class Localization {
     }
 
     /**
-     * Gibt den lokalisierten String mit dem übergebenen Schlüssel zurück.
+     * Gibt den lokalisierten String mit dem Ã¼bergebenen SchlÃ¼ssel zurï¿½ck.
      *
-     * @param key Schlüssel des lokalisierten Strings.
+     * @param key SchlÃ¼ssel des lokalisierten Strings.
      * @return Der lokalisierte String
      */
     public static String getString(String key) {
@@ -51,7 +51,7 @@ public final class Localization {
     /**
      * Setzt die Sprache der Klasse.
      *
-     * @param locale Locale für die Sprache der Klasse.
+     * @param locale Locale fÃ¼r die Sprache der Klasse.
      */
     public static void setLocale(Locale locale) {
         if (!bundle.getLocale().equals(locale)) {
@@ -66,7 +66,7 @@ public final class Localization {
     }
 
     /**
-     * Gibt die aktuell gesetzte Sprache der Klasse zurück.
+     * Gibt die aktuell gesetzte Sprache der Klasse zurÃ¼ck.
      *
      * @return Aktuell gesetzte Sprache der Klasse
      */
@@ -79,9 +79,9 @@ public final class Localization {
     }
 
     /**
-     * Gibt alle Sprachen zurück, für die eine Lokalisierung vorliegt.
+     * Gibt alle Sprachen zurÃ¼ck, fÃ¼r die eine Lokalisierung vorliegt.
      *
-     * @return Alle Sprachen, für die eine Lokalisierung vorliegt
+     * @return Alle Sprachen, fÃ¼r die eine Lokalisierung vorliegt
      */
     public static Locale[] getLocalizedLocales() {
         Set<Locale> resourceLocales = new HashSet<>();

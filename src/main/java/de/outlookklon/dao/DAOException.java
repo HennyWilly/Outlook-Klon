@@ -3,14 +3,14 @@ package de.outlookklon.dao;
 import lombok.NonNull;
 
 /**
- * Ausnahme für Data Access Objekte
+ * Ausnahme fÃ¼r Data Access Objekte
  *
  * @author Hendrik Karwanni
  */
 public class DAOException extends Exception {
 
     /**
-     * Erstellt eine neue Ausnahme mit der übergebenen detailierten Nachricht.
+     * Erstellt eine neue Ausnahme mit der Ã¼bergebenen detailierten Nachricht.
      *
      * @param message Die detailierte Nachricht der Ausnamhe
      */
@@ -19,7 +19,7 @@ public class DAOException extends Exception {
     }
 
     /**
-     * Erstellt eine neue Ausnahme mit der übergebenen detailierten Nachricht
+     * Erstellt eine neue Ausnahme mit der Ã¼bergebenen detailierten Nachricht
      * und Ursache.
      *
      * @param message Die detailierte Nachricht der Ausnamhe
