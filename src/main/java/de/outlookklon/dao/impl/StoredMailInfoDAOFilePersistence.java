@@ -1,8 +1,8 @@
 package de.outlookklon.dao.impl;
 
-import de.outlookklon.localization.Localization;
 import de.outlookklon.dao.DAOException;
 import de.outlookklon.dao.StoredMailInfoDAO;
+import de.outlookklon.localization.Localization;
 import de.outlookklon.logik.mailclient.StoredMailInfo;
 import de.outlookklon.serializers.Serializer;
 import java.io.File;
@@ -21,6 +21,13 @@ public class StoredMailInfoDAOFilePersistence implements StoredMailInfoDAO {
 
     private File folder;
 
+    /**
+     * Erstellt eine neue Instanz der Klasse.
+     *
+     * @param folder Ordner, in dem die Mails gespeichert werden.
+     * @throws IOException Tritt auf, wenn der Ordner nicht erstellt werden
+     * konnte.
+     */
     public StoredMailInfoDAOFilePersistence(@NonNull File folder) throws IOException {
         if (folder.isFile()) {
             throw new IllegalArgumentException(Localization.getString("StoredMailInfoDAO_NotAFolder"));

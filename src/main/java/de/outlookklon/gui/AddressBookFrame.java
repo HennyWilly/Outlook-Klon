@@ -77,20 +77,20 @@ public class AddressBookFrame extends ExtendedFrame {
     private final JMenu mnFile;
     private final JMenuItem mntFileClose;
 
-    private MainFrame parent;
+    private MainFrame parentFrame;
     private ContactManagement management;
 
     /**
      * Erstellt eine neue AdressbuchFrame-Instanz
      *
-     * @param parent Referenz auf das Vater-Fenster, um darauf ggf. die
+     * @param parentFrame Referenz auf das Vater-Fenster, um darauf ggf. die
      * newMail-Methode aufzurufen
      * @param contacts Die Referenz auf die ContactManagement
      * @param newContact Wenn true, wird sofort ein neues ContactFrame geöffnet;
      * sonst nicht
      */
-    public AddressBookFrame(@NonNull MainFrame parent, @NonNull ContactManagement contacts, boolean newContact) {
-        this.parent = parent;
+    public AddressBookFrame(@NonNull MainFrame parentFrame, @NonNull ContactManagement contacts, boolean newContact) {
+        this.parentFrame = parentFrame;
         this.management = contacts;
 
         tablePopupOpen = new JMenuItem();
@@ -487,7 +487,7 @@ public class AddressBookFrame extends ExtendedFrame {
      * @return ausgewählter Listenname
      */
     private String currentList() {
-        return (String) lstLists.getSelectedValue();
+        return lstLists.getSelectedValue();
     }
 
     /**
@@ -610,7 +610,7 @@ public class AddressBookFrame extends ExtendedFrame {
      * eingetragen werden
      */
     private void writeMail(Contact[] contacts) {
-        parent.newMail(contacts);
+        parentFrame.newMail(contacts);
     }
 
     /**

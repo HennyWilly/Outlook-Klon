@@ -12,6 +12,8 @@
     <name>Outlook-Klon</name>
 
     <properties>
+        <project.build.sourceEncoding>Cp1252</project.build.sourceEncoding>
+
         <jdk.version>1.7</jdk.version>
         <junit.version>4.12</junit.version>
         <hamcrest.version>1.3</hamcrest.version>
@@ -36,6 +38,7 @@
         <jacoco-plugin.version>0.7.4.201502262128</jacoco-plugin.version>
 
         <!-- SonarQube properties -->
+        <sonar.language>java</sonar.language>
         <sonar.version>3.0.2</sonar.version>
         <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
         <sonar.jacoco.reportPath>${project.build.directory}/jacoco.exec</sonar.jacoco.reportPath>
@@ -164,7 +167,7 @@
                 <configuration>
                     <source>${jdk.version}</source>
                     <target>${jdk.version}</target>
-                    <encoding>Cp1252</encoding>
+                    <encoding>${project.build.sourceEncoding}</encoding>
                 </configuration>
             </plugin>
 

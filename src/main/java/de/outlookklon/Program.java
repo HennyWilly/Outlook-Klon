@@ -7,6 +7,9 @@ import javax.swing.SwingUtilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Hauptklasse der Anwendung
+ */
 public final class Program {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Program.class);

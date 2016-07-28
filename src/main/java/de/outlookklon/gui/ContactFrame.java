@@ -318,12 +318,12 @@ public class ContactFrame extends ExtendedDialog<Contact> {
 
         String title;
         if (mContact == null) {
-            if (name != null & !name.trim().isEmpty()) {
+            if (name != null && !name.trim().isEmpty()) {
                 title = String.format(Localization.getString("ContactFrame_NewContactFormat"), name);
             } else {
                 title = Localization.getString("AddressBookFrame_Menu_NewContact");
             }
-        } else if (name != null & !name.trim().isEmpty()) {
+        } else if (name != null && !name.trim().isEmpty()) {
             title = String.format(Localization.getString("ContactFrame_EditContactFormat"), name);
         } else {
             title = Localization.getString("ContactFrame_EditContact");

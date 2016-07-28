@@ -1,7 +1,6 @@
 package de.outlookklon.serializers;
 
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -24,7 +23,7 @@ public class InternetAddressDeserializer extends JsonDeserializer<Address> {
 
     @Override
     public Address deserialize(JsonParser p, DeserializationContext ctxt)
-            throws IOException, JsonProcessingException {
+            throws IOException {
         if (p.getCurrentToken() == JsonToken.START_OBJECT) {
             p.nextToken();
         }

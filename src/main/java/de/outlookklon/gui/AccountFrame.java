@@ -301,28 +301,11 @@ public class AccountFrame extends ExtendedDialog<MailAccount> {
      * erstellen
      */
     private void createAccountObject() {
-        // Settings-Instanz für den Mailempfang erstellen
-        ServerSettings inboxSettings = new ServerSettings(txtInServer.getText(), (Integer) spInPort.getValue(),
-                cBInConnectionSecurity.getItemAt(cBInConnectionSecurity.getSelectedIndex()),
-                cBInAuthentificationType.getItemAt(cBInAuthentificationType.getSelectedIndex()));
-
         // Instanz für den Mailempfang erstellen
-        InboxServer inbox = null;
-        if ("IMAP".equals(cbInProtocoll.getSelectedItem())) {
-            inbox = new ImapServer(inboxSettings);
-        } else if ("POP3".equals(cbInProtocoll.getSelectedItem())) {
-            inbox = new Pop3Server(inboxSettings);
-        } else {
-            throw new UnsupportedOperationException(Localization.getString("AccountFrame_UnknownProtocol"));
-        }
-
-        // Settings-Instanz für den Mailversandt erstellen
-        ServerSettings outboxSettings = new ServerSettings(txtOutServer.getText(), (Integer) spOutPort.getValue(),
-                cBOutConnectionSecurity.getItemAt(cBOutConnectionSecurity.getSelectedIndex()),
-                cBOutAuthentificationType.getItemAt(cBOutAuthentificationType.getSelectedIndex()));
+        InboxServer inbox = getInboxServer();
 
         // Instanz für den Mailversandt erstellen
-        OutboxServer outbox = new SmtpServer(outboxSettings);
+        OutboxServer outbox = getOutboxServer();
 
         try {
             // MailAccount-Instanz mit Versandt- und Empfangsinstanz erstellen
@@ -341,6 +324,31 @@ public class AccountFrame extends ExtendedDialog<MailAccount> {
             LOGGER.error(Localization.getString("AccountFrame_CouldNotCreateAccount"), e);
             Dialogs.showErrorDialog(this, e.getLocalizedMessage());
         }
+    }
+
+    private InboxServer getInboxServer() {
+        // Settings-Instanz für den Mailempfang erstellen
+        ServerSettings inboxSettings = new ServerSettings(txtInServer.getText(), (Integer) spInPort.getValue(),
+                cBInConnectionSecurity.getItemAt(cBInConnectionSecurity.getSelectedIndex()),
+                cBInAuthentificationType.getItemAt(cBInAuthentificationType.getSelectedIndex()));
+
+        if ("IMAP".equals(cbInProtocoll.getSelectedItem())) {
+            return new ImapServer(inboxSettings);
+        } else if ("POP3".equals(cbInProtocoll.getSelectedItem())) {
+            return new Pop3Server(inboxSettings);
+        }
+
+        throw new UnsupportedOperationException(Localization.getString("AccountFrame_UnknownProtocol"));
+    }
+
+    private OutboxServer getOutboxServer() {
+        // Settings-Instanz für den Mailversandt erstellen
+        ServerSettings outboxSettings = new ServerSettings(txtOutServer.getText(), (Integer) spOutPort.getValue(),
+                cBOutConnectionSecurity.getItemAt(cBOutConnectionSecurity.getSelectedIndex()),
+                cBOutAuthentificationType.getItemAt(cBOutAuthentificationType.getSelectedIndex()));
+
+        // Instanz für den Mailversandt erstellen
+        return new SmtpServer(outboxSettings);
     }
 
     @Override
