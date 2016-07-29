@@ -1,5 +1,6 @@
 package de.outlookklon.gui;
 
+import de.outlookklon.gui.components.ReadOnlyJTable;
 import de.outlookklon.gui.helpers.Dialogs;
 import de.outlookklon.gui.helpers.Events;
 import de.outlookklon.localization.Localization;
@@ -230,15 +231,7 @@ public class AddressBookFrame extends ExtendedFrame {
         tablePopupAddList = new JMenu();
         tablePopup.add(tablePopupAddList);
 
-        tableContacts = new JTable() {
-            private static final long serialVersionUID = 1L;
-
-            @Override
-            public boolean isCellEditable(int row, int column) {
-                return false;
-            }
-        };
-
+        tableContacts = new ReadOnlyJTable();
         tableContacts.setModel(getTableModel());
         tableContacts.removeColumn(tableContacts.getColumn(CONTACT_TABLE_REF_COLUMN_NAME));
 

@@ -1,5 +1,7 @@
 package de.outlookklon.logik;
 
+import de.outlookklon.dao.StoredMailInfoDAO;
+import de.outlookklon.dao.impl.StoredMailInfoDAOFilePersistence;
 import de.outlookklon.logik.calendar.AppointmentCalendar;
 import de.outlookklon.logik.contacts.ContactManagement;
 import de.outlookklon.logik.mailclient.MailAccount;
@@ -26,10 +28,10 @@ import org.slf4j.LoggerFactory;
 public final class User implements Iterable<MailAccountChecker> {
 
     private static final String DATA_FOLDER = FilenameUtils.concat(System.getProperty("user.home"), ".outlookklon");
-    private static final String ACCOUNT_PATTERN = DATA_FOLDER + "/%s";
-    private static final String ACCOUNTSETTINGS_PATTERN = ACCOUNT_PATTERN + "/settings.json";
-    private static final String CONTACT_PATH = DATA_FOLDER + "/Kontakte.json";
-    private static final String APPOINTMENT_PATH = DATA_FOLDER + "/Termine.json";
+    private static final String ACCOUNT_PATTERN = FilenameUtils.concat(DATA_FOLDER, "%s");
+    private static final String ACCOUNTSETTINGS_PATTERN = FilenameUtils.concat(ACCOUNT_PATTERN, "settings.json");
+    private static final String CONTACT_PATH = FilenameUtils.concat(DATA_FOLDER, "Kontakte.json");
+    private static final String APPOINTMENT_PATH = FilenameUtils.concat(DATA_FOLDER, "Termine.json");
 
     private static final Logger LOGGER = LoggerFactory.getLogger(User.class);
 
@@ -81,9 +83,9 @@ public final class User implements Iterable<MailAccountChecker> {
 
             // Lade MailAccount
             MailAccount loadedAccount = Serializer.deserializeJson(accountFile, MailAccount.class);
-            MailAccountChecker checker = new MailAccountChecker(loadedAccount);
+            setMailInfoDAO(loadedAccount);
 
-            accounts.add(checker);
+            accounts.add(new MailAccountChecker(loadedAccount));
         }
     }
 
@@ -102,6 +104,16 @@ public final class User implements Iterable<MailAccountChecker> {
             }
         }
         return singleton;
+    }
+
+    public void setMailInfoDAO(MailAccount account) throws IOException {
+        if (account.getMailInfoDAO() != null) {
+            return;
+        }
+
+        final String accountFolder = String.format(ACCOUNT_PATTERN, account.getAddress().getAddress());
+        StoredMailInfoDAO mailInfoDAO = new StoredMailInfoDAOFilePersistence(new File(accountFolder));
+        account.setMailInfoDAO(mailInfoDAO);
     }
 
     @Override

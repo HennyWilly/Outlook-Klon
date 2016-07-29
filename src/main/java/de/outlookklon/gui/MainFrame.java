@@ -1,9 +1,11 @@
 package de.outlookklon.gui;
 
+import de.outlookklon.gui.components.HtmlEditorPane;
 import de.outlookklon.dao.DAOException;
+import de.outlookklon.gui.components.ReadOnlyJTable;
+import de.outlookklon.gui.components.TaggedJRadioButtonMenuItem;
 import de.outlookklon.gui.helpers.Dialogs;
 import de.outlookklon.gui.helpers.Events;
-import de.outlookklon.gui.helpers.TaggedJRadioButtonMenuItem;
 import de.outlookklon.localization.Localization;
 import de.outlookklon.logik.User;
 import de.outlookklon.logik.UserException;
@@ -154,14 +156,7 @@ public class MainFrame extends ExtendedFrame {
 
         tpPreview = new HtmlEditorPane();
 
-        tblMails = new JTable() {
-            private static final long serialVersionUID = 1L;
-
-            @Override
-            public boolean isCellEditable(int row, int column) {
-                return false;
-            }
-        };
+        tblMails = new ReadOnlyJTable();
 
         tree = new JTree() {
             private static final long serialVersionUID = 1L;
@@ -834,6 +829,12 @@ public class MainFrame extends ExtendedFrame {
 
             // Füge neue MailAccounts dem Baum hinzu
             for (MailAccount acc : accounts) {
+                try {
+                    user.setMailInfoDAO(acc);
+                } catch (IOException ex) {
+                    LOGGER.warn("Could not create directory for MailInfo objects.", ex);
+                }
+
                 Iterator<MailAccount> iterator = deleteable.iterator();
 
                 while (iterator.hasNext()) {

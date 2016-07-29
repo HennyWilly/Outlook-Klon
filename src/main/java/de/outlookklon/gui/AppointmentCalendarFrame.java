@@ -1,5 +1,6 @@
 package de.outlookklon.gui;
 
+import de.outlookklon.gui.components.ReadOnlyJTable;
 import de.outlookklon.gui.helpers.Events;
 import de.outlookklon.localization.Localization;
 import de.outlookklon.logik.User;
@@ -75,14 +76,7 @@ public class AppointmentCalendarFrame extends ExtendedFrame {
     private AppointmentCalendarFrame() {
         calendar = User.getInstance().getAppointments();
 
-        tblAppointments = new JTable() {
-            private static final long serialVersionUID = 1L;
-
-            @Override
-            public boolean isCellEditable(int row, int column) {
-                return false;
-            }
-        };
+        tblAppointments = new ReadOnlyJTable();
         textDetails = new JTextPane();
 
         appointmentPopup = new JPopupMenu();

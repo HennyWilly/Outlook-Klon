@@ -6,9 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.sun.mail.imap.IMAPFolder;
 import de.outlookklon.dao.DAOException;
 import de.outlookklon.dao.StoredMailInfoDAO;
-import de.outlookklon.dao.impl.StoredMailInfoDAOFilePersistence;
 import de.outlookklon.logik.mailclient.checker.MailAccountChecker;
-import java.io.File;
 import java.io.IOException;
 import java.util.EnumSet;
 import java.util.HashSet;
@@ -28,6 +26,7 @@ import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.search.MessageIDTerm;
 import javax.mail.search.StringTerm;
+import lombok.Getter;
 import lombok.NonNull;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -43,7 +42,6 @@ public class MailAccount {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MailAccount.class);
 
-    private static final String MAIL_FOLDER_PATTERN = "Mail/%s";
     private static final String MESSAGE_ID_HEADER_NAME = "Message-Id";
 
     @JsonProperty("inboxMailServer")
@@ -62,6 +60,7 @@ public class MailAccount {
     private String password;
 
     @JsonIgnore
+    @Getter
     private StoredMailInfoDAO mailInfoDAO;
 
     /**
@@ -147,9 +146,10 @@ public class MailAccount {
         this.address = address;
         this.user = user;
         this.password = password;
+    }
 
-        File mailFolder = new File(String.format(MAIL_FOLDER_PATTERN, this.address.getAddress()));
-        this.mailInfoDAO = new StoredMailInfoDAOFilePersistence(mailFolder);
+    public void setMailInfoDAO(@NonNull StoredMailInfoDAO mailInfoDAO) {
+        this.mailInfoDAO = mailInfoDAO;
     }
 
     @Override

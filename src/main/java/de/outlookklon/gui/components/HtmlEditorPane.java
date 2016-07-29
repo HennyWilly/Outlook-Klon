@@ -1,5 +1,6 @@
-package de.outlookklon.gui;
+package de.outlookklon.gui.components;
 
+import de.outlookklon.gui.AppointmentFrame;
 import de.outlookklon.gui.helpers.Dialogs;
 import de.outlookklon.localization.Localization;
 import de.outlookklon.logik.User;

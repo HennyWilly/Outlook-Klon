@@ -1,6 +1,7 @@
 package de.outlookklon.logik.mailclient;
 
 import com.sun.mail.imap.IMAPFolder;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import javax.mail.Folder;
@@ -12,6 +13,7 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.Matchers.hasToString;
 import org.junit.Before;
@@ -291,10 +293,15 @@ public class MailAccountTest {
     public void shouldGetFolderStructure() throws Exception {
         Folder f1 = mock(Folder.class);
         when(f1.getName()).thenReturn("TestFolder1");
-        when(f1.getFullName()).thenReturn("");
+        when(f1.getFullName()).thenReturn("TestFolder1");
 
         Folder f2 = mock(Folder.class);
+        when(f2.getName()).thenReturn("TestFolder2");
+        when(f2.getFullName()).thenReturn("TestFolder1/TestFolder2");
+
         Folder f3 = mock(Folder.class);
+        when(f3.getName()).thenReturn("TestFolder3");
+        when(f3.getFullName()).thenReturn("TestFolder3");
 
         Folder rootFolder = mock(Folder.class);
         when(rootFolder.list(any(String.class))).thenReturn(new Folder[]{f1, f2, f3});
@@ -306,5 +313,10 @@ public class MailAccountTest {
         doReturn(inboxMailStore).when(workingInbox).getMailStore(any(String.class), any(String.class));
 
         FolderInfo[] folders = workingAccount.getFolderStructure();
+        assertThat(Arrays.asList(folders), containsInAnyOrder(
+                new FolderInfo("TestFolder1", "TestFolder1", 0),
+                new FolderInfo("TestFolder2", "TestFolder1/TestFolder2", 0),
+                new FolderInfo("TestFolder3", "TestFolder3", 0)
+        ));
     }
 }
