@@ -43,7 +43,6 @@ import javax.swing.GroupLayout.Alignment;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -113,10 +112,6 @@ public class MainFrame extends ExtendedFrame {
     private final JMenuItem mntmContact;
     private final JMenuItem mntmAppointment;
     private final JMenuItem mntmClose;
-    private final JMenu mnMessages;
-    private final JMenuItem mntFileNewSickNote;
-    private final JMenuItem mntFileNewAbsenceMessage;
-    private final JCheckBoxMenuItem mnEnableAbsenceMessage;
     private final JMenu mnExtras;
     private final JMenuItem mntmAddressBook;
     private final JMenuItem mntmCalendar;
@@ -144,10 +139,6 @@ public class MainFrame extends ExtendedFrame {
         mntmContact = new JMenuItem();
         mntmAppointment = new JMenuItem();
         mntmClose = new JMenuItem();
-        mnMessages = new JMenu();
-        mntFileNewSickNote = new JMenuItem();
-        mntFileNewAbsenceMessage = new JMenuItem();
-        mnEnableAbsenceMessage = new JCheckBoxMenuItem();
         mnExtras = new JMenu();
         mntmAccountSettings = new JMenuItem();
         mntmAddressBook = new JMenuItem();
@@ -212,10 +203,6 @@ public class MainFrame extends ExtendedFrame {
         mntmContact.setText(Localization.getString("Contact"));
         mntmAppointment.setText(Localization.getString("Appointment"));
         mntmClose.setText(Localization.getString("Menu_Close"));
-        mnMessages.setText(Localization.getString("MainFrame_Messanges"));
-        mntFileNewSickNote.setText(Localization.getString("Message_SickNote"));
-        mntFileNewAbsenceMessage.setText(Localization.getString("Message_AbsenceMessage"));
-        mnEnableAbsenceMessage.setText(Localization.getString("MainFrame_Absend"));
         mnExtras.setText(Localization.getString("Menu_Extras"));
         mntmAccountSettings.setText(Localization.getString("AccountManagementFrame_Title"));
         mntmAddressBook.setText(Localization.getString("AddressBookFrame_Title"));
@@ -379,39 +366,6 @@ public class MainFrame extends ExtendedFrame {
             }
         });
         mnFile.add(mntmClose);
-
-        menuBar.add(mnMessages);
-
-        mntFileNewSickNote.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                editSickNote();
-            }
-        });
-        mnMessages.add(mntFileNewSickNote);
-
-        mntFileNewAbsenceMessage.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                editAbsenceMessage();
-            }
-        });
-        mnMessages.add(mntFileNewAbsenceMessage);
-
-        mnMessages.add(new JSeparator());
-
-        mnEnableAbsenceMessage.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                JCheckBoxMenuItem sender = (JCheckBoxMenuItem) e.getSource();
-
-                boolean selected = sender.isSelected();
-                user.setAbsent(!selected);
-            }
-        });
-        mnMessages.add(mnEnableAbsenceMessage);
 
         menuBar.add(mnExtras);
 
@@ -1476,32 +1430,6 @@ public class MainFrame extends ExtendedFrame {
     private void refreshNodeView(DefaultMutableTreeNode node) {
         DefaultTreeModel treeModel = (DefaultTreeModel) tree.getModel();
         treeModel.nodeChanged(node);
-    }
-
-    /**
-     * Öffnet ein Fenster zum Bearbeiten der Abwesenheitmeldung des Benutzers
-     */
-    private void editAbsenceMessage() {
-        MessageFrame messageFrame = new MessageFrame(user.getAbsenceMessage(),
-                Localization.getString("Message_AbsenceMessage"));
-        String message = messageFrame.showDialog();
-
-        if (message != null) {
-            user.setAbsenceMessage(message);
-        }
-    }
-
-    /**
-     * Öffnet ein Fenster zum Bearbeiten der Krankmeldung des Benutzers
-     */
-    private void editSickNote() {
-        MessageFrame messageFrame = new MessageFrame(user.getSickNote(),
-                Localization.getString("Message_SickNote"));
-        String message = messageFrame.showDialog();
-
-        if (message != null) {
-            user.setSickNote(message);
-        }
     }
 
     private class MailListener implements NewMailListener {

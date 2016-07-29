@@ -1,27 +1,16 @@
 package de.outlookklon.logik;
 
-import de.outlookklon.dao.DAOException;
-import de.outlookklon.logik.calendar.Appointment;
 import de.outlookklon.logik.calendar.AppointmentCalendar;
 import de.outlookklon.logik.contacts.ContactManagement;
 import de.outlookklon.logik.mailclient.MailAccount;
-import de.outlookklon.logik.mailclient.MailContent;
-import de.outlookklon.logik.mailclient.MailInfo;
-import de.outlookklon.logik.mailclient.StoredMailInfo;
 import de.outlookklon.logik.mailclient.checker.MailAccountChecker;
-import de.outlookklon.logik.mailclient.checker.NewMailEvent;
-import de.outlookklon.logik.mailclient.checker.NewMailListener;
 import de.outlookklon.serializers.Serializer;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.List;
-import javax.mail.Address;
-import javax.mail.MessagingException;
-import javax.mail.internet.InternetAddress;
 import lombok.NonNull;
 import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
@@ -41,20 +30,14 @@ public final class User implements Iterable<MailAccountChecker> {
     private static final String ACCOUNTSETTINGS_PATTERN = ACCOUNT_PATTERN + "/settings.json";
     private static final String CONTACT_PATH = DATA_FOLDER + "/Kontakte.json";
     private static final String APPOINTMENT_PATH = DATA_FOLDER + "/Termine.json";
-    private static final String SICKNOTE_PATH = DATA_FOLDER + "/Krank.txt";
-    private static final String ABSENCE_PATH = DATA_FOLDER + "/Abwesend.txt";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(User.class);
 
     private static User singleton;
 
-    private String absenceMessage;
-    private String sickNote;
-
     private ContactManagement contacts;
     private AppointmentCalendar appointments;
     private List<MailAccountChecker> accounts;
-    private boolean absent;
 
     /**
      * Erstellt eine neue Instanz der Klasse Benutzer. Liest, wenn vorhanden,
@@ -66,22 +49,6 @@ public final class User implements Iterable<MailAccountChecker> {
         File dataFolder = new File(DATA_FOLDER).getAbsoluteFile();
         if (!dataFolder.exists()) {
             dataFolder.mkdirs();
-        }
-
-        File sickNoteFile = new File(SICKNOTE_PATH);
-        try {
-            sickNote = Serializer.deserializePlainText(sickNoteFile);
-        } catch (IOException ex) {
-            LOGGER.warn("Cold not load doctors note", ex);
-            sickNote = "Ich bin krank";
-        }
-
-        File absenceMessageFile = new File(ABSENCE_PATH);
-        try {
-            absenceMessage = Serializer.deserializePlainText(absenceMessageFile);
-        } catch (IOException ex) {
-            LOGGER.warn("Cold not load absence message", ex);
-            absenceMessage = "Ich bin nicht da";
         }
 
         try {
@@ -115,7 +82,6 @@ public final class User implements Iterable<MailAccountChecker> {
             // Lade MailAccount
             MailAccount loadedAccount = Serializer.deserializeJson(accountFile, MailAccount.class);
             MailAccountChecker checker = new MailAccountChecker(loadedAccount);
-            checker.addNewMessageListener(getListener());
 
             accounts.add(checker);
         }
@@ -136,43 +102,6 @@ public final class User implements Iterable<MailAccountChecker> {
             }
         }
         return singleton;
-    }
-
-    /**
-     * Gibt eine neue Instanz der Implementierung des NewMailListeners zurück
-     *
-     * @return Neue Instanz der Implementierung des NewMailListeners
-     */
-    private NewMailListener getListener() {
-        return new NewMailListener() {
-            @Override
-            public void newMessage(NewMailEvent e) {
-                // TODO Teste mich hart
-
-                MailAccount account = ((MailAccountChecker) e.getSource()).getAccount();
-                StoredMailInfo info = e.getInfo();
-                String path = e.getFolder();
-
-                InternetAddress from = (InternetAddress) info.getSender();
-                InternetAddress to = account.getAddress();
-
-                String subject = info.getSubject();
-
-                // Abfrage auf erhaltene Krankheits-Mail
-                if (from.equals(to) && "Ich bin krank".equals(subject)) {
-                    try {
-                        cancelAppointments(account);
-                    } catch (MessagingException ex) {
-                        LOGGER.error("Error while canceling appointments", ex);
-                    }
-                }
-
-                // Abfrage auf Abwesenheit des Benutzers
-                if (isAbsent()) {
-                    sendAbsenceMail(account, path, info);
-                }
-            }
-        };
     }
 
     @Override
@@ -215,7 +144,6 @@ public final class User implements Iterable<MailAccountChecker> {
             saveMailAccount(account);
 
             MailAccountChecker checker = new MailAccountChecker(account);
-            checker.addNewMessageListener(getListener());
             accounts.add(checker);
         } catch (IOException ex) {
             LOGGER.error("Error while adding account", ex);
@@ -314,9 +242,6 @@ public final class User implements Iterable<MailAccountChecker> {
             folder.mkdirs();
         }
 
-        Serializer.serializeStringToPlainText(new File(ABSENCE_PATH), absenceMessage);
-        Serializer.serializeStringToPlainText(new File(SICKNOTE_PATH), sickNote);
-
         Serializer.serializeObjectToJson(contactPath, contacts);
         Serializer.serializeObjectToJson(appointmentPath, appointments);
     }
@@ -342,72 +267,6 @@ public final class User implements Iterable<MailAccountChecker> {
         }
 
         Serializer.serializeObjectToJson(path, acc);
-    }
-
-    /**
-     * Gibt zurück, ob der User abwesend ist
-     *
-     * @return Status der Anwesenheit
-     */
-    public synchronized boolean isAbsent() {
-        return absent;
-    }
-
-    /**
-     * Setzt die Anwesenheit des Benutzers
-     *
-     * @param absent Zu setzender Status der Anwesenheit
-     */
-    public void setAbsent(boolean absent) {
-        synchronized (this) {
-            // TODO Hilfe, darf ich das?
-
-            this.absent = absent;
-        }
-    }
-
-    /**
-     * Sendet eine Abwesenheitsmail
-     *
-     * @param sender MailAccount über den die Mail gesendet werden soll
-     * @param path Pfad der zu beantwortenden Mail
-     * @param info StoredMailInfo der zu beantwortenden Mail
-     */
-    private void sendAbsenceMail(MailAccount sender, String path, StoredMailInfo info) {
-        // TODO Jetzt Abwesenheitmail senden
-
-        try {
-            sender.loadMessageData(path, info, EnumSet.of(MailContent.SENDER));
-
-            InternetAddress target = (InternetAddress) info.getSender();
-
-            String text = getAbsenceMessage();
-            MailInfo mailToSend = new MailInfo("Abwesenheit von " + sender.getAddress().getPersonal(),
-                    text, "TEXT/plain; charset=utf-8", new InternetAddress[]{target}, null, null);
-            sender.sendMail(mailToSend);
-        } catch (MessagingException | DAOException ex) {
-            LOGGER.error("Could not send absence message", ex);
-        }
-    }
-
-    private void cancelAppointments(MailAccount sender) throws MessagingException {
-        Appointment[] today = appointments.getAppointments();
-        for (Appointment termin : today) {
-            writeCancelation(termin, sender);
-        }
-        appointments.cancel();
-    }
-
-    private void writeCancelation(Appointment appointment, MailAccount sender) throws MessagingException {
-        String subject = "Absage: " + appointment.getSubject();
-        Address[] to = appointment.getAddresses();
-
-        if (to != null) {
-            String text = getSickNote();
-            MailInfo mailToSend = new MailInfo(subject,
-                    text, "TEXT/plain; charset=utf-8", to, null, null);
-            sender.sendMail(mailToSend);
-        }
     }
 
     /**
@@ -463,46 +322,9 @@ public final class User implements Iterable<MailAccountChecker> {
         for (MailAccount account : aloneAccounts) {
             // Erstellt einen neuen Checker für die MailAccounts
             MailAccountChecker newChecker = new MailAccountChecker(account);
-            newChecker.addNewMessageListener(getListener());
             accounts.add(newChecker);
         }
 
         return result;
-    }
-
-    /**
-     * Gibt die Abwesenheitsmeldung des Benutzers zurück.
-     *
-     * @return Abwesenheitsmeldung des Benutzers
-     */
-    public String getAbsenceMessage() {
-        return absenceMessage;
-    }
-
-    /**
-     * Setzt die Abwesenheitsmeldung des Benutzers.
-     *
-     * @param absenceMessage Abwesenheitsmeldung des Benutzers
-     */
-    public void setAbsenceMessage(String absenceMessage) {
-        this.absenceMessage = absenceMessage == null ? "" : absenceMessage;
-    }
-
-    /**
-     * Gibt die Krankmeldung des Benutzers zurück.
-     *
-     * @return Krankmeldung des Benutzers
-     */
-    public String getSickNote() {
-        return sickNote;
-    }
-
-    /**
-     * Setzt die Krankmeldung des Benutzers.
-     *
-     * @param sickNote Krankmeldung des Benutzers
-     */
-    public void setSickNote(String sickNote) {
-        this.sickNote = sickNote == null ? "" : sickNote;
     }
 }
