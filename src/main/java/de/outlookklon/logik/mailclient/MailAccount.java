@@ -137,9 +137,9 @@ public class MailAccount {
     public MailAccount(
             @JsonProperty("inboxMailServer") @NonNull InboxServer inboxMailServer,
             @JsonProperty("outboxMailServer") @NonNull OutboxServer outboxMailServer,
-            @JsonProperty("address") InternetAddress address,
-            @JsonProperty("user") String user,
-            @JsonProperty("password") String password)
+            @JsonProperty("address") @NonNull InternetAddress address,
+            @JsonProperty("user") @NonNull String user,
+            @JsonProperty("password") @NonNull String password)
             throws NullPointerException, IllegalArgumentException, IOException {
         this.inboxMailServer = inboxMailServer;
         this.outboxMailServer = outboxMailServer;
@@ -154,9 +154,6 @@ public class MailAccount {
 
     @Override
     public String toString() {
-        if (address == null) {
-            return "[No mail address set]";
-        }
         return address.toUnicodeString();
     }
 
@@ -572,7 +569,6 @@ public class MailAccount {
      *
      * @param mails MailInfos der zu löschenden Mails
      * @param path Pfad zum Ordner
-     * @return true, wenn das löschen erfolgreich war; sonst false
      * @throws javax.mail.MessagingException wenn ein Fehler seitens der
      * Mail-Library auftritt
      * @throws de.outlookklon.dao.DAOException wenn ein Fehler beim Zugriff auf
@@ -706,18 +702,7 @@ public class MailAccount {
      * <code>false</code>
      */
     private boolean validate(String user, String passwd) {
-        boolean inValid = false;
-        boolean outValid = false;
-
-        if (inboxMailServer != null) {
-            inValid = inboxMailServer.checkLogin(user, passwd);
-        }
-
-        if (outboxMailServer != null) {
-            outValid = outboxMailServer.checkLogin(user, passwd);
-        }
-
-        return inValid && outValid;
+        return inboxMailServer.checkLogin(user, passwd) && outboxMailServer.checkLogin(user, passwd);
     }
 
     /**
@@ -763,7 +748,7 @@ public class MailAccount {
      * @throws AuthenticationFailedException Tritt auf, wenn die Anmeldung mit
      * dem Passwort fehlgeschlagen ist
      */
-    public void setPassword(String password) throws AuthenticationFailedException {
+    public void setPassword(@NonNull String password) throws AuthenticationFailedException {
         if (!validate(user, password)) {
             throw new AuthenticationFailedException("Das übergebene Passwort ist ungültig");
         }

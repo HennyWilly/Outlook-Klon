@@ -168,7 +168,7 @@ public final class User implements Iterable<MailAccountChecker> {
                 }
 
                 // Abfrage auf Abwesenheit des Benutzers
-                if (!isAbsent()) {
+                if (isAbsent()) {
                     sendAbsenceMail(account, path, info);
                 }
             }
@@ -345,7 +345,7 @@ public final class User implements Iterable<MailAccountChecker> {
     }
 
     /**
-     * Gibt zurück, ob der User absent ist
+     * Gibt zurück, ob der User abwesend ist
      *
      * @return Status der Anwesenheit
      */

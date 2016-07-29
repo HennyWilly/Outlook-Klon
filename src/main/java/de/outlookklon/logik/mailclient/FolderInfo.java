@@ -1,5 +1,8 @@
 package de.outlookklon.logik.mailclient;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+
 /**
  * Datenklasse zum Halten von abgefragten Informationen von Ordnern
  *
@@ -93,13 +96,20 @@ public class FolderInfo {
             return true;
         }
 
-        FolderInfo ordner = (FolderInfo) other;
-
-        return this.path.equals(ordner.path);
+        FolderInfo folder = (FolderInfo) other;
+        return new EqualsBuilder()
+                .append(getName(), folder.getName())
+                .append(getPath(), folder.getPath())
+                .append(getNumberUnread(), folder.getNumberUnread())
+                .isEquals();
     }
 
     @Override
     public int hashCode() {
-        return this.path.hashCode();
+        return new HashCodeBuilder()
+                .append(getName())
+                .append(getPath())
+                .append(getNumberUnread())
+                .toHashCode();
     }
 }
