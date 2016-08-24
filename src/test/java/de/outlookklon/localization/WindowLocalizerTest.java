@@ -1,6 +1,6 @@
 package de.outlookklon.localization;
 
-import de.outlookklon.gui.ExtendedFrame;
+import de.outlookklon.gui.frames.ExtendedFrame;
 import java.awt.event.WindowEvent;
 import javax.swing.JFrame;
 import org.junit.Before;

@@ -1,8 +1,9 @@
-package de.outlookklon.gui;
+package de.outlookklon.gui.dialogs;
 
 import de.outlookklon.localization.ILocalizable;
 import de.outlookklon.localization.WindowLocalizer;
 import java.awt.Dialog;
+import java.awt.Window;
 import java.awt.event.WindowEvent;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -22,14 +23,18 @@ public abstract class ExtendedDialog<T> extends JDialog implements ILocalizable 
      * Wird von Subklassen aufgerufen, um einige häufig in Dialogen verwendete
      * Werte zu setzen.
      *
+     * @param parent Das Vaterfenster des Dialogs
      * @param width Erzwingt die übergabe der initialen Breite des Dialogs
      * @param height Erzwingt die übergabe der initialen Höhe des Dialogs
      */
-    protected ExtendedDialog(int width, int height) {
+    protected ExtendedDialog(Window parent, int width, int height) {
+        initBaseSettings(parent, width, height);
+    }
+
+    private void initBaseSettings(Window parent, int width, int height) {
         this.setSize(width, height);
 
-        // Fenster in der Mitte des Bildschirms
-        this.setLocationRelativeTo(null);
+        this.setLocationRelativeTo(parent);
         this.setModalityType(Dialog.DEFAULT_MODALITY_TYPE);
         this.setResizable(false);
 

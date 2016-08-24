@@ -1,5 +1,6 @@
-package de.outlookklon.gui;
+package de.outlookklon.gui.frames;
 
+import de.outlookklon.gui.dialogs.AppointmentFrame;
 import de.outlookklon.gui.helpers.Events;
 import de.outlookklon.localization.Localization;
 import de.outlookklon.logik.User;
@@ -377,7 +378,7 @@ public class AppointmentCalendarFrame extends ExtendedFrame {
     }
 
     private void newAppointment() {
-        AppointmentFrame appointmentFrame = new AppointmentFrame();
+        AppointmentFrame appointmentFrame = new AppointmentFrame(this);
         Appointment dummy = appointmentFrame.showDialog();
 
         if (dummy != null) {
@@ -393,7 +394,7 @@ public class AppointmentCalendarFrame extends ExtendedFrame {
     }
 
     private void newAppointment(Date date) {
-        AppointmentFrame appointmentFrame = new AppointmentFrame(date);
+        AppointmentFrame appointmentFrame = new AppointmentFrame(this, date);
         Appointment dummy = appointmentFrame.showDialog();
 
         if (dummy != null) {
@@ -409,7 +410,7 @@ public class AppointmentCalendarFrame extends ExtendedFrame {
     }
 
     private void editAppointment(Appointment appointment) {
-        AppointmentFrame appointmentFrame = new AppointmentFrame(appointment);
+        AppointmentFrame appointmentFrame = new AppointmentFrame(this, appointment);
         appointmentFrame.showDialog();
 
         int row = tblAppointments.convertRowIndexToModel(tblAppointments.getSelectedRow());

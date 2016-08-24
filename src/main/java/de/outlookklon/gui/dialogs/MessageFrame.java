@@ -1,6 +1,7 @@
-package de.outlookklon.gui;
+package de.outlookklon.gui.dialogs;
 
 import de.outlookklon.localization.Localization;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.JButton;
@@ -25,11 +26,12 @@ public class MessageFrame extends ExtendedDialog<String> {
     /**
      * Erstellt ein neues {@link MeldungsFrame}.
      *
+     * @param parent Das Vaterfenster des Dialogs
      * @param text Initialer Text des Fensters.
      * @param title Titel des Fensters.
      */
-    public MessageFrame(String text, String title) {
-        super(400, 365);
+    public MessageFrame(Window parent, String text, String title) {
+        super(parent, 400, 365);
 
         textMessage = new JTextPane();
         btnOk = new JButton();

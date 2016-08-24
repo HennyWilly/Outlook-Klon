@@ -1,9 +1,13 @@
-package de.outlookklon.gui;
+package de.outlookklon.gui.frames;
 
 import de.outlookklon.dao.DAOException;
+import de.outlookklon.gui.components.HtmlEditorPane;
+import de.outlookklon.gui.components.Statusbar;
+import de.outlookklon.gui.components.TaggedJRadioButtonMenuItem;
+import de.outlookklon.gui.dialogs.MessageFrame;
 import de.outlookklon.gui.helpers.Dialogs;
 import de.outlookklon.gui.helpers.Events;
-import de.outlookklon.gui.helpers.TaggedJRadioButtonMenuItem;
+import de.outlookklon.gui.helpers.StatusbarProvider;
 import de.outlookklon.localization.Localization;
 import de.outlookklon.logik.User;
 import de.outlookklon.logik.UserException;
@@ -17,6 +21,7 @@ import de.outlookklon.logik.mailclient.checker.NewMailEvent;
 import de.outlookklon.logik.mailclient.checker.NewMailListener;
 import java.awt.Component;
 import java.awt.Font;
+import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
@@ -35,6 +40,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import javax.imageio.ImageIO;
 import javax.mail.FolderNotFoundException;
 import javax.mail.MessagingException;
 import javax.mail.internet.InternetAddress;
@@ -127,6 +133,8 @@ public class MainFrame extends ExtendedFrame {
     private final JTree tree;
     private final HtmlEditorPane tpPreview;
 
+    private final Statusbar statusbar;
+
     private User user;
 
     private boolean load;
@@ -162,6 +170,7 @@ public class MainFrame extends ExtendedFrame {
         popupMove = new JMenu();
 
         tpPreview = new HtmlEditorPane();
+        statusbar = new Statusbar();
 
         tblMails = new JTable() {
             private static final long serialVersionUID = 1L;
@@ -183,6 +192,7 @@ public class MainFrame extends ExtendedFrame {
 
         initGui();
         updateTexts();
+        StatusbarProvider.addStatusbar(statusbar);
 
         this.addWindowListener(new WindowAdapter() {
             @Override
@@ -235,6 +245,8 @@ public class MainFrame extends ExtendedFrame {
         columnModel.getColumn(MAIL_TABLE_COLUMN_INDEX_DATE).setHeaderValue(Localization.getString("Appointment_Date"));
 
         updateLanguageMenu();
+
+        StatusbarProvider.setText("Language updated");
 
         repaint();
     }
@@ -326,17 +338,48 @@ public class MainFrame extends ExtendedFrame {
         });
         toolBar.add(btnPoll);
         GroupLayout groupLayout = new GroupLayout(getContentPane());
-        groupLayout.setHorizontalGroup(groupLayout.createParallelGroup(Alignment.LEADING)
+        groupLayout.setHorizontalGroup(
+                groupLayout.createParallelGroup(Alignment.LEADING)
                 .addComponent(toolBar, GroupLayout.DEFAULT_SIZE, 547, Short.MAX_VALUE)
-                .addComponent(horizontalSplitPane, GroupLayout.DEFAULT_SIZE, 547, Short.MAX_VALUE));
-        groupLayout.setVerticalGroup(groupLayout.createParallelGroup(Alignment.LEADING)
+                .addComponent(horizontalSplitPane, GroupLayout.DEFAULT_SIZE, 547, Short.MAX_VALUE)
+                .addComponent(statusbar, GroupLayout.DEFAULT_SIZE, 547, Short.MAX_VALUE)
+        );
+        groupLayout.setVerticalGroup(
+                groupLayout.createParallelGroup(Alignment.LEADING)
                 .addGroup(groupLayout.createSequentialGroup()
                         .addComponent(toolBar, GroupLayout.PREFERRED_SIZE, 28, GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(ComponentPlacement.RELATED)
-                        .addComponent(horizontalSplitPane, GroupLayout.DEFAULT_SIZE, 343, Short.MAX_VALUE).addGap(0)));
+                        .addComponent(horizontalSplitPane, GroupLayout.DEFAULT_SIZE, 343, Short.MAX_VALUE)
+                        .addPreferredGap(ComponentPlacement.RELATED)
+                        .addComponent(statusbar, GroupLayout.DEFAULT_SIZE, 16, 16)
+                )
+        );
+
         getContentPane().setLayout(groupLayout);
 
         initMenu();
+        initFrameIcons();
+    }
+
+    /**
+     * Initialisiert das Icon des Frames. Es werdern Icons in verschiedenen
+     * Größen geladen, die an verschiedenen Stellen angezeigt werden.
+     *
+     * @see
+     * <a href="https://www.iconfinder.com/icons/34317/email_envelope_mail_icon">iconfinder.com</a>
+     */
+    private void initFrameIcons() {
+        try {
+            List<Image> icons = new ArrayList<>();
+            icons.add(ImageIO.read(getClass().getResource("mainFrameIcon_16x16.png")));
+            icons.add(ImageIO.read(getClass().getResource("mainFrameIcon_24x24.png")));
+            icons.add(ImageIO.read(getClass().getResource("mainFrameIcon_32x32.png")));
+            icons.add(ImageIO.read(getClass().getResource("mainFrameIcon_64x64.png")));
+            icons.add(ImageIO.read(getClass().getResource("mainFrameIcon_128x128.png")));
+            setIconImages(icons);
+        } catch (IOException ex) {
+            // TODO Localize error msg
+        }
     }
 
     /**
@@ -849,7 +892,7 @@ public class MainFrame extends ExtendedFrame {
      * MailAccount-Instanzen
      */
     private void openAccountManagementFrame() {
-        AccountManagementFrame accountManagementFrame = new AccountManagementFrame();
+        AccountManagementFrame accountManagementFrame = new AccountManagementFrame(this);
 
         MailAccount[] accounts = accountManagementFrame.showDialog();
         if (accounts != null) {
@@ -1482,7 +1525,7 @@ public class MainFrame extends ExtendedFrame {
      * Öffnet ein Fenster zum Bearbeiten der Abwesenheitmeldung des Benutzers
      */
     private void editAbsenceMessage() {
-        MessageFrame messageFrame = new MessageFrame(user.getAbsenceMessage(),
+        MessageFrame messageFrame = new MessageFrame(this, user.getAbsenceMessage(),
                 Localization.getString("Message_AbsenceMessage"));
         String message = messageFrame.showDialog();
 
@@ -1495,7 +1538,7 @@ public class MainFrame extends ExtendedFrame {
      * Öffnet ein Fenster zum Bearbeiten der Krankmeldung des Benutzers
      */
     private void editSickNote() {
-        MessageFrame messageFrame = new MessageFrame(user.getSickNote(),
+        MessageFrame messageFrame = new MessageFrame(this, user.getSickNote(),
                 Localization.getString("Message_SickNote"));
         String message = messageFrame.showDialog();
 

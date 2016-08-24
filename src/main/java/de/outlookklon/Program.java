@@ -1,6 +1,6 @@
 package de.outlookklon;
 
-import de.outlookklon.gui.MainFrame;
+import de.outlookklon.gui.frames.MainFrame;
 import de.outlookklon.logik.UserException;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;

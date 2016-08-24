@@ -1,4 +1,4 @@
-package de.outlookklon.gui.helpers;
+package de.outlookklon.gui.components;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;

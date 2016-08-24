@@ -1,4 +1,4 @@
-package de.outlookklon.gui.helpers;
+package de.outlookklon.gui.components;
 
 import javax.swing.JRadioButtonMenuItem;
 import lombok.Getter;

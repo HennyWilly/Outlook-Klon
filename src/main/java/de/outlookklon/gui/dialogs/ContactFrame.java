@@ -1,10 +1,11 @@
-package de.outlookklon.gui;
+package de.outlookklon.gui.dialogs;
 
 import de.outlookklon.gui.helpers.Dialogs;
 import de.outlookklon.gui.helpers.ListFocusTraversalPolicy;
 import de.outlookklon.localization.Localization;
 import de.outlookklon.logik.contacts.Contact;
 import java.awt.Component;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -62,19 +63,22 @@ public class ContactFrame extends ExtendedDialog<Contact> {
 
     /**
      * Erstellt eine neue Instanz der Klasse zum Erstellen eines Kontakts
+     *
+     * @param parent Das Vaterfenster des Dialogs
      */
-    public ContactFrame() {
-        this(null);
+    public ContactFrame(Window parent) {
+        this(parent, null);
     }
 
     /**
      * Erstellt eine neue Instanz der Klasse zum Bearbeiten des übergebenen
      * Kontakts
      *
+     * @param parent Das Vaterfenster des Dialogs
      * @param contact Contact-Instanz, die in dem Frame bearbeitet werden soll
      */
-    public ContactFrame(Contact contact) {
-        super(685, 285);
+    public ContactFrame(Window parent, Contact contact) {
+        super(parent, 685, 285);
 
         this.mContact = contact;
 
