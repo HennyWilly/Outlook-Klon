@@ -1,14 +1,15 @@
 package de.outlookklon.logik.calendar;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import de.outlookklon.logik.User;
 import de.outlookklon.logik.contacts.Contact;
+import de.outlookklon.logik.contacts.ContactManagement;
 import java.util.ArrayList;
 import java.util.List;
 import javax.mail.Address;
-import javax.mail.internet.InternetAddress;
 import org.joda.time.DateTime;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Dies ist eine Datenklasse, die die Daten von einem Appointment des Benutzers
@@ -37,13 +38,14 @@ public class Appointment implements Comparable<Appointment> {
     private String user;
 
     @JsonProperty("contact")
-    private String contact;
+    private String contactName;
 
     @JsonProperty("state")
     private AppointmentState status;
 
-    @JsonProperty("addresses")
-    private Address[] addresses;
+    @JsonIgnore
+    @Autowired
+    private ContactManagement contacts;
 
     /**
      * Erstellt eine neue Instanz der Klasse mit den übergebenen Werten
@@ -54,30 +56,16 @@ public class Appointment implements Comparable<Appointment> {
      * @param end Endzeitpunkt des Termins
      * @param text Text des Termins
      * @param user Name des Benutzers
-     * @param contact Name des Kontakts
+     * @param contactName Name des Kontakts
      */
-    public Appointment(String subject, String location, DateTime start, DateTime end, String text, String user, String contact) {
+    public Appointment(String subject, String location, DateTime start, DateTime end, String text, String user, String contactName) {
         setSubject(subject);
         setLocation(location);
         setTimes(start, end);
         setText(text);
         setUser(user);
-        setContact(contact);
+        setContact(contactName);
         setState(AppointmentState.PROMISED);
-
-        List<Address> temp = new ArrayList<>();
-        for (Contact contacts : User.getInstance().getContacts()) {
-            if (contacts.getDisplayname() != null && contacts.getDisplayname().equals(contact)) {
-                if (contacts.getAddress1() != null) {
-                    temp.add(contacts.getAddress1());
-                }
-                if (contacts.getAddress2() != null) {
-                    temp.add(contacts.getAddress2());
-                }
-                break;
-            }
-        }
-        setAddresses(temp.toArray(new Address[temp.size()]));
     }
 
     /**
@@ -91,7 +79,6 @@ public class Appointment implements Comparable<Appointment> {
      * @param user Name des Benutzers
      * @param contact Name des Kontakts
      * @param state Status des Termins
-     * @param addresses Verknüpfte Adressen des Termins
      */
     @JsonCreator
     public Appointment(
@@ -102,8 +89,7 @@ public class Appointment implements Comparable<Appointment> {
             @JsonProperty("text") String text,
             @JsonProperty("user") String user,
             @JsonProperty("contact") String contact,
-            @JsonProperty("state") AppointmentState state,
-            @JsonProperty("addresses") InternetAddress[] addresses) {
+            @JsonProperty("state") AppointmentState state) {
         setSubject(subject);
         setLocation(location);
         setTimes(start, end);
@@ -111,7 +97,6 @@ public class Appointment implements Comparable<Appointment> {
         setUser(user);
         setContact(contact);
         setState(state);
-        setAddresses(addresses);
     }
 
     /**
@@ -223,8 +208,8 @@ public class Appointment implements Comparable<Appointment> {
      *
      * @param contact Zu setzende Contact
      */
-    public void setContact(String contact) {
-        this.contact = contact;
+    public void setContact(String contactName) {
+        this.contactName = contactName;
     }
 
     /**
@@ -233,7 +218,7 @@ public class Appointment implements Comparable<Appointment> {
      * @return Contact
      */
     public String getContact() {
-        return contact;
+        return contactName;
     }
 
     /**
@@ -260,16 +245,19 @@ public class Appointment implements Comparable<Appointment> {
      * @return Adressen zum Appointment
      */
     public Address[] getAddresses() {
-        return addresses;
-    }
-
-    /**
-     * Setzt die verknüpfen Adressen zum Appointment
-     *
-     * @param addresses Adressen zum Appointment
-     */
-    public void setAddresses(Address[] addresses) {
-        this.addresses = addresses;
+        List<Address> temp = new ArrayList<>();
+        for (Contact contact : contacts) {
+            if (contact.getDisplayname() != null && contact.getDisplayname().equals(contactName)) {
+                if (contact.getAddress1() != null) {
+                    temp.add(contact.getAddress1());
+                }
+                if (contact.getAddress2() != null) {
+                    temp.add(contact.getAddress2());
+                }
+                break;
+            }
+        }
+        return temp.toArray(new Address[temp.size()]);
     }
 
     @Override

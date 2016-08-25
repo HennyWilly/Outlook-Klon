@@ -12,7 +12,16 @@ import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.Matchers.hasEntry;
 import static org.junit.Assert.assertThat;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import static org.mockito.Mockito.spy;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration
 public class ContactTest {
 
     private static final String EXAMPLE_JSON
@@ -36,6 +45,9 @@ public class ContactTest {
             + "  \"mobilephone\" : \"78901\""
             + "}";
 
+    @Autowired
+    private Serializer serializer;
+
     @Test
     public void shouldSaveAsJson() throws Exception {
         Contact contact = new Contact("Willy", "Henny", "Henny Willy", "HennyMan",
@@ -43,7 +55,7 @@ public class ContactTest {
                 new InternetAddress("henny@willy.com"),
                 "23456", "12345", "78901");
 
-        String json = Serializer.serializeObjectToJson(contact);
+        String json = serializer.serializeObjectToJson(contact);
         assertThat(json, jsonEquals(EXAMPLE_JSON));
     }
 
@@ -53,7 +65,7 @@ public class ContactTest {
                 new InternetAddress("henny@willy.de"),
                 new InternetAddress("henny@willy.com"),
                 "23456", "12345", "78901");
-        Contact contactActual = Serializer.deserializeJson(EXAMPLE_JSON, Contact.class);
+        Contact contactActual = serializer.deserializeJson(EXAMPLE_JSON, Contact.class);
 
         assertThat(contactActual, is(equalTo(contactExpected)));
     }
@@ -118,5 +130,14 @@ public class ContactTest {
         assertThat(contact1.getAddress1AsString(), is("henny@willy.de"));
         assertThat(contact1.getAddress2AsString(), is(""));
         assertThat(contact2.getAddress1AsString(), is("TestNewsGroup"));
+    }
+
+    @Configuration
+    public static class ContactTestConfiguration {
+
+        @Bean
+        public Serializer getSerializer() {
+            return spy(new Serializer());
+        }
     }
 }

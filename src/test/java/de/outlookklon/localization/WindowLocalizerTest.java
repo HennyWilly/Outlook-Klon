@@ -9,9 +9,6 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 
-/**
- * @author Hendrik Karwanni
- */
 public class WindowLocalizerTest {
 
     private WindowLocalizer localizer;
@@ -54,6 +51,11 @@ public class WindowLocalizerTest {
 
         @Override
         public void updateTexts() {
+            // Just an empty implementation
+        }
+
+        @Override
+        protected void initializeFrame() {
             // Just an empty implementation
         }
     }

@@ -1,7 +1,7 @@
 package de.outlookklon.gui;
 
-import de.outlookklon.gui.components.HtmlEditorPane;
 import de.outlookklon.dao.DAOException;
+import de.outlookklon.gui.components.HtmlEditorPane;
 import de.outlookklon.gui.components.ReadOnlyJTable;
 import de.outlookklon.gui.components.TaggedJRadioButtonMenuItem;
 import de.outlookklon.gui.helpers.Dialogs;
@@ -79,6 +79,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Diese Klasse stellt das Hauptfenster der Anwendung dar. Hier werden die
@@ -97,6 +98,9 @@ public class MainFrame extends ExtendedFrame {
     private static final int MAIL_TABLE_COLUMN_INDEX_SUBJECT = 0;
     private static final int MAIL_TABLE_COLUMN_INDEX_FROM = 1;
     private static final int MAIL_TABLE_COLUMN_INDEX_DATE = 2;
+
+    @Autowired
+    private AccountManagementFrame accountManagementFrame;
 
     private JPopupMenu tablePopup;
     private final JMenuItem popupOpen;
@@ -124,6 +128,7 @@ public class MainFrame extends ExtendedFrame {
     private final JTree tree;
     private final HtmlEditorPane tpPreview;
 
+    @Autowired
     private User user;
 
     private boolean load;
@@ -132,8 +137,6 @@ public class MainFrame extends ExtendedFrame {
      * Erstellt eine neue Instanz des Hauptfensters
      */
     public MainFrame() throws UserException {
-        user = User.getInstance();
-
         btnPoll = new JButton();
         mnFile = new JMenu();
         mnNewMenu = new JMenu();
@@ -166,7 +169,10 @@ public class MainFrame extends ExtendedFrame {
                 return false;
             }
         };
+    }
 
+    @Override
+    protected void initializeFrame() {
         initGui();
         updateTexts();
 
@@ -670,11 +676,11 @@ public class MainFrame extends ExtendedFrame {
 
                     String folderName = selectedNode.toString();
 
-                    setTitle(folderName + " - " + account.getAddress().getAddress());
+                    setTitle(folderName + " - " + account.getAddress());
                 } else {
                     checker = (MailAccountChecker) userObject;
 
-                    setTitle(checker.getAccount().getAddress().getAddress());
+                    setTitle(checker.getAccount().getAddress());
                 }
 
                 loadMails(checker, selectedNode);
@@ -798,8 +804,6 @@ public class MainFrame extends ExtendedFrame {
      * MailAccount-Instanzen
      */
     private void openAccountManagementFrame() {
-        AccountManagementFrame accountManagementFrame = new AccountManagementFrame();
-
         MailAccount[] accounts = accountManagementFrame.showDialog();
         if (accounts != null) {
             // Flag, die angibt, ob der Baum neugezeichnet werden soll
@@ -829,12 +833,6 @@ public class MainFrame extends ExtendedFrame {
 
             // Füge neue MailAccounts dem Baum hinzu
             for (MailAccount acc : accounts) {
-                try {
-                    user.setMailInfoDAO(acc);
-                } catch (IOException ex) {
-                    LOGGER.warn("Could not create directory for MailInfo objects.", ex);
-                }
-
                 Iterator<MailAccount> iterator = deleteable.iterator();
 
                 while (iterator.hasNext()) {
@@ -1208,7 +1206,7 @@ public class MainFrame extends ExtendedFrame {
         if (userObject instanceof MailAccountChecker) {
             MailAccountChecker checker = (MailAccountChecker) userObject;
             MailAccount acc = checker.getAccount();
-            menuTitle = acc.getAddress().getAddress();
+            menuTitle = acc.getAddress();
         } else {
             menuTitle = node.getUserObject().toString();
         }

@@ -12,6 +12,8 @@ import java.nio.charset.Charset;
 import javax.mail.Address;
 import javax.mail.internet.InternetAddress;
 import org.apache.commons.io.FileUtils;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Service;
 
 /**
  * This class manages serialization/deserialization of Objects to JSON and vise
@@ -19,26 +21,25 @@ import org.apache.commons.io.FileUtils;
  *
  * @author Hendrik Karwanni
  */
-public final class Serializer {
+@Service
+@Scope(value = "singleton")
+public class Serializer {
 
     private static final Charset CHARSET = Charset.forName("UTF-8");
 
-    private static final ObjectMapper MAPPER;
+    private final ObjectMapper mapper;
 
-    static {
-        MAPPER = new ObjectMapper();
-        MAPPER.enable(SerializationFeature.INDENT_OUTPUT);
-        MAPPER.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+    public Serializer() {
+        mapper = new ObjectMapper();
+        mapper.enable(SerializationFeature.INDENT_OUTPUT);
+        mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
 
-        MAPPER.addMixIn(Address.class, AddressMixIn.class);
-        MAPPER.addMixIn(InternetAddress.class, InternetAddressMixIn.class);
+        mapper.addMixIn(Address.class, AddressMixIn.class);
+        mapper.addMixIn(InternetAddress.class, InternetAddressMixIn.class);
 
-        MAPPER.registerModule(new JodaModule());
-        MAPPER.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-        MAPPER.enable(SerializationFeature.WRITE_DATES_WITH_ZONE_ID);
-    }
-
-    private Serializer() {
+        mapper.registerModule(new JodaModule());
+        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        mapper.enable(SerializationFeature.WRITE_DATES_WITH_ZONE_ID);
     }
 
     /**
@@ -51,8 +52,8 @@ public final class Serializer {
      * @return a deserialized object
      * @throws IOException if deserialization fails
      */
-    public static <T> T deserializeJson(File target, Class<T> clazz) throws IOException {
-        return MAPPER.readValue(target, clazz);
+    public <T> T deserializeJson(File target, Class<T> clazz) throws IOException {
+        return mapper.readValue(target, clazz);
     }
 
     /**
@@ -64,8 +65,8 @@ public final class Serializer {
      * @return a deserialized object
      * @throws IOException if deserialization fails
      */
-    public static <T> T deserializeJson(String jsonString, Class<T> clazz) throws IOException {
-        return MAPPER.readValue(jsonString, clazz);
+    public <T> T deserializeJson(String jsonString, Class<T> clazz) throws IOException {
+        return mapper.readValue(jsonString, clazz);
     }
 
     /**
@@ -75,7 +76,7 @@ public final class Serializer {
      * @return a deserialized string
      * @throws IOException if deserialization fails
      */
-    public static String deserializePlainText(File target) throws IOException {
+    public String deserializePlainText(File target) throws IOException {
         return FileUtils.readFileToString(target, CHARSET);
     }
 
@@ -87,8 +88,8 @@ public final class Serializer {
      * @param value object to be serialized
      * @throws IOException if serialization fails
      */
-    public static <T> void serializeObjectToJson(File target, T value) throws IOException {
-        MAPPER.writeValue(target, value);
+    public <T> void serializeObjectToJson(File target, T value) throws IOException {
+        mapper.writeValue(target, value);
     }
 
     /**
@@ -99,8 +100,8 @@ public final class Serializer {
      * @return JSON as String
      * @throws IOException if serialization fails
      */
-    public static <T> String serializeObjectToJson(T value) throws IOException {
-        return MAPPER.writeValueAsString(value);
+    public <T> String serializeObjectToJson(T value) throws IOException {
+        return mapper.writeValueAsString(value);
     }
 
     /**
@@ -110,7 +111,7 @@ public final class Serializer {
      * @param value string to be serialized
      * @throws IOException if serialization fails
      */
-    public static void serializeStringToPlainText(File target, String value) throws IOException {
+    public void serializeStringToPlainText(File target, String value) throws IOException {
         FileUtils.writeStringToFile(target, value, CHARSET);
     }
 }

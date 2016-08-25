@@ -15,6 +15,10 @@ public abstract class ExtendedFrame extends JFrame implements ILocalizable {
 
     private static final long serialVersionUID = 1L;
 
+    private final Object lock = new Object();
+
+    private boolean frameStartedOnce = false;
+
     /**
      * Wird implizit durch Subklassen aufgerufen, um den WindowLocalizer als
      * WindowListener zu registrieren.
@@ -30,5 +34,20 @@ public abstract class ExtendedFrame extends JFrame implements ILocalizable {
      */
     public void close() {
         this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
+    }
+
+    protected abstract void initializeFrame();
+
+    @Override
+    public void setVisible(boolean visible) {
+        if (visible) {
+            synchronized (lock) {
+                if (!frameStartedOnce) {
+                    frameStartedOnce = true;
+                    initializeFrame();
+                }
+            }
+        }
+        super.setVisible(visible);
     }
 }

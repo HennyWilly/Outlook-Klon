@@ -13,11 +13,14 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import static org.mockito.Mockito.spy;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest(InternetAddressDeserializer.class)
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration
 public class InternetAddressDeserializerTest {
 
     private static final String EXAMPLE_JSON
@@ -31,6 +34,9 @@ public class InternetAddressDeserializerTest {
     private DeserializationContext context;
     private InternetAddressDeserializer deserializer;
 
+    @Autowired
+    private Serializer serializer;
+
     @Before
     public void init() throws Exception {
         ObjectMapper mapper = getSerializerMapper();
@@ -41,11 +47,11 @@ public class InternetAddressDeserializerTest {
     }
 
     private ObjectMapper getSerializerMapper() throws Exception {
-        Field f = Serializer.class.getDeclaredField("MAPPER");
+        Field f = Serializer.class.getDeclaredField("mapper");
         f.setAccessible(true);
 
         try {
-            return spy((ObjectMapper) f.get(null));
+            return spy((ObjectMapper) f.get(serializer));
         } finally {
             f.setAccessible(false);
         }
@@ -59,5 +65,14 @@ public class InternetAddressDeserializerTest {
         Address actual = deserializer.deserialize(parser, context);
 
         assertThat(actual, is(expected));
+    }
+
+    @Configuration
+    public static class InternetAddressDeserializerTestConfiguration {
+
+        @Bean
+        public Serializer getSerializer() {
+            return spy(new Serializer());
+        }
     }
 }

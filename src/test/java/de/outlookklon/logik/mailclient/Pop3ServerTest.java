@@ -11,9 +11,18 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration
 public class Pop3ServerTest {
 
     private static final String EXAMPLE_JSON
@@ -27,6 +36,9 @@ public class Pop3ServerTest {
             + "  },"
             + "  \"serverType\" : \"POP3\""
             + "}";
+
+    @Autowired
+    private Serializer serializer;
 
     @Test(expected = NullPointerException.class)
     public void shouldNotCreatePop3Server_SettingsNull() throws Exception {
@@ -91,7 +103,7 @@ public class Pop3ServerTest {
         ServerSettings settings = new ServerSettings("mail.xyz.com", 123, ConnectionSecurity.SSL_TLS, AuthentificationType.NORMAL);
         MailServer server = new Pop3Server(settings);
 
-        String json = Serializer.serializeObjectToJson(server);
+        String json = serializer.serializeObjectToJson(server);
         assertThat(json, jsonEquals(EXAMPLE_JSON));
     }
 
@@ -100,7 +112,7 @@ public class Pop3ServerTest {
         ServerSettings settings = new ServerSettings("mail.xyz.com", 123, ConnectionSecurity.SSL_TLS, AuthentificationType.NORMAL);
         MailServer expected = new Pop3Server(settings);
 
-        MailServer actual = Serializer.deserializeJson(EXAMPLE_JSON, MailServer.class);
+        MailServer actual = serializer.deserializeJson(EXAMPLE_JSON, MailServer.class);
         assertThat(actual, is(equalTo(expected)));
     }
 
@@ -122,5 +134,14 @@ public class Pop3ServerTest {
         Store store = expected.getMailStore("TestUser", "TestPW");
         URLName name = store.getURLName();
         assertThat(name.getProtocol(), is("pop3"));
+    }
+
+    @Configuration
+    public static class Pop3ServerTestConfiguration {
+
+        @Bean
+        public Serializer getSerializer() {
+            return spy(new Serializer());
+        }
     }
 }

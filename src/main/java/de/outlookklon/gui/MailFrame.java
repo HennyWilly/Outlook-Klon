@@ -1,7 +1,7 @@
 package de.outlookklon.gui;
 
-import de.outlookklon.gui.components.HtmlEditorPane;
 import de.outlookklon.dao.DAOException;
+import de.outlookklon.gui.components.HtmlEditorPane;
 import de.outlookklon.gui.helpers.Dialogs;
 import de.outlookklon.gui.helpers.Events;
 import de.outlookklon.localization.Localization;
@@ -52,6 +52,7 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Dieses Frame dient zum Erstellen und Anzeigen von E-Mails.
@@ -118,6 +119,9 @@ public class MailFrame extends ExtendedFrame {
     private final JList<String> lstAttachment;
 
     private String charset;
+
+    @Autowired
+    private User user;
 
     private MailFrame(MailMode mailMode) {
         this.mailMode = mailMode;
@@ -314,6 +318,11 @@ public class MailFrame extends ExtendedFrame {
             tpMailtext.setText(text);
             rdBtnMntmHtml.setSelected(true);
         }
+    }
+
+    @Override
+    protected void initializeFrame() {
+        // Nothng to do here :)
     }
 
     @Override
@@ -586,7 +595,7 @@ public class MailFrame extends ExtendedFrame {
      * Fügt alle registrierten MailAccounts der entsprechenden ComboBox hinzu
      */
     private void addMailAccounts() {
-        for (MailAccountChecker checker : User.getInstance()) {
+        for (MailAccountChecker checker : user) {
             MailAccount acc = checker.getAccount();
             addMailAccount(acc);
         }

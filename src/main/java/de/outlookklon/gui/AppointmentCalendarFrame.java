@@ -39,6 +39,7 @@ import javax.swing.table.TableModel;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Dieses Fenster zeigt den AppointmentCalendar des Benutzers an.
@@ -58,7 +59,6 @@ public class AppointmentCalendarFrame extends ExtendedFrame {
 
     private final JTable tblAppointments;
     private final JTextPane textDetails;
-    private final AppointmentCalendar calendar;
 
     private final JPopupMenu appointmentPopup;
     private final JMenu mnFile;
@@ -73,9 +73,13 @@ public class AppointmentCalendarFrame extends ExtendedFrame {
 
     private final JPanel panel;
 
-    private AppointmentCalendarFrame() {
-        calendar = User.getInstance().getAppointments();
+    @Autowired
+    private User user;
 
+    @Autowired
+    private AppointmentCalendar calendar;
+
+    private AppointmentCalendarFrame() {
         tblAppointments = new ReadOnlyJTable();
         textDetails = new JTextPane();
 
@@ -123,6 +127,11 @@ public class AppointmentCalendarFrame extends ExtendedFrame {
         updateTexts();
 
         newAppointment(start);
+    }
+
+    @Override
+    protected void initializeFrame() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
@@ -235,7 +244,7 @@ public class AppointmentCalendarFrame extends ExtendedFrame {
         });
 
         // speichert alle existierenden Termine in mango ab
-        for (Appointment appointment : User.getInstance().getAppointments()) {
+        for (Appointment appointment : calendar) {
             allAppointments.add(appointment);
         }
 
@@ -416,7 +425,7 @@ public class AppointmentCalendarFrame extends ExtendedFrame {
     private void loadUser() {
         // speichert alle Konten in apfel
         List<String> usernames = new ArrayList<>();
-        for (MailAccountChecker checker : User.getInstance()) {
+        for (MailAccountChecker checker : user) {
             MailAccount ma = checker.getAccount();
             usernames.add(ma.getUser());
         }

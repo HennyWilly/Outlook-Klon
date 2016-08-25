@@ -26,11 +26,11 @@ import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.search.MessageIDTerm;
 import javax.mail.search.StringTerm;
-import lombok.Getter;
 import lombok.NonNull;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Diese Klasse stellt ein Mailkonto dar. Hierüber können Mails gesendet und
@@ -60,7 +60,7 @@ public class MailAccount {
     private String password;
 
     @JsonIgnore
-    @Getter
+    @Autowired
     private StoredMailInfoDAO mailInfoDAO;
 
     /**
@@ -148,13 +148,18 @@ public class MailAccount {
         this.password = password;
     }
 
-    public void setMailInfoDAO(@NonNull StoredMailInfoDAO mailInfoDAO) {
-        this.mailInfoDAO = mailInfoDAO;
-    }
-
     @Override
     public String toString() {
         return address.toUnicodeString();
+    }
+
+    /**
+     * Setzt das interne MailInfoDAO
+     *
+     * @param mailInfoDAO Zu setzendes MailInfoDAO
+     */
+    public void setStoredMailInfoDAO(@NonNull StoredMailInfoDAO mailInfoDAO) {
+        this.mailInfoDAO = mailInfoDAO;
     }
 
     /**
@@ -337,7 +342,7 @@ public class MailAccount {
                     continue;
                 }
 
-                StoredMailInfo tmp = mailInfoDAO.loadStoredMailInfo(id, path);
+                StoredMailInfo tmp = mailInfoDAO.loadStoredMailInfo(getAddress(), id, path);
                 if (tmp == null) {
                     tmp = new StoredMailInfo(id);
                     tmp.loadData(message, EnumSet.of(
@@ -346,7 +351,7 @@ public class MailAccount {
                             MailContent.SENDER,
                             MailContent.DATE));
 
-                    mailInfoDAO.saveStoredMailInfo(tmp, path);
+                    mailInfoDAO.saveStoredMailInfo(getAddress(), tmp, path);
                 }
 
                 set.add(tmp);
@@ -411,7 +416,7 @@ public class MailAccount {
                 message.setFlag(Flag.SEEN, true);
                 mailInfo.loadData(message, mailContent);
 
-                mailInfoDAO.saveStoredMailInfo(mailInfo, path);
+                mailInfoDAO.saveStoredMailInfo(getAddress(), mailInfo, path);
             }
         } catch (IOException | MessagingException ex) {
             throw new MessagingException("Could not load message data", ex);
@@ -489,13 +494,13 @@ public class MailAccount {
 
         sourceFolder.copyMessages(messages, targetFolder);
         for (int i = 0; i < messages.length; i++) {
-            mailInfoDAO.saveStoredMailInfo(mails[i], targetPath);
+            mailInfoDAO.saveStoredMailInfo(getAddress(), mails[i], targetPath);
 
             if (delete) {
                 if (!messages[i].isExpunged()) {
                     messages[i].setFlag(Flags.Flag.DELETED, true);
                 }
-                mailInfoDAO.deleteStoredMailInfo(mails[i].getID(), sourcePath);
+                mailInfoDAO.deleteStoredMailInfo(getAddress(), mails[i].getID(), sourcePath);
             }
         }
 
@@ -728,8 +733,19 @@ public class MailAccount {
      *
      * @return Mailadresse des MailAccounts
      */
-    public InternetAddress getAddress() {
-        return address;
+    @JsonIgnore
+    public String getAddress() {
+        return address.getAddress();
+    }
+
+    /**
+     * Gibt die Namen der Mailadresse des MailAccounts zurück
+     *
+     * @return Name der Mailadresse des MailAccounts
+     */
+    @JsonIgnore
+    public String getPersonal() {
+        return address.getPersonal();
     }
 
     /**

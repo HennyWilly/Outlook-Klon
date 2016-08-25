@@ -26,6 +26,7 @@ import javax.swing.SpinnerDateModel;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Dieses Fenster dient der Eingabe und Anzeige von Terminen.
@@ -62,6 +63,9 @@ public class AppointmentFrame extends ExtendedDialog<Appointment> {
 
     private Appointment mAppointment;
 
+    @Autowired
+    private User user;
+
     private AppointmentFrame(String captionKey, Appointment appointment) {
         super(485, 344);
 
@@ -93,9 +97,6 @@ public class AppointmentFrame extends ExtendedDialog<Appointment> {
      */
     public AppointmentFrame() {
         this("AppointmentFrame_DefaultTitle", null);
-
-        initFrame();
-        updateTexts();
     }
 
     /**
@@ -106,9 +107,6 @@ public class AppointmentFrame extends ExtendedDialog<Appointment> {
      */
     public AppointmentFrame(Appointment appointment) {
         this("AppointmentFrame_EditTitle", appointment);
-
-        initFrame();
-        updateTexts();
 
         textSubject.setText(appointment.getSubject());
         textLocation.setText(appointment.getLocation());
@@ -132,6 +130,12 @@ public class AppointmentFrame extends ExtendedDialog<Appointment> {
 
         SpinnerDateModel m2 = (SpinnerDateModel) dateEnd.getModel();
         m2.setValue(date);
+    }
+
+    @Override
+    protected void initializeDialog() {
+        initFrame();
+        updateTexts();
     }
 
     @Override
@@ -171,14 +175,12 @@ public class AppointmentFrame extends ExtendedDialog<Appointment> {
                                 endDate, textDescription.getText(), comboAccount.getSelectedItem().toString(),
                                 comboContact.getSelectedItem().toString());
                     } else {
-
                         mAppointment.setSubject(textSubject.getText());
                         mAppointment.setLocation(textLocation.getText());
                         mAppointment.setText(textDescription.getText());
                         mAppointment.setTimes(startDate, endDate);
                         mAppointment.setUser(comboAccount.getSelectedItem().toString());
                         mAppointment.setContact(comboContact.getSelectedItem().toString());
-
                     }
 
                     close();
@@ -197,9 +199,9 @@ public class AppointmentFrame extends ExtendedDialog<Appointment> {
         });
 
         List<String> userAccounts = new ArrayList<>();
-        for (MailAccountChecker checker : User.getInstance()) {
+        for (MailAccountChecker checker : user) {
             MailAccount ma = checker.getAccount();
-            userAccounts.add(ma.getAddress().getAddress());
+            userAccounts.add(ma.getAddress());
         }
 
         int comboSize1 = userAccounts.size() + 1;
@@ -210,7 +212,7 @@ public class AppointmentFrame extends ExtendedDialog<Appointment> {
         }
 
         List<String> allContacts = new ArrayList<>();
-        for (Contact k : User.getInstance().getContacts()) {
+        for (Contact k : user.getContacts()) {
             allContacts.add(k.getDisplayname());
         }
 

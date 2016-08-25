@@ -100,9 +100,6 @@ public class AccountFrame extends ExtendedDialog<MailAccount> {
         btnFinish = new JButton();
         lblDisplayname = new JLabel();
         txtDisplayname = new JTextField();
-
-        initFrame();
-        updateTexts();
     }
 
     /**
@@ -122,13 +119,11 @@ public class AccountFrame extends ExtendedDialog<MailAccount> {
     public AccountFrame(MailAccount account) {
         this("AccountFrame_EditTitle");
 
-        initFrame();
-
         InboxServer inServer = account.getInboxMailServer();
         OutboxServer outServer = account.getOutboxMailServer();
 
-        txtDisplayname.setText(account.getAddress().getPersonal());
-        txtMail.setText(account.getAddress().getAddress());
+        txtDisplayname.setText(account.getPersonal());
+        txtMail.setText(account.getAddress());
         txtUsername.setText(account.getUser());
 
         if (inServer != null) {
@@ -148,6 +143,12 @@ public class AccountFrame extends ExtendedDialog<MailAccount> {
             cBOutConnectionSecurity.setSelectedItem(settings.getConnectionSecurity());
             cBOutAuthentificationType.setSelectedItem(settings.getAuthentificationType());
         }
+    }
+
+    @Override
+    protected void initializeDialog() {
+        initFrame();
+        updateTexts();
     }
 
     @Override

@@ -11,7 +11,16 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.Matchers.hasToString;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import static org.mockito.Mockito.spy;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration
 public class ServerSettingsTest {
 
     private static final String EXAMPLE_JSON
@@ -21,6 +30,9 @@ public class ServerSettingsTest {
             + "  \"connectionSecurity\" : \"SSL_TLS\","
             + "  \"authentificationType\" : \"NORMAL\""
             + "}";
+
+    @Autowired
+    private Serializer serializer;
 
     @Test(expected = NullPointerException.class)
     public void shouldNotCreateServerSettings_HostNull() throws Exception {
@@ -47,7 +59,7 @@ public class ServerSettingsTest {
     public void shouldSerializeServerSettings() throws Exception {
         ServerSettings settings = new ServerSettings("mail.xyz.com", 993, ConnectionSecurity.SSL_TLS, AuthentificationType.NORMAL);
 
-        String json = Serializer.serializeObjectToJson(settings);
+        String json = serializer.serializeObjectToJson(settings);
         assertThat(json, jsonEquals(EXAMPLE_JSON));
     }
 
@@ -55,7 +67,7 @@ public class ServerSettingsTest {
     public void shouldDeserializeServerSettings() throws Exception {
         ServerSettings expected = new ServerSettings("mail.xyz.com", 993, ConnectionSecurity.SSL_TLS, AuthentificationType.NORMAL);
 
-        ServerSettings actual = Serializer.deserializeJson(EXAMPLE_JSON, ServerSettings.class);
+        ServerSettings actual = serializer.deserializeJson(EXAMPLE_JSON, ServerSettings.class);
         assertThat(actual, is(equalTo(expected)));
     }
 
@@ -99,4 +111,12 @@ public class ServerSettingsTest {
         assertThat(map, hasEntry(new ServerSettings("testHost2", 5678, ConnectionSecurity.SSL_TLS, AuthentificationType.NTLM), "bbbb"));
     }
 
+    @Configuration
+    public static class ServerSettingsTestConfiguration {
+
+        @Bean
+        public Serializer getSerializer() {
+            return spy(new Serializer());
+        }
+    }
 }

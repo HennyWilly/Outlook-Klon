@@ -1,6 +1,5 @@
 package de.outlookklon.logik.calendar;
 
-import de.outlookklon.logik.User;
 import de.outlookklon.logik.contacts.ContactManagement;
 import java.util.Iterator;
 import static org.hamcrest.CoreMatchers.is;
@@ -10,26 +9,19 @@ import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import static org.mockito.Mockito.when;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest(User.class)
+@ContextConfiguration
+@RunWith(SpringJUnit4ClassRunner.class)
 public class AppointmentCalendarTest {
 
     private AppointmentCalendar calendar;
 
     @Before
     public void setUp() throws Exception {
-        ContactManagement contacts = new ContactManagement();
-
-        User user = PowerMockito.mock(User.class);
-        PowerMockito.mockStatic(User.class);
-        PowerMockito.when(User.getInstance()).thenReturn(user);
-        when(user.getContacts()).thenReturn(contacts);
-
         calendar = new AppointmentCalendar();
     }
 
@@ -256,5 +248,14 @@ public class AppointmentCalendarTest {
                 today);
 
         assertThat(actual, is(expected));
+    }
+
+    @Configuration
+    public static class FrontEndControllerTestConfiguration {
+
+        @Bean
+        public ContactManagement contactManagement() {
+            return new ContactManagement();
+        }
     }
 }

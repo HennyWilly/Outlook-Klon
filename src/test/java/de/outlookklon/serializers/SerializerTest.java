@@ -1,6 +1,5 @@
 package de.outlookklon.serializers;
 
-import static de.outlookklon.matchers.UtilityMatchers.isWellDefinedUtilityClass;
 import java.io.File;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
@@ -9,21 +8,28 @@ import org.joda.time.DateTime;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.junit.runner.RunWith;
+import static org.mockito.Mockito.spy;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration
 public class SerializerTest {
+
+    @Autowired
+    private Serializer serializer;
 
     @Rule
     public final TemporaryFolder folder = new TemporaryFolder();
 
     @Test
-    public void shouldCheckIfUtilityClassIsWellCoded() throws Exception {
-        assertThat(Serializer.class, isWellDefinedUtilityClass());
-    }
-
-    @Test
     public void shouldSerializeAndDeserializeJodaDateTime_AsString() throws Exception {
         DateTime dateTime = new DateTime();
-        String json = Serializer.serializeObjectToJson(dateTime);
+        String json = serializer.serializeObjectToJson(dateTime);
 
         try {
             Long.parseLong(json);
@@ -32,22 +38,31 @@ public class SerializerTest {
             // OK ;-)
         }
 
-        assertThat(Serializer.deserializeJson(json, DateTime.class), is(equalTo(dateTime)));
+        assertThat(serializer.deserializeJson(json, DateTime.class), is(equalTo(dateTime)));
     }
 
     @Test
     public void shouldSerializeAndDeserializeJodaDateTime_AsFile() throws Exception {
         DateTime dateTime = new DateTime();
         File jsonFile = folder.newFile();
-        Serializer.serializeObjectToJson(jsonFile, dateTime);
-        assertThat(Serializer.deserializeJson(jsonFile, DateTime.class), is(equalTo(dateTime)));
+        serializer.serializeObjectToJson(jsonFile, dateTime);
+        assertThat(serializer.deserializeJson(jsonFile, DateTime.class), is(equalTo(dateTime)));
     }
 
     @Test
     public void shouldSerializeAndDeserializePlainText() throws Exception {
         String testString = "This is an awesome message";
         File jsonFile = folder.newFile();
-        Serializer.serializeStringToPlainText(jsonFile, testString);
-        assertThat(Serializer.deserializePlainText(jsonFile), is(equalTo(testString)));
+        serializer.serializeStringToPlainText(jsonFile, testString);
+        assertThat(serializer.deserializePlainText(jsonFile), is(equalTo(testString)));
+    }
+
+    @Configuration
+    public static class SerializerTestConfiguration {
+
+        @Bean
+        public Serializer getSerializer() {
+            return spy(new Serializer());
+        }
     }
 }

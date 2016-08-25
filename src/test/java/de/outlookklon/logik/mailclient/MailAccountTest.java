@@ -47,7 +47,7 @@ public class MailAccountTest {
 
         MailAccount account = new MailAccount(inServer, outServer, new InternetAddress("test@test.com"), "MyUser", "Abcd1234");
         assertThat(account.getUser(), is("MyUser"));
-        assertThat(account.getAddress(), is(equalTo(new InternetAddress("test@test.com"))));
+        assertThat(account.getAddress(), is(equalTo("test@test.com")));
         assertThat(account.getInboxMailServer(), is(equalTo(inServer)));
         assertThat(account.getOutboxMailServer(), is(equalTo(outServer)));
         assertThat(account, hasToString("test@test.com"));

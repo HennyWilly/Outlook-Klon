@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
@@ -15,60 +16,53 @@ import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
+import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import static org.mockito.Matchers.any;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.spy;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest(Serializer.class)
+@RunWith(SpringJUnit4ClassRunner.class)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
+@ContextConfiguration
 public class StoredMailInfoDAOFilePersistenceTest {
 
     private static final String ID = "abcd1234";
     private static final StoredMailInfo TEST_MAIL_INFO = new StoredMailInfo(ID);
     private static final String PATH = "aPath/bPath";
 
-    @Rule
-    public final TemporaryFolder folder = new TemporaryFolder();
+    private static final String MAILADDRESS = "tester@test.com";
 
+    @ClassRule
+    public static final TemporaryFolder FOLDER = new TemporaryFolder();
+
+    @Autowired
+    private Serializer serializer;
+
+    @Autowired
     private StoredMailInfoDAO dao;
+
+    @Autowired
+    private String accountFolderPattern;
 
     @Before
     public void init() throws Exception {
-        dao = new StoredMailInfoDAOFilePersistence(folder.getRoot());
-        dao.saveStoredMailInfo(TEST_MAIL_INFO, PATH);
+        dao.saveStoredMailInfo(MAILADDRESS, TEST_MAIL_INFO, PATH);
     }
 
     @After
     public void clear() throws Exception {
-        if (dao.loadStoredMailInfo(ID, PATH) != null) {
-            dao.deleteStoredMailInfo(ID, PATH);
+        if (dao.loadStoredMailInfo(MAILADDRESS, ID, PATH) != null) {
+            dao.deleteStoredMailInfo(MAILADDRESS, ID, PATH);
         }
-    }
-
-    @Test(expected = NullPointerException.class)
-    public void shouldNotCreateFilePersistence_DirectoryIsNull() throws Exception {
-        new StoredMailInfoDAOFilePersistence(null).toString();
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void shouldNotCreateFilePersistence_DirectoryIsFile() throws Exception {
-        File newFile = folder.newFile();
-
-        new StoredMailInfoDAOFilePersistence(newFile).toString();
-    }
-
-    @Test
-    public void shouldCreateFilePersistence_DirectoryDoesNotExist() throws Exception {
-        File newDirectory = new File(folder.getRoot(), "tmpDir");
-        assertThat(newDirectory.exists(), is(false));
-
-        new StoredMailInfoDAOFilePersistence(newDirectory).toString();
-        assertThat(newDirectory.exists(), is(true));
     }
 
     @Test
@@ -76,7 +70,7 @@ public class StoredMailInfoDAOFilePersistenceTest {
         String nonExistentID = "ANonExistantID";
         String path = "aPath";
 
-        StoredMailInfo mailInfo = dao.loadStoredMailInfo(nonExistentID, path);
+        StoredMailInfo mailInfo = dao.loadStoredMailInfo(MAILADDRESS, nonExistentID, path);
         assertThat(mailInfo, is(nullValue()));
     }
 
@@ -86,48 +80,40 @@ public class StoredMailInfoDAOFilePersistenceTest {
         String fileName = id + ".json";
         String path = "aPath";
 
-        File tmpFolder = new File(folder.getRoot(), path);
-        tmpFolder.mkdirs();
-
-        File file = new File(tmpFolder, fileName);
+        File folderPath = new File(String.format(accountFolderPattern, MAILADDRESS), path);
+        File file = new File(folderPath, fileName);
         FileUtils.writeStringToFile(file, "Invalid data for a StoredMailInfo", Charset.defaultCharset());
 
-        dao.loadStoredMailInfo(id, path);
+        dao.loadStoredMailInfo(MAILADDRESS, id, path);
     }
 
     @Test
     public void shouldLoadStoredMailInfo() throws Exception {
         StoredMailInfo expResult = TEST_MAIL_INFO;
-        StoredMailInfo result = dao.loadStoredMailInfo(ID, PATH);
+        StoredMailInfo result = dao.loadStoredMailInfo(MAILADDRESS, ID, PATH);
         assertThat(result, is(equalTo(expResult)));
     }
 
     @Test(expected = DAOException.class)
     public void shouldNotSaveStoredMailInfo_FileInUse() throws Exception {
-
-        PowerMockito.mockStatic(Serializer.class);
-        PowerMockito.when(Serializer.class, "serializeObjectToJson", any(File.class), any(Object.class))
-                .thenThrow(new IOException());
+        doThrow(new IOException()).when(serializer).serializeObjectToJson(any(File.class), any(Object.class));
 
         String id = "anID";
         String path = "aPath";
 
-        File tmpFolder = new File(folder.getRoot(), path);
-        tmpFolder.mkdirs();
-
         StoredMailInfo info = new StoredMailInfo(id);
-        dao.saveStoredMailInfo(info, path);
+        dao.saveStoredMailInfo(MAILADDRESS, info, path);
     }
 
     @Test
     public void shouldSaveStoredMailInfo() throws Exception {
-        dao.deleteStoredMailInfo(ID, PATH);
-        StoredMailInfo beforeInfo = dao.loadStoredMailInfo(ID, PATH);
+        dao.deleteStoredMailInfo(MAILADDRESS, ID, PATH);
+        StoredMailInfo beforeInfo = dao.loadStoredMailInfo(MAILADDRESS, ID, PATH);
         assertThat(beforeInfo, is(nullValue()));
 
-        dao.saveStoredMailInfo(TEST_MAIL_INFO, PATH);
+        dao.saveStoredMailInfo(MAILADDRESS, TEST_MAIL_INFO, PATH);
 
-        StoredMailInfo afterInfo = dao.loadStoredMailInfo(ID, PATH);
+        StoredMailInfo afterInfo = dao.loadStoredMailInfo(MAILADDRESS, ID, PATH);
         assertThat(afterInfo, is(not(nullValue())));
     }
 
@@ -136,17 +122,41 @@ public class StoredMailInfoDAOFilePersistenceTest {
         String nonExistentID = "ANonExistantID";
         String path = "aPath";
 
-        dao.deleteStoredMailInfo(nonExistentID, path);
+        dao.deleteStoredMailInfo(MAILADDRESS, nonExistentID, path);
     }
 
     @Test
     public void shouldDeleteStoredMailInfo() throws Exception {
-        StoredMailInfo beforeInfo = dao.loadStoredMailInfo(ID, PATH);
+        StoredMailInfo beforeInfo = dao.loadStoredMailInfo(MAILADDRESS, ID, PATH);
         assertThat(beforeInfo, is(not(nullValue())));
 
-        dao.deleteStoredMailInfo(ID, PATH);
+        dao.deleteStoredMailInfo(MAILADDRESS, ID, PATH);
 
-        StoredMailInfo afterInfo = dao.loadStoredMailInfo(ID, PATH);
+        StoredMailInfo afterInfo = dao.loadStoredMailInfo(MAILADDRESS, ID, PATH);
         assertThat(afterInfo, is(nullValue()));
+    }
+
+    @Configuration
+    public static class StoredMailInfoDAOFilePersistenceTestConfiguration {
+
+        @Bean(name = "dataFolder")
+        public File dataFolder() {
+            return FOLDER.getRoot();
+        }
+
+        @Bean(name = "accountFolderPattern")
+        public String accountFolderPattern() {
+            return FilenameUtils.concat(dataFolder().getAbsolutePath(), "%s");
+        }
+
+        @Bean
+        public StoredMailInfoDAO getStoredMailInfoDAO() {
+            return new StoredMailInfoDAOFilePersistence();
+        }
+
+        @Bean
+        public Serializer getSerializer() {
+            return spy(new Serializer());
+        }
     }
 }

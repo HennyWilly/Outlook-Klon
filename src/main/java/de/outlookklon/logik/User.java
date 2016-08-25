@@ -1,22 +1,25 @@
 package de.outlookklon.logik;
 
 import de.outlookklon.dao.StoredMailInfoDAO;
-import de.outlookklon.dao.impl.StoredMailInfoDAOFilePersistence;
 import de.outlookklon.logik.calendar.AppointmentCalendar;
 import de.outlookklon.logik.contacts.ContactManagement;
 import de.outlookklon.logik.mailclient.MailAccount;
 import de.outlookklon.logik.mailclient.checker.MailAccountChecker;
 import de.outlookklon.serializers.Serializer;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import lombok.NonNull;
-import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 
 /**
  * Diese Klasse stellt den User dar. Bietet Zugriff auf die Appointment- und
@@ -25,20 +28,39 @@ import org.slf4j.LoggerFactory;
  *
  * @author Hendrik Karwanni
  */
-public final class User implements Iterable<MailAccountChecker> {
-
-    private static final String DATA_FOLDER = FilenameUtils.concat(System.getProperty("user.home"), ".outlookklon");
-    private static final String ACCOUNT_PATTERN = FilenameUtils.concat(DATA_FOLDER, "%s");
-    private static final String ACCOUNTSETTINGS_PATTERN = FilenameUtils.concat(ACCOUNT_PATTERN, "settings.json");
-    private static final String CONTACT_PATH = FilenameUtils.concat(DATA_FOLDER, "Kontakte.json");
-    private static final String APPOINTMENT_PATH = FilenameUtils.concat(DATA_FOLDER, "Termine.json");
+@Component
+@Scope(value = "singleton")
+public final class User implements Iterable<MailAccountChecker>, InitializingBean {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(User.class);
 
-    private static User singleton;
+    @Autowired
+    private Serializer serializer;
 
+    @Autowired
+    private File dataFolder;
+
+    @Autowired
+    private File contactFile;
+
+    @Autowired
+    private File appointmentFile;
+
+    @Autowired
+    private String accountFolderPattern;
+
+    @Autowired
+    private String accountSettingsFilePattern;
+
+    @Autowired
     private ContactManagement contacts;
+
+    @Autowired
     private AppointmentCalendar appointments;
+
+    @Autowired
+    private StoredMailInfoDAO mailInfoDAO;
+
     private List<MailAccountChecker> accounts;
 
     /**
@@ -48,25 +70,10 @@ public final class User implements Iterable<MailAccountChecker> {
      * @throws IOException
      */
     private User() throws IOException {
-        File dataFolder = new File(DATA_FOLDER).getAbsoluteFile();
-        if (!dataFolder.exists()) {
-            dataFolder.mkdirs();
-        }
+    }
 
-        try {
-            contacts = Serializer.deserializeJson(new File(CONTACT_PATH), ContactManagement.class);
-        } catch (IOException ex) {
-            LOGGER.warn("Could not load contacts", ex);
-            contacts = new ContactManagement();
-        }
-
-        try {
-            appointments = Serializer.deserializeJson(new File(APPOINTMENT_PATH), AppointmentCalendar.class);
-        } catch (IOException ex) {
-            LOGGER.warn("Could not load appointments", ex);
-            appointments = new AppointmentCalendar();
-        }
-
+    @Override
+    public void afterPropertiesSet() throws Exception {
         accounts = new ArrayList<>();
 
         // Filter, der nur Pfade von direkten Unterordnern zurückgibt
@@ -78,42 +85,18 @@ public final class User implements Iterable<MailAccountChecker> {
         });
 
         for (String directory : directories) {
-            final String settings = String.format(ACCOUNTSETTINGS_PATTERN, directory);
+            final String settings = String.format(accountSettingsFilePattern, directory);
             File accountFile = new File(settings).getAbsoluteFile();
 
-            // Lade MailAccount
-            MailAccount loadedAccount = Serializer.deserializeJson(accountFile, MailAccount.class);
-            setMailInfoDAO(loadedAccount);
-
-            accounts.add(new MailAccountChecker(loadedAccount));
-        }
-    }
-
-    /**
-     * Gibt die einzige Instanz der Klasse User zurück. Beim ersten Aufruf wird
-     * eine neue Instanz der Klasse erstellt.
-     *
-     * @return Einzige Instanz der Klasse
-     */
-    public static User getInstance() throws UserException {
-        if (singleton == null) {
             try {
-                singleton = new User();
-            } catch (IOException ex) {
-                throw new UserException("Could not create user instance", ex);
+                // Lade MailAccount
+                MailAccount loadedAccount = serializer.deserializeJson(accountFile, MailAccount.class);
+                loadedAccount.setStoredMailInfoDAO(mailInfoDAO);
+                accounts.add(new MailAccountChecker(loadedAccount));
+            } catch (FileNotFoundException ex) {
+                LOGGER.warn("No account configuration file found", ex);
             }
         }
-        return singleton;
-    }
-
-    public void setMailInfoDAO(MailAccount account) throws IOException {
-        if (account.getMailInfoDAO() != null) {
-            return;
-        }
-
-        final String accountFolder = String.format(ACCOUNT_PATTERN, account.getAddress().getAddress());
-        StoredMailInfoDAO mailInfoDAO = new StoredMailInfoDAOFilePersistence(new File(accountFolder));
-        account.setMailInfoDAO(mailInfoDAO);
     }
 
     @Override
@@ -207,11 +190,11 @@ public final class User implements Iterable<MailAccountChecker> {
             checker.interrupt();
 
             if (accounts.remove(account)) {
-                String address = account.getAddress().getAddress();
-                String settings = String.format(ACCOUNTSETTINGS_PATTERN, address);
+                String address = account.getAddress();
+                String settings = String.format(accountSettingsFilePattern, address);
                 deleteRecursive(new File(settings));
 
-                String path = String.format(ACCOUNT_PATTERN, address);
+                String path = String.format(accountFolderPattern, address);
                 try {
                     deleteRecursive(new File(path));
                     return true;
@@ -246,16 +229,8 @@ public final class User implements Iterable<MailAccountChecker> {
             saveMailAccount(acc);
         }
 
-        File contactPath = new File(CONTACT_PATH).getAbsoluteFile();
-        File appointmentPath = new File(APPOINTMENT_PATH).getAbsoluteFile();
-        File folder = contactPath.getParentFile();
-
-        if (!folder.exists()) {
-            folder.mkdirs();
-        }
-
-        Serializer.serializeObjectToJson(contactPath, contacts);
-        Serializer.serializeObjectToJson(appointmentPath, appointments);
+        serializer.serializeObjectToJson(contactFile, contacts);
+        serializer.serializeObjectToJson(appointmentFile, appointments);
     }
 
     /**
@@ -266,8 +241,8 @@ public final class User implements Iterable<MailAccountChecker> {
      * werden konnte
      */
     private void saveMailAccount(@NonNull MailAccount acc) throws IOException {
-        String strAddress = acc.getAddress().getAddress();
-        String strPath = String.format(ACCOUNTSETTINGS_PATTERN, strAddress);
+        String strAddress = acc.getAddress();
+        String strPath = String.format(accountSettingsFilePattern, strAddress);
 
         File path = new File(strPath).getAbsoluteFile();
         File folder = path.getParentFile();
@@ -278,7 +253,7 @@ public final class User implements Iterable<MailAccountChecker> {
             folder.mkdirs();
         }
 
-        Serializer.serializeObjectToJson(path, acc);
+        serializer.serializeObjectToJson(path, acc);
     }
 
     /**

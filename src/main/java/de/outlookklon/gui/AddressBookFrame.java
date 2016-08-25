@@ -81,6 +81,8 @@ public class AddressBookFrame extends ExtendedFrame {
     private MainFrame parentFrame;
     private ContactManagement management;
 
+    private boolean newContact;
+
     /**
      * Erstellt eine neue AdressbuchFrame-Instanz
      *
@@ -93,6 +95,7 @@ public class AddressBookFrame extends ExtendedFrame {
     public AddressBookFrame(@NonNull MainFrame parentFrame, @NonNull ContactManagement contacts, boolean newContact) {
         this.parentFrame = parentFrame;
         this.management = contacts;
+        this.newContact = newContact;
 
         tablePopupOpen = new JMenuItem();
         tablePopupCreate = new JMenuItem();
@@ -107,7 +110,10 @@ public class AddressBookFrame extends ExtendedFrame {
         mntFileNewContact = new JMenuItem();
         mntFileNewList = new JMenuItem();
         mntFileClose = new JMenuItem();
+    }
 
+    @Override
+    protected void initializeFrame() {
         initGUI();
         updateTexts();
 
@@ -726,9 +732,6 @@ public class AddressBookFrame extends ExtendedFrame {
 
             btnOK = new JButton();
             btnAbort = new JButton();
-
-            initGUI();
-            updateTexts();
         }
 
         /**
@@ -747,10 +750,13 @@ public class AddressBookFrame extends ExtendedFrame {
             btnOK = new JButton();
             btnAbort = new JButton();
 
+            txtList.setText(list);
+        }
+
+        @Override
+        protected void initializeDialog() {
             initGUI();
             updateTexts();
-
-            txtList.setText(list);
         }
 
         @Override

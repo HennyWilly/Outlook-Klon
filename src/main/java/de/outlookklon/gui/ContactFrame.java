@@ -100,7 +100,10 @@ public class ContactFrame extends ExtendedDialog<Contact> {
 
         btnOK = new JButton();
         btnAbort = new JButton();
+    }
 
+    @Override
+    protected void initializeDialog() {
         initFrame();
         updateTexts();
 

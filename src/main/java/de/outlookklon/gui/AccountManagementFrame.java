@@ -29,6 +29,7 @@ import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * In diesem Frame werden alle registrierten MailAccount-Instanzen verwaltet. Es
@@ -75,6 +76,9 @@ public class AccountManagementFrame extends ExtendedDialog<MailAccount[]> {
     private final JLabel lblOutboxAuthentificationType;
     private final JTextField txtOutboxAuthentification;
 
+    @Autowired
+    private User user;
+
     /**
      * Erstellt eine neue Instanz der Klasse zum Verwalten aller bestehenden
      * MailAccounts
@@ -84,12 +88,7 @@ public class AccountManagementFrame extends ExtendedDialog<MailAccount[]> {
 
         myAccounts = null;
 
-        DefaultListModel<MailAccount> listModel = new DefaultListModel<>();
-        for (MailAccountChecker checker : User.getInstance()) {
-            MailAccount acc = checker.getAccount();
-            listModel.addElement(acc);
-        }
-        lstAccounts = new JList<>(listModel);
+        lstAccounts = new JList<>();
         btnNewAccount = new JButton();
         btnAbort = new JButton();
         btnOK = new JButton();
@@ -121,9 +120,26 @@ public class AccountManagementFrame extends ExtendedDialog<MailAccount[]> {
         txtUser = new JTextField();
         txtMail = new JTextField();
         txtName = new JTextField();
+    }
 
+    @Override
+    protected void initializeDialog() {
         initFrame();
         updateTexts();
+    }
+
+    @Override
+    public void setVisible(boolean visible) {
+        if (visible) {
+            DefaultListModel<MailAccount> listModel = new DefaultListModel<>();
+            for (MailAccountChecker checker : user) {
+                MailAccount acc = checker.getAccount();
+                listModel.addElement(acc);
+            }
+            lstAccounts.setModel(listModel);
+        }
+
+        super.setVisible(visible);
     }
 
     private void initFrame() {
@@ -137,7 +153,7 @@ public class AccountManagementFrame extends ExtendedDialog<MailAccount[]> {
                     boolean cellHasFocus) {
                 MailAccount acc = (MailAccount) value;
 
-                return super.getListCellRendererComponent(list, acc.getAddress().getAddress(), index, isSelected,
+                return super.getListCellRendererComponent(list, acc.getAddress(), index, isSelected,
                         cellHasFocus);
             }
         });
@@ -403,8 +419,8 @@ public class AccountManagementFrame extends ExtendedDialog<MailAccount[]> {
             txtOutboxAuthentification.setText(null);
         } else {
             txtUser.setText(acc.getUser());
-            txtMail.setText(acc.getAddress().getAddress());
-            txtName.setText(acc.getAddress().getPersonal());
+            txtMail.setText(acc.getAddress());
+            txtName.setText(acc.getPersonal());
 
             InboxServer inboxServer = acc.getInboxMailServer();
             ServerSettings inboxSettings = inboxServer.getSettings();
@@ -475,7 +491,7 @@ public class AccountManagementFrame extends ExtendedDialog<MailAccount[]> {
         if (acc != null) {
             String message = String.format(
                     Localization.getString("AccountManagementFrame_DeletionMessageFormat"),
-                    acc.getAddress().getAddress());
+                    acc.getAddress());
 
             int result = JOptionPane.showConfirmDialog(this, message,
                     Localization.getString("AccountManagementFrame_DeletionConfirmation"),

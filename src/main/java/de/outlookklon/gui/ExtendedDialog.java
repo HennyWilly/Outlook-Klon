@@ -18,6 +18,10 @@ public abstract class ExtendedDialog<T> extends JDialog implements ILocalizable 
 
     private static final long serialVersionUID = -8078692720731679550L;
 
+    private final Object lock = new Object();
+
+    private boolean frameStartedOnce = false;
+
     /**
      * Wird von Subklassen aufgerufen, um einige häufig in Dialogen verwendete
      * Werte zu setzen.
@@ -65,5 +69,20 @@ public abstract class ExtendedDialog<T> extends JDialog implements ILocalizable 
      */
     public void close() {
         this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
+    }
+
+    protected abstract void initializeDialog();
+
+    @Override
+    public void setVisible(boolean visible) {
+        if (visible) {
+            synchronized (lock) {
+                if (!frameStartedOnce) {
+                    frameStartedOnce = true;
+                    initializeDialog();
+                }
+            }
+        }
+        super.setVisible(visible);
     }
 }

@@ -24,6 +24,7 @@ import javax.swing.event.HyperlinkListener;
 import javax.swing.text.html.HTMLEditorKit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Diese JEditorPane unterstützt das vollständige Umschalten des Textinhalts von
@@ -49,6 +50,9 @@ public class HtmlEditorPane extends JEditorPane {
     private static final Pattern TIMEPATTERN;
 
     private HTMLEditorKit htmlEditor;
+
+    @Autowired
+    private User user;
 
     /**
      * Erstellt ein neues HtmlEditorPane
@@ -263,7 +267,7 @@ public class HtmlEditorPane extends JEditorPane {
                         Appointment appointment = appointmentFrame.showDialog();
 
                         if (appointment != null) {
-                            AppointmentCalendar calendar = User.getInstance().getAppointments();
+                            AppointmentCalendar calendar = user.getAppointments();
                             calendar.addAppointment(appointment);
                         }
 
