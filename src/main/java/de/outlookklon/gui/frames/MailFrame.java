@@ -1,7 +1,8 @@
-package de.outlookklon.gui;
+package de.outlookklon.gui.frames;
 
 import de.outlookklon.gui.components.HtmlEditorPane;
 import de.outlookklon.dao.DAOException;
+import de.outlookklon.gui.components.HtmlEditorPane;
 import de.outlookklon.gui.helpers.Dialogs;
 import de.outlookklon.gui.helpers.Events;
 import de.outlookklon.localization.Localization;

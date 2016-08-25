@@ -1,4 +1,4 @@
-package de.outlookklon.gui;
+package de.outlookklon.gui.frames;
 
 import de.outlookklon.localization.ILocalizable;
 import de.outlookklon.localization.WindowLocalizer;
@@ -20,6 +20,10 @@ public abstract class ExtendedFrame extends JFrame implements ILocalizable {
      * WindowListener zu registrieren.
      */
     protected ExtendedFrame() {
+        initBaseSettings();
+    }
+
+    private void initBaseSettings() {
         this.addWindowListener(new WindowLocalizer());
         this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
     }

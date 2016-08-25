@@ -1,12 +1,15 @@
-package de.outlookklon.gui;
+package de.outlookklon.gui.frames;
 
 import de.outlookklon.gui.components.ReadOnlyJTable;
+import de.outlookklon.gui.dialogs.ContactFrame;
+import de.outlookklon.gui.dialogs.ExtendedDialog;
 import de.outlookklon.gui.helpers.Dialogs;
 import de.outlookklon.gui.helpers.Events;
 import de.outlookklon.localization.Localization;
 import de.outlookklon.logik.contacts.Contact;
 import de.outlookklon.logik.contacts.ContactManagement;
 import java.awt.BorderLayout;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -406,7 +409,7 @@ public class AddressBookFrame extends ExtendedFrame {
         mntFileNewList.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                ListDialog ld = new ListDialog();
+                ListDialog ld = new ListDialog(AddressBookFrame.this);
                 String list = ld.showDialog();
 
                 if (list != null) {
@@ -532,7 +535,7 @@ public class AddressBookFrame extends ExtendedFrame {
      * Öffnet ein neues ContactFrame zum Erstellen eines neuen Kontaks
      */
     private void newContact() {
-        ContactFrame kf = new ContactFrame();
+        ContactFrame kf = new ContactFrame(this);
         Contact k = kf.showDialog();
 
         if (k != null) {
@@ -544,13 +547,14 @@ public class AddressBookFrame extends ExtendedFrame {
     /**
      * Öffnet ein neues ContactFrame zum bearbeiten des übergebenen Kontaks
      *
-     * @param k Contact-Objekt, das im ContactFrame bearbeitet werden soll.
+     * @param contact Contact-Objekt, das im ContactFrame bearbeitet werden
+     * soll.
      */
-    private void editContact(Contact k) {
-        ContactFrame kf = new ContactFrame(k);
+    private void editContact(Contact contact) {
+        ContactFrame kf = new ContactFrame(this, contact);
         kf.showDialog();
 
-        if (k != null) {
+        if (contact != null) {
             int row = tableContacts.convertRowIndexToModel(tableContacts.getSelectedRow());
             refreshTable(currentList());
             int rowView = tableContacts.convertRowIndexToView(row);
@@ -564,7 +568,7 @@ public class AddressBookFrame extends ExtendedFrame {
      * @param list Listenname, der umbenannt werden soll
      */
     private void renameList(String list) {
-        ListDialog ld = new ListDialog(list);
+        ListDialog ld = new ListDialog(this, list);
         String newName = ld.showDialog();
 
         if (newName != null) {
@@ -715,9 +719,11 @@ public class AddressBookFrame extends ExtendedFrame {
 
         /**
          * Erzeugt eine neue Instanz des Dialogs zum Erstellen einer Liste
+         *
+         * @param parent Das Vaterfenster des Dialogs
          */
-        public ListDialog() {
-            super(355, 130);
+        public ListDialog(Window parent) {
+            super(parent, 355, 130);
 
             captionKey = "AddressBookFrame_CreateNewList";
 
@@ -734,10 +740,11 @@ public class AddressBookFrame extends ExtendedFrame {
         /**
          * Erzeugt eine neue Instanz des Dialogs zum Bearbeiten einer Liste
          *
+         * @param parent Das Vaterfenster des Dialogs
          * @param list
          */
-        public ListDialog(String list) {
-            super(355, 130);
+        public ListDialog(Window parent, String list) {
+            super(parent, 355, 130);
 
             captionKey = "AddressBookFrame_EditList";
 

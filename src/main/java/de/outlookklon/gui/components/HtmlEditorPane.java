@@ -1,12 +1,14 @@
 package de.outlookklon.gui.components;
 
-import de.outlookklon.gui.AppointmentFrame;
+import de.outlookklon.gui.dialogs.AppointmentFrame;
 import de.outlookklon.gui.helpers.Dialogs;
 import de.outlookklon.localization.Localization;
 import de.outlookklon.logik.User;
 import de.outlookklon.logik.calendar.Appointment;
 import de.outlookklon.logik.calendar.AppointmentCalendar;
+import java.awt.Container;
 import java.awt.Desktop;
+import java.awt.Window;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -259,14 +261,18 @@ public class HtmlEditorPane extends JEditorPane {
                             date = DATEFORMAT2.parse(strDate);
                         }
 
-                        AppointmentFrame appointmentFrame = new AppointmentFrame(date);
-                        Appointment appointment = appointmentFrame.showDialog();
+                        Container parent = getParent();
+                        if (parent instanceof Window) {
+                            Window parentWindow = (Window) parent;
 
-                        if (appointment != null) {
-                            AppointmentCalendar calendar = User.getInstance().getAppointments();
-                            calendar.addAppointment(appointment);
+                            AppointmentFrame appointmentFrame = new AppointmentFrame(parentWindow, date);
+                            Appointment appointment = appointmentFrame.showDialog();
+
+                            if (appointment != null) {
+                                AppointmentCalendar calendar = User.getInstance().getAppointments();
+                                calendar.addAppointment(appointment);
+                            }
                         }
-
                     } catch (ParseException ex) {
                         LOGGER.info(Localization.getString("HtmlEditorPane_ErrorSecondParser"), ex);
                         Dialogs.showErrorDialog(HtmlEditorPane.this, Localization.getString("HtmlEditorPane_InvalidDate"));

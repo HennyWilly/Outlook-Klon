@@ -1,4 +1,4 @@
-package de.outlookklon.gui;
+package de.outlookklon.gui.dialogs;
 
 import de.outlookklon.gui.helpers.Dialogs;
 import de.outlookklon.localization.Localization;
@@ -7,6 +7,7 @@ import de.outlookklon.logik.calendar.Appointment;
 import de.outlookklon.logik.contacts.Contact;
 import de.outlookklon.logik.mailclient.MailAccount;
 import de.outlookklon.logik.mailclient.checker.MailAccountChecker;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -62,8 +63,8 @@ public class AppointmentFrame extends ExtendedDialog<Appointment> {
 
     private Appointment mAppointment;
 
-    private AppointmentFrame(String captionKey, Appointment appointment) {
-        super(485, 344);
+    private AppointmentFrame(Window parent, String captionKey, Appointment appointment) {
+        super(parent, 485, 344);
 
         this.captionKey = captionKey;
         this.mAppointment = appointment;
@@ -90,9 +91,11 @@ public class AppointmentFrame extends ExtendedDialog<Appointment> {
 
     /**
      * Erstellt ein neues leeres Fenster.
+     *
+     * @param parent Das Vaterfenster des Dialogs
      */
-    public AppointmentFrame() {
-        this("AppointmentFrame_DefaultTitle", null);
+    public AppointmentFrame(Window parent) {
+        this(parent, "AppointmentFrame_DefaultTitle", null);
 
         initFrame();
         updateTexts();
@@ -102,10 +105,11 @@ public class AppointmentFrame extends ExtendedDialog<Appointment> {
      * Erstellt ein neues Fenster, das initial den übergebenen Appointment
      * anzeigt.
      *
+     * @param parent Das Vaterfenster des Dialogs
      * @param appointment anzuzeigender Appointment
      */
-    public AppointmentFrame(Appointment appointment) {
-        this("AppointmentFrame_EditTitle", appointment);
+    public AppointmentFrame(Window parent, Appointment appointment) {
+        this(parent, "AppointmentFrame_EditTitle", appointment);
 
         initFrame();
         updateTexts();
@@ -122,10 +126,11 @@ public class AppointmentFrame extends ExtendedDialog<Appointment> {
     /**
      * Erstellt ein neues Fenster, das initial das übergebe Datum anzeigt.
      *
+     * @param parent Das Vaterfenster des Dialogs
      * @param date initiales Datum
      */
-    public AppointmentFrame(Date date) {
-        this();
+    public AppointmentFrame(Window parent, Date date) {
+        this(parent);
 
         SpinnerDateModel m1 = (SpinnerDateModel) dateStart.getModel();
         m1.setValue(date);

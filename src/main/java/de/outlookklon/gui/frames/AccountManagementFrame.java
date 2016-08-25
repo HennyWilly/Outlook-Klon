@@ -1,5 +1,7 @@
-package de.outlookklon.gui;
+package de.outlookklon.gui.frames;
 
+import de.outlookklon.gui.dialogs.AccountFrame;
+import de.outlookklon.gui.dialogs.ExtendedDialog;
 import de.outlookklon.gui.helpers.Events;
 import de.outlookklon.localization.Localization;
 import de.outlookklon.logik.User;
@@ -10,6 +12,7 @@ import de.outlookklon.logik.mailclient.ServerSettings;
 import de.outlookklon.logik.mailclient.checker.MailAccountChecker;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -78,9 +81,11 @@ public class AccountManagementFrame extends ExtendedDialog<MailAccount[]> {
     /**
      * Erstellt eine neue Instanz der Klasse zum Verwalten aller bestehenden
      * MailAccounts
+     *
+     * @param parent Das Vaterfenster des Dialogs
      */
-    public AccountManagementFrame() {
-        super(711, 695);
+    public AccountManagementFrame(Window parent) {
+        super(parent, 711, 695);
 
         myAccounts = null;
 
@@ -431,7 +436,7 @@ public class AccountManagementFrame extends ExtendedDialog<MailAccount[]> {
      * MailAccount-Instanz
      */
     private void createAccount() {
-        AccountFrame accountFrame = new AccountFrame();
+        AccountFrame accountFrame = new AccountFrame(this);
         MailAccount acc = accountFrame.showDialog();
         if (acc != null) {
             DefaultListModel<MailAccount> model = (DefaultListModel<MailAccount>) lstAccounts.getModel();
@@ -448,7 +453,7 @@ public class AccountManagementFrame extends ExtendedDialog<MailAccount[]> {
      * @return Instanz des veränderten MailAccounts
      */
     private MailAccount editAccount(MailAccount acc) {
-        AccountFrame accountFrame = new AccountFrame(acc);
+        AccountFrame accountFrame = new AccountFrame(this, acc);
 
         MailAccount result = accountFrame.showDialog();
         if (result != null) {

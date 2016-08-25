@@ -1,4 +1,4 @@
-package de.outlookklon.gui;
+package de.outlookklon.gui.dialogs;
 
 import de.outlookklon.gui.helpers.Dialogs;
 import de.outlookklon.localization.Localization;
@@ -11,6 +11,7 @@ import de.outlookklon.logik.mailclient.OutboxServer;
 import de.outlookklon.logik.mailclient.Pop3Server;
 import de.outlookklon.logik.mailclient.ServerSettings;
 import de.outlookklon.logik.mailclient.SmtpServer;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
@@ -72,8 +73,8 @@ public class AccountFrame extends ExtendedDialog<MailAccount> {
     private final JButton btnAbort;
     private final JButton btnFinish;
 
-    private AccountFrame(String titleKey) {
-        super(750, 350);
+    private AccountFrame(Window parent, String titleKey) {
+        super(parent, 750, 350);
         titleLocalizationKey = titleKey;
 
         txtMail = new JTextField();
@@ -108,19 +109,22 @@ public class AccountFrame extends ExtendedDialog<MailAccount> {
     /**
      * Erstellt eine neue Instanz der Klasse zum Erstellen eines neuen
      * MailAccount-Objekts
+     *
+     * @param parent Das Vaterfenster des Dialogs
      */
-    public AccountFrame() {
-        this("AccountFrame_DefaultTitle");
+    public AccountFrame(Window parent) {
+        this(parent, "AccountFrame_DefaultTitle");
     }
 
     /**
      * Erstellt eine neue Instanz der Klasse zum Bearbeiten eines neuen
      * MailAccount-Objekts
      *
+     * @param parent Das Vaterfenster des Dialogs
      * @param account Zu bearbeitender Account
      */
-    public AccountFrame(MailAccount account) {
-        this("AccountFrame_EditTitle");
+    public AccountFrame(Window parent, MailAccount account) {
+        this(parent, "AccountFrame_EditTitle");
 
         initFrame();
 
