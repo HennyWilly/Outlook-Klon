@@ -13,6 +13,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.mainClass>de.outlookklon.Application</project.mainClass>
 
         <jdk.version>1.7</jdk.version>
         <junit.version>4.12</junit.version>
@@ -185,7 +186,7 @@
                     <archive>
                         <manifest>
                             <!-- Jar file entry point -->
-                            <mainClass>de.outlookklon.Program</mainClass>
+                            <mainClass>${project.mainClass}</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
@@ -196,7 +197,7 @@
                 <artifactId>exec-maven-plugin</artifactId>
                 <version>${exec-plugin.version}</version>
                 <configuration>
-                    <mainClass>de.outlookklon.Program</mainClass>
+                    <mainClass>${project.mainClass}</mainClass>
                 </configuration>
             </plugin>
 

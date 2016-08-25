@@ -10,11 +10,11 @@ import org.slf4j.LoggerFactory;
 /**
  * Hauptklasse der Anwendung
  */
-public final class Program {
+public final class Application {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(Program.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(Application.class);
 
-    private Program() {
+    private Application() {
     }
 
     /**

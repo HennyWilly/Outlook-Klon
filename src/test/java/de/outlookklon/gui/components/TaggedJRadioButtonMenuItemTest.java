@@ -1,6 +1,5 @@
 package de.outlookklon.gui.components;
 
-import de.outlookklon.gui.components.TaggedJRadioButtonMenuItem;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
