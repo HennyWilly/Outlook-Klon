@@ -4,6 +4,7 @@ import com.sun.mail.imap.IMAPFolder;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import javax.mail.Address;
 import javax.mail.Folder;
 import javax.mail.Message;
 import javax.mail.MessagingException;
@@ -165,9 +166,10 @@ public class MailAccountTest {
 
     @Test
     public void shouldSendMail_NoMultipleFolders() throws Exception {
-        MailInfo mailToSend = new MailInfo("TestMail", "This is a test mail", "text/plain", new InternetAddress[]{new InternetAddress("tester@test.com")}, null, null);
+        SendMailInfo mailToSend = new SendMailInfo("TestMail", "This is a test mail", "text/plain",
+                Arrays.<Address>asList(new InternetAddress("tester@test.com")), null, null);
 
-        doReturn(mock(Message.class)).when(workingOutbox).sendMail(any(String.class), any(String.class), any(MailInfo.class));
+        doReturn(mock(Message.class)).when(workingOutbox).sendMail(any(String.class), any(String.class), any(SendMailInfo.class));
         doReturn(false).when(workingInbox).supportsMultipleFolders();
 
         workingAccount.sendMail(mailToSend);
@@ -175,7 +177,8 @@ public class MailAccountTest {
 
     @Test
     public void shouldSendMail_MultipleFolders_NoSendFolder() throws Exception {
-        MailInfo mailToSend = new MailInfo("TestMail", "This is a test mail", "text/plain", new InternetAddress[]{new InternetAddress("tester@test.com")}, null, null);
+        SendMailInfo mailToSend = new SendMailInfo("TestMail", "This is a test mail", "text/plain",
+                Arrays.<Address>asList(new InternetAddress("tester@test.com")), null, null);
 
         Folder rootFolder = mock(Folder.class);
         when(rootFolder.list(any(String.class))).thenReturn(new Folder[]{});
@@ -184,7 +187,7 @@ public class MailAccountTest {
         when(inboxMailStore.getDefaultFolder()).thenReturn(rootFolder);
         when(inboxMailStore.isConnected()).thenReturn(true);
 
-        doReturn(mock(Message.class)).when(workingOutbox).sendMail(any(String.class), any(String.class), any(MailInfo.class));
+        doReturn(mock(Message.class)).when(workingOutbox).sendMail(any(String.class), any(String.class), any(SendMailInfo.class));
         doReturn(true).when(workingInbox).supportsMultipleFolders();
         doReturn(inboxMailStore).when(workingInbox).getMailStore(any(String.class), any(String.class));
 
@@ -193,7 +196,8 @@ public class MailAccountTest {
 
     @Test
     public void shouldSendMail_MultipleFolders_DefaultSendFolder() throws Exception {
-        MailInfo mailToSend = new MailInfo("TestMail", "This is a test mail", "text/plain", new InternetAddress[]{new InternetAddress("tester@test.com")}, null, null);
+        SendMailInfo mailToSend = new SendMailInfo("TestMail", "This is a test mail", "text/plain",
+                Arrays.<Address>asList(new InternetAddress("tester@test.com")), null, null);
 
         Folder sendFolder = mock(Folder.class);
         when(sendFolder.getName()).thenReturn("Sent");
@@ -205,7 +209,7 @@ public class MailAccountTest {
         when(inboxMailStore.getDefaultFolder()).thenReturn(rootFolder);
         when(inboxMailStore.isConnected()).thenReturn(true);
 
-        doReturn(mock(Message.class)).when(workingOutbox).sendMail(any(String.class), any(String.class), any(MailInfo.class));
+        doReturn(mock(Message.class)).when(workingOutbox).sendMail(any(String.class), any(String.class), any(SendMailInfo.class));
         doReturn(true).when(workingInbox).supportsMultipleFolders();
         doReturn(inboxMailStore).when(workingInbox).getMailStore(any(String.class), any(String.class));
 
@@ -215,7 +219,8 @@ public class MailAccountTest {
 
     @Test
     public void shouldSendMail_MultipleFolders_IMAPSendFolder() throws Exception {
-        MailInfo mailToSend = new MailInfo("TestMail", "This is a test mail", "text/plain", new InternetAddress[]{new InternetAddress("tester@test.com")}, null, null);
+        SendMailInfo mailToSend = new SendMailInfo("TestMail", "This is a test mail", "text/plain",
+                Arrays.<Address>asList(new InternetAddress("tester@test.com")), null, null);
 
         IMAPFolder sendFolder = mock(IMAPFolder.class);
         when(sendFolder.getAttributes()).thenReturn(new String[]{"\\Sent"});
@@ -227,7 +232,7 @@ public class MailAccountTest {
         when(inboxMailStore.getDefaultFolder()).thenReturn(rootFolder);
         when(inboxMailStore.isConnected()).thenReturn(true);
 
-        doReturn(mock(Message.class)).when(workingOutbox).sendMail(any(String.class), any(String.class), any(MailInfo.class));
+        doReturn(mock(Message.class)).when(workingOutbox).sendMail(any(String.class), any(String.class), any(SendMailInfo.class));
         doReturn(true).when(workingInbox).supportsMultipleFolders();
         doReturn(inboxMailStore).when(workingInbox).getMailStore(any(String.class), any(String.class));
 
@@ -237,7 +242,8 @@ public class MailAccountTest {
 
     @Test
     public void shouldSendMail_MultipleFolders_IMAPSendFolder_FallbackToName() throws Exception {
-        MailInfo mailToSend = new MailInfo("TestMail", "This is a test mail", "text/plain", new InternetAddress[]{new InternetAddress("tester@test.com")}, null, null);
+        SendMailInfo mailToSend = new SendMailInfo("TestMail", "This is a test mail", "text/plain",
+                Arrays.<Address>asList(new InternetAddress("tester@test.com")), null, null);
 
         IMAPFolder sendFolder = mock(IMAPFolder.class);
         when(sendFolder.getAttributes()).thenReturn(new String[]{"\\Invalid"});
@@ -250,7 +256,7 @@ public class MailAccountTest {
         when(inboxMailStore.getDefaultFolder()).thenReturn(rootFolder);
         when(inboxMailStore.isConnected()).thenReturn(true);
 
-        doReturn(mock(Message.class)).when(workingOutbox).sendMail(any(String.class), any(String.class), any(MailInfo.class));
+        doReturn(mock(Message.class)).when(workingOutbox).sendMail(any(String.class), any(String.class), any(SendMailInfo.class));
         doReturn(true).when(workingInbox).supportsMultipleFolders();
         doReturn(inboxMailStore).when(workingInbox).getMailStore(any(String.class), any(String.class));
 
@@ -260,16 +266,18 @@ public class MailAccountTest {
 
     @Test(expected = MessagingException.class)
     public void shouldNotSendMail() throws Exception {
-        MailInfo mailToSend = new MailInfo("TestMail", "This is a test mail", "text/plain", new InternetAddress[]{new InternetAddress("tester@test.com")}, null, null);
+        SendMailInfo mailToSend = new SendMailInfo("TestMail", "This is a test mail", "text/plain",
+                Arrays.<Address>asList(new InternetAddress("tester@test.com")), null, null);
 
-        doThrow(new MessagingException()).when(workingOutbox).sendMail(any(String.class), any(String.class), any(MailInfo.class));
+        doThrow(new MessagingException()).when(workingOutbox).sendMail(any(String.class), any(String.class), any(SendMailInfo.class));
 
         workingAccount.sendMail(mailToSend);
     }
 
     @Test(expected = MessagingException.class)
     public void shouldSendMail_ButFailsToSaveMailInSendFolder() throws Exception {
-        MailInfo mailToSend = new MailInfo("TestMail", "This is a test mail", "text/plain", new InternetAddress[]{new InternetAddress("tester@test.com")}, null, null);
+        SendMailInfo mailToSend = new SendMailInfo("TestMail", "This is a test mail", "text/plain",
+                Arrays.<Address>asList(new InternetAddress("tester@test.com")), null, null);
 
         Folder sendFolder = mock(Folder.class);
         when(sendFolder.getName()).thenReturn("Sent");
@@ -282,7 +290,7 @@ public class MailAccountTest {
         when(inboxMailStore.getDefaultFolder()).thenReturn(rootFolder);
         when(inboxMailStore.isConnected()).thenReturn(true);
 
-        doReturn(mock(Message.class)).when(workingOutbox).sendMail(any(String.class), any(String.class), any(MailInfo.class));
+        doReturn(mock(Message.class)).when(workingOutbox).sendMail(any(String.class), any(String.class), any(SendMailInfo.class));
         doReturn(true).when(workingInbox).supportsMultipleFolders();
         doReturn(inboxMailStore).when(workingInbox).getMailStore(any(String.class), any(String.class));
 

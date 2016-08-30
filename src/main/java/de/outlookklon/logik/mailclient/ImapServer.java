@@ -52,13 +52,9 @@ public class ImapServer extends InboxServer {
     public Store getMailStore(final String user, final String passwd) throws NoSuchProviderException {
         final Session session = getSession(new StandardAuthenticator(user, passwd));
 
-        Store store;
         if (settings.getConnectionSecurity() == ConnectionSecurity.SSL_TLS) {
-            store = session.getStore("imaps");
-        } else {
-            store = session.getStore("imap");
+            return session.getStore("imaps");
         }
-
-        return store;
+        return session.getStore("imap");
     }
 }

@@ -1,6 +1,5 @@
 package de.outlookklon.gui.frames;
 
-import de.outlookklon.gui.components.HtmlEditorPane;
 import de.outlookklon.dao.DAOException;
 import de.outlookklon.gui.components.HtmlEditorPane;
 import de.outlookklon.gui.helpers.Dialogs;
@@ -10,7 +9,7 @@ import de.outlookklon.logik.User;
 import de.outlookklon.logik.contacts.Contact;
 import de.outlookklon.logik.mailclient.MailAccount;
 import de.outlookklon.logik.mailclient.MailContent;
-import de.outlookklon.logik.mailclient.MailInfo;
+import de.outlookklon.logik.mailclient.SendMailInfo;
 import de.outlookklon.logik.mailclient.StoredMailInfo;
 import de.outlookklon.logik.mailclient.checker.MailAccountChecker;
 import java.awt.event.ActionEvent;
@@ -23,6 +22,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
 import javax.mail.Address;
@@ -187,7 +187,7 @@ public class MailFrame extends ExtendedFrame {
             addresses.add(contact.getAddress1());
         }
 
-        String addressString = appendAddresses(addresses.toArray(new Address[addresses.size()]));
+        String addressString = appendAddresses(addresses);
         tTo.setText(addressString);
     }
 
@@ -252,7 +252,7 @@ public class MailFrame extends ExtendedFrame {
         DefaultListModel<String> model = (DefaultListModel<String>) lstAttachment.getModel();
 
         // Füge Anhänge in die JList ein
-        String[] attachments = mail.getAttachment();
+        List<String> attachments = mail.getAttachment();
         for (String attachment : attachments) {
             model.addElement(attachment);
         }
@@ -563,19 +563,19 @@ public class MailFrame extends ExtendedFrame {
      * @param addresses Umzuwandelnde Adressen
      * @return String, der die Aufzählung der übergebenen Adressen enthält
      */
-    private String appendAddresses(Address[] addresses) {
-        if (addresses == null || addresses.length == 0) {
+    private String appendAddresses(List<Address> addresses) {
+        if (addresses == null || addresses.isEmpty()) {
             return "";
         }
 
         StringBuilder sb = new StringBuilder();
 
-        for (int i = 0; i < addresses.length; i++) {
-            InternetAddress inet = (InternetAddress) addresses[i];
+        for (int i = 0; i < addresses.size(); i++) {
+            InternetAddress inet = (InternetAddress) addresses.get(i);
 
             sb.append(inet.toUnicodeString());
 
-            if (i < addresses.length - 1) {
+            if (i < addresses.size() - 1) {
                 sb.append("; ");
             }
         }
@@ -647,25 +647,25 @@ public class MailFrame extends ExtendedFrame {
             return;
         }
 
-        Address[] to;
-        Address[] cc;
+        List<Address> to;
+        List<Address> cc;
         try {
             // Erstelle aus den entsprechenden String InternetAddress-Instanzen
-            to = unicodifyAddresses(tTo.getText());
-            cc = unicodifyAddresses(tCC.getText());
+            to = Arrays.asList(unicodifyAddresses(tTo.getText()));
+            cc = Arrays.asList(unicodifyAddresses(tCC.getText()));
         } catch (ParseException e) {
             Dialogs.showErrorDialog(this, e.getMessage());
             return;
         }
 
         DefaultListModel<String> model = (DefaultListModel<String>) lstAttachment.getModel();
-        String[] attachments = new String[model.getSize()];
-        for (int i = 0; i < attachments.length; i++) {
-            attachments[i] = model.get(i);
+        List<String> attachments = new ArrayList<>();
+        for (int i = 0; i < model.getSize(); i++) {
+            attachments.add(model.get(i));
         }
 
         try {
-            MailInfo mailToSend = new MailInfo(subject, text, tpMailtext.getContentType(), to, cc, attachments);
+            SendMailInfo mailToSend = new SendMailInfo(subject, text, tpMailtext.getContentType(), to, cc, attachments);
 
             // Eingentliches Senden der Mail
             acc.sendMail(mailToSend);

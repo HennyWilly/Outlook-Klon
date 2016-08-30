@@ -42,6 +42,7 @@ public class MailAccount {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MailAccount.class);
 
+    // TODO Redundant
     private static final String MESSAGE_ID_HEADER_NAME = "Message-Id";
 
     @JsonProperty("inboxMailServer")
@@ -164,7 +165,7 @@ public class MailAccount {
      * @throws MessagingException Tritt auf, wenn der Sendevorgang
      * fehlgeschlagen ist
      */
-    public void sendMail(MailInfo mailToSend)
+    public void sendMail(SendMailInfo mailToSend)
             throws MessagingException {
 
         Message sendMail;

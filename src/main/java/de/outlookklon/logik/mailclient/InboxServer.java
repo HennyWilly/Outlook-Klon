@@ -1,5 +1,6 @@
 package de.outlookklon.logik.mailclient;
 
+import de.outlookklon.logik.mailclient.javamail.ServiceWrapper;
 import javax.mail.MessagingException;
 import javax.mail.NoSuchProviderException;
 import javax.mail.Store;
@@ -52,28 +53,13 @@ public abstract class InboxServer extends MailServer {
 
     @Override
     public boolean checkLogin(final String username, final String password) {
-        boolean result = true;
-
-        final String host = settings.getHost();
-        final int port = settings.getPort();
-
-        Store store = null;
-        try {
-            store = getMailStore(username, password);
-            store.connect(host, port, username, password);
+        try (ServiceWrapper storeWrapper = new ServiceWrapper(getMailStore(username, password))) {
+            storeWrapper.getService().connect(settings.getHost(), settings.getPort(), username, password);
         } catch (MessagingException ex) {
             LOGGER.error("Error while connecting to MailStore", ex);
-            result = false;
-        } finally {
-            if (store != null && store.isConnected()) {
-                try {
-                    store.close();
-                } catch (MessagingException ex) {
-                    LOGGER.error("Error while closing MailStore", ex);
-                }
-            }
+            return false;
         }
 
-        return result;
+        return true;
     }
 }

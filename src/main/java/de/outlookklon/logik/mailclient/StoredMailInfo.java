@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -15,6 +16,7 @@ import javax.mail.Message.RecipientType;
 import javax.mail.MessagingException;
 import javax.mail.Multipart;
 import javax.mail.Part;
+import javax.mail.internet.MimeMessage;
 import lombok.NonNull;
 
 /**
@@ -24,11 +26,13 @@ import lombok.NonNull;
  */
 public class StoredMailInfo extends MailInfo implements Comparable<StoredMailInfo> {
 
+    private static final String MESSAGE_ID_HEADER_NAME = "Message-Id";
+
     @JsonProperty("id")
     private String id;
 
     @JsonProperty("read")
-    private boolean read;
+    private Boolean read;
 
     @JsonProperty("date")
     private Date date;
@@ -44,6 +48,17 @@ public class StoredMailInfo extends MailInfo implements Comparable<StoredMailInf
         setID(id);
     }
 
+    /**
+     * Erstellt eine neue Instanz der Klasse mit der übergebenen Servernachricht
+     *
+     * @param message Mail-Object von JavaMail
+     * @throws javax.mail.MessagingException Tritt auf, wenn die ID nicht
+     * abgefragt werden konnte.
+     */
+    public StoredMailInfo(Message message) throws MessagingException {
+        this(getID(message));
+    }
+
     @JsonCreator
     private StoredMailInfo(
             @JsonProperty("id") String id,
@@ -53,14 +68,39 @@ public class StoredMailInfo extends MailInfo implements Comparable<StoredMailInf
             @JsonProperty("date") Date date,
             @JsonProperty("text") String text,
             @JsonProperty("contentType") String contentType,
-            @JsonProperty("to") Address[] to,
-            @JsonProperty("cc") Address[] cc,
-            @JsonProperty("attachment") String[] attachment) {
+            @JsonProperty("to") List<Address> to,
+            @JsonProperty("cc") List<Address> cc,
+            @JsonProperty("attachment") List<String> attachment) {
         super(subject, sender, text, contentType, to, cc, attachment);
 
         setID(id);
         setRead(read);
         setDate(date);
+    }
+
+    /**
+     * Gibt die ID zur übergebenen Mail zurück
+     *
+     * @param message Mail, für die die ID bestimmt werden soll
+     * @return ID der Mail, oder <code>null</code>, wenn nicht gefunden
+     */
+    private static String getID(Message message) throws MessagingException {
+        String[] tmpID = message.getHeader(MESSAGE_ID_HEADER_NAME);
+        if (tmpID != null && tmpID.length > 0) {
+            return tmpID[0];
+        }
+
+        String id = null;
+        if (message instanceof MimeMessage) {
+            MimeMessage mime = (MimeMessage) message;
+
+            id = mime.getMessageID();
+            if (id == null) {
+                id = mime.getContentID();
+            }
+        }
+
+        return id;
     }
 
     /**
@@ -75,12 +115,15 @@ public class StoredMailInfo extends MailInfo implements Comparable<StoredMailInf
      */
     public void loadData(@NonNull Message serverMessage, @NonNull Set<MailContent> contents)
             throws MessagingException, IOException {
+        if (!getID(serverMessage).equals(getID())) {
+            // TODO Localize me!!!
+            throw new IllegalArgumentException("IDs don't match");
+        }
+
         for (MailContent setContentType : contents) {
             switch (setContentType) {
                 case ID:
-                    if (getID() == null) {
-                        throw new IllegalStateException("ID not set");
-                    }
+                    // Haben wir schon ;-)
                     break;
                 case READ:
                     setRead(serverMessage.isSet(Flag.SEEN));
@@ -116,7 +159,7 @@ public class StoredMailInfo extends MailInfo implements Comparable<StoredMailInf
                         if (messageTo == null) {
                             messageTo = new Address[0];
                         }
-                        setTo(messageTo);
+                        setTo(Arrays.asList(messageTo));
                     }
                     break;
                 case CC:
@@ -125,7 +168,7 @@ public class StoredMailInfo extends MailInfo implements Comparable<StoredMailInf
                         if (messageCC == null) {
                             messageCC = new Address[0];
                         }
-                        setCc(messageCC);
+                        setCc(Arrays.asList(messageCC));
                     }
                     break;
                 case ATTACHMENT:
@@ -144,7 +187,7 @@ public class StoredMailInfo extends MailInfo implements Comparable<StoredMailInf
                             }
                         }
 
-                        setAttachment(messageAttachment.toArray(new String[messageAttachment.size()]));
+                        setAttachment(messageAttachment);
                     }
                     break;
                 default:
@@ -165,7 +208,11 @@ public class StoredMailInfo extends MailInfo implements Comparable<StoredMailInf
         for (MailContent setContentType : contents) {
             switch (setContentType) {
                 case ID:
+                    break;
                 case READ:
+                    if (isRead() == null) {
+                        return false;
+                    }
                     break;
                 case SUBJECT:
                     if (getSubject() == null) {
@@ -304,7 +351,7 @@ public class StoredMailInfo extends MailInfo implements Comparable<StoredMailInf
      *
      * @return true, wenn die Mail gelesen wurde; sonst false
      */
-    public boolean isRead() {
+    public Boolean isRead() {
         return read;
     }
 
@@ -313,7 +360,7 @@ public class StoredMailInfo extends MailInfo implements Comparable<StoredMailInf
      *
      * @param read Lesestatus der Mail
      */
-    public void setRead(final boolean read) {
+    public void setRead(final Boolean read) {
         this.read = read;
     }
 

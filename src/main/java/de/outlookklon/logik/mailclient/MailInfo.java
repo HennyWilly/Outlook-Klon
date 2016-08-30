@@ -2,23 +2,17 @@ package de.outlookklon.logik.mailclient;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import java.io.IOException;
-import java.util.Date;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import javax.mail.Address;
-import javax.mail.Message;
-import javax.mail.MessagingException;
-import javax.mail.Part;
-import javax.mail.Session;
-import javax.mail.internet.MimeBodyPart;
-import javax.mail.internet.MimeMessage;
-import javax.mail.internet.MimeMultipart;
 
 /**
  * Datenklasse zum Halten von Mailinformationen
  *
  * @author Hendrik Karwanni
  */
-public class MailInfo {
+public abstract class MailInfo {
 
     @JsonProperty("subject")
     private String subject;
@@ -33,13 +27,13 @@ public class MailInfo {
     private String contentType;
 
     @JsonProperty("to")
-    private Address[] to;
+    private List<Address> to;
 
     @JsonProperty("cc")
-    private Address[] cc;
+    private List<Address> cc;
 
     @JsonProperty("attachment")
-    private String[] attachment;
+    private List<String> attachment;
 
     /**
      * Erstellt eine neue MailInfo-Instanz mit den übergebenen Werten.
@@ -51,8 +45,8 @@ public class MailInfo {
      * @param cc Sekundäre Empfänger der Mail
      * @param attachment Anhänge der Mail
      */
-    public MailInfo(String subject, String text, String contentType,
-            Address[] to, Address[] cc, String[] attachment) {
+    protected MailInfo(String subject, String text, String contentType,
+            List<Address> to, List<Address> cc, List<String> attachment) {
         setSubject(subject);
         setText(text);
         setContentType(contentType);
@@ -73,63 +67,17 @@ public class MailInfo {
      * @param attachment Anhänge der Mail
      */
     @JsonCreator
-    public MailInfo(
+    protected MailInfo(
             @JsonProperty("subject") String subject,
             @JsonProperty("sender") Address sender,
             @JsonProperty("text") String text,
             @JsonProperty("contentType") String contentType,
-            @JsonProperty("to") Address[] to,
-            @JsonProperty("cc") Address[] cc,
-            @JsonProperty("attachment") String[] attachment) {
+            @JsonProperty("to") List<Address> to,
+            @JsonProperty("cc") List<Address> cc,
+            @JsonProperty("attachment") List<String> attachment) {
         this(subject, text, contentType, to, cc, attachment);
 
         setSender(sender);
-    }
-
-    /**
-     * Erstellt ein neues Message-Objekt, das gesendet werden kann.
-     *
-     * @param session Die Session des Servers
-     * @return Ein noch nicht versendetes Message-Objekt
-     * @throws MessagingException tritt auf, wenn ein Attribut nicht in das
-     * Message-Objekt geschrieben werden konnte.
-     */
-    public Message createMessage(Session session)
-            throws MessagingException {
-        final Message mail = new MimeMessage(session);
-
-        mail.setFrom(getSender());
-        mail.addRecipients(Message.RecipientType.TO, getTo());
-        mail.addRecipients(Message.RecipientType.CC, getCc());
-        mail.setSubject(getSubject());
-
-        final MimeBodyPart textPart = new MimeBodyPart();
-        textPart.setContent(getText(), getContentType());
-        textPart.setDisposition(Part.INLINE);
-
-        final MimeMultipart multiPart = new MimeMultipart();
-        multiPart.addBodyPart(textPart);
-
-        String[] attachments = getAttachment();
-        if (attachments != null) {
-            try {
-                for (final String strAttachment : attachments) {
-                    // Fügt jeden Anhang der Mail hinzu
-
-                    final MimeBodyPart attachmentPart = new MimeBodyPart();
-                    attachmentPart.attachFile(strAttachment);
-                    attachmentPart.setDisposition(Part.ATTACHMENT);
-                    multiPart.addBodyPart(attachmentPart);
-                }
-            } catch (IOException ex) {
-                throw new MessagingException("Could not access attachment", ex);
-            }
-        }
-
-        mail.setContent(multiPart);
-        mail.setSentDate(new Date());
-
-        return mail;
     }
 
     /**
@@ -213,8 +161,8 @@ public class MailInfo {
      *
      * @return Zieladressen der Mail
      */
-    public Address[] getTo() {
-        return to;
+    public List<Address> getTo() {
+        return to != null ? Collections.unmodifiableList(to) : null;
     }
 
     /**
@@ -222,8 +170,8 @@ public class MailInfo {
      *
      * @param to Zieladressen der Mail
      */
-    public void setTo(Address[] to) {
-        this.to = to;
+    public void setTo(List<Address> to) {
+        this.to = to != null ? new ArrayList<>(to) : null;
     }
 
     /**
@@ -231,8 +179,8 @@ public class MailInfo {
      *
      * @return Copy-Adressen der Mail
      */
-    public Address[] getCc() {
-        return cc;
+    public List<Address> getCc() {
+        return cc != null ? Collections.unmodifiableList(cc) : null;
     }
 
     /**
@@ -240,8 +188,8 @@ public class MailInfo {
      *
      * @param cc
      */
-    public void setCc(Address[] cc) {
-        this.cc = cc;
+    public void setCc(List<Address> cc) {
+        this.cc = cc != null ? new ArrayList<>(cc) : null;
     }
 
     /**
@@ -249,8 +197,8 @@ public class MailInfo {
      *
      * @return Namen der Anhänge der Mail
      */
-    public String[] getAttachment() {
-        return attachment;
+    public List<String> getAttachment() {
+        return attachment != null ? Collections.unmodifiableList(attachment) : null;
     }
 
     /**
@@ -258,7 +206,7 @@ public class MailInfo {
      *
      * @param attachment Namen der Anhänge der Mail
      */
-    public void setAttachment(final String[] attachment) {
-        this.attachment = attachment;
+    public void setAttachment(List<String> attachment) {
+        this.attachment = attachment != null ? new ArrayList<>(attachment) : null;
     }
 }

@@ -5,9 +5,12 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import de.outlookklon.logik.User;
 import de.outlookklon.logik.contacts.Contact;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import javax.mail.Address;
-import javax.mail.internet.InternetAddress;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.joda.time.DateTime;
 
 /**
@@ -43,7 +46,7 @@ public class Appointment implements Comparable<Appointment> {
     private AppointmentState status;
 
     @JsonProperty("addresses")
-    private Address[] addresses;
+    private List<Address> addresses;
 
     /**
      * Erstellt eine neue Instanz der Klasse mit den übergebenen Werten
@@ -66,18 +69,18 @@ public class Appointment implements Comparable<Appointment> {
         setState(AppointmentState.PROMISED);
 
         List<Address> temp = new ArrayList<>();
-        for (Contact contacts : User.getInstance().getContacts()) {
-            if (contacts.getDisplayname() != null && contacts.getDisplayname().equals(contact)) {
-                if (contacts.getAddress1() != null) {
-                    temp.add(contacts.getAddress1());
+        for (Contact contactInstance : User.getInstance().getContacts()) {
+            if (contactInstance.getDisplayname() != null && contactInstance.getDisplayname().equals(contact)) {
+                if (contactInstance.getAddress1() != null) {
+                    temp.add(contactInstance.getAddress1());
                 }
-                if (contacts.getAddress2() != null) {
-                    temp.add(contacts.getAddress2());
+                if (contactInstance.getAddress2() != null) {
+                    temp.add(contactInstance.getAddress2());
                 }
                 break;
             }
         }
-        setAddresses(temp.toArray(new Address[temp.size()]));
+        setAddresses(temp);
     }
 
     /**
@@ -103,7 +106,7 @@ public class Appointment implements Comparable<Appointment> {
             @JsonProperty("user") String user,
             @JsonProperty("contact") String contact,
             @JsonProperty("state") AppointmentState state,
-            @JsonProperty("addresses") InternetAddress[] addresses) {
+            @JsonProperty("addresses") Collection<? extends Address> addresses) {
         setSubject(subject);
         setLocation(location);
         setTimes(start, end);
@@ -259,8 +262,8 @@ public class Appointment implements Comparable<Appointment> {
      *
      * @return Adressen zum Appointment
      */
-    public Address[] getAddresses() {
-        return addresses;
+    public List<Address> getAddresses() {
+        return Collections.unmodifiableList(addresses);
     }
 
     /**
@@ -268,12 +271,55 @@ public class Appointment implements Comparable<Appointment> {
      *
      * @param addresses Adressen zum Appointment
      */
-    public void setAddresses(Address[] addresses) {
-        this.addresses = addresses;
+    public void setAddresses(Collection<? extends Address> addresses) {
+        this.addresses = new ArrayList<>(addresses);
     }
 
     @Override
-    public int compareTo(Appointment o) {
-        return this.start.compareTo(o.start);
+    public int compareTo(Appointment other) {
+        return getStart().compareTo(other.getStart());
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+
+        if (!this.getClass().equals(obj.getClass())) {
+            return false;
+        }
+
+        if (this == obj) {
+            return true;
+        }
+
+        Appointment other = (Appointment) obj;
+        return new EqualsBuilder()
+                .append(getSubject(), other.getSubject())
+                .append(getLocation(), other.getLocation())
+                .append(getStart(), other.getStart())
+                .append(getEnd(), other.getEnd())
+                .append(getText(), other.getText())
+                .append(getUser(), other.getUser())
+                .append(getContact(), other.getContact())
+                .append(getState(), other.getState())
+                .append(getAddresses(), other.getAddresses())
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder()
+                .append(getSubject())
+                .append(getLocation())
+                .append(getStart())
+                .append(getEnd())
+                .append(getText())
+                .append(getUser())
+                .append(getContact())
+                .append(getState())
+                .append(getAddresses())
+                .toHashCode();
     }
 }
