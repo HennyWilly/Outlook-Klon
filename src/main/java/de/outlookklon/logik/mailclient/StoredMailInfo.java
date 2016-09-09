@@ -18,6 +18,7 @@ import javax.mail.Multipart;
 import javax.mail.Part;
 import javax.mail.internet.MimeMessage;
 import lombok.NonNull;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Datenklasse zum Halten von abgefragten Informationen von Mails
@@ -181,8 +182,8 @@ public class StoredMailInfo extends MailInfo implements Comparable<StoredMailInf
                                 final BodyPart bp = mp.getBodyPart(i);
                                 final String filename = bp.getFileName();
 
-                                if (filename != null && !filename.isEmpty()) {
-                                    messageAttachment.add(bp.getFileName());
+                                if (!StringUtils.isBlank(filename)) {
+                                    messageAttachment.add(filename);
                                 }
                             }
                         }

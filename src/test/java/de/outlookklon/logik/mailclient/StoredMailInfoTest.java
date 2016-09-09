@@ -5,10 +5,14 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 import javax.mail.Address;
+import javax.mail.BodyPart;
 import javax.mail.Flags;
 import javax.mail.Message;
+import javax.mail.Multipart;
 import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeMultipart;
 import static net.javacrumbs.jsonunit.JsonMatchers.jsonEquals;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
@@ -16,8 +20,11 @@ import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasEntry;
+import static org.hamcrest.number.OrderingComparison.greaterThan;
+import static org.hamcrest.number.OrderingComparison.lessThan;
 import org.joda.time.DateTime;
 import org.junit.Test;
 import static org.mockito.Mockito.mock;
@@ -106,16 +113,48 @@ public class StoredMailInfoTest {
     }
 
     private Message getTestMessage() throws Exception {
+        return getTestMessage("<12345.JavaMail.app@wtfLol>");
+    }
+
+    private Message getTestMessage(String id) throws Exception {
+        return getTestMessage(id, new Address[]{new InternetAddress("management@test.com")}, null, "TestText");
+    }
+
+    private Message getTestMessage(String id, Address[] to, Address[] cc) throws Exception {
+        return getTestMessage(id, to, cc, "TestText");
+    }
+
+    private Message getTestMessage(DateTime date) throws Exception {
+        return getTestMessage("<12345.JavaMail.app@wtfLol>", new Address[]{new InternetAddress("management@test.com")}, null, "TestText", date);
+    }
+
+    private Message getTestAttachmentMessage(String id) throws Exception {
+        BodyPart attachment1 = new MimeBodyPart();
+        attachment1.setFileName("file1.txt");
+        BodyPart attachment2 = new MimeBodyPart();
+        attachment2.setFileName("file2.txt");
+
+        Multipart multipart = new MimeMultipart(attachment1, attachment2);
+
+        return getTestMessage(id, new Address[]{new InternetAddress("management@test.com")}, null, multipart);
+    }
+
+    private Message getTestMessage(String id, Address[] to, Address[] cc, Object content) throws Exception {
+        return getTestMessage(id, to, cc, content, new DateTime(2016, 8, 29, 2, 0));
+    }
+
+    private Message getTestMessage(String id, Address[] to, Address[] cc, Object content, DateTime date) throws Exception {
         Message message = mock(Message.class);
-        when(message.getHeader("Message-Id")).thenReturn(new String[]{"<12345.JavaMail.app@wtfLol>"});
+        when(message.getHeader("Message-Id")).thenReturn(new String[]{id});
         when(message.isSet(Flags.Flag.SEEN)).thenReturn(Boolean.TRUE);
         when(message.getSubject()).thenReturn("TestSubject");
         when(message.getFrom()).thenReturn(new Address[]{new InternetAddress("tester@test.com", "Tester")});
-        when(message.getSentDate()).thenReturn(new DateTime(2016, 8, 29, 2, 0).toDate());
-        when(message.getContent()).thenReturn("TestText");
+        when(message.getSentDate()).thenReturn(date.toDate());
+        when(message.getContent()).thenReturn(content);
         when(message.getContentType()).thenReturn("TEXT/plain; charset=utf-8");
         when(message.isMimeType("text/*")).thenReturn(Boolean.TRUE);
-        when(message.getRecipients(Message.RecipientType.TO)).thenReturn(new Address[]{new InternetAddress("management@test.com")});
+        when(message.getRecipients(Message.RecipientType.TO)).thenReturn(to);
+        when(message.getRecipients(Message.RecipientType.CC)).thenReturn(cc);
         return message;
     }
 
@@ -160,6 +199,14 @@ public class StoredMailInfoTest {
 
         assertThat(map, hasEntry(new StoredMailInfo("ABCD1234"), "aaaa"));
         assertThat(map, hasEntry(new StoredMailInfo("EFGH5678"), "bbbb"));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void shouldNotLoadData_OtherID() throws Exception {
+        Message message1 = getTestMessage("ID1");
+
+        StoredMailInfo mailInfo = new StoredMailInfo(message1);
+        mailInfo.loadData(getTestMessage("ID2"), Sets.newSet(MailContent.SUBJECT));
     }
 
     @Test
@@ -241,6 +288,19 @@ public class StoredMailInfoTest {
     }
 
     @Test
+    public void shouldLoadTo_NoTo() throws Exception {
+        Message message = getTestMessage("ID1234", null, null);
+
+        StoredMailInfo mailInfo = new StoredMailInfo(message);
+        assertThat(mailInfo.getTo(), is(nullValue()));
+        assertThat(mailInfo.hasAlreadyLoadedData(Sets.newSet(MailContent.TO)), is(false));
+
+        mailInfo.loadData(message, Sets.newSet(MailContent.TO));
+        assertThat(mailInfo.getTo(), is(empty()));
+        assertThat(mailInfo.hasAlreadyLoadedData(Sets.newSet(MailContent.TO)), is(true));
+    }
+
+    @Test
     public void shouldLoadCc() throws Exception {
         Message message = getTestMessage();
 
@@ -255,6 +315,19 @@ public class StoredMailInfoTest {
 
     @Test
     public void shouldLoadAttachments() throws Exception {
+        Message message = getTestAttachmentMessage("ID1234");
+
+        StoredMailInfo mailInfo = new StoredMailInfo(message);
+        assertThat(mailInfo.getAttachment(), is(nullValue()));
+        assertThat(mailInfo.hasAlreadyLoadedData(Sets.newSet(MailContent.ATTACHMENT)), is(false));
+
+        mailInfo.loadData(message, Sets.newSet(MailContent.ATTACHMENT));
+        assertThat(mailInfo.getAttachment(), containsInAnyOrder("file1.txt", "file2.txt"));
+        assertThat(mailInfo.hasAlreadyLoadedData(Sets.newSet(MailContent.ATTACHMENT)), is(true));
+    }
+
+    @Test
+    public void shouldLoadAttachments_NoAttachment() throws Exception {
         Message message = getTestMessage();
 
         StoredMailInfo mailInfo = new StoredMailInfo(message);
@@ -290,5 +363,44 @@ public class StoredMailInfoTest {
         mailInfo.loadData(message, Sets.newSet(MailContent.READ));
         assertThat(mailInfo.getID(), is("<12345.JavaMail.app@wtfLol>"));
         assertThat(mailInfo.hasAlreadyLoadedData(Sets.newSet(MailContent.ID)), is(true));
+    }
+
+    @Test
+    public void shouldCompareMailInfo_ABeforeB() throws Exception {
+        Message msg1 = getTestMessage(new DateTime(2015, 1, 1, 0, 0));
+        Message msg2 = getTestMessage(new DateTime(2016, 1, 1, 0, 0));
+
+        StoredMailInfo a = new StoredMailInfo(msg1);
+        a.loadData(msg1, Sets.newSet(MailContent.DATE));
+        StoredMailInfo b = new StoredMailInfo(msg2);
+        b.loadData(msg2, Sets.newSet(MailContent.DATE));
+
+        assertThat(a, lessThan(b));
+    }
+
+    @Test
+    public void shouldCompareMailInfo_BBeforeA() throws Exception {
+        Message msg1 = getTestMessage(new DateTime(2016, 1, 1, 0, 0));
+        Message msg2 = getTestMessage(new DateTime(2015, 1, 1, 0, 0));
+
+        StoredMailInfo a = new StoredMailInfo(msg1);
+        a.loadData(msg1, Sets.newSet(MailContent.DATE));
+        StoredMailInfo b = new StoredMailInfo(msg2);
+        b.loadData(msg2, Sets.newSet(MailContent.DATE));
+
+        assertThat(a, greaterThan(b));
+    }
+
+    @Test
+    public void shouldCompareMailInfo_AStartsWithB() throws Exception {
+        Message msg1 = getTestMessage(new DateTime(2016, 1, 1, 0, 0));
+        Message msg2 = getTestMessage(new DateTime(2016, 1, 1, 0, 0));
+
+        StoredMailInfo a = new StoredMailInfo(msg1);
+        a.loadData(msg1, Sets.newSet(MailContent.DATE));
+        StoredMailInfo b = new StoredMailInfo(msg2);
+        b.loadData(msg2, Sets.newSet(MailContent.DATE));
+
+        assertThat(a.compareTo(b), is(0));
     }
 }

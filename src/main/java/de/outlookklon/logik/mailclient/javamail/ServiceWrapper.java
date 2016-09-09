@@ -5,6 +5,7 @@ import java.lang.reflect.Method;
 import javax.mail.MessagingException;
 import javax.mail.Service;
 import javax.mail.Session;
+import lombok.Getter;
 import lombok.NonNull;
 import lombok.SneakyThrows;
 import org.slf4j.Logger;
@@ -14,14 +15,11 @@ public class ServiceWrapper<T extends Service> implements AutoCloseable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ServiceWrapper.class);
 
+    @Getter
     private final T service;
 
     public ServiceWrapper(@NonNull T service) {
         this.service = service;
-    }
-
-    public T getService() {
-        return service;
     }
 
     @SneakyThrows({NoSuchMethodException.class, IllegalAccessException.class, InvocationTargetException.class})
@@ -44,7 +42,7 @@ public class ServiceWrapper<T extends Service> implements AutoCloseable {
             try {
                 serviceToClose.close();
             } catch (MessagingException ex) {
-                LOGGER.error("Could not close " + getServiceClassName() + " object", ex);
+                LOGGER.warn("Could not close " + getServiceClassName() + " object", ex);
             }
         }
     }

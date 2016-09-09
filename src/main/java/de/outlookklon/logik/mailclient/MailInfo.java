@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import javax.mail.Address;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 /**
  * Datenklasse zum Halten von Mailinformationen
@@ -208,5 +210,51 @@ public abstract class MailInfo {
      */
     public void setAttachment(List<String> attachment) {
         this.attachment = attachment != null ? new ArrayList<>(attachment) : null;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null || !(obj.getClass().equals(getClass()))) {
+            return false;
+        }
+        if (this == obj) {
+            return true;
+        }
+
+        MailInfo other = (MailInfo) obj;
+
+        Address[] thisTo = to == null ? null : to.toArray(new Address[to.size()]);
+        Address[] otherTo = other.to == null ? null : other.to.toArray(new Address[other.to.size()]);
+        Address[] thisCc = cc == null ? null : cc.toArray(new Address[cc.size()]);
+        Address[] otherCc = other.cc == null ? null : other.cc.toArray(new Address[other.cc.size()]);
+        String[] thisAttachment = attachment == null ? null : attachment.toArray(new String[attachment.size()]);
+        String[] otherAttachment = other.attachment == null ? null : other.attachment.toArray(new String[other.attachment.size()]);
+
+        return new EqualsBuilder()
+                .append(subject, other.subject)
+                .append(sender, other.sender)
+                .append(text, other.text)
+                .append(contentType, other.contentType)
+                .append(thisTo, otherTo)
+                .append(thisCc, otherCc)
+                .append(thisAttachment, otherAttachment)
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        Address[] thisTo = to == null ? null : to.toArray(new Address[to.size()]);
+        Address[] thisCc = cc == null ? null : cc.toArray(new Address[cc.size()]);
+        String[] thisAttachment = attachment == null ? null : attachment.toArray(new String[attachment.size()]);
+
+        return new HashCodeBuilder()
+                .append(subject)
+                .append(sender)
+                .append(text)
+                .append(contentType)
+                .append(thisTo)
+                .append(thisCc)
+                .append(thisAttachment)
+                .toHashCode();
     }
 }
