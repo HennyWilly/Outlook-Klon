@@ -1,6 +1,6 @@
 package de.outlookklon.gui.frames;
 
-import de.outlookklon.gui.components.ReadOnlyJTable;
+import de.outlookklon.gui.components.ReadOnlyTableModel;
 import de.outlookklon.gui.dialogs.ContactFrame;
 import de.outlookklon.gui.dialogs.ExtendedDialog;
 import de.outlookklon.gui.helpers.Dialogs;
@@ -143,17 +143,14 @@ public class AddressBookFrame extends ExtendedFrame {
         mntFileClose.setText(Localization.getString("Menu_Close"));
 
         int row = tableContacts.getSelectionModel().getMinSelectionIndex();
-        DefaultTableModel model = (DefaultTableModel) tableContacts.getModel();
-        int length = model.getDataVector().size();
+        int length = getTableLength();
 
         int lstIndex = lstLists.getSelectedIndex();
         refreshContactLists();
         lstLists.setSelectedIndex(lstIndex == -1 ? 0 : lstIndex);
 
         if (row >= 0 && length > 0) {
-            int rowModel = tableContacts.convertRowIndexToModel(row);
-
-            Contact reference = (Contact) model.getValueAt(rowModel, 0);
+            Contact reference = getContactByRow(row);
             refreshDetails(reference);
             tableContacts.setRowSelectionInterval(row, row);
         }
@@ -162,7 +159,7 @@ public class AddressBookFrame extends ExtendedFrame {
     }
 
     private TableModel getTableModel() {
-        return new DefaultTableModel(
+        return new ReadOnlyTableModel(
                 new Object[][]{
                     {
                         null, null, null
@@ -193,16 +190,12 @@ public class AddressBookFrame extends ExtendedFrame {
         tablePopupOpen.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                DefaultTableModel model = (DefaultTableModel) tableContacts.getModel();
-
                 int viewRow = tableContacts.getSelectedRow();
                 if (viewRow < 0) {
                     return;
                 }
 
-                int row = tableContacts.convertRowIndexToModel(viewRow);
-                Contact referenz = (Contact) model.getValueAt(row, 0);
-
+                Contact referenz = getContactByRow(viewRow);
                 editContact(referenz);
             }
         });
@@ -234,8 +227,7 @@ public class AddressBookFrame extends ExtendedFrame {
         tablePopupAddList = new JMenu();
         tablePopup.add(tablePopupAddList);
 
-        tableContacts = new ReadOnlyJTable();
-        tableContacts.setModel(getTableModel());
+        tableContacts = new JTable(getTableModel());
         tableContacts.removeColumn(tableContacts.getColumn(CONTACT_TABLE_REF_COLUMN_NAME));
 
         tableContacts.getColumnModel().getColumn(1).setPreferredWidth(91);
@@ -250,19 +242,7 @@ public class AddressBookFrame extends ExtendedFrame {
                         return;
                     }
 
-                    DefaultTableModel model = (DefaultTableModel) tableContacts.getModel();
-                    int length = model.getDataVector().size();
-
-                    if (length > 0) {
-                        int rowModel = tableContacts.convertRowIndexToModel(row);
-
-                        Contact reference = (Contact) model.getValueAt(rowModel, 0);
-                        refreshDetails(reference);
-                    } else {
-                        txtDetails.setEditable(true);
-                        txtDetails.setText(null);
-                        txtDetails.setEditable(false);
-                    }
+                    updateDetails(row);
                 }
             }
         });
@@ -271,16 +251,12 @@ public class AddressBookFrame extends ExtendedFrame {
             @Override
             public void mouseClicked(MouseEvent e) {
                 if (Events.isDoubleClick(e)) {
-                    DefaultTableModel model = (DefaultTableModel) tableContacts.getModel();
-
                     int viewRow = tableContacts.getSelectedRow();
                     if (viewRow < 0) {
                         return;
                     }
 
-                    int row = tableContacts.convertRowIndexToModel(viewRow);
-                    Contact reference = (Contact) model.getValueAt(row, 0);
-
+                    Contact reference = getContactByRow(viewRow);
                     editContact(reference);
                 }
             }
@@ -298,6 +274,28 @@ public class AddressBookFrame extends ExtendedFrame {
 
         JScrollPane contactScroller = new JScrollPane(tableContacts);
         verticalSplit.setLeftComponent(contactScroller);
+    }
+
+    private Contact getContactByRow(int viewRow) {
+        DefaultTableModel model = (DefaultTableModel) tableContacts.getModel();
+        int rowModel = tableContacts.convertRowIndexToModel(viewRow);
+        return (Contact) model.getValueAt(rowModel, 0);
+    }
+
+    private int getTableLength() {
+        DefaultTableModel model = (DefaultTableModel) tableContacts.getModel();
+        return model.getDataVector().size();
+    }
+
+    private void updateDetails(int rowIndex) {
+        if (getTableLength() > 0) {
+            Contact reference = getContactByRow(rowIndex);
+            refreshDetails(reference);
+        } else {
+            txtDetails.setEditable(true);
+            txtDetails.setText(null);
+            txtDetails.setEditable(false);
+        }
     }
 
     /**
@@ -352,9 +350,8 @@ public class AddressBookFrame extends ExtendedFrame {
             public void mouseClicked(MouseEvent e) {
                 if (Events.isDoubleClick(e)) {
                     String list = currentList();
-
                     if (!ContactManagement.DEFAULT.equals(list)) {
-                        renameList(currentList());
+                        renameList(list);
                     }
                 }
             }

@@ -85,7 +85,7 @@ public class StoredMailInfo extends MailInfo implements Comparable<StoredMailInf
      * @param message Mail, für die die ID bestimmt werden soll
      * @return ID der Mail, oder <code>null</code>, wenn nicht gefunden
      */
-    private static String getID(Message message) throws MessagingException {
+    public static String getID(Message message) throws MessagingException {
         String[] tmpID = message.getHeader(MESSAGE_ID_HEADER_NAME);
         if (tmpID != null && tmpID.length > 0) {
             return tmpID[0];
@@ -127,73 +127,111 @@ public class StoredMailInfo extends MailInfo implements Comparable<StoredMailInf
                     // Haben wir schon ;-)
                     break;
                 case READ:
-                    setRead(serverMessage.isSet(Flag.SEEN));
+                    loadRead(serverMessage);
                     break;
                 case SUBJECT:
-                    if (getSubject() == null) {
-                        setSubject(serverMessage.getSubject());
-                    }
+                    loadSubject(serverMessage);
                     break;
                 case SENDER:
-                    if (getSender() == null) {
-                        setSender(serverMessage.getFrom()[0]);
-                    }
+                    loadSender(serverMessage);
                     break;
                 case DATE:
-                    if (date == null) {
-                        setDate(serverMessage.getSentDate());
-                    }
+                    loadDate(serverMessage);
                     break;
                 case TEXT:
-                    if (getText() == null) {
-                        setText(getText(serverMessage));
-                    }
+                    loadText(serverMessage);
                     break;
                 case CONTENTTYPE:
-                    if (getContentType() == null) {
-                        setContentType(getType(serverMessage));
-                    }
+                    loadContentType(serverMessage);
                     break;
                 case TO:
-                    if (getTo() == null) {
-                        Address[] messageTo = serverMessage.getRecipients(RecipientType.TO);
-                        if (messageTo == null) {
-                            messageTo = new Address[0];
-                        }
-                        setTo(Arrays.asList(messageTo));
-                    }
+                    loadTo(serverMessage);
                     break;
                 case CC:
-                    if (getCc() == null) {
-                        Address[] messageCC = serverMessage.getRecipients(RecipientType.CC);
-                        if (messageCC == null) {
-                            messageCC = new Address[0];
-                        }
-                        setCc(Arrays.asList(messageCC));
-                    }
+                    loadCc(serverMessage);
                     break;
                 case ATTACHMENT:
-                    if (getAttachment() == null) {
-                        final List<String> messageAttachment = new ArrayList<>();
-                        if (serverMessage.getContent() instanceof Multipart) {
-                            final Multipart mp = (Multipart) serverMessage.getContent();
-
-                            for (int i = 0; i < mp.getCount(); i++) {
-                                final BodyPart bp = mp.getBodyPart(i);
-                                final String filename = bp.getFileName();
-
-                                if (!StringUtils.isBlank(filename)) {
-                                    messageAttachment.add(filename);
-                                }
-                            }
-                        }
-
-                        setAttachment(messageAttachment);
-                    }
+                    loadAttachment(serverMessage);
                     break;
                 default:
                     throw new IllegalStateException("Not implemented");
             }
+        }
+    }
+
+    private void loadRead(Message serverMessage) throws MessagingException {
+        if (!isReadLoaded()) {
+            setRead(serverMessage.isSet(Flag.SEEN));
+        }
+    }
+
+    private void loadSubject(Message serverMessage) throws MessagingException {
+        if (!isSubjectLoaded()) {
+            setSubject(serverMessage.getSubject());
+        }
+    }
+
+    private void loadSender(Message serverMessage) throws MessagingException {
+        if (!isSenderLoaded()) {
+            setSender(serverMessage.getFrom()[0]);
+        }
+    }
+
+    private void loadDate(Message serverMessage) throws MessagingException {
+        if (!isDateLoaded()) {
+            setDate(serverMessage.getSentDate());
+        }
+    }
+
+    private void loadText(Message serverMessage) throws MessagingException, IOException {
+        if (!isTextLoaded()) {
+            setText(getText(serverMessage));
+        }
+    }
+
+    private void loadContentType(Message serverMessage) throws IOException, MessagingException {
+        if (!isContentTypeLoaded()) {
+            setContentType(getType(serverMessage));
+        }
+    }
+
+    private void loadTo(Message serverMessage) throws MessagingException {
+        if (!isToLoaded()) {
+            Address[] messageTo = serverMessage.getRecipients(RecipientType.TO);
+            if (messageTo == null) {
+                messageTo = new Address[0];
+            }
+            setTo(Arrays.asList(messageTo));
+        }
+    }
+
+    private void loadCc(Message serverMessage) throws MessagingException {
+        if (!isCcLoaded()) {
+            Address[] messageCC = serverMessage.getRecipients(RecipientType.CC);
+            if (messageCC == null) {
+                messageCC = new Address[0];
+            }
+            setCc(Arrays.asList(messageCC));
+        }
+    }
+
+    private void loadAttachment(Message serverMessage) throws IOException, MessagingException {
+        if (!isAttachmentLoaded()) {
+            final List<String> messageAttachment = new ArrayList<>();
+            if (serverMessage.getContent() instanceof Multipart) {
+                final Multipart mp = (Multipart) serverMessage.getContent();
+
+                for (int i = 0; i < mp.getCount(); i++) {
+                    final BodyPart bp = mp.getBodyPart(i);
+                    final String filename = bp.getFileName();
+
+                    if (!StringUtils.isBlank(filename)) {
+                        messageAttachment.add(filename);
+                    }
+                }
+            }
+
+            setAttachment(messageAttachment);
         }
     }
 
@@ -206,61 +244,84 @@ public class StoredMailInfo extends MailInfo implements Comparable<StoredMailInf
      * sonst {@code false}
      */
     public boolean hasAlreadyLoadedData(Set<MailContent> contents) {
-        for (MailContent setContentType : contents) {
-            switch (setContentType) {
-                case ID:
-                    break;
-                case READ:
-                    if (isRead() == null) {
-                        return false;
-                    }
-                    break;
-                case SUBJECT:
-                    if (getSubject() == null) {
-                        return false;
-                    }
-                    break;
-                case SENDER:
-                    if (getSender() == null) {
-                        return false;
-                    }
-                    break;
-                case DATE:
-                    if (date == null) {
-                        return false;
-                    }
-                    break;
-                case TEXT:
-                    if (getText() == null) {
-                        return false;
-                    }
-                    break;
-                case CONTENTTYPE:
-                    if (getContentType() == null) {
-                        return false;
-                    }
-                    break;
-                case TO:
-                    if (getTo() == null) {
-                        return false;
-                    }
-                    break;
-                case CC:
-                    if (getCc() == null) {
-                        return false;
-                    }
-                    break;
-                case ATTACHMENT:
-                    if (getAttachment() == null) {
-                        return false;
-                    }
-                    break;
-                default:
-                    throw new IllegalStateException("Not implemented");
+        for (MailContent content : contents) {
+            if (!hasAlreadyLoadedData(content)) {
+                return false;
             }
         }
 
         return true;
+    }
+
+    /**
+     * Gibt zurück, ob der angegebene Inhaltstyp bereits in die
+     * StoredMailInfo-Instanz geladen wurde.
+     *
+     * @param content Inhaltsart, die geprüft werden soll
+     * @return {@code true}, wenn die Inhaltsart bereits geladen wurde; sonst
+     * {@code false}
+     */
+    public boolean hasAlreadyLoadedData(MailContent content) {
+        switch (content) {
+            case ID:
+                return true;
+            case READ:
+                return isReadLoaded();
+            case SUBJECT:
+                return isSubjectLoaded();
+            case SENDER:
+                return isSenderLoaded();
+            case DATE:
+                return isDateLoaded();
+            case TEXT:
+                return isTextLoaded();
+            case CONTENTTYPE:
+                return isContentTypeLoaded();
+            case TO:
+                return isToLoaded();
+            case CC:
+                return isCcLoaded();
+            case ATTACHMENT:
+                return isAttachmentLoaded();
+            default:
+                throw new IllegalStateException("Not implemented");
+        }
+    }
+
+    private boolean isReadLoaded() {
+        return isRead() != null;
+    }
+
+    private boolean isSubjectLoaded() {
+        return getSubject() != null;
+    }
+
+    private boolean isSenderLoaded() {
+        return getSender() != null;
+    }
+
+    private boolean isDateLoaded() {
+        return date != null;
+    }
+
+    private boolean isTextLoaded() {
+        return getText() != null;
+    }
+
+    private boolean isContentTypeLoaded() {
+        return getContentType() != null;
+    }
+
+    private boolean isToLoaded() {
+        return getTo() != null;
+    }
+
+    private boolean isCcLoaded() {
+        return getCc() != null;
+    }
+
+    private boolean isAttachmentLoaded() {
+        return getAttachment() != null;
     }
 
     /**

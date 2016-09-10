@@ -2,7 +2,7 @@ package de.outlookklon.gui.frames;
 
 import de.outlookklon.dao.DAOException;
 import de.outlookklon.gui.components.HtmlEditorPane;
-import de.outlookklon.gui.components.ReadOnlyJTable;
+import de.outlookklon.gui.components.ReadOnlyTableModel;
 import de.outlookklon.gui.components.Statusbar;
 import de.outlookklon.gui.components.TaggedJRadioButtonMenuItem;
 import de.outlookklon.gui.helpers.Dialogs;
@@ -163,7 +163,7 @@ public class MainFrame extends ExtendedFrame {
         tpPreview = new HtmlEditorPane();
         statusbar = new Statusbar();
 
-        tblMails = new ReadOnlyJTable();
+        tblMails = new JTable();
 
         tree = new JTree() {
             private static final long serialVersionUID = 1L;
@@ -254,7 +254,7 @@ public class MainFrame extends ExtendedFrame {
     }
 
     private TableModel getTableModel() {
-        return new DefaultTableModel(
+        return new ReadOnlyTableModel(
                 new Object[][]{},
                 new String[]{
                     MAIL_TABLE_REF_COLUMN_NAME,

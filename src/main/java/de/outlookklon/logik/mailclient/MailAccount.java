@@ -281,31 +281,6 @@ public class MailAccount {
     }
 
     /**
-     * Gibt die ID zur übergebenen Mail zurück
-     *
-     * @param message Mail, für die die ID bestimmt werden soll
-     * @return ID der Mail, oder <code>null</code>, wenn nicht gefunden
-     */
-    private String getID(Message message) throws MessagingException {
-        String[] tmpID = message.getHeader(MESSAGE_ID_HEADER_NAME);
-        if (tmpID != null && tmpID.length > 0) {
-            return tmpID[0];
-        }
-
-        String id = null;
-        if (message instanceof MimeMessage) {
-            MimeMessage mime = (MimeMessage) message;
-
-            id = mime.getMessageID();
-            if (id == null) {
-                id = mime.getContentID();
-            }
-        }
-
-        return id;
-    }
-
-    /**
      * Gibt die MailInfos aller Messages in dem übergebenen Pfad zurück.
      *
      * @param path Pfad, in dem die Mails gesucht werden.
@@ -333,7 +308,7 @@ public class MailAccount {
             folder.fetch(messages, fp);
 
             for (Message message : messages) {
-                String id = getID(message);
+                String id = StoredMailInfo.getID(message);
                 if (id == null) {
                     continue;
                 }

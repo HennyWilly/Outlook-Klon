@@ -5,6 +5,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import org.junit.Before;
 import org.junit.Test;
+import static org.mockito.Mockito.mock;
 
 public class ContactManagementTest {
 
@@ -88,6 +89,14 @@ public class ContactManagementTest {
     public void shouldNotAddContactToList_ContactIsNull() {
         Contact k = null;
         String list = "NonExistent";
+
+        management.addToContactList(k, list);
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void shouldNotAddContactToList_ListIsNull() {
+        Contact k = mock(Contact.class);
+        String list = null;
 
         management.addToContactList(k, list);
     }
@@ -260,7 +269,12 @@ public class ContactManagementTest {
 
     @Test(expected = NullPointerException.class)
     public void shouldNotRenameList_OldListNameEmpty() {
-        management.renameList("", "Test");
+        management.renameList(" ", "Test");
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void shouldNotRenameList_OldListNull() {
+        management.renameList(null, "Test");
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -271,6 +285,16 @@ public class ContactManagementTest {
     @Test(expected = IllegalArgumentException.class)
     public void shouldNotRenameList_OldListDoesNotExist() {
         management.renameList("old list", "new list");
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void shouldNotRenameList_NewListNameEmpty() {
+        management.renameList("Test", " ");
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void shouldNotRenameList_NewListNull() {
+        management.renameList("Test", null);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -301,6 +325,11 @@ public class ContactManagementTest {
         String[] actual = management.getLists(TEST_CONTACT_1);
 
         assertThat(actual, is(expected));
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void shouldNotReturnLists_ContactNull() {
+        management.getLists(null);
     }
 
     @Test(expected = IllegalArgumentException.class)

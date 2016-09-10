@@ -33,6 +33,21 @@ public class AppointmentCalendarTest {
         calendar = new AppointmentCalendar();
     }
 
+    @Test(expected = NullPointerException.class)
+    public void shouldNotAddAppointment_IsNull() {
+        calendar.addAppointment(null);
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void shouldNotDeleteAppointment_IsNull() {
+        calendar.deleteAppointment(null);
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void shouldNotFindOverlappingAppointments_IsNull() {
+        calendar.isOverlapping(null);
+    }
+
     @Test
     public void shouldFindOverlappingAppointments_EndABetweenB() {
         DateTime startA = new DateTime();
@@ -178,6 +193,16 @@ public class AppointmentCalendarTest {
                 new DateTime(2014, 10, 7, 23, 59, 59));
 
         assertThat(actual, is(expected));
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void shouldNotGetAppointments_StartDateIsNull() {
+        calendar.getAppointments(null, new DateTime());
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void shouldNotGetAppointments_EndDateIsNull() {
+        calendar.getAppointments(new DateTime(), null);
     }
 
     @Test(expected = IllegalArgumentException.class)

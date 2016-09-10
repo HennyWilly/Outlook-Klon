@@ -281,25 +281,28 @@ public class HtmlEditorPane extends JEditorPane {
                     return;
                 }
 
-                if (Desktop.isDesktopSupported()) {
-                    Desktop myDesktop = Desktop.getDesktop();
-
-                    try {
-                        myDesktop.browse(new URI(url));
-                    } catch (UnsupportedOperationException | URISyntaxException | IOException ex) {
-                        LOGGER.error(Localization.getString("HtmlEditorPane_CouldNotLaunchUrl"), ex);
-                    }
-                } else {
-                    Runtime myRuntime = Runtime.getRuntime();
-                    try {
-                        // Sollte bei OS mit X-Server funktionieren
-                        myRuntime.exec("xdg-open " + url);
-                    } catch (IOException ex) {
-                        LOGGER.error(Localization.getString("HtmlEditorPane_CouldNotLaunchUrl"), ex);
-                    }
-                }
+                startUrl(url);
             }
         }
 
+        private void startUrl(String url) {
+            if (Desktop.isDesktopSupported()) {
+                Desktop myDesktop = Desktop.getDesktop();
+
+                try {
+                    myDesktop.browse(new URI(url));
+                } catch (UnsupportedOperationException | URISyntaxException | IOException ex) {
+                    LOGGER.error(Localization.getString("HtmlEditorPane_CouldNotLaunchUrl"), ex);
+                }
+            } else {
+                Runtime myRuntime = Runtime.getRuntime();
+                try {
+                    // Sollte bei OS mit X-Server funktionieren
+                    myRuntime.exec("xdg-open " + url);
+                } catch (IOException ex) {
+                    LOGGER.error(Localization.getString("HtmlEditorPane_CouldNotLaunchUrl"), ex);
+                }
+            }
+        }
     }
 }

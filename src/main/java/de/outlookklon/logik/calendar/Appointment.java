@@ -8,7 +8,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import javax.mail.Address;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.joda.time.DateTime;
@@ -68,19 +70,7 @@ public class Appointment implements Comparable<Appointment> {
         setContact(contact);
         setState(AppointmentState.PROMISED);
 
-        List<Address> temp = new ArrayList<>();
-        for (Contact contactInstance : User.getInstance().getContacts()) {
-            if (contactInstance.getDisplayname() != null && contactInstance.getDisplayname().equals(contact)) {
-                if (contactInstance.getAddress1() != null) {
-                    temp.add(contactInstance.getAddress1());
-                }
-                if (contactInstance.getAddress2() != null) {
-                    temp.add(contactInstance.getAddress2());
-                }
-                break;
-            }
-        }
-        setAddresses(temp);
+        initAddresses();
     }
 
     /**
@@ -115,6 +105,19 @@ public class Appointment implements Comparable<Appointment> {
         setContact(contact);
         setState(state);
         setAddresses(addresses);
+    }
+
+    private void initAddresses() {
+
+        List<Address> temp = new ArrayList<>();
+        for (Contact contactInstance : User.getInstance().getContacts()) {
+            if (Objects.equals(contactInstance.getDisplayname(), contact)) {
+                CollectionUtils.addIgnoreNull(temp, contactInstance.getAddress1());
+                CollectionUtils.addIgnoreNull(temp, contactInstance.getAddress2());
+                break;
+            }
+        }
+        setAddresses(temp);
     }
 
     /**

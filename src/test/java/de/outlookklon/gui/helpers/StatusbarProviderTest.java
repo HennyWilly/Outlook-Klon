@@ -32,6 +32,11 @@ public class StatusbarProviderTest {
         StatusbarProvider.removeStatusbar(null);
     }
 
+    @Test(expected = NullPointerException.class)
+    public void shouldNotSetText_IsNull() throws Exception {
+        StatusbarProvider.setText(null);
+    }
+
     @Test
     public void shouldSetText() throws Exception {
         Statusbar statusbar = mock(Statusbar.class);

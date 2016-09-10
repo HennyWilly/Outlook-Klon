@@ -2,6 +2,7 @@ package de.outlookklon.logik.mailclient;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -223,12 +224,12 @@ public abstract class MailInfo {
 
         MailInfo other = (MailInfo) obj;
 
-        Address[] thisTo = to == null ? null : to.toArray(new Address[to.size()]);
-        Address[] otherTo = other.to == null ? null : other.to.toArray(new Address[other.to.size()]);
-        Address[] thisCc = cc == null ? null : cc.toArray(new Address[cc.size()]);
-        Address[] otherCc = other.cc == null ? null : other.cc.toArray(new Address[other.cc.size()]);
-        String[] thisAttachment = attachment == null ? null : attachment.toArray(new String[attachment.size()]);
-        String[] otherAttachment = other.attachment == null ? null : other.attachment.toArray(new String[other.attachment.size()]);
+        Address[] thisTo = listToArray(Address.class, to);
+        Address[] otherTo = listToArray(Address.class, other.to);
+        Address[] thisCc = listToArray(Address.class, cc);
+        Address[] otherCc = listToArray(Address.class, other.cc);
+        String[] thisAttachment = listToArray(String.class, attachment);
+        String[] otherAttachment = listToArray(String.class, other.attachment);
 
         return new EqualsBuilder()
                 .append(subject, other.subject)
@@ -243,9 +244,9 @@ public abstract class MailInfo {
 
     @Override
     public int hashCode() {
-        Address[] thisTo = to == null ? null : to.toArray(new Address[to.size()]);
-        Address[] thisCc = cc == null ? null : cc.toArray(new Address[cc.size()]);
-        String[] thisAttachment = attachment == null ? null : attachment.toArray(new String[attachment.size()]);
+        Address[] thisTo = listToArray(Address.class, to);
+        Address[] thisCc = listToArray(Address.class, cc);
+        String[] thisAttachment = listToArray(String.class, attachment);
 
         return new HashCodeBuilder()
                 .append(subject)
@@ -256,5 +257,13 @@ public abstract class MailInfo {
                 .append(thisCc)
                 .append(thisAttachment)
                 .toHashCode();
+    }
+
+    private <T> T[] listToArray(Class<T> clazz, List<T> list) {
+        if (list == null) {
+            return null;
+        }
+        T[] array = (T[]) Array.newInstance(clazz, list.size());
+        return list.toArray(array);
     }
 }

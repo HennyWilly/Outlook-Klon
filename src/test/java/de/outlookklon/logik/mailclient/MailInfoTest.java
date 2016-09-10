@@ -75,7 +75,7 @@ public class MailInfoTest {
                 "aaaa");
         map.put(new MailInfoImpl("TestSubject2", "TestText2", null,
                 Arrays.<Address>asList(new InternetAddress("tester2@test.com")),
-                Arrays.<Address>asList(new InternetAddress("management2@test.com")),
+                null,
                 Arrays.asList("/a/test/path2.txt")),
                 "bbbb");
 
@@ -85,7 +85,7 @@ public class MailInfoTest {
                 Arrays.asList("/a/test/path.txt")), "aaaa"));
         assertThat(map, hasEntry(new MailInfoImpl("TestSubject2", "TestText2", null,
                 Arrays.<Address>asList(new InternetAddress("tester2@test.com")),
-                Arrays.<Address>asList(new InternetAddress("management2@test.com")),
+                null,
                 Arrays.asList("/a/test/path2.txt")), "bbbb"));
     }
 

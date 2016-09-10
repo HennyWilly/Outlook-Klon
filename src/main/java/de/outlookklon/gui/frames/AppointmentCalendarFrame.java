@@ -1,6 +1,6 @@
 package de.outlookklon.gui.frames;
 
-import de.outlookklon.gui.components.ReadOnlyJTable;
+import de.outlookklon.gui.components.ReadOnlyTableModel;
 import de.outlookklon.gui.dialogs.AppointmentFrame;
 import de.outlookklon.gui.helpers.Events;
 import de.outlookklon.localization.Localization;
@@ -77,7 +77,7 @@ public class AppointmentCalendarFrame extends ExtendedFrame {
     private AppointmentCalendarFrame() {
         calendar = User.getInstance().getAppointments();
 
-        tblAppointments = new ReadOnlyJTable();
+        tblAppointments = new JTable();
         textDetails = new JTextPane();
 
         appointmentPopup = new JPopupMenu();
@@ -150,7 +150,7 @@ public class AppointmentCalendarFrame extends ExtendedFrame {
     }
 
     private TableModel getTableModel() {
-        return new DefaultTableModel(new Object[][]{},
+        return new ReadOnlyTableModel(new Object[][]{},
                 new String[]{
                     APPOINTMENT_TABLE_REF_COLUMN_NAME,
                     StringUtils.EMPTY,
@@ -188,19 +188,7 @@ public class AppointmentCalendarFrame extends ExtendedFrame {
                         return;
                     }
 
-                    DefaultTableModel model = (DefaultTableModel) tblAppointments.getModel();
-                    int length = model.getDataVector().size();
-
-                    if (length > 0) {
-                        int rowModel = tblAppointments.convertRowIndexToModel(row);
-
-                        Appointment reference = (Appointment) model.getValueAt(rowModel, 0);
-                        updateDetails(reference);
-                    } else {
-                        textDetails.setEditable(true);
-                        textDetails.setText(null);
-                        textDetails.setEditable(false);
-                    }
+                    updateDetails(row);
                 }
             }
         });
@@ -209,16 +197,12 @@ public class AppointmentCalendarFrame extends ExtendedFrame {
             @Override
             public void mouseClicked(MouseEvent e) {
                 if (Events.isDoubleClick(e)) {
-                    DefaultTableModel model = (DefaultTableModel) tblAppointments.getModel();
-
                     int viewRow = tblAppointments.getSelectedRow();
                     if (viewRow < 0) {
                         return;
                     }
 
-                    int row = tblAppointments.convertRowIndexToModel(viewRow);
-                    Appointment reference = (Appointment) model.getValueAt(row, 0);
-
+                    Appointment reference = getAppointmentByRow(viewRow);
                     editAppointment(reference);
                 }
             }
@@ -249,20 +233,38 @@ public class AppointmentCalendarFrame extends ExtendedFrame {
         loadUser();
     }
 
+    private Appointment getAppointmentByRow(int viewRow) {
+        DefaultTableModel model = (DefaultTableModel) tblAppointments.getModel();
+        int rowModel = tblAppointments.convertRowIndexToModel(viewRow);
+        return (Appointment) model.getValueAt(rowModel, 0);
+    }
+
+    private int getTableLength() {
+        DefaultTableModel model = (DefaultTableModel) tblAppointments.getModel();
+        return model.getDataVector().size();
+    }
+
+    private void updateDetails(int rowIndex) {
+        if (getTableLength() > 0) {
+            Appointment reference = getAppointmentByRow(rowIndex);
+            updateDetails(reference);
+        } else {
+            textDetails.setEditable(true);
+            textDetails.setText(null);
+            textDetails.setEditable(false);
+        }
+    }
+
     private void initMenus() {
         popupAppointmentOpen.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                DefaultTableModel model = (DefaultTableModel) tblAppointments.getModel();
-
                 int viewrow = tblAppointments.getSelectedRow();
                 if (viewrow < 0) {
                     return;
                 }
 
-                int row = tblAppointments.convertRowIndexToModel(viewrow);
-                Appointment reference = (Appointment) model.getValueAt(row, 0);
-
+                Appointment reference = getAppointmentByRow(viewrow);
                 editAppointment(reference);
             }
         });

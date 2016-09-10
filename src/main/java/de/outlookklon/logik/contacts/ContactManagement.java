@@ -61,7 +61,7 @@ public class ContactManagement implements Iterable<Contact> {
      * @param contact Der hinzuzufügende Contact
      * @param list Listen, in die eingefügt werden soll
      */
-    public void addToContactList(@NonNull final Contact contact, @NonNull final String list) {
+    public void addToContactList(@NonNull final Contact contact, final String list) {
         ensureListNameNotEmpty(list);
 
         final Set<Contact> contactList = getContactList(list);
@@ -91,7 +91,7 @@ public class ContactManagement implements Iterable<Contact> {
      *
      * @param list Die hinzuzufügende Liste
      */
-    public void addList(@NonNull final String list) {
+    public void addList(final String list) {
         ensureListNameNotEmpty(list);
 
         if (mContacts.containsKey(list)) {
@@ -118,7 +118,7 @@ public class ContactManagement implements Iterable<Contact> {
      * @param contact Zu löschender Contact
      * @param list Liste, aus der der Contact gelöscht werden soll
      */
-    public void deleteContact(@NonNull final Contact contact, @NonNull final String list) {
+    public void deleteContact(@NonNull final Contact contact, final String list) {
         ensureListNameNotEmpty(list);
 
         if (DEFAULT.equals(list)) {
@@ -134,7 +134,7 @@ public class ContactManagement implements Iterable<Contact> {
      *
      * @param list Liste, die gelöscht werden soll
      */
-    public void deleteList(@NonNull final String list) {
+    public void deleteList(final String list) {
         ensureListNameNotEmpty(list);
 
         if (DEFAULT.equals(list)) {
@@ -224,7 +224,7 @@ public class ContactManagement implements Iterable<Contact> {
      * sollen
      * @return Kontakte der übergebenen Liste
      */
-    public Contact[] getContacts(@NonNull final String list) {
+    public Contact[] getContacts(final String list) {
         ensureListNameNotEmpty(list);
 
         final Set<Contact> set = getContactList(list);

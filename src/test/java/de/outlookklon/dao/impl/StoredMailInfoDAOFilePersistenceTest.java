@@ -20,6 +20,7 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
@@ -71,9 +72,25 @@ public class StoredMailInfoDAOFilePersistenceTest {
         assertThat(newDirectory.exists(), is(true));
     }
 
+    @Test(expected = NullPointerException.class)
+    public void shouldNotLoadStoredMailInfo_IdIsNull() throws Exception {
+        String nonExistentID = null;
+        String path = "aPath";
+
+        dao.loadStoredMailInfo(nonExistentID, path);
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void shouldNotLoadStoredMailInfo_PathIsNull() throws Exception {
+        String nonExistentID = "ANonExistantID";
+        String path = null;
+
+        dao.loadStoredMailInfo(nonExistentID, path);
+    }
+
     @Test
     public void shouldNotLoadStoredMailInfo_FileDoesNotExist() throws Exception {
-        String nonExistentID = "ANonExistantID";
+        String nonExistentID = "";
         String path = "aPath";
 
         StoredMailInfo mailInfo = dao.loadStoredMailInfo(nonExistentID, path);
@@ -100,6 +117,22 @@ public class StoredMailInfoDAOFilePersistenceTest {
         StoredMailInfo expResult = TEST_MAIL_INFO;
         StoredMailInfo result = dao.loadStoredMailInfo(ID, PATH);
         assertThat(result, is(equalTo(expResult)));
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void shouldNotSaveStoredMailInfo_InfoIsNull() throws Exception {
+        StoredMailInfo storedMailInfo = null;
+        String path = "aPath";
+
+        dao.saveStoredMailInfo(storedMailInfo, path);
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void shouldNotSaveStoredMailInfo_PathIsNull() throws Exception {
+        StoredMailInfo storedMailInfo = mock(StoredMailInfo.class);
+        String path = null;
+
+        dao.saveStoredMailInfo(storedMailInfo, path);
     }
 
     @Test(expected = DAOException.class)
@@ -129,6 +162,22 @@ public class StoredMailInfoDAOFilePersistenceTest {
 
         StoredMailInfo afterInfo = dao.loadStoredMailInfo(ID, PATH);
         assertThat(afterInfo, is(not(nullValue())));
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void shouldNotDeleteStoredMailInfo_IdIsNull() throws Exception {
+        String nonExistentID = null;
+        String path = "aPath";
+
+        dao.deleteStoredMailInfo(nonExistentID, path);
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void shouldNotDeleteStoredMailInfo_PathIsNull() throws Exception {
+        String nonExistentID = "ANonExistantID";
+        String path = null;
+
+        dao.deleteStoredMailInfo(nonExistentID, path);
     }
 
     @Test(expected = DAOException.class)

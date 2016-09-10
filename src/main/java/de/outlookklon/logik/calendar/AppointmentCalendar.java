@@ -60,24 +60,30 @@ public class AppointmentCalendar implements Iterable<Appointment> {
      * Gibt zurück, ob sich die Termine der Verwaltung mit dem übergebenen
      * Appointment überschneiden
      *
-     * @param a Zu vergleichender Appointment
+     * @param appointment Zu vergleichender Appointment
      * @return true, wenn sich mindestens ein Appointment überschneidet; sonst
      * false
      */
-    public boolean isOverlapping(@NonNull Appointment a) {
-        DateTime startA = a.getStart();
-        DateTime endA = a.getEnd();
-
-        for (Appointment b : mAppointments) {
-            DateTime startB = b.getStart();
-            DateTime endB = b.getEnd();
-            // IF-Abfrage des Todes
-            if (isDateBetween(startB, startA, endA) || isDateBetween(endB, startA, endA)
-                    || isDateBetween(startA, startB, endB) || isDateBetween(endA, startB, endB)) {
+    public boolean isOverlapping(@NonNull Appointment appointment) {
+        for (Appointment other : mAppointments) {
+            if (isOverlapping(appointment, other)) {
                 return true;
             }
         }
         return false;
+    }
+
+    private boolean isOverlapping(Appointment a, Appointment b) {
+        DateTime startA = a.getStart();
+        DateTime endA = a.getEnd();
+        DateTime startB = b.getStart();
+        DateTime endB = b.getEnd();
+
+        // IF-Abfrage des Todes
+        return isDateBetween(startB, startA, endA)
+                || isDateBetween(endB, startA, endA)
+                || isDateBetween(startA, startB, endB)
+                || isDateBetween(endA, startB, endB);
     }
 
     private boolean isDateBetween(DateTime toTest, DateTime start, DateTime end) {

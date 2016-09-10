@@ -117,8 +117,8 @@ public class AppointmentFrame extends ExtendedDialog<Appointment> {
         textSubject.setText(appointment.getSubject());
         textLocation.setText(appointment.getLocation());
         textDescription.setText(appointment.getText());
-        dateStart.setValue(appointment.getStart());
-        dateEnd.setValue(appointment.getEnd());
+        dateStart.setValue(appointment.getStart().toDate());
+        dateEnd.setValue(appointment.getEnd().toDate());
         comboAccount.setSelectedItem(appointment.getUser());
         comboContact.setSelectedItem(appointment.getContact());
     }
@@ -171,21 +171,7 @@ public class AppointmentFrame extends ExtendedDialog<Appointment> {
                 DateTime startDate = new DateTime(model1.getDate());
                 DateTime endDate = new DateTime(model2.getDate());
                 try {
-                    if (mAppointment == null) {
-                        mAppointment = new Appointment(textSubject.getText(), textLocation.getText(), startDate,
-                                endDate, textDescription.getText(), comboAccount.getSelectedItem().toString(),
-                                comboContact.getSelectedItem().toString());
-                    } else {
-
-                        mAppointment.setSubject(textSubject.getText());
-                        mAppointment.setLocation(textLocation.getText());
-                        mAppointment.setText(textDescription.getText());
-                        mAppointment.setTimes(startDate, endDate);
-                        mAppointment.setUser(comboAccount.getSelectedItem().toString());
-                        mAppointment.setContact(comboContact.getSelectedItem().toString());
-
-                    }
-
+                    setAppointment(startDate, endDate);
                     close();
                 } catch (RuntimeException ex) {
                     LOGGER.error(Localization.getString("AppointmentFrame_ErrorCreatingAppointment"), ex);
@@ -331,6 +317,21 @@ public class AppointmentFrame extends ExtendedDialog<Appointment> {
                 .createParallelGroup(Alignment.BASELINE).addComponent(btnOk).addComponent(btnAbort))
                 .addContainerGap()));
         getContentPane().setLayout(groupLayout);
+    }
+
+    private void setAppointment(DateTime startDate, DateTime endDate) {
+        if (mAppointment == null) {
+            mAppointment = new Appointment(textSubject.getText(), textLocation.getText(), startDate,
+                    endDate, textDescription.getText(), comboAccount.getSelectedItem().toString(),
+                    comboContact.getSelectedItem().toString());
+        } else {
+            mAppointment.setSubject(textSubject.getText());
+            mAppointment.setLocation(textLocation.getText());
+            mAppointment.setText(textDescription.getText());
+            mAppointment.setTimes(startDate, endDate);
+            mAppointment.setUser(comboAccount.getSelectedItem().toString());
+            mAppointment.setContact(comboContact.getSelectedItem().toString());
+        }
     }
 
     @Override

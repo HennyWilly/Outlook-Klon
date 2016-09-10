@@ -379,13 +379,7 @@ public class MailFrame extends ExtendedFrame {
                     boolean editable = tpMailtext.isEditable();
 
                     String text = tpMailtext.getText();
-                    String contentType = tpMailtext.getContentType();
-
-                    if (sender == rdBtnMntmPlaintext) {
-                        contentType = "TEXT/plain; " + charset;
-                    } else if (sender == rdBtnMntmHtml) {
-                        contentType = "TEXT/html; " + charset;
-                    }
+                    String contentType = getContentType(sender);
 
                     tpMailtext.setEditable(true);
                     tpMailtext.setText(text, contentType, false);
@@ -405,6 +399,18 @@ public class MailFrame extends ExtendedFrame {
         ButtonGroup group = new ButtonGroup();
         group.add(rdBtnMntmPlaintext);
         group.add(rdBtnMntmHtml);
+    }
+
+    private String getContentType(JRadioButtonMenuItem sender) {
+        String contentType = tpMailtext.getContentType();
+
+        if (sender == rdBtnMntmPlaintext) {
+            contentType = "TEXT/plain; " + charset;
+        } else if (sender == rdBtnMntmHtml) {
+            contentType = "TEXT/html; " + charset;
+        }
+
+        return contentType;
     }
 
     /**
