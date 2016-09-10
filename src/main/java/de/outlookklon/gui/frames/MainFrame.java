@@ -877,7 +877,6 @@ public class MainFrame extends ExtendedFrame {
                 }
 
                 Iterator<MailAccount> iterator = deleteable.iterator();
-
                 while (iterator.hasNext()) {
                     MailAccount acc2 = iterator.next();
                     if (acc2.getAddress().equals(acc.getAddress())) {
@@ -953,34 +952,30 @@ public class MainFrame extends ExtendedFrame {
         String[] parts = folder.getPath().split("/");
 
         if (path.contains("/") && depth < parts.length - 1) {
-            DefaultMutableTreeNode pathKnoten = null;
-            String pathParent = parts[depth];
-
-            // Sucht, ob bereits ein Knoten im Vaterknoten mit dem Pfad für
-            // tiefe-1 existiert
-            for (int j = 0; j < parent.getChildCount(); j++) {
-
-                DefaultMutableTreeNode child = (DefaultMutableTreeNode) parent.getChildAt(j);
-                Object childObject = child.getUserObject();
-
-                if (childObject instanceof FolderInfo) {
-                    FolderInfo childOrdner = (FolderInfo) childObject;
-                    if (childOrdner.getName().equals(pathParent)) {
-                        pathKnoten = child;
-                        break;
-                    }
-                }
-            }
-
-            if (pathKnoten == null) {
-                pathKnoten = new DefaultMutableTreeNode(folder);
-            }
-
-            folderToNode(folder, pathKnoten, depth + 1);
+            DefaultMutableTreeNode pathNode = findNode(folder, parent, parts[depth]);
+            folderToNode(folder, pathNode, depth + 1);
         } else {
             // Fügt dem Vaterknoten den neuen Knoten mit dem Ordner-Objekt ein
             parent.add(new DefaultMutableTreeNode(folder));
         }
+    }
+
+    private DefaultMutableTreeNode findNode(FolderInfo folder, DefaultMutableTreeNode parent, String pathParent) {
+        // Sucht, ob bereits ein Knoten im Vaterknoten mit dem Pfad für
+        // tiefe-1 existiert
+        for (int j = 0; j < parent.getChildCount(); j++) {
+            DefaultMutableTreeNode child = (DefaultMutableTreeNode) parent.getChildAt(j);
+            Object childObject = child.getUserObject();
+
+            if (childObject instanceof FolderInfo) {
+                FolderInfo childOrdner = (FolderInfo) childObject;
+                if (childOrdner.getName().equals(pathParent)) {
+                    return child;
+                }
+            }
+        }
+
+        return new DefaultMutableTreeNode(folder);
     }
 
     /**
@@ -1061,23 +1056,8 @@ public class MainFrame extends ExtendedFrame {
 
             try {
                 StoredMailInfo[] messages = checker.getMessages(folder.getPath());
-                int unread = 0;
-
-                // Füge jede Mail der Tabelle hinzu
-                for (StoredMailInfo info : messages) {
-                    if (!info.isRead()) {
-                        unread++;
-                    }
-
-                    model.addRow(new Object[]{info, info.getSubject(), info.getSender(), info.getDate()});
-                }
-
-                if (folder.getNumberUnread() != unread) {
-                    // Aktualisiere den Zähler für ungelesene Nachrichten
-                    folder.setNumberUnread(unread);
-                    refreshNodeView(node);
-                }
-
+                int unread = addMailsToTable(messages, model);
+                updateUnreadCounter(folder, node, unread);
                 sortTable();
             } catch (FolderNotFoundException e) {
                 // Wurde der Ordner nicht gefunden, wird dieser aus dem Baum
@@ -1091,6 +1071,29 @@ public class MainFrame extends ExtendedFrame {
             }
 
             load = false;
+        }
+    }
+
+    private int addMailsToTable(StoredMailInfo[] messages, DefaultTableModel model) {
+        int unread = 0;
+
+        // Füge jede Mail der Tabelle hinzu
+        for (StoredMailInfo info : messages) {
+            if (!info.isRead()) {
+                unread++;
+            }
+
+            model.addRow(new Object[]{info, info.getSubject(), info.getSender(), info.getDate()});
+        }
+
+        return unread;
+    }
+
+    private void updateUnreadCounter(FolderInfo folder, DefaultMutableTreeNode node, int unread) {
+        if (folder.getNumberUnread() != unread) {
+            // Aktualisiere den Zähler für ungelesene Nachrichten
+            folder.setNumberUnread(unread);
+            refreshNodeView(node);
         }
     }
 

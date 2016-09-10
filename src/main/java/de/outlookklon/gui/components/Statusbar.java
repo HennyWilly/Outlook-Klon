@@ -30,6 +30,17 @@ public class Statusbar extends JPanel {
      */
     public static final int DEFAULT_FADEOUT_TIME_MS = 5000;
 
+    private static final int PREFERED_WIDTH = 10;
+    private static final int PREFERED_HEIGHT = 23;
+
+    private static final Color COLOR1 = new Color(156, 154, 140);
+    private static final Color COLOR2 = new Color(196, 194, 183);
+    private static final Color COLOR3 = new Color(218, 215, 201);
+    private static final Color COLOR4 = new Color(233, 231, 217);
+    private static final Color COLOR5 = new Color(233, 232, 218);
+    private static final Color COLOR6 = new Color(233, 231, 216);
+    private static final Color COLOR7 = new Color(221, 221, 220);
+
     private final JLabel label;
 
     private final Object timerLock;
@@ -56,7 +67,7 @@ public class Statusbar extends JPanel {
 
     private void initStatusbar() {
         setLayout(new BorderLayout());
-        setPreferredSize(new Dimension(10, 23));
+        setPreferredSize(new Dimension(PREFERED_WIDTH, PREFERED_HEIGHT));
 
         JPanel rightPanel = new JPanel(new BorderLayout());
         rightPanel.add(new JLabel(new AngledLinesWindowsCornerIcon()), BorderLayout.SOUTH);
@@ -130,45 +141,42 @@ public class Statusbar extends JPanel {
         super.paintComponent(g);
 
         int y = 0;
-        g.setColor(new Color(156, 154, 140));
-        g.drawLine(0, y, getWidth(), y);
-        y++;
-        g.setColor(new Color(196, 194, 183));
-        g.drawLine(0, y, getWidth(), y);
-        y++;
-        g.setColor(new Color(218, 215, 201));
-        g.drawLine(0, y, getWidth(), y);
-        y++;
-        g.setColor(new Color(233, 231, 217));
-        g.drawLine(0, y, getWidth(), y);
+        drawLine(g, COLOR1, y);
+        drawLine(g, COLOR2, ++y);
+        drawLine(g, COLOR3, ++y);
+        drawLine(g, COLOR4, ++y);
 
-        y = getHeight() - 3;
-        g.setColor(new Color(233, 232, 218));
-        g.drawLine(0, y, getWidth(), y);
-        y++;
-        g.setColor(new Color(233, 231, 216));
-        g.drawLine(0, y, getWidth(), y);
         y = getHeight() - 1;
-        g.setColor(new Color(221, 221, 220));
+        drawLine(g, COLOR7, y);
+        drawLine(g, COLOR6, --y);
+        drawLine(g, COLOR5, --y);
+    }
+
+    private void drawLine(Graphics g, Color color, int y) {
+        g.setColor(color);
         g.drawLine(0, y, getWidth(), y);
     }
 
-    class AngledLinesWindowsCornerIcon implements Icon {
+    private class AngledLinesWindowsCornerIcon implements Icon {
 
-        private static final int WIDTH = 13;
-        private static final int HEIGHT = 13;
+        private static final int WIDTH_AND_HEIGHT = 13;
+        private static final int LINE_DIFF = 5;
 
-        private final Color WHITE_LINE_COLOR = new Color(255, 255, 255);
-        private final Color GRAY_LINE_COLOR = new Color(172, 168, 153);
+        private static final int GRAY_R = 172;
+        private static final int GRAY_G = 168;
+        private static final int GRAY_B = 153;
+
+        private final Color grayLineColor = new Color(GRAY_R, GRAY_G, GRAY_B);
+        private final Color whiteLineColor = Color.WHITE;
 
         @Override
         public int getIconHeight() {
-            return HEIGHT;
+            return WIDTH_AND_HEIGHT;
         }
 
         @Override
         public int getIconWidth() {
-            return WIDTH;
+            return WIDTH_AND_HEIGHT;
         }
 
         @Override
@@ -176,22 +184,15 @@ public class Statusbar extends JPanel {
             int lastX = getIconWidth() - 1;
             int lastY = getIconHeight() - 1;
 
-            g.setColor(WHITE_LINE_COLOR);
-            g.drawLine(0, lastY, lastX, 0);
-            g.drawLine(5, lastY, lastX, 5);
-            g.drawLine(10, lastY, lastX, 10);
+            for (int i = 0; i <= WIDTH_AND_HEIGHT; i += LINE_DIFF) {
+                g.setColor(whiteLineColor);
+                g.drawLine(i, lastY, lastX, i);
 
-            g.setColor(GRAY_LINE_COLOR);
-            g.drawLine(1, lastY, lastX, 1);
-            g.drawLine(2, lastY, lastX, 2);
-            g.drawLine(3, lastY, lastX, 3);
-
-            g.drawLine(6, lastY, lastX, 6);
-            g.drawLine(7, lastY, lastX, 7);
-            g.drawLine(8, lastY, lastX, 8);
-
-            g.drawLine(lastX - 1, lastY, lastX, lastY - 1);
-            g.drawLine(lastX, lastY, lastX, lastY);
+                g.setColor(grayLineColor);
+                for (int j = 1; j < LINE_DIFF - 1 && j + i < WIDTH_AND_HEIGHT; j++) {
+                    g.drawLine(j + i, lastY, lastX, j + i);
+                }
+            }
         }
     }
 }

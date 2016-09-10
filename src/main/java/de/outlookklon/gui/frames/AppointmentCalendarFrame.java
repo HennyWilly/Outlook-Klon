@@ -417,47 +417,11 @@ public class AppointmentCalendarFrame extends ExtendedFrame {
     }
 
     private void loadUser() {
-        // speichert alle Konten in apfel
-        List<String> usernames = new ArrayList<>();
         for (MailAccountChecker checker : User.getInstance()) {
             MailAccount ma = checker.getAccount();
-            usernames.add(ma.getUser());
-        }
 
-        for (String username : usernames) {
-            JCheckBox cb = new JCheckBox(username);
-
-            cb.addItemListener(new ItemListener() {
-                @Override
-                public void itemStateChanged(ItemEvent arg0) {
-                    JCheckBox cb = (JCheckBox) arg0.getSource();
-                    String text = cb.getText();
-
-                    if (arg0.getStateChange() == ItemEvent.SELECTED) {
-                        List<Appointment> temp = new ArrayList<>();
-                        for (Appointment appointment : hiddenAppointments) {
-                            String user = appointment.getUser();
-                            if (text.equals(user)) {
-                                temp.add(appointment);
-                            }
-                        }
-                        for (Appointment appointment : temp) {
-                            hiddenAppointments.remove(appointment);
-                        }
-
-                    } else {
-                        for (Appointment appointment : allAppointments) {
-                            String user = appointment.getUser();
-                            if (text.equals(user)) {
-                                hiddenAppointments.add(appointment);
-                            }
-                        }
-
-                    }
-                    updateTable();
-                }
-            });
-
+            JCheckBox cb = new JCheckBox(ma.getUser());
+            cb.addItemListener(new UserCheckboxListener());
             cb.setSelected(true);
             panel.add(cb);
             panel.revalidate();
@@ -487,6 +451,38 @@ public class AppointmentCalendarFrame extends ExtendedFrame {
 
                 appointmentPopup.show(tblAppointments, e.getX(), e.getY());
             }
+        }
+    }
+
+    private class UserCheckboxListener implements ItemListener {
+
+        @Override
+        public void itemStateChanged(ItemEvent itemEvent) {
+            JCheckBox cb = (JCheckBox) itemEvent.getSource();
+            String text = cb.getText();
+
+            if (itemEvent.getStateChange() == ItemEvent.SELECTED) {
+                List<Appointment> temp = new ArrayList<>();
+                for (Appointment appointment : hiddenAppointments) {
+                    String user = appointment.getUser();
+                    if (text.equals(user)) {
+                        temp.add(appointment);
+                    }
+                }
+                for (Appointment appointment : temp) {
+                    hiddenAppointments.remove(appointment);
+                }
+
+            } else {
+                for (Appointment appointment : allAppointments) {
+                    String user = appointment.getUser();
+                    if (text.equals(user)) {
+                        hiddenAppointments.add(appointment);
+                    }
+                }
+
+            }
+            updateTable();
         }
     }
 }

@@ -13,7 +13,7 @@ public class TaggedJRadioButtonMenuItem extends JRadioButtonMenuItem {
 
     @Setter
     @Getter
-    private Object tag;
+    protected Object tag;
 
     /**
      * Erstellt ein neues TaggedJRadioButtonMenuItem mit dem übergebenen Text

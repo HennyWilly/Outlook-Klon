@@ -7,6 +7,8 @@ import java.awt.event.MouseEvent;
  */
 public final class Events {
 
+    private static final int DOUBLE_CLICK_COUNT = 2;
+
     private Events() {
     }
 
@@ -17,6 +19,6 @@ public final class Events {
      * @return true, wenn das Event einen Doppelklick darstellt; sonst false
      */
     public static boolean isDoubleClick(MouseEvent event) {
-        return event.getClickCount() == 2;
+        return event.getClickCount() == DOUBLE_CLICK_COUNT;
     }
 }

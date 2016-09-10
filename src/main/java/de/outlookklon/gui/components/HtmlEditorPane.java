@@ -253,26 +253,8 @@ public class HtmlEditorPane extends JEditorPane {
                     String strDate = url.substring(PREFIX.length());
 
                     try {
-                        Date date;
-                        try {
-                            date = DATEFORMAT1.parse(strDate);
-                        } catch (ParseException ex) {
-                            LOGGER.info(Localization.getString("HtmlEditorPane_ErrorFirstParser"), ex);
-                            date = DATEFORMAT2.parse(strDate);
-                        }
-
-                        Container parent = getParent();
-                        if (parent instanceof Window) {
-                            Window parentWindow = (Window) parent;
-
-                            AppointmentFrame appointmentFrame = new AppointmentFrame(parentWindow, date);
-                            Appointment appointment = appointmentFrame.showDialog();
-
-                            if (appointment != null) {
-                                AppointmentCalendar calendar = User.getInstance().getAppointments();
-                                calendar.addAppointment(appointment);
-                            }
-                        }
+                        Date date = parseDate(strDate);
+                        openAppointmentFrame(date);
                     } catch (ParseException ex) {
                         LOGGER.info(Localization.getString("HtmlEditorPane_ErrorSecondParser"), ex);
                         Dialogs.showErrorDialog(HtmlEditorPane.this, Localization.getString("HtmlEditorPane_InvalidDate"));
@@ -282,6 +264,30 @@ public class HtmlEditorPane extends JEditorPane {
                 }
 
                 startUrl(url);
+            }
+        }
+
+        private Date parseDate(String text) throws ParseException {
+            try {
+                return DATEFORMAT1.parse(text);
+            } catch (ParseException ex) {
+                LOGGER.info(Localization.getString("HtmlEditorPane_ErrorFirstParser"), ex);
+                return DATEFORMAT2.parse(text);
+            }
+        }
+
+        private void openAppointmentFrame(Date date) {
+            Container parent = getParent();
+            if (parent instanceof Window) {
+                Window parentWindow = (Window) parent;
+
+                AppointmentFrame appointmentFrame = new AppointmentFrame(parentWindow, date);
+                Appointment appointment = appointmentFrame.showDialog();
+
+                if (appointment != null) {
+                    AppointmentCalendar calendar = User.getInstance().getAppointments();
+                    calendar.addAppointment(appointment);
+                }
             }
         }
 

@@ -86,32 +86,10 @@ public class MailAccountChecker extends Thread {
                 Thread.sleep(SLEEP_TIME);
 
                 // HashSet, da oft darin gesucht wird (s.u.)
-                Set<StoredMailInfo> tmpSet = new HashSet<>();
+                Set<StoredMailInfo> tmpSet = new HashSet<>(Arrays.asList(account.getMessages(FOLDER)));
 
-                // Fülle mit abgefragten MailInfos
-                StoredMailInfo[] mailTmp = account.getMessages(FOLDER);
-                tmpSet.addAll(Arrays.asList(mailTmp));
-
-                // Prüfe, ob eine bekannte StoredMailInfo weggefallen ist
-                Iterator<StoredMailInfo> iterator = mails.iterator();
-                while (iterator.hasNext()) {
-                    StoredMailInfo current = iterator.next();
-
-                    if (!tmpSet.contains(current)) {
-                        // Entferne weggefallene StoredMailInfo aus dem Speicher
-                        iterator.remove();
-                    }
-                }
-
-                synchronized (mails) {
-                    for (StoredMailInfo info : mailTmp) {
-                        if (mails.add(info)) {
-                            // Wird eine neue StoredMailInfo hinzugefügt, werden
-                            // die Listener benachrichtigt
-                            fireNewMessageEvent(info);
-                        }
-                    }
-                }
+                checkForRemovedMails(tmpSet);
+                checkForNewMails(tmpSet);
             } catch (InterruptedException ex) {
                 // Bricht die Ausführung ab
                 LOGGER.error("Thread interrupted", ex);
@@ -121,6 +99,31 @@ public class MailAccountChecker extends Thread {
                 LOGGER.error("INBOX not found", ex);
             } catch (MessagingException | DAOException ex) {
                 LOGGER.error("While getting messages", ex);
+            }
+        }
+    }
+
+    private void checkForRemovedMails(Set<StoredMailInfo> querriedInfos) {
+        // Prüfe, ob eine bekannte StoredMailInfo weggefallen ist
+        Iterator<StoredMailInfo> iterator = mails.iterator();
+        while (iterator.hasNext()) {
+            StoredMailInfo current = iterator.next();
+
+            if (!querriedInfos.contains(current)) {
+                // Entferne weggefallene StoredMailInfo aus dem Speicher
+                iterator.remove();
+            }
+        }
+    }
+
+    private void checkForNewMails(Set<StoredMailInfo> querriedInfos) {
+        synchronized (mails) {
+            for (StoredMailInfo info : querriedInfos) {
+                if (mails.add(info)) {
+                    // Wird eine neue StoredMailInfo hinzugefügt, werden
+                    // die Listener benachrichtigt
+                    fireNewMessageEvent(info);
+                }
             }
         }
     }
@@ -211,5 +214,10 @@ public class MailAccountChecker extends Thread {
         }
 
         return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return getAccount().hashCode();
     }
 }

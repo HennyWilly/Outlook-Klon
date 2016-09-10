@@ -97,4 +97,24 @@ public class SendMailInfoTest {
         when(session.getProperties()).thenReturn(new Properties());
         return session;
     }
+
+    @Test
+    public void shouldCreateMessageToSend_AttachmentIsNull() throws Exception {
+        SendMailInfo info = new SendMailInfo("TestSubject", "TestText", "TEXT/plain; charset=utf-8",
+                Arrays.<Address>asList(new InternetAddress("tester@test.com")),
+                Arrays.<Address>asList(new InternetAddress("management@test.com")),
+                null);
+        Message message = info.createMessage(getSession());
+
+        MimeMultipart content = (MimeMultipart) message.getContent();
+        MimeBodyPart body = (MimeBodyPart) content.getBodyPart(0);
+        String text = (String) body.getContent();
+
+        assertThat(message.getSubject(), is("TestSubject"));
+        assertThat(text, is("TestText"));
+        assertThat(message.getContentType(), equalToIgnoringCase("TEXT/plain"));
+        assertThat(Arrays.asList(message.getRecipients(Message.RecipientType.TO)), contains(new Address[]{new InternetAddress("tester@test.com")}));
+        assertThat(Arrays.asList(message.getRecipients(Message.RecipientType.CC)), contains(new Address[]{new InternetAddress("management@test.com")}));
+        assertThat(content.getCount(), is(1));
+    }
 }

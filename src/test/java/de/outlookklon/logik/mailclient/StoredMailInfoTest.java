@@ -60,6 +60,12 @@ public class StoredMailInfoTest {
         assertThat(mailInfo.getID(), is("ABCD1234"));
     }
 
+    @Test(expected = NullPointerException.class)
+    public void shouldNotCreateStoredMailInfo_IdIsNull() throws Exception {
+        String id = null;
+        new StoredMailInfo(id).toString();
+    }
+
     @Test
     public void shouldCreateStoredMailInfo_WithMessageAndIDHeader() throws Exception {
         Message message = mock(Message.class);
@@ -199,6 +205,22 @@ public class StoredMailInfoTest {
 
         assertThat(map, hasEntry(new StoredMailInfo("ABCD1234"), "aaaa"));
         assertThat(map, hasEntry(new StoredMailInfo("EFGH5678"), "bbbb"));
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void shouldNotLoadData_MessageIsNull() throws Exception {
+        Message message1 = getTestMessage("ID1");
+
+        StoredMailInfo mailInfo = new StoredMailInfo(message1);
+        mailInfo.loadData(null, Sets.newSet(MailContent.SUBJECT));
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void shouldNotLoadData_ContentsIsNull() throws Exception {
+        Message message1 = getTestMessage("ID1");
+
+        StoredMailInfo mailInfo = new StoredMailInfo(message1);
+        mailInfo.loadData(message1, null);
     }
 
     @Test(expected = IllegalArgumentException.class)
