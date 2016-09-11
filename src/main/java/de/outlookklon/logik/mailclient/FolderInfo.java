@@ -89,7 +89,7 @@ public class FolderInfo {
 
     @Override
     public boolean equals(Object other) {
-        if (other == null || !(other instanceof FolderInfo)) {
+        if (other == null || !getClass().equals(other.getClass())) {
             return false;
         }
         if (this == other) {

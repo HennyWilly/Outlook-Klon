@@ -3,7 +3,6 @@ package de.outlookklon.logik.mailclient;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.sun.mail.imap.IMAPFolder;
 import de.outlookklon.dao.DAOException;
 import de.outlookklon.dao.StoredMailInfoDAO;
 import de.outlookklon.logik.mailclient.checker.MailAccountChecker;
@@ -201,21 +200,30 @@ public class MailAccount {
             final Folder[] folders = mailStore.getDefaultFolder().list("*");
 
             for (final Folder folder : folders) {
-                if (folder instanceof IMAPFolder) {
-                    final IMAPFolder imap = (IMAPFolder) folder;
-                    final String[] attributes = imap.getAttributes();
-                    if (attributesContainValue(attributes, "\\Sent")) {
-                        return imap;
-                    }
-                }
-
-                if (isSentFolderName(folder.getName())) {
+                if (isImapFolderWithAttribute(folder, "\\Sent") || isSentFolderName(folder.getName())) {
                     return folder;
                 }
             }
         }
 
         return null;
+    }
+
+    /**
+     * Note: squid:S1191 lässt SonarQube Warnungen über das Paket com.sun
+     * ignoreieren.
+     */
+    @SuppressWarnings("squid:S1191")
+    private boolean isImapFolderWithAttribute(Folder folder, String attributeValue) throws MessagingException {
+        if (folder instanceof com.sun.mail.imap.IMAPFolder) {
+            final com.sun.mail.imap.IMAPFolder imap = (com.sun.mail.imap.IMAPFolder) folder;
+            final String[] attributes = imap.getAttributes();
+            if (attributesContainValue(attributes, attributeValue)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private boolean attributesContainValue(String[] attributes, String value) {
@@ -588,17 +596,9 @@ public class MailAccount {
         if (inboxMailServer.supportsMultipleFolders()) {
             final Folder[] folders = mailStore.getDefaultFolder().list("*");
 
-            for (final Folder mailFolder : folders) {
-                if (mailFolder instanceof IMAPFolder) {
-                    final IMAPFolder imap = (IMAPFolder) mailFolder;
-                    final String[] attributes = imap.getAttributes();
-                    if (attributesContainValue(attributes, "\\Trash")) {
-                        return imap;
-                    }
-                }
-
-                if (isTrashFolderName(mailFolder.getName())) {
-                    return mailFolder;
+            for (final Folder folder : folders) {
+                if (isImapFolderWithAttribute(folder, "\\Trash") || isTrashFolderName(folder.getName())) {
+                    return folder;
                 }
             }
         }
@@ -640,21 +640,26 @@ public class MailAccount {
             final String contentType = message.getContentType();
             if (contentType.contains("multipart")) {
                 final Multipart multipart = (Multipart) message.getContent();
-                for (int i = 0; i < multipart.getCount(); i++) {
-                    final MimeBodyPart part = (MimeBodyPart) multipart.getBodyPart(i);
-                    final String disposition = part.getDisposition();
-                    final String fileName = part.getFileName();
-
-                    if ((Part.ATTACHMENT.equalsIgnoreCase(disposition)
-                            || StringUtils.isBlank(fileName))
-                            && attachmentName.equals(fileName)) {
-                        part.saveFile(targetPath);
-                    }
-                }
+                saveMultipartAttachment(multipart, attachmentName, targetPath);
             }
         } finally {
             closeMailFolder(folder, true);
             closeMailStore(mailStore);
+        }
+    }
+
+    private void saveMultipartAttachment(Multipart multipart, String attachmentName, String targetPath)
+            throws IOException, MessagingException {
+        for (int i = 0; i < multipart.getCount(); i++) {
+            final MimeBodyPart part = (MimeBodyPart) multipart.getBodyPart(i);
+            final String disposition = part.getDisposition();
+            final String fileName = part.getFileName();
+
+            if ((Part.ATTACHMENT.equalsIgnoreCase(disposition)
+                    || StringUtils.isBlank(fileName))
+                    && attachmentName.equals(fileName)) {
+                part.saveFile(targetPath);
+            }
         }
     }
 

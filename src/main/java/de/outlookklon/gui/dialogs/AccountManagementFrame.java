@@ -1,7 +1,5 @@
-package de.outlookklon.gui.frames;
+package de.outlookklon.gui.dialogs;
 
-import de.outlookklon.gui.dialogs.AccountFrame;
-import de.outlookklon.gui.dialogs.ExtendedDialog;
 import de.outlookklon.gui.helpers.Events;
 import de.outlookklon.localization.Localization;
 import de.outlookklon.logik.User;
@@ -42,6 +40,11 @@ import javax.swing.event.ListSelectionListener;
 public class AccountManagementFrame extends ExtendedDialog<MailAccount[]> {
 
     private static final long serialVersionUID = -5036893845172118794L;
+
+    private static final int DIALOG_WIDTH = 711;
+    private static final int DIALOG_HEIGHT = 695;
+
+    private static final int TEXTFIELD_COLUMNS = 10;
 
     private MailAccount[] myAccounts;
 
@@ -85,7 +88,7 @@ public class AccountManagementFrame extends ExtendedDialog<MailAccount[]> {
      * @param parent Das Vaterfenster des Dialogs
      */
     public AccountManagementFrame(Window parent) {
-        super(parent, 711, 695);
+        super(parent, DIALOG_WIDTH, DIALOG_HEIGHT);
 
         myAccounts = null;
 
@@ -263,29 +266,29 @@ public class AccountManagementFrame extends ExtendedDialog<MailAccount[]> {
         txtInboxTyp.setEditable(false);
         txtInboxTyp.setBounds(75, 24, 351, 20);
         panelInbox.add(txtInboxTyp);
-        txtInboxTyp.setColumns(10);
+        txtInboxTyp.setColumns(TEXTFIELD_COLUMNS);
 
         txtInboxServer.setBackground(Color.WHITE);
         txtInboxServer.setEditable(false);
         txtInboxServer.setBounds(75, 49, 200, 20);
         panelInbox.add(txtInboxServer);
-        txtInboxServer.setColumns(10);
+        txtInboxServer.setColumns(TEXTFIELD_COLUMNS);
 
         txtInboxPort.setBackground(Color.WHITE);
         txtInboxPort.setEditable(false);
         txtInboxPort.setBounds(314, 49, 112, 20);
         panelInbox.add(txtInboxPort);
-        txtInboxPort.setColumns(10);
+        txtInboxPort.setColumns(TEXTFIELD_COLUMNS);
 
         txtInboxConnectionSecurity.setBackground(Color.WHITE);
         txtInboxConnectionSecurity.setEditable(false);
         txtInboxConnectionSecurity.setBounds(153, 74, 273, 20);
         panelInbox.add(txtInboxConnectionSecurity);
-        txtInboxConnectionSecurity.setColumns(10);
+        txtInboxConnectionSecurity.setColumns(TEXTFIELD_COLUMNS);
 
         txtInboxAuthentification.setBackground(Color.WHITE);
         txtInboxAuthentification.setEditable(false);
-        txtInboxAuthentification.setColumns(10);
+        txtInboxAuthentification.setColumns(TEXTFIELD_COLUMNS);
         txtInboxAuthentification.setBounds(153, 99, 273, 20);
         panelInbox.add(txtInboxAuthentification);
 
@@ -311,25 +314,25 @@ public class AccountManagementFrame extends ExtendedDialog<MailAccount[]> {
 
         txtOutboxServer.setBackground(Color.WHITE);
         txtOutboxServer.setEditable(false);
-        txtOutboxServer.setColumns(10);
+        txtOutboxServer.setColumns(TEXTFIELD_COLUMNS);
         txtOutboxServer.setBounds(75, 45, 200, 20);
         panelOutbox.add(txtOutboxServer);
 
         txtOutboxPort.setBackground(Color.WHITE);
         txtOutboxPort.setEditable(false);
-        txtOutboxPort.setColumns(10);
+        txtOutboxPort.setColumns(TEXTFIELD_COLUMNS);
         txtOutboxPort.setBounds(314, 45, 112, 20);
         panelOutbox.add(txtOutboxPort);
 
         txtOutboxConnectionSecurity.setBackground(Color.WHITE);
         txtOutboxConnectionSecurity.setEditable(false);
-        txtOutboxConnectionSecurity.setColumns(10);
+        txtOutboxConnectionSecurity.setColumns(TEXTFIELD_COLUMNS);
         txtOutboxConnectionSecurity.setBounds(153, 70, 273, 20);
         panelOutbox.add(txtOutboxConnectionSecurity);
 
         txtOutboxAuthentification.setBackground(Color.WHITE);
         txtOutboxAuthentification.setEditable(false);
-        txtOutboxAuthentification.setColumns(10);
+        txtOutboxAuthentification.setColumns(TEXTFIELD_COLUMNS);
         txtOutboxAuthentification.setBounds(153, 95, 273, 20);
         panelOutbox.add(txtOutboxAuthentification);
 
@@ -338,7 +341,7 @@ public class AccountManagementFrame extends ExtendedDialog<MailAccount[]> {
 
         txtOutboxType.setBackground(Color.WHITE);
         txtOutboxType.setEditable(false);
-        txtOutboxType.setColumns(10);
+        txtOutboxType.setColumns(TEXTFIELD_COLUMNS);
         txtOutboxType.setBounds(75, 20, 351, 20);
         panelOutbox.add(txtOutboxType);
 
@@ -346,17 +349,17 @@ public class AccountManagementFrame extends ExtendedDialog<MailAccount[]> {
         txtUser.setBackground(Color.WHITE);
         txtUser.setBounds(357, 60, 338, 20);
         getContentPane().add(txtUser);
-        txtUser.setColumns(10);
+        txtUser.setColumns(TEXTFIELD_COLUMNS);
 
         txtMail.setEditable(false);
         txtMail.setBackground(Color.WHITE);
-        txtMail.setColumns(10);
+        txtMail.setColumns(TEXTFIELD_COLUMNS);
         txtMail.setBounds(357, 35, 338, 20);
         getContentPane().add(txtMail);
 
         txtName.setEditable(false);
         txtName.setBackground(Color.WHITE);
-        txtName.setColumns(10);
+        txtName.setColumns(TEXTFIELD_COLUMNS);
         txtName.setBounds(357, 10, 338, 20);
         getContentPane().add(txtName);
     }

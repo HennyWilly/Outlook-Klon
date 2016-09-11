@@ -279,11 +279,7 @@ public class Contact {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj == null) {
-            return false;
-        }
-
-        if (!this.getClass().equals(obj.getClass())) {
+        if (obj == null || !this.getClass().equals(obj.getClass())) {
             return false;
         }
 

@@ -39,6 +39,11 @@ public class AccountFrame extends ExtendedDialog<MailAccount> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AccountFrame.class);
 
+    private static final int DIALOG_WIDTH = 750;
+    private static final int DIALOG_HEIGHT = 350;
+
+    private static final int TEXTFIELD_COLUMNS = 10;
+
     private final String titleLocalizationKey;
 
     private MailAccount mailAccount;
@@ -74,7 +79,7 @@ public class AccountFrame extends ExtendedDialog<MailAccount> {
     private final JButton btnFinish;
 
     private AccountFrame(Window parent, String titleKey) {
-        super(parent, 750, 350);
+        super(parent, DIALOG_WIDTH, DIALOG_HEIGHT);
         titleLocalizationKey = titleKey;
 
         txtMail = new JTextField();
@@ -176,7 +181,7 @@ public class AccountFrame extends ExtendedDialog<MailAccount> {
      */
     private void initFrame() {
         txtMail.setBounds(140, 58, 315, 20);
-        txtMail.setColumns(10);
+        txtMail.setColumns(TEXTFIELD_COLUMNS);
 
         lblMail.setBounds(10, 61, 120, 14);
 
@@ -193,7 +198,7 @@ public class AccountFrame extends ExtendedDialog<MailAccount> {
         cbInProtocoll.setModel(new DefaultComboBoxModel<>(new String[]{"POP3", "IMAP"}));
 
         txtInServer.setBounds(226, 34, 162, 20);
-        txtInServer.setColumns(10);
+        txtInServer.setColumns(TEXTFIELD_COLUMNS);
 
         spInPort.setBounds(394, 34, 54, 20);
 
@@ -207,7 +212,7 @@ public class AccountFrame extends ExtendedDialog<MailAccount> {
         lblOutboxServer.setBounds(10, 65, 138, 14);
 
         txtOutServer.setBounds(226, 65, 162, 20);
-        txtOutServer.setColumns(10);
+        txtOutServer.setColumns(TEXTFIELD_COLUMNS);
 
         spOutPort.setBounds(394, 65, 54, 20);
 
@@ -225,7 +230,7 @@ public class AccountFrame extends ExtendedDialog<MailAccount> {
         lblUsername.setBounds(10, 106, 138, 14);
 
         txtUsername.setBounds(226, 103, 162, 20);
-        txtUsername.setColumns(10);
+        txtUsername.setColumns(TEXTFIELD_COLUMNS);
         getContentPane().setLayout(null);
         getContentPane().add(lblMail);
         getContentPane().add(lblPassword);
@@ -295,7 +300,7 @@ public class AccountFrame extends ExtendedDialog<MailAccount> {
         lblDisplayname.setBounds(10, 14, 120, 14);
         getContentPane().add(lblDisplayname);
 
-        txtDisplayname.setColumns(10);
+        txtDisplayname.setColumns(TEXTFIELD_COLUMNS);
         txtDisplayname.setBounds(140, 11, 315, 20);
         getContentPane().add(txtDisplayname);
     }

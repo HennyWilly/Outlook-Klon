@@ -65,6 +65,8 @@ public class MailFrame extends ExtendedFrame {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MailFrame.class);
 
+    private static final int TEXTFIELD_COLUMNS = 10;
+
     /**
      * Interne Aufzählung, welche die verschiedenen Arten definiert, in welchem
      * Kontext das Frame geöffnet werden kann
@@ -458,9 +460,9 @@ public class MailFrame extends ExtendedFrame {
         final JPanel panel1 = new JPanel();
         splitHead.setLeftComponent(panel1);
 
-        tTo.setColumns(10);
-        tCC.setColumns(10);
-        tSubject.setColumns(10);
+        tTo.setColumns(TEXTFIELD_COLUMNS);
+        tCC.setColumns(TEXTFIELD_COLUMNS);
+        tSubject.setColumns(TEXTFIELD_COLUMNS);
         tSubject.getDocument().addDocumentListener(new DocumentListener() {
             @Override
             public void removeUpdate(DocumentEvent arg0) {

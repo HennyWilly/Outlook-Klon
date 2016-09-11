@@ -532,11 +532,11 @@ public class AddressBookFrame extends ExtendedFrame {
      * Öffnet ein neues ContactFrame zum Erstellen eines neuen Kontaks
      */
     private void newContact() {
-        ContactFrame kf = new ContactFrame(this);
-        Contact k = kf.showDialog();
+        ContactFrame contactFrame = new ContactFrame(this);
+        Contact contact = contactFrame.showDialog();
 
-        if (k != null) {
-            management.addContact(k);
+        if (contact != null) {
+            management.addContact(contact);
             refreshTable(currentList());
         }
     }
@@ -548,8 +548,8 @@ public class AddressBookFrame extends ExtendedFrame {
      * soll.
      */
     private void editContact(Contact contact) {
-        ContactFrame kf = new ContactFrame(this, contact);
-        kf.showDialog();
+        ContactFrame contactFrame = new ContactFrame(this, contact);
+        contactFrame.showDialog();
 
         if (contact != null) {
             int row = tableContacts.convertRowIndexToModel(tableContacts.getSelectedRow());
@@ -565,8 +565,8 @@ public class AddressBookFrame extends ExtendedFrame {
      * @param list Listenname, der umbenannt werden soll
      */
     private void renameList(String list) {
-        ListDialog ld = new ListDialog(this, list);
-        String newName = ld.showDialog();
+        ListDialog listDialog = new ListDialog(this, list);
+        String newName = listDialog.showDialog();
 
         if (newName != null) {
             try {
@@ -687,9 +687,9 @@ public class AddressBookFrame extends ExtendedFrame {
      * @param list Liste, in die die Kontakte eingefügt werden sollen
      */
     private void addList(Contact[] contacts, String list) {
-        for (Contact k : contacts) {
+        for (Contact contact : contacts) {
             try {
-                management.addToContactList(k, list);
+                management.addToContactList(contact, list);
             } catch (IllegalArgumentException ex) {
                 // Ignoriere Fehler
                 LOGGER.warn(Localization.getString("AddressBookFrame_CouldNotAddContactToList"), ex);
@@ -703,6 +703,11 @@ public class AddressBookFrame extends ExtendedFrame {
     private final class ListDialog extends ExtendedDialog<String> {
 
         private static final long serialVersionUID = 1L;
+
+        private static final int DIALOG_WIDTH = 355;
+        private static final int DIALOG_HEIGHT = 130;
+
+        private static final int TEXTFIELD_COLUMNS = 10;
 
         private final String captionKey;
 
@@ -720,7 +725,7 @@ public class AddressBookFrame extends ExtendedFrame {
          * @param parent Das Vaterfenster des Dialogs
          */
         public ListDialog(Window parent) {
-            super(parent, 355, 130);
+            super(parent, DIALOG_WIDTH, DIALOG_HEIGHT);
 
             captionKey = "AddressBookFrame_CreateNewList";
 
@@ -741,7 +746,7 @@ public class AddressBookFrame extends ExtendedFrame {
          * @param list
          */
         public ListDialog(Window parent, String list) {
-            super(parent, 355, 130);
+            super(parent, DIALOG_WIDTH, DIALOG_HEIGHT);
 
             captionKey = "AddressBookFrame_EditList";
 
@@ -770,7 +775,7 @@ public class AddressBookFrame extends ExtendedFrame {
          * Initalisiert die Komponenten des Dialogs
          */
         private void initGUI() {
-            txtList.setColumns(10);
+            txtList.setColumns(TEXTFIELD_COLUMNS);
 
             btnOK.addActionListener(new ActionListener() {
                 @Override

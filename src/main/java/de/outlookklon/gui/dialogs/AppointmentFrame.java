@@ -39,6 +39,11 @@ public class AppointmentFrame extends ExtendedDialog<Appointment> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AppointmentFrame.class);
 
+    private static final int DIALOG_WIDTH = 485;
+    private static final int DIALOG_HEIGHT = 344;
+
+    private static final int TEXTFIELD_COLUMNS = 10;
+
     private final String captionKey;
 
     private final JLabel lblSubject;
@@ -64,7 +69,7 @@ public class AppointmentFrame extends ExtendedDialog<Appointment> {
     private Appointment mAppointment;
 
     private AppointmentFrame(Window parent, String captionKey, Appointment appointment) {
-        super(parent, 485, 344);
+        super(parent, DIALOG_WIDTH, DIALOG_HEIGHT);
 
         this.captionKey = captionKey;
         this.mAppointment = appointment;
@@ -156,9 +161,9 @@ public class AppointmentFrame extends ExtendedDialog<Appointment> {
     }
 
     private void initFrame() {
-        textSubject.setColumns(10);
-        textDescription.setColumns(10);
-        textLocation.setColumns(10);
+        textSubject.setColumns(TEXTFIELD_COLUMNS);
+        textDescription.setColumns(TEXTFIELD_COLUMNS);
+        textLocation.setColumns(TEXTFIELD_COLUMNS);
         dateStart.setModel(new SpinnerDateModel(new Date(), null, null, Calendar.DAY_OF_YEAR));
         dateEnd.setModel(new SpinnerDateModel(new Date(), null, null, Calendar.DAY_OF_YEAR));
 

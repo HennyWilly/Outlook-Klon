@@ -17,6 +17,9 @@ public class MessageFrame extends ExtendedDialog<String> {
 
     private static final long serialVersionUID = -426579552451278615L;
 
+    private static final int DIALOG_WIDTH = 400;
+    private static final int DIALOG_HEIGHT = 365;
+
     private final JTextPane textMessage;
     private final JButton btnOk;
     private final JButton btnAbort;
@@ -31,7 +34,7 @@ public class MessageFrame extends ExtendedDialog<String> {
      * @param title Titel des Fensters.
      */
     public MessageFrame(Window parent, String text, String title) {
-        super(parent, 400, 365);
+        super(parent, DIALOG_WIDTH, DIALOG_HEIGHT);
 
         textMessage = new JTextPane();
         btnOk = new JButton();

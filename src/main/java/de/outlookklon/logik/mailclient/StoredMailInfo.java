@@ -217,22 +217,26 @@ public class StoredMailInfo extends MailInfo implements Comparable<StoredMailInf
 
     private void loadAttachment(Message serverMessage) throws IOException, MessagingException {
         if (!isAttachmentLoaded()) {
-            final List<String> messageAttachment = new ArrayList<>();
-            if (serverMessage.getContent() instanceof Multipart) {
-                final Multipart mp = (Multipart) serverMessage.getContent();
-
-                for (int i = 0; i < mp.getCount(); i++) {
-                    final BodyPart bp = mp.getBodyPart(i);
-                    final String filename = bp.getFileName();
-
-                    if (!StringUtils.isBlank(filename)) {
-                        messageAttachment.add(filename);
-                    }
-                }
-            }
-
+            List<String> messageAttachment = getAttachmentFromMessage(serverMessage);
             setAttachment(messageAttachment);
         }
+    }
+
+    private List<String> getAttachmentFromMessage(Message serverMessage) throws MessagingException, IOException {
+        final List<String> messageAttachment = new ArrayList<>();
+        if (serverMessage.getContent() instanceof Multipart) {
+            final Multipart mp = (Multipart) serverMessage.getContent();
+
+            for (int i = 0; i < mp.getCount(); i++) {
+                final BodyPart bp = mp.getBodyPart(i);
+                final String filename = bp.getFileName();
+
+                if (!StringUtils.isBlank(filename)) {
+                    messageAttachment.add(filename);
+                }
+            }
+        }
+        return messageAttachment;
     }
 
     /**
@@ -335,27 +339,10 @@ public class StoredMailInfo extends MailInfo implements Comparable<StoredMailInf
             return (String) p.getContent();
         }
 
+        final Multipart mp = (Multipart) p.getContent();
         if (p.isMimeType("multipart/alternative")) {
-            final Multipart mp = (Multipart) p.getContent();
-            String text = null;
-            for (int i = 0; i < mp.getCount(); i++) {
-                final Part bp = mp.getBodyPart(i);
-                if (bp.isMimeType("text/plain")) {
-                    if (text == null) {
-                        text = getText(bp);
-                    }
-                } else if (bp.isMimeType("text/html")) {
-                    final String s = getText(bp);
-                    if (s != null) {
-                        return s;
-                    }
-                } else {
-                    return getText(bp);
-                }
-            }
-            return text;
+            return getMultipartAlternativeText(mp);
         } else if (p.isMimeType("multipart/*")) {
-            final Multipart mp = (Multipart) p.getContent();
             for (int i = 0; i < mp.getCount(); i++) {
                 final String s = getText(mp.getBodyPart(i));
                 if (s != null) {
@@ -365,6 +352,26 @@ public class StoredMailInfo extends MailInfo implements Comparable<StoredMailInf
         }
 
         return null;
+    }
+
+    private static String getMultipartAlternativeText(Multipart mp) throws MessagingException, IOException {
+        String text = null;
+        for (int i = 0; i < mp.getCount(); i++) {
+            final Part bp = mp.getBodyPart(i);
+            if (bp.isMimeType("text/plain")) {
+                if (text == null) {
+                    text = getText(bp);
+                }
+            } else if (bp.isMimeType("text/html")) {
+                final String s = getText(bp);
+                if (s != null) {
+                    return s;
+                }
+            } else {
+                return getText(bp);
+            }
+        }
+        return text;
     }
 
     /**

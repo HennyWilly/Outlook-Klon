@@ -22,6 +22,7 @@ import javax.swing.JTextField;
 import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,6 +37,11 @@ public class ContactFrame extends ExtendedDialog<Contact> {
     private static final long serialVersionUID = 1466530984514818388L;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ContactFrame.class);
+
+    private static final int DIALOG_WIDTH = 685;
+    private static final int DIALOG_HEIGHT = 285;
+
+    private static final int TEXTFIELD_COLUMNS = 10;
 
     private Contact mContact;
 
@@ -78,7 +84,7 @@ public class ContactFrame extends ExtendedDialog<Contact> {
      * @param contact Contact-Instanz, die in dem Frame bearbeitet werden soll
      */
     public ContactFrame(Window parent, Contact contact) {
-        super(parent, 685, 285);
+        super(parent, DIALOG_WIDTH, DIALOG_HEIGHT);
 
         this.mContact = contact;
 
@@ -166,13 +172,13 @@ public class ContactFrame extends ExtendedDialog<Contact> {
             }
         };
 
-        tForename.setColumns(10);
+        tForename.setColumns(TEXTFIELD_COLUMNS);
         tForename.getDocument().addDocumentListener(nameDocListener);
 
-        tSurname.setColumns(10);
+        tSurname.setColumns(TEXTFIELD_COLUMNS);
         tSurname.getDocument().addDocumentListener(nameDocListener);
 
-        tDisplayname.setColumns(10);
+        tDisplayname.setColumns(TEXTFIELD_COLUMNS);
         tDisplayname.getDocument().addDocumentListener(new DocumentListener() {
             @Override
             public void removeUpdate(DocumentEvent arg0) {
@@ -193,12 +199,12 @@ public class ContactFrame extends ExtendedDialog<Contact> {
             }
         });
 
-        tNickname.setColumns(10);
-        tEmailaddress1.setColumns(10);
-        tEmailaddress2.setColumns(10);
-        tDutyphone.setColumns(10);
-        tPrivatephone.setColumns(10);
-        tMobilephone.setColumns(10);
+        tNickname.setColumns(TEXTFIELD_COLUMNS);
+        tEmailaddress1.setColumns(TEXTFIELD_COLUMNS);
+        tEmailaddress2.setColumns(TEXTFIELD_COLUMNS);
+        tDutyphone.setColumns(TEXTFIELD_COLUMNS);
+        tPrivatephone.setColumns(TEXTFIELD_COLUMNS);
+        tMobilephone.setColumns(TEXTFIELD_COLUMNS);
 
         btnOK.addActionListener(new ActionListener() {
             @Override
@@ -341,14 +347,9 @@ public class ContactFrame extends ExtendedDialog<Contact> {
      * Rückgabe des finalen Contact-Objekts vorzubereiten.
      */
     private void finalizeFrame() {
-        String strMail1 = tEmailaddress1.getText().trim();
-        String strMail2 = tEmailaddress2.getText().trim();
-
-        Address mail1;
-        Address mail2;
+        Pair<Address, Address> addresses;
         try {
-            mail1 = strMail1.isEmpty() ? null : new InternetAddress(tEmailaddress1.getText(), true);
-            mail2 = strMail2.isEmpty() ? null : new InternetAddress(tEmailaddress2.getText(), true);
+            addresses = getAddresses();
         } catch (AddressException ex) {
             LOGGER.error(Localization.getString("ContactFrame_ParseMailAddressError"), ex);
             Dialogs.showErrorDialog(this, Localization.getString("ContactFrame_ParseMailAddressError") + "\n" + ex.getMessage());
@@ -356,13 +357,10 @@ public class ContactFrame extends ExtendedDialog<Contact> {
             return;
         }
 
-        if (mail1 == null && mail2 != null) {
-            mail1 = mail2;
-            mail2 = null;
-        }
+        Address mail1 = addresses.getLeft();
+        Address mail2 = addresses.getRight();
 
-        if (mail1 == null && tForename.getText().trim().isEmpty() && tSurname.getText().trim().isEmpty()
-                && tDisplayname.getText().trim().isEmpty()) {
+        if (!hasEnoughInformation(mail1)) {
             JOptionPane.showMessageDialog(this,
                     Localization.getString("ContactFrame_NotEnoughInformation"),
                     Localization.getString("ContactFrame_MissingInfomation"),
@@ -370,6 +368,12 @@ public class ContactFrame extends ExtendedDialog<Contact> {
             return;
         }
 
+        setContactData(mail1, mail2);
+
+        close();
+    }
+
+    private void setContactData(Address mail1, Address mail2) {
         if (mContact == null) {
             // Erstelle neuen Contact
             mContact = new Contact(tSurname.getText(), tForename.getText(), tDisplayname.getText(),
@@ -386,8 +390,28 @@ public class ContactFrame extends ExtendedDialog<Contact> {
             mContact.setPrivatephone(tPrivatephone.getText());
             mContact.setMobilephone(tMobilephone.getText());
         }
+    }
 
-        close();
+    private Pair<Address, Address> getAddresses() throws AddressException {
+        String strMail1 = tEmailaddress1.getText().trim();
+        String strMail2 = tEmailaddress2.getText().trim();
+
+        Address mail1 = strMail1.isEmpty() ? null : new InternetAddress(tEmailaddress1.getText(), true);
+        Address mail2 = strMail2.isEmpty() ? null : new InternetAddress(tEmailaddress2.getText(), true);
+
+        if (mail1 == null && mail2 != null) {
+            mail1 = mail2;
+            mail2 = null;
+        }
+
+        return Pair.of(mail1, mail2);
+    }
+
+    private boolean hasEnoughInformation(Address mail1) {
+        return mail1 != null
+                || !tForename.getText().trim().isEmpty()
+                || !tSurname.getText().trim().isEmpty()
+                || !tDisplayname.getText().trim().isEmpty();
     }
 
     @Override

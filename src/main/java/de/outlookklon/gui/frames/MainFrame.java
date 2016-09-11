@@ -1,5 +1,6 @@
 package de.outlookklon.gui.frames;
 
+import de.outlookklon.gui.dialogs.AccountManagementFrame;
 import de.outlookklon.dao.DAOException;
 import de.outlookklon.gui.components.HtmlEditorPane;
 import de.outlookklon.gui.components.ReadOnlyTableModel;
@@ -359,6 +360,7 @@ public class MainFrame extends ExtendedFrame {
             setIconImages(icons);
         } catch (IOException ex) {
             // TODO Localize error msg
+            LOGGER.error("Could not load icons", ex);
         }
     }
 
@@ -843,53 +845,13 @@ public class MainFrame extends ExtendedFrame {
 
         MailAccount[] accounts = accountManagementFrame.showDialog();
         if (accounts != null) {
+            List<MailAccount> deleteable = removeDeletedAccountsFromTree(accounts);
+
             // Flag, die angibt, ob der Baum neugezeichnet werden soll
-            boolean refresh = false;
-
-            DefaultTreeModel treeModel = (DefaultTreeModel) tree.getModel();
-            DefaultMutableTreeNode rootNode = (DefaultMutableTreeNode) treeModel.getRoot();
-
-            List<MailAccount> deleteable = new ArrayList<>();
-
-            // Entfernt nicht mehr verwendete Knoten für MailAccounts aus dem
-            // Baum
-            for (int i = 0; i < rootNode.getChildCount(); i++) {
-                DefaultMutableTreeNode node = (DefaultMutableTreeNode) rootNode.getChildAt(i);
-                MailAccountChecker treeChecker = (MailAccountChecker) node.getUserObject();
-                MailAccount treeAccount = treeChecker.getAccount();
-
-                if (ArrayUtils.contains(accounts, treeAccount)) {
-                    continue;
-                }
-
-                deleteable.add(treeAccount);
-                rootNode.remove(node);
-                treeModel.reload();
-                refresh = true;
-            }
+            boolean refresh = !deleteable.isEmpty();
 
             // Füge neue MailAccounts dem Baum hinzu
-            for (MailAccount acc : accounts) {
-                try {
-                    user.setMailInfoDAO(acc);
-                } catch (IOException ex) {
-                    LOGGER.warn("Could not create directory for MailInfo objects.", ex);
-                }
-
-                Iterator<MailAccount> iterator = deleteable.iterator();
-                while (iterator.hasNext()) {
-                    MailAccount acc2 = iterator.next();
-                    if (acc2.getAddress().equals(acc.getAddress())) {
-                        deleteable.remove(acc2);
-                    }
-                }
-
-                if (user.addMailAccount(acc)) {
-                    // MailChecker accChecker = benutzer.getCheckerOf(acc);
-                    // accChecker.addNewMessageListener(getMailListener());
-                    refresh = true;
-                }
-            }
+            refresh |= addNewAccountsToTree(accounts, deleteable);
 
             for (MailAccount acc : deleteable) {
                 try {
@@ -904,6 +866,63 @@ public class MainFrame extends ExtendedFrame {
                 loadFolder();
             }
         }
+    }
+
+    private List<MailAccount> removeDeletedAccountsFromTree(MailAccount[] accounts) {
+        DefaultTreeModel treeModel = (DefaultTreeModel) tree.getModel();
+        DefaultMutableTreeNode rootNode = (DefaultMutableTreeNode) treeModel.getRoot();
+
+        List<MailAccount> deleteable = new ArrayList<>();
+
+        // Entfernt nicht mehr verwendete Knoten für MailAccounts aus dem
+        // Baum
+        for (int i = 0; i < rootNode.getChildCount(); i++) {
+            DefaultMutableTreeNode node = (DefaultMutableTreeNode) rootNode.getChildAt(i);
+            MailAccountChecker treeChecker = (MailAccountChecker) node.getUserObject();
+            MailAccount treeAccount = treeChecker.getAccount();
+
+            if (ArrayUtils.contains(accounts, treeAccount)) {
+                continue;
+            }
+
+            deleteable.add(treeAccount);
+            rootNode.remove(node);
+        }
+
+        if (!deleteable.isEmpty()) {
+            treeModel.reload();
+        }
+
+        return deleteable;
+    }
+
+    private boolean addNewAccountsToTree(MailAccount[] accounts, List<MailAccount> deleteable) {
+        boolean refresh = false;
+
+        // Füge neue MailAccounts dem Baum hinzu
+        for (MailAccount acc : accounts) {
+            try {
+                user.setMailInfoDAO(acc);
+            } catch (IOException ex) {
+                LOGGER.warn("Could not create directory for MailInfo objects.", ex);
+            }
+
+            Iterator<MailAccount> iterator = deleteable.iterator();
+            while (iterator.hasNext()) {
+                MailAccount acc2 = iterator.next();
+                if (acc2.getAddress().equals(acc.getAddress())) {
+                    deleteable.remove(acc2);
+                }
+            }
+
+            if (user.addMailAccount(acc)) {
+                // MailChecker accChecker = benutzer.getCheckerOf(acc);
+                // accChecker.addNewMessageListener(getMailListener());
+                refresh = true;
+            }
+        }
+
+        return refresh;
     }
 
     /**
