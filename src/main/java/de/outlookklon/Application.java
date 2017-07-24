@@ -1,20 +1,21 @@
 package de.outlookklon;
 
-import de.outlookklon.gui.frames.MainFrame;
-import de.outlookklon.logik.UserException;
+import de.outlookklon.application.UserException;
+import de.outlookklon.view.frames.MainFrame;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Hauptklasse der Anwendung
+ * Die Hauptklasse der Anwendung.
  */
 public final class Application {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Application.class);
 
     private Application() {
+        // Privater Util-Konstruktor
     }
 
     /**

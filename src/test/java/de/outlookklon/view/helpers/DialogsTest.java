@@ -1,13 +1,13 @@
-package de.outlookklon;
+package de.outlookklon.view.helpers;
 
 import static de.outlookklon.matchers.UtilityMatchers.isWellDefinedUtilityClass;
 import static org.hamcrest.MatcherAssert.assertThat;
 import org.junit.Test;
 
-public class ApplicationTest {
+public class DialogsTest {
 
     @Test
     public void shouldCheckIfUtilityClassIsWellCoded() throws Exception {
-        assertThat(Application.class, isWellDefinedUtilityClass());
+        assertThat(Dialogs.class, isWellDefinedUtilityClass());
     }
 }

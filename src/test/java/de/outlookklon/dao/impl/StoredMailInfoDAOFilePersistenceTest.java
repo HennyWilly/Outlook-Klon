@@ -2,7 +2,7 @@ package de.outlookklon.dao.impl;
 
 import de.outlookklon.dao.DAOException;
 import de.outlookklon.dao.StoredMailInfoDAO;
-import de.outlookklon.logik.mailclient.StoredMailInfo;
+import de.outlookklon.model.mails.StoredMailInfo;
 import de.outlookklon.serializers.Serializer;
 import java.io.File;
 import java.io.IOException;

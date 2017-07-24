@@ -1,6 +1,6 @@
 package de.outlookklon.dao;
 
-import de.outlookklon.logik.mailclient.StoredMailInfo;
+import de.outlookklon.model.mails.StoredMailInfo;
 
 /**
  * Diese Interface stellt Methoden zum Zugriff auf die {@link StoredMailInfo}-Objekte
