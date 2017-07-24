@@ -311,9 +311,7 @@ public class MailAccount {
             folder.open(Folder.READ_ONLY);
 
             final Message[] messages = folder.getMessages();
-            FetchProfile fp = new FetchProfile();
-            fp.add(MESSAGE_ID_HEADER_NAME);
-            folder.fetch(messages, fp);
+            fetchMessageID(folder, messages);
 
             for (Message message : messages) {
                 String id = StoredMailInfo.getID(message);
@@ -344,6 +342,12 @@ public class MailAccount {
         }
 
         return set.toArray(new StoredMailInfo[set.size()]);
+    }
+
+    private void fetchMessageID(Folder folder, Message[] messages) throws MessagingException {
+        FetchProfile fp = new FetchProfile();
+        fp.add(MESSAGE_ID_HEADER_NAME);
+        folder.fetch(messages, fp);
     }
 
     private void closeMailFolder(Folder mailFolder, boolean expurge) {
@@ -435,9 +439,7 @@ public class MailAccount {
         Message[] messages = new Message[mails.length];
         Message[] folderMails = folder.getMessages();
 
-        FetchProfile fp = new FetchProfile();
-        fp.add(MESSAGE_ID_HEADER_NAME);
-        folder.fetch(folderMails, fp);
+        fetchMessageID(folder, folderMails);
 
         for (int i = 0; i < mails.length; i++) {
             String id = mails[i].getID();
