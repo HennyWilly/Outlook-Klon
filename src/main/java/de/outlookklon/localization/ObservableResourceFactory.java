@@ -9,18 +9,21 @@ import javafx.beans.property.SimpleObjectProperty;
 
 /**
  *
- * @see <a href="https://stackoverflow.com/a/32468810">Stackoverflow</a>
+ * @see <a href="https://stackoverflow.com/a/32468810">StackOverflow</a>
  */
 public class ObservableResourceFactory {
 
+    private final ObjectProperty<ResourceBundle> resources = new SimpleObjectProperty<>();
     private final String bundleName;
-    private final ObjectProperty<ResourceBundle> resources;
 
     public ObservableResourceFactory(String bundleName) {
         this.bundleName = bundleName;
-        this.resources = new SimpleObjectProperty<>();
 
         setResources(ResourceBundle.getBundle(bundleName));
+    }
+
+    private void setResources(ResourceBundle resource) {
+        resources.set(resource);
     }
 
     public ReadOnlyObjectProperty<ResourceBundle> resourcesProperty() {
@@ -34,10 +37,6 @@ public class ObservableResourceFactory {
     public final void setLanguage(Locale locale) {
         ResourceBundle bundle = ResourceBundle.getBundle(bundleName, locale);
         setResources(bundle);
-    }
-
-    private void setResources(ResourceBundle resource) {
-        resources.set(resource);
     }
 
     public StringBinding getStringBinding(String key) {

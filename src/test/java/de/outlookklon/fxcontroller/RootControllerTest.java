@@ -28,7 +28,7 @@ public class RootControllerTest extends ApplicationTest {
     @Test
     public void closeApp_OnCloseClicked() throws Exception {
         assertThat(listWindows().size(), is(1));
-        clickOn("#file").clickOn("#close");
+        clickOn("#fileMenu").clickOn("#close");
         waitForFxEvents();
         assertThat(listWindows().size(), is(0));
     }

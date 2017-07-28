@@ -10,8 +10,6 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.RadioMenuItem;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
 import javafx.scene.control.Toggle;
 import javafx.scene.control.ToggleGroup;
 import javafx.stage.Stage;
@@ -55,18 +53,6 @@ public class RootController {
     private Button receive;
 
     @FXML
-    private TableColumn subjectColumn;
-
-    @FXML
-    private TableColumn fromColumn;
-
-    @FXML
-    private TableColumn dateColumn;
-
-    @FXML
-    private TableView emailGrid;
-
-    @FXML
     public void initialize() {
         ObservableResourceFactory resourceFactory = MainApplication.RESOURCE_FACTORY;
         fileMenu.textProperty().bind(resourceFactory.getStringBinding("Menu_File"));
@@ -81,9 +67,6 @@ public class RootController {
         languageMenu.textProperty().bind(resourceFactory.getStringBinding("Languages"));
         openAccountSettings.textProperty().bind(resourceFactory.getStringBinding("AccountManagementFrame_Title"));
         receive.textProperty().bind(resourceFactory.getStringBinding("MainFrame_Receive"));
-        subjectColumn.textProperty().bind(resourceFactory.getStringBinding("MailFrame_Subject"));
-        fromColumn.textProperty().bind(resourceFactory.getStringBinding("MailFrame_From"));
-        dateColumn.textProperty().bind(resourceFactory.getStringBinding("Appointment_Date"));
 
         initLanguageMenu();
     }
@@ -130,7 +113,7 @@ public class RootController {
 
     @FXML
     public void onClose() {
-        Stage stage = (Stage) emailGrid.getScene().getWindow();
+        Stage stage = (Stage) receive.getScene().getWindow();
         stage.close();
     }
 
@@ -141,16 +124,6 @@ public class RootController {
 
     @FXML
     public void onOpenAppointmentCalendar() {
-
-    }
-
-    @FXML
-    public void onLanguageEnglish() {
-
-    }
-
-    @FXML
-    public void onLanguageGerman() {
 
     }
 
