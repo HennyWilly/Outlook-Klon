@@ -4,10 +4,10 @@ import static de.outlookklon.matchers.UtilityMatchers.isWellDefinedUtilityClass;
 import static org.hamcrest.MatcherAssert.assertThat;
 import org.junit.Test;
 
-public class ApplicationTest {
+public class MainApplicationTest {
 
     @Test
     public void shouldCheckIfUtilityClassIsWellCoded() throws Exception {
-        assertThat(Application.class, isWellDefinedUtilityClass());
+        assertThat(MainApplication.class, isWellDefinedUtilityClass());
     }
 }

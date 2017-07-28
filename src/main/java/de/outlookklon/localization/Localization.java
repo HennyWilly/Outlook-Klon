@@ -8,7 +8,10 @@ import lombok.NonNull;
 
 /**
  * Diese statische Klasse dient dem Zugriff auf lokalisierte Strings.
+ *
+ * @deprecated Use ObservableResourceFactory instead
  */
+@Deprecated
 public final class Localization {
 
     private static final String BUNDLE_NAME = "OutlookKlon";

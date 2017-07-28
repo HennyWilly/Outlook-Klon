@@ -10,7 +10,10 @@ import java.awt.event.WindowEvent;
  *
  * @author Hendrik Karwanni
  * @param <T> Typparameter, damit intern nicht so viel gecastet werden muss...
+ *
+ * @deprecated Use ObservableResourceFactory instead
  */
+@Deprecated
 public class WindowLocalizer<T extends Window & ILocalizable> extends WindowAdapter {
 
     @Override
