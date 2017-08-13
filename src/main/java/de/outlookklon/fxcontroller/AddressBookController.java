@@ -3,6 +3,7 @@ package de.outlookklon.fxcontroller;
 import de.outlookklon.MainApplication;
 import de.outlookklon.localization.ObservableResourceFactory;
 import javafx.fxml.FXML;
+import javafx.scene.control.ListView;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TableColumn;
@@ -30,6 +31,9 @@ public class AddressBookController {
 
     @FXML
     private MenuItem close;
+
+    @FXML
+    private ListView contactListList;
 
     @FXML
     private TableView contactGrid;

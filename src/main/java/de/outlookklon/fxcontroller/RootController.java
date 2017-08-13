@@ -132,7 +132,7 @@ public class RootController {
 
     @FXML
     public void onOpenAppointmentCalendar() {
-
+        openAppointmentCalendarWindow();
     }
 
     @FXML
@@ -153,6 +153,14 @@ public class RootController {
             openWindow("fxml/AddressBookLayout.fxml");
         } catch (IOException ex) {
             LOGGER.error("Could not open address book window", ex);
+        }
+    }
+
+    private void openAppointmentCalendarWindow() {
+        try {
+            openWindow("fxml/AppointmentCalendarLayout.fxml");
+        } catch (IOException ex) {
+            LOGGER.error("Could not open appointment calendar window", ex);
         }
     }
 
