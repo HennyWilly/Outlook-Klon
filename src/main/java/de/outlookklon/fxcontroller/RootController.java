@@ -3,9 +3,13 @@ package de.outlookklon.fxcontroller;
 import de.outlookklon.MainApplication;
 import de.outlookklon.localization.Localization;
 import de.outlookklon.localization.ObservableResourceFactory;
+import java.io.IOException;
 import java.util.Locale;
 import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
@@ -98,7 +102,7 @@ public class RootController {
 
     @FXML
     public void onNewMail() {
-
+        openMailWindow();
     }
 
     @FXML
@@ -130,5 +134,20 @@ public class RootController {
     @FXML
     public void onOpenAccountSettings() {
 
+    }
+
+    private void openMailWindow() {
+        try {
+            FXMLLoader fxmlLoader = new FXMLLoader();
+            fxmlLoader.setLocation(ClassLoader.getSystemResource("fxml/MailLayout.fxml"));
+            Parent root1 = (Parent) fxmlLoader.load();
+
+            Stage stage = new Stage();
+            stage.setScene(new Scene(root1));
+            MainApplication.loadIcons(stage.getIcons());
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

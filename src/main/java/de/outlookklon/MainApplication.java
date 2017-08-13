@@ -41,12 +41,14 @@ public final class MainApplication extends Application {
         primaryStage.show();
     }
 
-    private void loadIcons(ObservableList<Image> imageList) {
-        imageList.add(new Image(getClass().getResource("mainFrameIcon_16x16.png").toString()));
-        imageList.add(new Image(getClass().getResource("mainFrameIcon_24x24.png").toString()));
-        imageList.add(new Image(getClass().getResource("mainFrameIcon_32x32.png").toString()));
-        imageList.add(new Image(getClass().getResource("mainFrameIcon_64x64.png").toString()));
-        imageList.add(new Image(getClass().getResource("mainFrameIcon_128x128.png").toString()));
+    public static void loadIcons(ObservableList<Image> imageList) {
+        Class clazz = MainApplication.class;
+
+        imageList.add(new Image(clazz.getResource("mainFrameIcon_16x16.png").toString()));
+        imageList.add(new Image(clazz.getResource("mainFrameIcon_24x24.png").toString()));
+        imageList.add(new Image(clazz.getResource("mainFrameIcon_32x32.png").toString()));
+        imageList.add(new Image(clazz.getResource("mainFrameIcon_64x64.png").toString()));
+        imageList.add(new Image(clazz.getResource("mainFrameIcon_128x128.png").toString()));
     }
 
     @SneakyThrows(IOException.class)
