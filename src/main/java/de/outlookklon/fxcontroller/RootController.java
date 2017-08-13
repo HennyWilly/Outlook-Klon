@@ -1,6 +1,7 @@
 package de.outlookklon.fxcontroller;
 
 import de.outlookklon.MainApplication;
+import de.outlookklon.fxcontroller.dialogs.Dialogs;
 import de.outlookklon.localization.Localization;
 import de.outlookklon.localization.ObservableResourceFactory;
 import java.io.IOException;
@@ -17,6 +18,7 @@ import javafx.scene.control.RadioMenuItem;
 import javafx.scene.control.Toggle;
 import javafx.scene.control.ToggleGroup;
 import javafx.stage.Stage;
+import javafx.stage.Window;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -111,7 +113,7 @@ public class RootController {
 
     @FXML
     public void onNewContact() {
-
+        Dialogs.openNewContactDialog(getWindow());
     }
 
     @FXML
@@ -121,8 +123,12 @@ public class RootController {
 
     @FXML
     public void onClose() {
-        Stage stage = (Stage) receive.getScene().getWindow();
+        Stage stage = (Stage) getWindow();
         stage.close();
+    }
+
+    private Window getWindow() {
+        return receive.getScene().getWindow();
     }
 
     @FXML
@@ -165,6 +171,8 @@ public class RootController {
     }
 
     private void openWindow(String resourcePath) throws IOException {
+        ObservableResourceFactory resourceFactory = MainApplication.RESOURCE_FACTORY;
+
         FXMLLoader fxmlLoader = new FXMLLoader();
         fxmlLoader.setLocation(ClassLoader.getSystemResource(resourcePath));
         Parent root1 = (Parent) fxmlLoader.load();
