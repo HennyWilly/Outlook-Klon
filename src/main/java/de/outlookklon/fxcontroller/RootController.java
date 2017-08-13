@@ -17,8 +17,12 @@ import javafx.scene.control.RadioMenuItem;
 import javafx.scene.control.Toggle;
 import javafx.scene.control.ToggleGroup;
 import javafx.stage.Stage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class RootController {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(RootController.class);
 
     @FXML
     private Menu fileMenu;
@@ -123,7 +127,7 @@ public class RootController {
 
     @FXML
     public void onOpenAddressBook() {
-
+        openAddressBookWindow();
     }
 
     @FXML
@@ -138,16 +142,28 @@ public class RootController {
 
     private void openMailWindow() {
         try {
-            FXMLLoader fxmlLoader = new FXMLLoader();
-            fxmlLoader.setLocation(ClassLoader.getSystemResource("fxml/MailLayout.fxml"));
-            Parent root1 = (Parent) fxmlLoader.load();
-
-            Stage stage = new Stage();
-            stage.setScene(new Scene(root1));
-            MainApplication.loadIcons(stage.getIcons());
-            stage.show();
-        } catch (IOException e) {
-            e.printStackTrace();
+            openWindow("fxml/MailLayout.fxml");
+        } catch (IOException ex) {
+            LOGGER.error("Could not open mail window", ex);
         }
+    }
+
+    private void openAddressBookWindow() {
+        try {
+            openWindow("fxml/AddressBookLayout.fxml");
+        } catch (IOException ex) {
+            LOGGER.error("Could not open address book window", ex);
+        }
+    }
+
+    private void openWindow(String resourcePath) throws IOException {
+        FXMLLoader fxmlLoader = new FXMLLoader();
+        fxmlLoader.setLocation(ClassLoader.getSystemResource(resourcePath));
+        Parent root1 = (Parent) fxmlLoader.load();
+
+        Stage stage = new Stage();
+        stage.setScene(new Scene(root1));
+        MainApplication.loadIcons(stage.getIcons());
+        stage.show();
     }
 }
